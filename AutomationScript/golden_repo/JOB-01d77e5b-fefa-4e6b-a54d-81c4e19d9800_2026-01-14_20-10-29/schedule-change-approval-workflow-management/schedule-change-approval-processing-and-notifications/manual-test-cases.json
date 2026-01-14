@@ -1,0 +1,972 @@
+[
+  {
+    "storyId": "story-3",
+    "storyTitle": "As Approver, I want to review and act on schedule change requests to ensure proper authorization",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate approver can view and act on pending requests",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Approver user account exists with valid credentials",
+          "Approver has been assigned the 'Approver' role in the system",
+          "At least one pending schedule change request exists in the system",
+          "Schedule change request has been submitted by an employee",
+          "System is accessible and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the system login page and enter valid approver credentials (username and password), then click Login button",
+            "expectedResult": "Approver is successfully authenticated and redirected to the home page or dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Click on the 'Approval Dashboard' or 'Pending Approvals' menu option in the navigation",
+            "expectedResult": "Approval dashboard page loads and displays a list of all pending schedule change requests assigned to the logged-in approver with columns showing request ID, employee name, request date, and current status"
+          },
+          {
+            "step": 3,
+            "action": "Select a pending schedule change request from the list by clicking on it",
+            "expectedResult": "Request details page opens displaying complete information including employee details, requested schedule changes, reason for change, submission date, and any attached supporting documents"
+          },
+          {
+            "step": 4,
+            "action": "Review all request details and attachments, then click the 'Approve' button",
+            "expectedResult": "A comment box appears prompting the approver to add optional comments"
+          },
+          {
+            "step": 5,
+            "action": "Enter approval comments in the comment box (e.g., 'Approved as requested. Schedule change is justified.') and click 'Submit' or 'Confirm Approval' button",
+            "expectedResult": "System processes the approval action, request status updates to 'Approved', a confirmation message is displayed (e.g., 'Request has been successfully approved'), and the approver is redirected back to the approval dashboard"
+          },
+          {
+            "step": 6,
+            "action": "Verify the approved request no longer appears in the pending requests list",
+            "expectedResult": "The approved request is removed from the pending list or moved to an 'Approved' section, confirming the status change"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request status is updated to 'Approved' in the database",
+          "Approval action is logged with timestamp and approver details",
+          "Employee who submitted the request receives notification of approval",
+          "Request is removed from approver's pending queue",
+          "Audit trail is created for the approval action"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify rejection and request for additional information actions",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Approver is logged into the system with valid credentials",
+          "Approver has appropriate role-based permissions",
+          "Multiple pending schedule change requests exist in the system",
+          "Approver is on the approval dashboard page",
+          "System notification service is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "From the approval dashboard, select a pending schedule change request by clicking on it",
+            "expectedResult": "Request details page opens displaying all relevant information including employee name, requested changes, reason, submission date, and attachments"
+          },
+          {
+            "step": 2,
+            "action": "Review the request details and click the 'Reject' button",
+            "expectedResult": "A comment box appears requiring the approver to provide a reason for rejection"
+          },
+          {
+            "step": 3,
+            "action": "Enter rejection comments in the comment box (e.g., 'Request denied due to insufficient staffing coverage during requested period.') and click 'Submit' or 'Confirm Rejection' button",
+            "expectedResult": "System processes the rejection, request status updates to 'Rejected', a confirmation message is displayed (e.g., 'Request has been rejected'), and notification is queued to be sent to the requester"
+          },
+          {
+            "step": 4,
+            "action": "Verify the rejection notification was sent by checking the notification log or system activity",
+            "expectedResult": "System log shows notification was successfully sent to the employee with rejection status and comments"
+          },
+          {
+            "step": 5,
+            "action": "Navigate back to the approval dashboard and select another pending schedule change request",
+            "expectedResult": "A different pending request details page opens with all relevant information displayed"
+          },
+          {
+            "step": 6,
+            "action": "Click the 'Request Additional Information' or 'Request More Info' button",
+            "expectedResult": "A comment box appears prompting the approver to specify what additional information is needed"
+          },
+          {
+            "step": 7,
+            "action": "Enter specific information request in the comment box (e.g., 'Please provide manager approval and detailed justification for the extended leave period.') and click 'Submit'",
+            "expectedResult": "System updates request status to 'Additional Information Required' or 'Pending Employee Response', confirmation message is displayed, and notification is queued to be sent to the requester"
+          },
+          {
+            "step": 8,
+            "action": "Verify the requester receives notification with the information request",
+            "expectedResult": "System log confirms notification was delivered to the employee with status update and specific information requirements"
+          }
+        ],
+        "postconditions": [
+          "First request status is updated to 'Rejected' in the database",
+          "Second request status is updated to 'Additional Information Required'",
+          "Both actions are logged with timestamps and approver details",
+          "Employees receive appropriate notifications for their respective requests",
+          "Rejected request is moved out of pending queue",
+          "Request requiring more info remains accessible to employee for updates",
+          "Audit trail is created for both actions"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure unauthorized users cannot perform approval actions",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Non-approver user account exists (regular employee without approver role)",
+          "Non-approver user is logged into the system",
+          "At least one pending schedule change request exists in the system",
+          "Role-based access control is configured and active",
+          "API endpoints for approval actions are protected"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "As a non-approver user, attempt to navigate to the approval dashboard by entering the URL directly (e.g., /approvals/dashboard) or clicking on approval menu if visible",
+            "expectedResult": "System denies access and displays an error message such as 'Access Denied: You do not have permission to view this page' or 'Unauthorized Access' and redirects user to home page or displays 403 Forbidden error"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to access the API endpoint directly by sending a GET request to /api/approvals/pending using browser developer tools or API testing tool",
+            "expectedResult": "API returns 403 Forbidden or 401 Unauthorized status code with error message indicating insufficient permissions"
+          },
+          {
+            "step": 3,
+            "action": "Obtain a valid schedule change request ID and attempt to access the approval action endpoint by sending a POST request to /api/approvals/{requestId}/action with action payload (e.g., {\"action\": \"approve\", \"comments\": \"test\"})",
+            "expectedResult": "API rejects the request with 403 Forbidden status code and returns error message such as 'You are not authorized to perform approval actions'"
+          },
+          {
+            "step": 4,
+            "action": "Verify the unauthorized access attempt is logged in the system security log",
+            "expectedResult": "System security log contains entry showing the unauthorized access attempt with timestamp, user ID, attempted action, and denial reason"
+          },
+          {
+            "step": 5,
+            "action": "Check the schedule change request status in the database",
+            "expectedResult": "Request status remains unchanged at 'Pending' and no approval action record was created, confirming the unauthorized attempt had no effect"
+          },
+          {
+            "step": 6,
+            "action": "As a non-approver, attempt to manipulate request parameters or session tokens to bypass authorization and submit an approval action",
+            "expectedResult": "System validates user permissions server-side, rejects the action regardless of client-side manipulation, returns appropriate error message, and logs the security violation attempt"
+          }
+        ],
+        "postconditions": [
+          "No schedule change request statuses were modified",
+          "No approval actions were recorded in the database",
+          "All unauthorized access attempts are logged in security audit trail",
+          "System security remains intact with no unauthorized data access",
+          "Non-approver user permissions remain unchanged",
+          "Alert may be generated for security team if multiple unauthorized attempts detected"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-4",
+    "storyTitle": "As Employee, I want to receive notifications about my schedule change request status to stay informed",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate notification sent upon schedule change request submission",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee user account exists and is active",
+          "Employee is logged into the system with valid credentials",
+          "Employee has permission to submit schedule change requests",
+          "Notification service is operational and configured",
+          "Employee email address is registered in the system",
+          "In-app notification center is functional"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule change request form by clicking on 'Request Schedule Change' or similar menu option",
+            "expectedResult": "Schedule change request form loads with all required fields displayed (date range, reason, attachments, etc.)"
+          },
+          {
+            "step": 2,
+            "action": "Fill in all required fields: select date range for schedule change, enter reason for request (e.g., 'Personal appointment'), attach any supporting documents if needed, and click 'Submit' button",
+            "expectedResult": "Form validation passes, request is successfully submitted, and a confirmation message appears (e.g., 'Your schedule change request has been submitted successfully')"
+          },
+          {
+            "step": 3,
+            "action": "Check for immediate notification delivery by observing the notification icon or badge in the application header",
+            "expectedResult": "Notification icon shows a new notification indicator (e.g., red badge with number '1' or notification bell animation)"
+          },
+          {
+            "step": 4,
+            "action": "Click on the notification icon or navigate to the notification center",
+            "expectedResult": "Notification center opens displaying the submission confirmation notification with details including request ID, submission timestamp, and message such as 'Your schedule change request #12345 has been submitted and is pending approval'"
+          },
+          {
+            "step": 5,
+            "action": "Verify notification details include correct request information: request ID, submission date/time, requested schedule change dates, and current status ('Submitted' or 'Pending Approval')",
+            "expectedResult": "All notification details match the submitted request information accurately, including request ID, dates, and status"
+          },
+          {
+            "step": 6,
+            "action": "Check employee's registered email inbox for submission confirmation email",
+            "expectedResult": "Email notification is received with subject line such as 'Schedule Change Request Submitted - Request #12345' containing the same details as in-app notification and next steps information"
+          },
+          {
+            "step": 7,
+            "action": "Verify the notification timestamp shows it was sent immediately after submission",
+            "expectedResult": "Notification timestamp is within 1 minute of the request submission time"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request is saved in the database with 'Pending' status",
+          "Submission notification is stored in notification history",
+          "Email notification is sent to employee's registered email address",
+          "In-app notification is visible in employee's notification center",
+          "Notification delivery is logged in the system",
+          "Request is queued for approver review"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify notifications sent upon approval and rejection",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee has submitted at least two schedule change requests",
+          "Both requests are in 'Pending' status",
+          "Approver user is logged into the system",
+          "Notification service is operational",
+          "Employee notification center is accessible",
+          "Employee email is configured and deliverable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "As an approver, navigate to the approval dashboard and select the first pending schedule change request",
+            "expectedResult": "Request details page opens showing all information about the employee's schedule change request"
+          },
+          {
+            "step": 2,
+            "action": "Review the request details and click 'Approve' button, add comments (e.g., 'Approved as requested'), and submit the approval",
+            "expectedResult": "Request status updates to 'Approved', confirmation message is displayed, and approval action is processed by the system"
+          },
+          {
+            "step": 3,
+            "action": "Log out from approver account and log in as the employee who submitted the request",
+            "expectedResult": "Employee successfully logs in and is directed to the employee dashboard"
+          },
+          {
+            "step": 4,
+            "action": "Check the notification icon or badge in the application header",
+            "expectedResult": "Notification indicator shows a new unread notification (e.g., badge with number or highlighted icon)"
+          },
+          {
+            "step": 5,
+            "action": "Click on the notification icon to open the notification center",
+            "expectedResult": "Notification center displays the approval notification with message such as 'Your schedule change request #12345 has been approved' including approver comments, approval date/time, and next steps"
+          },
+          {
+            "step": 6,
+            "action": "Verify the approval notification contains complete details: request ID, approval status, approver name, approval timestamp, comments, and any next steps or actions required",
+            "expectedResult": "All details are present and accurate, matching the approval action taken by the approver"
+          },
+          {
+            "step": 7,
+            "action": "Check employee's email inbox for approval notification email",
+            "expectedResult": "Email is received with subject like 'Schedule Change Request Approved - Request #12345' containing approval details and approver comments"
+          },
+          {
+            "step": 8,
+            "action": "Log out from employee account and log back in as approver",
+            "expectedResult": "Approver successfully logs in and accesses the approval dashboard"
+          },
+          {
+            "step": 9,
+            "action": "Select the second pending schedule change request from the same employee",
+            "expectedResult": "Request details page opens with all information displayed"
+          },
+          {
+            "step": 10,
+            "action": "Click 'Reject' button, enter rejection reason in comments (e.g., 'Unable to approve due to staffing constraints during requested period'), and submit the rejection",
+            "expectedResult": "Request status updates to 'Rejected', confirmation message is displayed, and rejection action is processed"
+          },
+          {
+            "step": 11,
+            "action": "Log out from approver account and log back in as the employee",
+            "expectedResult": "Employee successfully logs in and notification indicator shows new notification"
+          },
+          {
+            "step": 12,
+            "action": "Open the notification center and locate the rejection notification",
+            "expectedResult": "Notification center displays the rejection notification with message such as 'Your schedule change request #12346 has been rejected' including rejection reason, approver comments, and guidance on next steps (e.g., 'You may submit a new request with different dates')"
+          },
+          {
+            "step": 13,
+            "action": "Verify the rejection notification contains complete details: request ID, rejection status, approver name, rejection timestamp, detailed comments explaining the reason, and available options",
+            "expectedResult": "All details are present, accurate, and provide clear information about why the request was rejected"
+          },
+          {
+            "step": 14,
+            "action": "Check employee's email inbox for rejection notification email",
+            "expectedResult": "Email is received with subject like 'Schedule Change Request Rejected - Request #12346' containing rejection details and approver's explanation"
+          }
+        ],
+        "postconditions": [
+          "First request status is 'Approved' in the database",
+          "Second request status is 'Rejected' in the database",
+          "Both approval and rejection notifications are stored in notification history",
+          "Employee has received both in-app and email notifications for both actions",
+          "All notifications are logged with delivery timestamps",
+          "Employee can view complete notification history in the application",
+          "Audit trail exists for both approval and rejection actions"
+        ],
+        "estimatedTime": "15 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure notifications are delivered within 1 minute of status change",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "Employee has submitted a schedule change request in 'Pending' status",
+          "Approver is logged into the system",
+          "Notification service is running and operational",
+          "System clock is synchronized and accurate",
+          "Employee notification center is accessible",
+          "Test environment allows for timestamp verification"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Note the current system time before initiating the status change action",
+            "expectedResult": "Current timestamp is recorded (e.g., 2024-01-15 10:30:00)"
+          },
+          {
+            "step": 2,
+            "action": "As an approver, navigate to the approval dashboard and select a pending schedule change request",
+            "expectedResult": "Request details page opens displaying the pending request information"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Approve' button, add comments, and click 'Submit' to change the request status to 'Approved', then immediately note the exact timestamp of submission",
+            "expectedResult": "Request is approved, confirmation message appears, and approval timestamp is recorded (e.g., 2024-01-15 10:30:15)"
+          },
+          {
+            "step": 4,
+            "action": "Immediately switch to the employee account (or have a second browser/session already logged in as the employee) and refresh the notification center",
+            "expectedResult": "Notification center refreshes and displays notifications"
+          },
+          {
+            "step": 5,
+            "action": "Check for the approval notification and note its delivery timestamp shown in the notification",
+            "expectedResult": "Approval notification is visible in the notification center with a timestamp indicating when it was delivered"
+          },
+          {
+            "step": 6,
+            "action": "Calculate the time difference between the status change timestamp (approval submission) and the notification delivery timestamp",
+            "expectedResult": "Time difference is 60 seconds or less (e.g., if approval was at 10:30:15 and notification shows 10:30:45, difference is 30 seconds)"
+          },
+          {
+            "step": 7,
+            "action": "Check the system notification log or database to verify the exact notification creation and delivery timestamps",
+            "expectedResult": "System log shows notification was created and queued immediately after status change, and delivery timestamp confirms it was sent within 1 minute"
+          },
+          {
+            "step": 8,
+            "action": "Verify email notification delivery time by checking email headers or system email log",
+            "expectedResult": "Email notification was sent within 1 minute of the status change, as confirmed by email timestamp or system email delivery log"
+          },
+          {
+            "step": 9,
+            "action": "Repeat the test with a rejection action: have approver reject another pending request and measure notification delivery time",
+            "expectedResult": "Rejection notification is also delivered within 1 minute of status change, confirming consistent performance across different status types"
+          },
+          {
+            "step": 10,
+            "action": "Review notification service performance metrics or logs to confirm no delays or queuing issues",
+            "expectedResult": "Service logs show notification processing time is well within the 1-minute requirement with no errors or delays"
+          }
+        ],
+        "postconditions": [
+          "All notifications were delivered within the 1-minute SLA",
+          "Notification delivery timestamps are logged in the system",
+          "Performance metrics confirm notification service is meeting requirements",
+          "No notification delivery failures occurred during the test",
+          "Employee received timely updates for all status changes",
+          "System performance logs show acceptable processing times"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-5",
+    "storyTitle": "As Manager, I want to view reports on schedule change approvals to monitor workflow efficiency",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate report generation with filters",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Manager role credentials",
+          "Manager has authorization to access reporting portal",
+          "Schedule change approval data exists in the system (at least 10 records)",
+          "Multiple departments have schedule change requests in the system",
+          "Date range covers at least 30 days of historical data"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Manager navigates to the reporting portal from the main dashboard",
+            "expectedResult": "Reporting portal homepage loads successfully within 3 seconds"
+          },
+          {
+            "step": 2,
+            "action": "Manager clicks on 'Schedule Change Approval Reports' menu option",
+            "expectedResult": "Reporting dashboard is displayed with default view showing all available data, filter options are visible on the left panel, and initial charts/tables render correctly"
+          },
+          {
+            "step": 3,
+            "action": "Manager selects a specific department from the department filter dropdown",
+            "expectedResult": "Department filter is applied and highlighted, report begins to refresh with loading indicator"
+          },
+          {
+            "step": 4,
+            "action": "Manager selects a date range (e.g., last 30 days) using the date range picker",
+            "expectedResult": "Date range filter is applied and displayed, report updates to reflect both department and date range filters within 5 seconds"
+          },
+          {
+            "step": 5,
+            "action": "Manager reviews the updated charts section displaying approval metrics",
+            "expectedResult": "Charts render correctly showing approval times, volumes, and statuses with accurate data matching the applied filters, visual elements are clear and properly labeled"
+          },
+          {
+            "step": 6,
+            "action": "Manager scrolls down to view the data tables section",
+            "expectedResult": "Data tables display detailed records with columns for request ID, employee name, submission date, approval date, status, and approver name. Data is accurate and matches the filtered criteria"
+          },
+          {
+            "step": 7,
+            "action": "Manager verifies the total count of records displayed matches the filter criteria",
+            "expectedResult": "Record count is accurate and displayed prominently, pagination controls are visible if records exceed page limit"
+          }
+        ],
+        "postconditions": [
+          "Report remains in filtered state for current session",
+          "Filter selections are preserved if manager navigates away and returns",
+          "System logs the report generation activity for audit purposes"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify report export functionality",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Manager role credentials",
+          "Manager is on the schedule change approval reports dashboard",
+          "A report has been generated with at least 5 records",
+          "Browser allows file downloads",
+          "PDF reader and Excel application are available on the test machine"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Manager applies desired filters and generates a report with visible data",
+            "expectedResult": "Report is displayed with charts, tables, and data matching the filter criteria"
+          },
+          {
+            "step": 2,
+            "action": "Manager locates and clicks the 'Export' button in the report toolbar",
+            "expectedResult": "Export options dropdown menu appears showing 'Export as PDF' and 'Export as Excel' options"
+          },
+          {
+            "step": 3,
+            "action": "Manager selects 'Export as PDF' from the dropdown menu",
+            "expectedResult": "Export process initiates with a progress indicator, PDF file is generated and downloaded to the default downloads folder within 10 seconds, filename includes report type and timestamp"
+          },
+          {
+            "step": 4,
+            "action": "Manager opens the downloaded PDF file",
+            "expectedResult": "PDF opens correctly in the default PDF reader, contains all report data including charts and tables, formatting is preserved, data is readable and matches the on-screen report"
+          },
+          {
+            "step": 5,
+            "action": "Manager returns to the reporting dashboard and clicks the 'Export' button again",
+            "expectedResult": "Export options dropdown menu appears again"
+          },
+          {
+            "step": 6,
+            "action": "Manager selects 'Export as Excel' from the dropdown menu",
+            "expectedResult": "Export process initiates with a progress indicator, Excel file (.xlsx) is generated and downloaded to the default downloads folder within 10 seconds, filename includes report type and timestamp"
+          },
+          {
+            "step": 7,
+            "action": "Manager opens the downloaded Excel file",
+            "expectedResult": "Excel file opens correctly in the spreadsheet application, contains all report data in structured format with proper column headers, data is accurate and matches the on-screen report, charts are included as embedded objects or separate sheets"
+          }
+        ],
+        "postconditions": [
+          "Two export files (PDF and Excel) are saved in the downloads folder",
+          "Export activity is logged in the system audit trail",
+          "Report remains displayed on screen in its current state",
+          "Manager can continue working with the report or export again"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure unauthorized users cannot access reports",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with a non-manager role (e.g., Employee or Approver without manager privileges)",
+          "Role-based access control is properly configured in the system",
+          "Reporting dashboard URL is known or accessible via navigation"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Non-manager user attempts to navigate to the reporting portal from the main dashboard menu",
+            "expectedResult": "Reporting portal option is either not visible in the navigation menu or is displayed as disabled/grayed out"
+          },
+          {
+            "step": 2,
+            "action": "Non-manager user attempts to directly access the reporting dashboard by entering the URL in the browser address bar (e.g., /reports/schedule-change-approvals)",
+            "expectedResult": "Access is denied immediately, user is redirected to an error page or unauthorized access page"
+          },
+          {
+            "step": 3,
+            "action": "Non-manager user views the error message displayed on the screen",
+            "expectedResult": "Appropriate error message is displayed stating 'Access Denied: You do not have permission to view this page' or similar message, HTTP 403 Forbidden status is returned"
+          },
+          {
+            "step": 4,
+            "action": "Non-manager user attempts to access the reporting API endpoint directly using browser developer tools or API client (GET /api/reports/schedule-change-approvals)",
+            "expectedResult": "API request is rejected with 403 Forbidden status code, error response includes message indicating insufficient permissions"
+          },
+          {
+            "step": 5,
+            "action": "Non-manager user verifies they can still access other authorized areas of the application",
+            "expectedResult": "User can successfully navigate to and access pages and features appropriate for their role without any issues"
+          }
+        ],
+        "postconditions": [
+          "Non-manager user remains on an authorized page or error page",
+          "No report data is exposed or accessible to the unauthorized user",
+          "Access attempt is logged in the security audit trail with user ID, timestamp, and denied action",
+          "System security remains intact with no unauthorized access granted"
+        ],
+        "estimatedTime": "5 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-7",
+    "storyTitle": "As Approver, I want to request additional information on schedule change requests to make informed decisions",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate approver can request additional information",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Approver role credentials",
+          "At least one pending schedule change request exists in the system",
+          "Approver has permission to review and act on the schedule change request",
+          "Employee who submitted the request has a valid email address and notification preferences enabled",
+          "Notification service is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Approver navigates to the pending schedule change requests queue from the dashboard",
+            "expectedResult": "List of pending schedule change requests is displayed with request IDs, employee names, submission dates, and current status"
+          },
+          {
+            "step": 2,
+            "action": "Approver clicks on a specific schedule change request to view details",
+            "expectedResult": "Request details page opens displaying full information including employee name, requested schedule changes, reason for change, submission date, and available action buttons (Approve, Reject, Request Additional Information)"
+          },
+          {
+            "step": 3,
+            "action": "Approver reviews the request details and identifies missing or unclear information",
+            "expectedResult": "All current request information is clearly displayed and readable"
+          },
+          {
+            "step": 4,
+            "action": "Approver clicks the 'Request Additional Information' button",
+            "expectedResult": "A modal dialog or form appears with a text area for entering comments and a field to specify what additional information is needed"
+          },
+          {
+            "step": 5,
+            "action": "Approver enters detailed comments in the text area specifying the required information (e.g., 'Please provide the business justification for this schedule change and confirm coverage for your current shift')",
+            "expectedResult": "Text is entered successfully in the comment field, character count is displayed if there is a limit, field validation shows no errors"
+          },
+          {
+            "step": 6,
+            "action": "Approver clicks the 'Submit Request' button in the modal dialog",
+            "expectedResult": "Modal closes, success message appears confirming 'Additional information request has been sent to the employee', request status updates from 'Pending' to 'Information Requested' or 'Pending Additional Info'"
+          },
+          {
+            "step": 7,
+            "action": "Approver verifies the request status has been updated in the request details page",
+            "expectedResult": "Request status badge displays 'Information Requested', approver's comment is visible in the request history/timeline section with timestamp and approver name"
+          },
+          {
+            "step": 8,
+            "action": "Approver checks that a notification has been sent to the employee",
+            "expectedResult": "System confirmation indicates notification was sent successfully within 1 minute, notification appears in the employee's notification center (can be verified by checking employee account or notification logs)"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request status is updated to 'Information Requested'",
+          "Employee receives notification via email and in-app notification center",
+          "Approver's comment and action are logged in the audit trail with timestamp",
+          "Request remains in approver's queue but is marked as awaiting employee response",
+          "Request cannot be approved or rejected until additional information is provided"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify employee can respond to additional information requests",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Employee role credentials",
+          "Employee has a schedule change request with status 'Information Requested'",
+          "Approver has previously requested additional information with specific comments",
+          "Employee has access to notification center",
+          "Employee has permission to edit their own schedule change requests"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Employee logs into the system and views the notification center icon/badge",
+            "expectedResult": "Notification center icon displays a badge indicating unread notifications (e.g., red dot or number)"
+          },
+          {
+            "step": 2,
+            "action": "Employee clicks on the notification center icon to open the notification panel",
+            "expectedResult": "Notification panel opens displaying list of notifications, notification for additional information request is visible at the top with title 'Additional Information Required for Schedule Change Request #[ID]'"
+          },
+          {
+            "step": 3,
+            "action": "Employee clicks on the notification for the additional information request",
+            "expectedResult": "Employee is redirected to the schedule change request details page, notification is marked as read, request status shows 'Information Requested', approver's comments requesting additional information are prominently displayed"
+          },
+          {
+            "step": 4,
+            "action": "Employee reviews the approver's comments to understand what information is needed",
+            "expectedResult": "Approver's comments are clearly visible with timestamp and approver name, employee can read the specific information being requested"
+          },
+          {
+            "step": 5,
+            "action": "Employee clicks the 'Update Request' or 'Provide Additional Information' button",
+            "expectedResult": "Request edit form opens with existing request details pre-populated, additional text area or fields are available for adding the requested information"
+          },
+          {
+            "step": 6,
+            "action": "Employee enters the required additional information in the designated field (e.g., adds business justification and shift coverage details)",
+            "expectedResult": "Text is entered successfully, field validation passes, employee can see their updates in real-time"
+          },
+          {
+            "step": 7,
+            "action": "Employee clicks the 'Submit Updates' or 'Resubmit Request' button",
+            "expectedResult": "Form is submitted successfully, success message appears confirming 'Your updates have been submitted and the approver has been notified', request status changes from 'Information Requested' to 'Pending' or 'Under Review'"
+          },
+          {
+            "step": 8,
+            "action": "Employee verifies the updated information is saved and visible in the request details",
+            "expectedResult": "Updated information is displayed in the request details, update timestamp is shown, employee's response is added to the request history/timeline"
+          },
+          {
+            "step": 9,
+            "action": "System sends notification to the approver about the updated information",
+            "expectedResult": "Approver receives notification within 1 minute via email and in-app notification indicating the employee has provided the requested information"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request is updated with additional information provided by employee",
+          "Request status is changed back to 'Pending' or 'Under Review'",
+          "Approver receives notification about the update",
+          "Employee's response is logged in the audit trail with timestamp",
+          "Request returns to approver's queue for review",
+          "Notification is marked as read in employee's notification center"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure audit trail of information requests and responses",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "User is logged in with appropriate role to access audit logs (Manager or System Administrator)",
+          "At least one schedule change request exists with a complete cycle of information request and response",
+          "Approver has requested additional information on the schedule change request",
+          "Employee has responded with the requested information",
+          "Audit logging is enabled in the system",
+          "User has permission to view audit trails"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "User navigates to the audit log or system logs section from the admin dashboard",
+            "expectedResult": "Audit log interface loads successfully with search and filter options available"
+          },
+          {
+            "step": 2,
+            "action": "User enters the schedule change request ID in the search field or filters by request ID",
+            "expectedResult": "Search executes successfully, audit log entries related to the specific schedule change request are displayed"
+          },
+          {
+            "step": 3,
+            "action": "User reviews the audit log entries for the information request action",
+            "expectedResult": "Audit log contains an entry for 'Additional Information Requested' action with details including: timestamp of when approver requested information, approver's user ID and name, request ID, approver's comments/message, status change from 'Pending' to 'Information Requested'"
+          },
+          {
+            "step": 4,
+            "action": "User reviews the audit log entries for the employee's response action",
+            "expectedResult": "Audit log contains an entry for 'Additional Information Provided' action with details including: timestamp of when employee responded, employee's user ID and name, request ID, employee's response/updated information, status change from 'Information Requested' to 'Pending'"
+          },
+          {
+            "step": 5,
+            "action": "User verifies the chronological order of audit entries",
+            "expectedResult": "Audit entries are displayed in chronological order showing the complete sequence: initial request submission, information request by approver, employee response, and any subsequent actions"
+          },
+          {
+            "step": 6,
+            "action": "User checks for notification-related audit entries",
+            "expectedResult": "Audit log includes entries for notifications sent: notification to employee when information was requested, notification to approver when employee responded, timestamps confirm notifications were sent within 1 minute of the triggering action"
+          },
+          {
+            "step": 7,
+            "action": "User verifies all audit entries contain required metadata",
+            "expectedResult": "Each audit entry includes: unique audit log ID, timestamp (date and time), user ID and name of actor, action type, request ID, before and after status values, IP address or session information, any relevant comments or data changes"
+          },
+          {
+            "step": 8,
+            "action": "User attempts to export the audit trail for the schedule change request",
+            "expectedResult": "Export option is available, audit trail can be exported in a standard format (CSV, PDF, or Excel), exported file contains all audit entries with complete information"
+          }
+        ],
+        "postconditions": [
+          "Complete audit trail is preserved in the system database",
+          "All information requests and responses are permanently logged",
+          "Audit logs remain immutable and cannot be edited or deleted by unauthorized users",
+          "Audit trail is available for compliance and reporting purposes",
+          "User can access the audit trail again for future reference"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-10",
+    "storyTitle": "As Approver, I want to filter and search schedule change requests to efficiently manage approvals",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate filtering of schedule change requests by status and date",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Approver role credentials",
+          "Approver has access to the approval dashboard",
+          "Multiple schedule change requests exist in the system with varying statuses (pending, approved, rejected)",
+          "Schedule change requests exist across different date ranges",
+          "Database contains at least 10 schedule change requests for testing"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the approval dashboard",
+            "expectedResult": "Approval dashboard loads successfully displaying all schedule change requests"
+          },
+          {
+            "step": 2,
+            "action": "Locate and click on the status filter dropdown",
+            "expectedResult": "Status filter dropdown expands showing available status options (pending, approved, rejected, all)"
+          },
+          {
+            "step": 3,
+            "action": "Select 'Pending' from the status filter dropdown",
+            "expectedResult": "Status filter is set to 'Pending' and the selection is visually indicated"
+          },
+          {
+            "step": 4,
+            "action": "Click on the date range filter and select a start date and end date",
+            "expectedResult": "Date range picker opens, allows selection of dates, and displays the selected date range"
+          },
+          {
+            "step": 5,
+            "action": "Click 'Apply' or 'Filter' button to apply the selected filters",
+            "expectedResult": "Filtered list displays only schedule change requests with 'Pending' status within the selected date range. Results are returned within 2 seconds"
+          },
+          {
+            "step": 6,
+            "action": "Verify the filtered results by checking each displayed request",
+            "expectedResult": "All displayed requests have 'Pending' status and submission dates fall within the selected date range"
+          },
+          {
+            "step": 7,
+            "action": "Click on 'Clear Filters' or 'Reset' button",
+            "expectedResult": "All applied filters are removed and filter controls return to default state"
+          },
+          {
+            "step": 8,
+            "action": "Observe the request list after clearing filters",
+            "expectedResult": "Full list of all schedule change requests is displayed without any filtering applied"
+          }
+        ],
+        "postconditions": [
+          "All filters are cleared and system is in default state",
+          "Full unfiltered list of schedule change requests is visible",
+          "No filter presets are saved during this test"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify keyword search functionality",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Approver role credentials",
+          "Approver has access to the approval dashboard",
+          "Multiple schedule change requests exist in the system",
+          "Schedule change requests are associated with different employee names",
+          "At least one employee named 'John Smith' has submitted schedule change requests"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the approval dashboard",
+            "expectedResult": "Approval dashboard loads successfully displaying all schedule change requests"
+          },
+          {
+            "step": 2,
+            "action": "Locate the search box on the approval dashboard",
+            "expectedResult": "Search box is visible and active with placeholder text indicating search functionality"
+          },
+          {
+            "step": 3,
+            "action": "Click inside the search box to focus on it",
+            "expectedResult": "Search box is focused and cursor is blinking, ready for text input"
+          },
+          {
+            "step": 4,
+            "action": "Type 'John Smith' in the search box",
+            "expectedResult": "Text 'John Smith' appears in the search box as it is typed"
+          },
+          {
+            "step": 5,
+            "action": "Observe the request list as the keyword is entered",
+            "expectedResult": "List updates dynamically to show only schedule change requests where employee name matches 'John Smith'. Results are returned within 2 seconds"
+          },
+          {
+            "step": 6,
+            "action": "Verify each displayed request contains the search keyword",
+            "expectedResult": "All displayed requests are associated with employee 'John Smith' and the keyword is highlighted or clearly visible"
+          },
+          {
+            "step": 7,
+            "action": "Clear the search box by deleting the text or clicking a clear icon",
+            "expectedResult": "Search box is cleared and full list of schedule change requests is restored"
+          }
+        ],
+        "postconditions": [
+          "Search box is cleared",
+          "Full unfiltered list of schedule change requests is displayed",
+          "System is ready for next search operation"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure saved filter presets function correctly",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "User is logged in with Approver role credentials",
+          "Approver has access to the approval dashboard",
+          "Multiple schedule change requests exist with varying statuses and dates",
+          "No existing filter presets are saved for this approver",
+          "System supports saving and loading filter presets"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the approval dashboard",
+            "expectedResult": "Approval dashboard loads successfully displaying all schedule change requests"
+          },
+          {
+            "step": 2,
+            "action": "Apply multiple filters: select 'Pending' status and set date range to last 7 days",
+            "expectedResult": "Filters are applied and list displays only pending requests from the last 7 days"
+          },
+          {
+            "step": 3,
+            "action": "Locate and click on 'Save Filter' or 'Save Preset' button",
+            "expectedResult": "A dialog or input field appears prompting for preset name"
+          },
+          {
+            "step": 4,
+            "action": "Enter preset name 'Pending Last Week' and click 'Save' or 'Confirm'",
+            "expectedResult": "Preset is saved successfully and a confirmation message is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Verify the saved preset appears in the presets list or dropdown",
+            "expectedResult": "Preset 'Pending Last Week' is visible and selectable in the saved presets section"
+          },
+          {
+            "step": 6,
+            "action": "Clear all current filters to return to default view",
+            "expectedResult": "All filters are cleared and full list of requests is displayed"
+          },
+          {
+            "step": 7,
+            "action": "Click on or select the saved preset 'Pending Last Week' from the presets list",
+            "expectedResult": "Preset is selected and system begins applying the saved filters"
+          },
+          {
+            "step": 8,
+            "action": "Observe the filter controls and request list",
+            "expectedResult": "Filters are automatically applied as per the saved preset: status is set to 'Pending' and date range is set to last 7 days"
+          },
+          {
+            "step": 9,
+            "action": "Verify the filtered results match the preset criteria",
+            "expectedResult": "List displays only pending schedule change requests from the last 7 days, matching the original preset configuration"
+          }
+        ],
+        "postconditions": [
+          "Filter preset 'Pending Last Week' remains saved in the system",
+          "Preset is available for future use by the approver",
+          "Filtered view is active showing results based on the applied preset"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  }
+]
