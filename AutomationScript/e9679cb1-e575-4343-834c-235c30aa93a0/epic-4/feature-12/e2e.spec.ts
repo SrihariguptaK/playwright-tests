@@ -1,211 +1,202 @@
+```typescript
 import { test, expect, Page } from '@playwright/test';
 import { WebSocket } from 'ws';
 
 // Test Data Fixtures
 const testData = {
+  admin: {
+    username: 'admin@company.com',
+    password: 'Admin@123'
+  },
   employee: {
-    username: 'john.doe@company.com',
-    password: 'Test@1234',
+    username: 'employee@company.com',
+    password: 'Employee@123',
     employeeId: 'EMP001',
     name: 'John Doe'
   },
-  scheduleChanges: {
-    newShift: {
-      id: 'SHIFT001',
+  scheduleChange: {
+    originalShift: {
       date: '2024-02-15',
       startTime: '09:00',
       endTime: '17:00',
-      location: 'Main Office',
-      type: 'new'
+      location: 'Office A'
     },
-    modifiedShift: {
-      id: 'SHIFT002',
-      date: '2024-02-16',
+    updatedShift: {
+      date: '2024-02-15',
       startTime: '10:00',
       endTime: '18:00',
-      location: 'Branch Office',
-      type: 'modified',
-      previousStartTime: '09:00',
-      previousEndTime: '17:00'
-    },
-    canceledShift: {
-      id: 'SHIFT003',
-      date: '2024-02-17',
-      startTime: '08:00',
-      endTime: '16:00',
-      location: 'Remote',
-      type: 'canceled'
+      location: 'Office B'
     }
   }
 };
 
-// Page Object Model - Login Page
-class LoginPage {
+// Page Object Model - Admin Schedule Page
+class AdminSchedulePage {
   constructor(private page: Page) {}
 
   async navigate() {
-    await this.page.goto('/login', { waitUntil: 'networkidle' });
+    await this.page.goto('/admin/schedules');
+    await this.page.waitForLoadState('networkidle');
   }
 
   async login(username: string, password: string) {
+    await this.page.goto('/login');
     await this.page.fill('[data-testid="username-input"]', username);
     await this.page.fill('[data-testid="password-input"]', password);
     await this.page.click('[data-testid="login-button"]');
-    await this.page.waitForURL('**/dashboard', { timeout: 10000 });
+    await this.page.waitForURL('**/admin/**', { timeout: 10000 });
+  }
+
+  async searchEmployee(employeeId: string) {
+    await this.page.fill('[data-testid="employee-search"]', employeeId);
+    await this.page.click('[data-testid="search-button"]');
+    await this.page.waitForSelector(`[data-employee-id="${employeeId}"]`, { timeout: 5000 });
+  }
+
+  async updateSchedule(employeeId: string, newSchedule: any) {
+    await this.page.click(`[data-employee-id="${employeeId}"] [data-testid="edit-schedule-button"]`);
+    await this.page.waitForSelector('[data-testid="schedule-modal"]');
+    
+    await this.page.fill('[data-testid="start-time-input"]', newSchedule.startTime);
+    await this.page.fill('[data-testid="end-time-input"]', newSchedule.endTime);
+    await this.page.fill('[data-testid="location-input"]', newSchedule.location);
+    
+    await this.page.click('[data-testid="save-schedule-button"]');
+    await this.page.waitForSelector('[data-testid="success-message"]', { timeout: 5000 });
   }
 }
 
-// Page Object Model - Schedule Page
-class SchedulePage {
+// Page Object Model - Employee Notification Page
+class EmployeeNotificationPage {
   constructor(private page: Page) {}
 
   async navigate() {
-    await this.page.click('[data-testid="schedule-nav-link"]');
-    await this.page.waitForURL('**/schedule', { timeout: 10000 });
-    await this.page.waitForSelector('[data-testid="schedule-container"]', { state: 'visible' });
+    await this.page.goto('/employee/dashboard');
+    await this.page.waitForLoadState('networkidle');
   }
 
-  async waitForNotificationPopup(timeout: number = 10000) {
-    await this.page.waitForSelector('[data-testid="notification-popup"]', { 
-      state: 'visible',
-      timeout 
-    });
+  async login(username: string, password: string) {
+    await this.page.goto('/login');
+    await this.page.fill('[data-testid="username-input"]', username);
+    await this.page.fill('[data-testid="password-input"]', password);
+    await this.page.click('[data-testid="login-button"]');
+    await this.page.waitForURL('**/employee/**', { timeout: 10000 });
   }
 
-  async waitForNotificationBanner(timeout: number = 10000) {
-    await this.page.waitForSelector('[data-testid="notification-banner"]', { 
-      state: 'visible',
-      timeout 
-    });
+  async waitForNotification(timeout: number = 60000) {
+    await this.page.waitForSelector('[data-testid="notification-badge"]', { timeout });
   }
 
   async getNotificationCount(): Promise<number> {
     const badge = await this.page.locator('[data-testid="notification-badge"]');
-    if (await badge.isVisible()) {
-      const count = await badge.textContent();
-      return parseInt(count || '0', 10);
+    const count = await badge.textContent();
+    return parseInt(count || '0', 10);
+  }
+
+  async openNotificationPanel() {
+    await this.page.click('[data-testid="notification-icon"]');
+    await this.page.waitForSelector('[data-testid="notification-panel"]', { state: 'visible' });
+  }
+
+  async getLatestNotification() {
+    const notifications = await this.page.locator('[data-testid="notification-item"]').all();
+    if (notifications.length === 0) {
+      throw new Error('No notifications found');
     }
-    return 0;
+    return notifications[0];
   }
 
-  async getNotificationDetails() {
-    const notification = this.page.locator('[data-testid="notification-popup"]').first();
-    const title = await notification.locator('[data-testid="notification-title"]').textContent();
-    const message = await notification.locator('[data-testid="notification-message"]').textContent();
-    const timestamp = await notification.locator('[data-testid="notification-timestamp"]').textContent();
-    const type = await notification.getAttribute('data-notification-type');
-    
-    return { title, message, timestamp, type };
+  async getNotificationText(notification: any): Promise<string> {
+    return await notification.locator('[data-testid="notification-message"]').textContent();
   }
 
-  async acknowledgeNotification() {
-    await this.page.click('[data-testid="acknowledge-notification-button"]');
-    await this.page.waitForSelector('[data-testid="notification-acknowledged"]', { 
-      state: 'visible',
-      timeout: 5000 
-    });
+  async getNotificationTimestamp(notification: any): Promise<string> {
+    return await notification.locator('[data-testid="notification-timestamp"]').textContent();
   }
 
-  async openNotificationHistory() {
-    await this.page.click('[data-testid="notification-history-button"]');
-    await this.page.waitForSelector('[data-testid="notification-history-panel"]', { 
-      state: 'visible',
-      timeout: 5000 
-    });
+  async acknowledgeNotification(notification: any) {
+    await notification.locator('[data-testid="acknowledge-button"]').click();
+    await this.page.waitForTimeout(500);
   }
 
-  async getNotificationHistoryItems() {
-    const items = await this.page.locator('[data-testid="notification-history-item"]').all();
-    const historyData = [];
-    
-    for (const item of items) {
-      const title = await item.locator('[data-testid="history-item-title"]').textContent();
-      const message = await item.locator('[data-testid="history-item-message"]').textContent();
-      const timestamp = await item.locator('[data-testid="history-item-timestamp"]').textContent();
-      const status = await item.getAttribute('data-status');
-      
-      historyData.push({ title, message, timestamp, status });
-    }
-    
-    return historyData;
+  async isNotificationRead(notification: any): Promise<boolean> {
+    const classes = await notification.getAttribute('class');
+    return classes?.includes('read') || false;
   }
 
-  async closeNotification() {
-    await this.page.click('[data-testid="close-notification-button"]');
+  async viewNotificationHistory() {
+    await this.page.click('[data-testid="view-all-notifications"]');
+    await this.page.waitForSelector('[data-testid="notification-history-page"]');
+  }
+
+  async getNotificationHistoryCount(): Promise<number> {
+    const items = await this.page.locator('[data-testid="history-notification-item"]').all();
+    return items.length;
+  }
+
+  async filterNotificationsByType(type: string) {
+    await this.page.selectOption('[data-testid="notification-type-filter"]', type);
+    await this.page.waitForTimeout(1000);
   }
 }
 
 // Helper Functions
-async function triggerScheduleChange(page: Page, changeType: string, shiftData: any) {
-  // Simulate schedule change via API call
-  const response = await page.request.post('/api/schedule/change', {
-    data: {
-      employeeId: testData.employee.employeeId,
-      changeType: changeType,
-      shiftDetails: shiftData,
-      timestamp: new Date().toISOString()
-    },
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
-  
-  expect(response.ok()).toBeTruthy();
-  return response;
-}
+class NotificationHelper {
+  static async setupWebSocketListener(page: Page): Promise<any[]> {
+    const notifications: any[] = [];
+    
+    await page.evaluate(() => {
+      (window as any).capturedNotifications = [];
+      const originalWebSocket = (window as any).WebSocket;
+      
+      (window as any).WebSocket = function(url: string, protocols?: string | string[]) {
+        const ws = new originalWebSocket(url, protocols);
+        
+        ws.addEventListener('message', (event: MessageEvent) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'schedule_change') {
+              (window as any).capturedNotifications.push({
+                data: data,
+                timestamp: new Date().toISOString()
+              });
+            }
+          } catch (e) {
+            console.error('Failed to parse WebSocket message', e);
+          }
+        });
+        
+        return ws;
+      };
+    });
+    
+    return notifications;
+  }
 
-async function waitForWebSocketNotification(page: Page, timeout: number = 300000) {
-  // Wait for WebSocket connection and notification
-  return page.waitForResponse(
-    response => response.url().includes('/api/notifications') && response.status() === 200,
-    { timeout }
-  );
-}
+  static async getCapturedNotifications(page: Page): Promise<any[]> {
+    return await page.evaluate(() => {
+      return (window as any).capturedNotifications || [];
+    });
+  }
 
-async function verifyNotificationDeliveryTime(triggerTime: Date, deliveryTime: Date): Promise<boolean> {
-  const timeDifferenceMs = deliveryTime.getTime() - triggerTime.getTime();
-  const timeDifferenceMinutes = timeDifferenceMs / 1000 / 60;
-  return timeDifferenceMinutes <= 5;
+  static calculateDeliveryTime(scheduleUpdateTime: Date, notificationReceivedTime: Date): number {
+    return (notificationReceivedTime.getTime() - scheduleUpdateTime.getTime()) / 1000;
+  }
 }
 
 // Test Suite
-test.describe('Story-35: As Employee, I want to receive notifications about schedule changes to stay informed', () => {
+test.describe('Story-34: As Employee, I want to receive notifications of schedule changes to stay informed', () => {
   
-  let loginPage: LoginPage;
-  let schedulePage: SchedulePage;
-
-  test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
-    schedulePage = new SchedulePage(page);
+  test.describe('Real-time Notification Delivery', () => {
     
-    // Login before each test
-    await loginPage.navigate();
-    await loginPage.login(testData.employee.username, testData.employee.password);
-    
-    // Navigate to schedule section
-    await schedulePage.navigate();
-  });
-
-  test('TC001: Employee receives notification for new shift within 5 minutes', async ({ page }) => {
-    // Record the time when schedule change is triggered
-    const triggerTime = new Date();
-    
-    // Trigger a new shift schedule change
-    await triggerScheduleChange(page, 'new', testData.scheduleChanges.newShift);
-    
-    // Wait for notification to appear
-    await schedulePage.waitForNotificationPopup(300000); // 5 minutes timeout
-    
-    const deliveryTime = new Date();
-    
-    // Verify notification was delivered within 5 minutes
-    const isWithinTimeLimit = await verifyNotificationDeliveryTime(triggerTime, deliveryTime);
-    expect(isWithinTimeLimit).toBeTruthy();
-    
-    // Verify notification is visible
-    const notificationPopup = page.locator('[data-testid="notification-popup"]');
-    await expect(notificationPopup).toBeVisible();
-    
-    // Verify notification count badge is updated
-    const notificationCount = await schedulePage.getNotificationCount();
-    expect(not
+    test('should send real-time notification to employee when admin updates schedule', async ({ page, context }) => {
+      // Setup: Create two browser contexts - one for admin, one for employee
+      const adminPage = page;
+      const employeePage = await context.newPage();
+      
+      const adminSchedulePage = new AdminSchedulePage(adminPage);
+      const employeeNotificationPage = new EmployeeNotificationPage(employeePage);
+      
+      try {
+        // Step 1: Employee logs in and navigates to dashboard
+        await employeeNotificationPage.login(testData.employee.username, testData.employee.password);
