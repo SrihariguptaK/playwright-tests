@@ -1,0 +1,418 @@
+[
+  {
+    "storyId": "story-1",
+    "storyTitle": "As Biometric System Administrator, I want to configure biometric device integration to achieve seamless automatic attendance capture",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful biometric device configuration",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Biometric System Administrator role",
+          "Biometric device is powered on and connected to the network",
+          "Valid device IP address, port, and credentials are available",
+          "Employee records exist in the system for user mapping",
+          "Network connectivity between system and device is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to biometric device configuration page from the admin dashboard",
+            "expectedResult": "Configuration form is displayed with fields for IP address, port, credentials, and user mapping section"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid device IP address in the IP address field",
+            "expectedResult": "IP address is accepted and no validation error is shown"
+          },
+          {
+            "step": 3,
+            "action": "Enter valid port number in the port field",
+            "expectedResult": "Port number is accepted and no validation error is shown"
+          },
+          {
+            "step": 4,
+            "action": "Enter valid device credentials (username and password)",
+            "expectedResult": "Credentials are accepted and masked appropriately"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to user mapping section and select biometric device users from the list",
+            "expectedResult": "List of device users is displayed for selection"
+          },
+          {
+            "step": 6,
+            "action": "Map each biometric device user to corresponding employee ID from the dropdown",
+            "expectedResult": "Employee IDs are successfully mapped to device users without validation errors"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Test Connection' button",
+            "expectedResult": "Connection test initiates and completes within 5 seconds showing 'Connection Successful' message"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Save Configuration' button",
+            "expectedResult": "Configuration is saved successfully with confirmation message displayed"
+          },
+          {
+            "step": 9,
+            "action": "Verify device appears in the device list with 'Active' status",
+            "expectedResult": "Device is listed with 'Active' status and data reception indicator shows 'Receiving Data'"
+          }
+        ],
+        "postconditions": [
+          "Biometric device configuration is saved in the system",
+          "Device is actively receiving attendance data",
+          "Device appears on the monitoring dashboard with online status",
+          "User mappings are stored and active"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify error handling for invalid device parameters",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Biometric System Administrator role",
+          "Biometric device configuration page is accessible",
+          "System validation rules are active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to biometric device configuration page",
+            "expectedResult": "Configuration form is displayed with empty fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter invalid IP address format (e.g., '999.999.999.999' or 'invalid-ip')",
+            "expectedResult": "Validation error message is displayed: 'Invalid IP address format. Please enter a valid IP address.'"
+          },
+          {
+            "step": 3,
+            "action": "Correct the IP address and enter invalid port number (e.g., '99999' or '-1')",
+            "expectedResult": "Validation error message is displayed: 'Port number must be between 1 and 65535.'"
+          },
+          {
+            "step": 4,
+            "action": "Correct the port number and leave credentials fields empty",
+            "expectedResult": "Validation error message is displayed: 'Device credentials are required.'"
+          },
+          {
+            "step": 5,
+            "action": "Enter all fields with invalid but properly formatted data (unreachable IP)",
+            "expectedResult": "Form accepts the input format without client-side validation errors"
+          },
+          {
+            "step": 6,
+            "action": "Click 'Test Connection' button with invalid parameters",
+            "expectedResult": "Connection test fails within 5 seconds with descriptive error message: 'Connection failed. Unable to reach device at specified IP address. Please verify device is online and parameters are correct.'"
+          },
+          {
+            "step": 7,
+            "action": "Correct all parameters with valid and reachable device information",
+            "expectedResult": "All fields accept the corrected values without validation errors"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Test Connection' button again",
+            "expectedResult": "Connection test succeeds within 5 seconds showing 'Connection Successful' message"
+          },
+          {
+            "step": 9,
+            "action": "Click 'Save Configuration' button",
+            "expectedResult": "Configuration is saved successfully with confirmation message"
+          }
+        ],
+        "postconditions": [
+          "Valid device configuration is saved after corrections",
+          "Invalid configurations are not saved in the system",
+          "Error messages are cleared after successful validation"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure device status dashboard updates correctly",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Biometric System Administrator role",
+          "At least one biometric device is configured in the system",
+          "Device is currently online and transmitting data",
+          "Dashboard refresh interval is set to 5 minutes or less",
+          "Test environment allows device status simulation"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to device status dashboard from the main menu",
+            "expectedResult": "Dashboard is displayed showing list of all configured biometric devices with current status indicators (online/offline), last sync time, and data transmission status"
+          },
+          {
+            "step": 2,
+            "action": "Verify the current status of the test device",
+            "expectedResult": "Device shows 'Online' status with green indicator and recent last sync timestamp"
+          },
+          {
+            "step": 3,
+            "action": "Simulate device offline status by disconnecting the device from network or stopping the device service",
+            "expectedResult": "Device physical connection is interrupted"
+          },
+          {
+            "step": 4,
+            "action": "Wait for dashboard auto-refresh or manually refresh the dashboard (within 5 minutes)",
+            "expectedResult": "Dashboard updates to show device with 'Offline' status, red indicator, and alert notification appears stating 'Device [Device Name] is offline'"
+          },
+          {
+            "step": 5,
+            "action": "Click on the offline device to view detailed status information",
+            "expectedResult": "Device detail page displays offline status, last known sync time, and error message indicating connection loss"
+          },
+          {
+            "step": 6,
+            "action": "Restore device connectivity by reconnecting to network or restarting device service",
+            "expectedResult": "Device is physically reconnected and operational"
+          },
+          {
+            "step": 7,
+            "action": "Wait for dashboard auto-refresh or manually refresh the dashboard (within 5 minutes)",
+            "expectedResult": "Dashboard reflects device 'Online' status with green indicator, alert is cleared or marked as resolved, and last sync time is updated to current time"
+          },
+          {
+            "step": 8,
+            "action": "Verify alert history shows the offline and online status changes",
+            "expectedResult": "Alert history log displays timestamps for device offline event and device online restoration event"
+          }
+        ],
+        "postconditions": [
+          "Device status dashboard accurately reflects current device state",
+          "Status change history is logged in the system",
+          "Alerts are properly generated and cleared based on device status",
+          "Device is online and operational"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-6",
+    "storyTitle": "As Biometric Device Technician, I want to monitor biometric device health and connectivity to ensure reliable attendance data capture",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Display real-time device connectivity status",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Biometric Device Technician user account exists with proper role assignment",
+          "Multiple biometric devices are configured and operational in the system",
+          "Monitoring dashboard is accessible and functional",
+          "Test environment allows device status simulation",
+          "Network connectivity is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the login page and enter valid Biometric Device Technician credentials",
+            "expectedResult": "Login is successful and user is redirected to the technician dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Verify access to monitoring dashboard is granted",
+            "expectedResult": "Monitoring dashboard is displayed with navigation menu showing device monitoring options"
+          },
+          {
+            "step": 3,
+            "action": "View the list of all biometric devices on the monitoring dashboard",
+            "expectedResult": "Complete list of biometric devices is displayed with columns showing device name, location, current connectivity status (Online/Offline), last sync time, and health indicator"
+          },
+          {
+            "step": 4,
+            "action": "Verify each device displays current connectivity status with appropriate visual indicators",
+            "expectedResult": "Online devices show green status indicator, offline devices show red indicator, and status labels are clearly visible"
+          },
+          {
+            "step": 5,
+            "action": "Note the current timestamp and status of a specific test device",
+            "expectedResult": "Device shows 'Online' status with current timestamp within the last 5 minutes"
+          },
+          {
+            "step": 6,
+            "action": "Simulate device disconnection by disconnecting the test device from network",
+            "expectedResult": "Device is physically disconnected from the network"
+          },
+          {
+            "step": 7,
+            "action": "Monitor the dashboard and wait for status update (maximum 1 minute)",
+            "expectedResult": "Within 1 minute, device status updates to 'Offline' with red indicator, and last sync time shows the timestamp before disconnection"
+          },
+          {
+            "step": 8,
+            "action": "Verify alert notification appears for the disconnected device",
+            "expectedResult": "Alert notification is displayed indicating device disconnection with device name and timestamp"
+          },
+          {
+            "step": 9,
+            "action": "Reconnect the test device to the network",
+            "expectedResult": "Device is physically reconnected and operational"
+          },
+          {
+            "step": 10,
+            "action": "Monitor the dashboard for status update (maximum 1 minute)",
+            "expectedResult": "Within 1 minute, device status updates to 'Online' with green indicator, and last sync time is updated to current timestamp"
+          }
+        ],
+        "postconditions": [
+          "Device connectivity status is accurately displayed in real-time",
+          "Status changes are logged in the system",
+          "Test device is back online and operational",
+          "Technician remains logged in with active session"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Generate alerts for device malfunctions",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Biometric Device Technician",
+          "Monitoring dashboard is accessible",
+          "At least one biometric device is configured and operational",
+          "Alert system is enabled and functional",
+          "Test environment allows error condition simulation"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Access the device monitoring dashboard",
+            "expectedResult": "Dashboard is displayed showing all devices and current alert status panel"
+          },
+          {
+            "step": 2,
+            "action": "Verify the alerts panel shows no active alerts for the test device",
+            "expectedResult": "Alerts panel shows 'No active alerts' or empty state for the test device"
+          },
+          {
+            "step": 3,
+            "action": "Simulate device error condition (e.g., authentication failure, sensor malfunction, or data transmission error)",
+            "expectedResult": "Error condition is successfully triggered on the test device"
+          },
+          {
+            "step": 4,
+            "action": "Monitor the dashboard for alert generation (maximum 1 minute)",
+            "expectedResult": "Within 1 minute, alert is generated and displayed on the dashboard with error details including device name, error type, severity level, and timestamp"
+          },
+          {
+            "step": 5,
+            "action": "Verify alert notification appears in the alerts panel",
+            "expectedResult": "Alert appears in the alerts panel with 'New' or 'Unacknowledged' status, highlighted for visibility"
+          },
+          {
+            "step": 6,
+            "action": "Click on the alert to view detailed information",
+            "expectedResult": "Alert detail modal or page opens showing comprehensive error information, affected device details, error logs, and recommended actions"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Acknowledge Alert' button",
+            "expectedResult": "Acknowledgement confirmation dialog appears"
+          },
+          {
+            "step": 8,
+            "action": "Confirm alert acknowledgement",
+            "expectedResult": "Alert status updates to 'Acknowledged' with technician name and acknowledgement timestamp displayed"
+          },
+          {
+            "step": 9,
+            "action": "Verify alert remains visible but marked as acknowledged",
+            "expectedResult": "Alert is still displayed in the alerts panel but with 'Acknowledged' status and different visual indicator (e.g., gray instead of red)"
+          },
+          {
+            "step": 10,
+            "action": "Check alert history log",
+            "expectedResult": "Alert history shows the complete lifecycle: generation time, acknowledgement time, and technician who acknowledged"
+          }
+        ],
+        "postconditions": [
+          "Alert is generated and logged in the system",
+          "Alert status is updated to acknowledged",
+          "Alert history is maintained for audit purposes",
+          "Technician action is recorded with timestamp"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Restrict monitoring access to authorized technicians",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Multiple user accounts exist with different roles (Technician, Employee, Manager, etc.)",
+          "Unauthorized user account credentials are available for testing",
+          "Role-based access control is configured and active",
+          "Monitoring dashboard requires technician role authorization",
+          "API endpoints have proper authentication and authorization"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the login page and enter credentials of an unauthorized user (non-technician role)",
+            "expectedResult": "Login is successful and user is redirected to their role-appropriate dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to the biometric device monitoring dashboard URL directly",
+            "expectedResult": "Access is denied with error message: 'Access Denied. You do not have permission to view this page. Technician role required.' User is redirected to their home dashboard or access denied page"
+          },
+          {
+            "step": 3,
+            "action": "Verify monitoring dashboard menu option is not visible in navigation",
+            "expectedResult": "Device monitoring menu option is not displayed in the navigation menu for unauthorized user"
+          },
+          {
+            "step": 4,
+            "action": "Open browser developer tools and attempt to make direct API call to GET /api/biometric/devices/status endpoint using current session",
+            "expectedResult": "API request returns HTTP 403 Forbidden status code with error response: 'Authorization error: Insufficient permissions. Technician role required.'"
+          },
+          {
+            "step": 5,
+            "action": "Logout from the unauthorized user account",
+            "expectedResult": "User is successfully logged out and redirected to login page"
+          },
+          {
+            "step": 6,
+            "action": "Login with valid Biometric Device Technician credentials",
+            "expectedResult": "Login is successful and technician is redirected to monitoring dashboard"
+          },
+          {
+            "step": 7,
+            "action": "Verify monitoring dashboard is accessible and displays device information",
+            "expectedResult": "Monitoring dashboard is fully accessible showing all biometric devices with status, health metrics, and alerts"
+          },
+          {
+            "step": 8,
+            "action": "Verify device monitoring menu option is visible in navigation",
+            "expectedResult": "Device monitoring menu option is displayed and accessible in the navigation menu"
+          },
+          {
+            "step": 9,
+            "action": "Make API call to GET /api/biometric/devices/status endpoint using technician session",
+            "expectedResult": "API request returns HTTP 200 OK status with complete device status data in JSON format"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized access attempts are logged for security audit",
+          "Access control remains enforced for monitoring dashboard",
+          "Authorized technician has full access to monitoring features",
+          "System security is maintained"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  }
+]
