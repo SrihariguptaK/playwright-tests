@@ -1,0 +1,463 @@
+[
+  {
+    "storyId": "story-13",
+    "storyTitle": "As Scheduler, I want to view all active scheduling conflicts in a single interface to manage resolutions efficiently",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify display of active conflicts with details",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least 3 active conflicts exist in the system",
+          "User has permissions to access conflict management interface",
+          "Test data includes conflicts with complete details (date, resource, severity, priority)"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to conflict management interface from the main dashboard menu",
+            "expectedResult": "Conflict management interface loads successfully and displays a list of all active conflicts with columns showing conflict ID, date, resource, severity, and status"
+          },
+          {
+            "step": 2,
+            "action": "Select a specific conflict from the displayed list by clicking on it",
+            "expectedResult": "Detailed conflict information panel opens showing complete details including conflict ID, creation time, involved bookings, resource details, severity level, priority, and current status"
+          },
+          {
+            "step": 3,
+            "action": "Verify conflict details displayed in the interface against backend data by comparing with database records or API response",
+            "expectedResult": "All conflict details match backend data exactly including timestamps, resource names, booking IDs, severity levels, and status information with no discrepancies"
+          }
+        ],
+        "postconditions": [
+          "Conflict management interface remains open and functional",
+          "No data modifications have occurred",
+          "User session remains active"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Test filtering and sorting of conflicts",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Multiple active conflicts exist with varying resources, dates, and priorities",
+          "At least 5 conflicts are present with different resource assignments",
+          "Conflicts have different priority levels (High, Medium, Low)",
+          "Conflict management interface is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to conflict management interface and locate the filter section",
+            "expectedResult": "Interface displays with filter options visible including resource, date, and severity filters"
+          },
+          {
+            "step": 2,
+            "action": "Apply filter by selecting a specific resource from the resource dropdown filter",
+            "expectedResult": "Conflict list updates to display only conflicts related to the selected resource, other conflicts are hidden from view"
+          },
+          {
+            "step": 3,
+            "action": "Click on the priority column header or select 'Sort by Priority' option",
+            "expectedResult": "Conflicts are reordered and displayed from highest to lowest priority (High, Medium, Low) while maintaining the resource filter"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Clear filters' button or reset icon to remove all applied filters and sorting",
+            "expectedResult": "Full conflict list is restored showing all active conflicts in default order without any filters applied"
+          }
+        ],
+        "postconditions": [
+          "All filters and sorting are cleared",
+          "Full conflict list is visible",
+          "Interface is ready for new filter/sort operations"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure conflict status updates in real-time",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one active conflict exists in the system",
+          "User has permissions to mark conflicts as resolved",
+          "Conflict management interface is open and displaying active conflicts"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Select an active conflict from the list and click 'Mark as Resolved' button or change status to 'Resolved'",
+            "expectedResult": "Conflict status updates immediately in the interface showing 'Resolved' status without requiring page refresh, and the conflict is visually distinguished (grayed out or moved to resolved section)"
+          },
+          {
+            "step": 2,
+            "action": "Click the refresh button or reload the conflict management interface page",
+            "expectedResult": "The previously resolved conflict is no longer listed in the active conflicts section and does not appear in the main conflict list"
+          },
+          {
+            "step": 3,
+            "action": "Navigate to conflict history or resolved conflicts section if available",
+            "expectedResult": "The resolved conflict appears in the history with updated status, timestamp of resolution, and resolver information"
+          }
+        ],
+        "postconditions": [
+          "Conflict status is permanently updated to 'Resolved' in the database",
+          "Active conflicts count is decremented by one",
+          "Conflict history log contains the resolution entry"
+        ],
+        "estimatedTime": "5 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-17",
+    "storyTitle": "As Scheduler, I want to modify or reschedule conflicting bookings directly from the conflict resolution interface to quickly resolve issues",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Verify booking modification and validation in conflict interface",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one active conflict exists with two or more conflicting bookings",
+          "User has permissions to modify bookings",
+          "Conflict resolution interface is accessible",
+          "Available non-conflicting time slots exist in the schedule",
+          "Real-time validation service is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open conflict resolution interface from the main menu and select a specific conflict from the list",
+            "expectedResult": "Conflict details page opens displaying all conflicting bookings with editable fields including booking time, date, resource, and duration fields enabled for modification"
+          },
+          {
+            "step": 2,
+            "action": "Click on the booking time field of one conflicting booking and modify it to a non-conflicting time slot using the time picker or calendar widget",
+            "expectedResult": "System performs real-time validation and displays a success indicator (green checkmark or 'Valid' message) confirming the new time slot does not create conflicts"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Save' or 'Apply Changes' button to commit the booking modification",
+            "expectedResult": "Booking is successfully updated in the system, confirmation message appears, conflict status automatically changes to 'Resolved', and the conflict is removed from active conflicts list"
+          },
+          {
+            "step": 4,
+            "action": "Verify the updated booking appears correctly in the main scheduling view with the new time slot",
+            "expectedResult": "Modified booking displays with updated time in the schedule, no conflicts are shown, and all related data is consistent"
+          }
+        ],
+        "postconditions": [
+          "Booking is permanently updated in the scheduling database",
+          "Conflict is marked as resolved",
+          "Schedule reflects the new booking time",
+          "No new conflicts are created by the modification"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Test undo functionality for booking changes",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one active conflict exists",
+          "User has permissions to modify bookings",
+          "Conflict resolution interface is open",
+          "Undo functionality is enabled for the current session"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Select a conflict from the list and modify one of the conflicting booking details (change time or resource)",
+            "expectedResult": "Booking modification fields accept the changes and display the updated values"
+          },
+          {
+            "step": 2,
+            "action": "Click 'Save' button to apply the booking changes",
+            "expectedResult": "Changes are successfully applied, confirmation message displays, booking is updated in the system, and 'Undo' button or option becomes visible and enabled"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Undo' button or select 'Undo Changes' option within the same session",
+            "expectedResult": "Booking immediately reverts to its previous state with original time/resource values restored, and confirmation message indicates successful undo operation"
+          },
+          {
+            "step": 4,
+            "action": "Verify the conflict status updates to reflect the reverted changes",
+            "expectedResult": "Conflict status returns to 'Active' or original state since the resolution was undone, and the conflict reappears in the active conflicts list with original details"
+          },
+          {
+            "step": 5,
+            "action": "Check the main scheduling view to confirm booking shows original values",
+            "expectedResult": "Booking displays with original time and resource allocation matching the pre-modification state"
+          }
+        ],
+        "postconditions": [
+          "Booking is restored to original state in the database",
+          "Conflict status reflects the undone changes",
+          "Schedule shows original booking details",
+          "Undo action is logged in system history"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-19",
+    "storyTitle": "As Scheduler, I want the conflict resolution interface to support filtering and sorting of conflicts to prioritize my work effectively",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify filtering by date, resource, and severity",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as a Scheduler with appropriate permissions",
+          "Conflict resolution interface is accessible",
+          "Multiple conflicts exist in the system with varying dates, resources, and severity levels",
+          "Test data includes conflicts spanning at least 30 days with different resources and severity levels"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the conflict resolution interface",
+            "expectedResult": "Conflict resolution interface loads successfully displaying all existing conflicts"
+          },
+          {
+            "step": 2,
+            "action": "Locate and click on the date range filter control",
+            "expectedResult": "Date range filter dialog or input fields are displayed"
+          },
+          {
+            "step": 3,
+            "action": "Enter a start date (e.g., 01/01/2024) and end date (e.g., 01/15/2024) in the date range filter",
+            "expectedResult": "Date values are accepted and displayed in the filter fields"
+          },
+          {
+            "step": 4,
+            "action": "Apply the date range filter",
+            "expectedResult": "Only conflicts with dates between 01/01/2024 and 01/15/2024 are displayed in the conflict list. Conflicts outside this range are not shown"
+          },
+          {
+            "step": 5,
+            "action": "Clear the date range filter and locate the resource filter dropdown",
+            "expectedResult": "All conflicts are displayed again. Resource filter dropdown shows available resources"
+          },
+          {
+            "step": 6,
+            "action": "Select a specific resource (e.g., 'Conference Room A') from the resource filter dropdown",
+            "expectedResult": "Resource is selected and highlighted in the dropdown"
+          },
+          {
+            "step": 7,
+            "action": "Apply the resource filter",
+            "expectedResult": "Only conflicts related to 'Conference Room A' are displayed. Other resource conflicts are filtered out"
+          },
+          {
+            "step": 8,
+            "action": "Clear the resource filter and locate the severity filter control",
+            "expectedResult": "All conflicts are displayed again. Severity filter options are visible"
+          },
+          {
+            "step": 9,
+            "action": "Select a severity level (e.g., 'High') from the severity filter",
+            "expectedResult": "Severity level 'High' is selected"
+          },
+          {
+            "step": 10,
+            "action": "Apply the severity filter",
+            "expectedResult": "Only conflicts with 'High' severity are displayed. Medium and Low severity conflicts are filtered out"
+          },
+          {
+            "step": 11,
+            "action": "Verify the count of displayed conflicts matches the filter criteria",
+            "expectedResult": "Conflict count indicator shows the correct number of filtered conflicts"
+          }
+        ],
+        "postconditions": [
+          "Filters can be cleared to return to the full conflict list",
+          "Applied filters remain active until manually cleared or changed",
+          "System maintains filter state during the session"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Test sorting by priority and creation time",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as a Scheduler with appropriate permissions",
+          "Conflict resolution interface is accessible",
+          "Multiple conflicts exist with different priority levels (High, Medium, Low)",
+          "Conflicts have different creation timestamps spanning multiple days",
+          "At least 10 conflicts are available for sorting verification"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the conflict resolution interface",
+            "expectedResult": "Conflict resolution interface loads with the default conflict list displayed"
+          },
+          {
+            "step": 2,
+            "action": "Locate the sort options and identify the priority sort control",
+            "expectedResult": "Sort controls are visible with priority sorting option available"
+          },
+          {
+            "step": 3,
+            "action": "Click on the priority column header or select 'Sort by Priority - Descending' option",
+            "expectedResult": "Sort indicator (arrow or icon) appears showing descending order is selected"
+          },
+          {
+            "step": 4,
+            "action": "Observe the order of conflicts in the list",
+            "expectedResult": "Conflicts are ordered from highest to lowest priority (High priority conflicts appear first, followed by Medium, then Low priority conflicts)"
+          },
+          {
+            "step": 5,
+            "action": "Verify the first 3 conflicts displayed are all High priority",
+            "expectedResult": "First three conflicts in the list show 'High' priority label or indicator"
+          },
+          {
+            "step": 6,
+            "action": "Scroll to the bottom of the list and verify the last conflicts are Low priority",
+            "expectedResult": "Last conflicts in the list show 'Low' priority label or indicator"
+          },
+          {
+            "step": 7,
+            "action": "Locate and click on the creation time sort control or column header",
+            "expectedResult": "Sort indicator changes to show creation time sorting is active"
+          },
+          {
+            "step": 8,
+            "action": "Select 'Sort by Creation Time - Ascending' option",
+            "expectedResult": "Sort indicator shows ascending order for creation time"
+          },
+          {
+            "step": 9,
+            "action": "Observe the order of conflicts in the list",
+            "expectedResult": "Conflicts are ordered from oldest to newest based on creation timestamp"
+          },
+          {
+            "step": 10,
+            "action": "Verify the first conflict has the earliest creation date/time",
+            "expectedResult": "First conflict displays the oldest timestamp (e.g., created 30 days ago)"
+          },
+          {
+            "step": 11,
+            "action": "Verify the last conflict has the most recent creation date/time",
+            "expectedResult": "Last conflict displays the newest timestamp (e.g., created today or yesterday)"
+          },
+          {
+            "step": 12,
+            "action": "Toggle the creation time sort to descending order",
+            "expectedResult": "Conflicts are reordered with newest conflicts appearing first and oldest appearing last"
+          }
+        ],
+        "postconditions": [
+          "Sort order persists until changed by the user",
+          "Conflicts remain sorted according to the last selected criteria",
+          "Sort indicators clearly show the active sorting method"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure filter input validation and feedback",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as a Scheduler with appropriate permissions",
+          "Conflict resolution interface is accessible",
+          "Filter controls are enabled and functional",
+          "System has validation rules configured for filter inputs"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the conflict resolution interface",
+            "expectedResult": "Conflict resolution interface loads successfully with filter controls visible"
+          },
+          {
+            "step": 2,
+            "action": "Click on the date range filter control to open date input fields",
+            "expectedResult": "Date range filter input fields are displayed and ready for input"
+          },
+          {
+            "step": 3,
+            "action": "Enter an invalid date format in the start date field (e.g., '99/99/9999' or 'abc123')",
+            "expectedResult": "Date field shows the invalid input"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to apply the filter or move focus away from the date field",
+            "expectedResult": "Validation error message is displayed indicating 'Invalid date format. Please use MM/DD/YYYY format' or similar message. Error styling (red border or highlight) appears on the date field"
+          },
+          {
+            "step": 5,
+            "action": "Clear the invalid date and enter a valid start date (e.g., '01/15/2024') and an end date earlier than the start date (e.g., '01/01/2024')",
+            "expectedResult": "Both dates are entered in the fields"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to apply the date range filter",
+            "expectedResult": "Validation error message is displayed indicating 'End date must be after start date' or similar message. Filter is not applied and conflict list remains unchanged"
+          },
+          {
+            "step": 7,
+            "action": "Enter a future date range (e.g., start date: '01/01/2025', end date: '12/31/2025')",
+            "expectedResult": "Dates are accepted in the input fields"
+          },
+          {
+            "step": 8,
+            "action": "Apply the future date range filter",
+            "expectedResult": "Filter is applied successfully. If no conflicts exist in the future date range, a message displays 'No conflicts found for the selected date range' or the list shows zero results"
+          },
+          {
+            "step": 9,
+            "action": "Clear date filters and enter a valid date range (e.g., '01/01/2024' to '01/31/2024')",
+            "expectedResult": "Valid dates are entered and accepted"
+          },
+          {
+            "step": 10,
+            "action": "Select a valid resource from the resource filter dropdown",
+            "expectedResult": "Resource is selected successfully"
+          },
+          {
+            "step": 11,
+            "action": "Select a valid severity level from the severity filter",
+            "expectedResult": "Severity level is selected successfully"
+          },
+          {
+            "step": 12,
+            "action": "Apply all valid filters together",
+            "expectedResult": "All filters are applied successfully. Filtered conflict list is displayed showing only conflicts matching all criteria (date range, resource, and severity). Success feedback or confirmation message may appear. Page loads within 3 seconds"
+          },
+          {
+            "step": 13,
+            "action": "Verify the conflict count and displayed conflicts match the applied filter criteria",
+            "expectedResult": "Conflict count is accurate and all displayed conflicts meet the filter criteria. No conflicts outside the filter parameters are shown"
+          }
+        ],
+        "postconditions": [
+          "Invalid filter inputs are rejected with clear error messages",
+          "Valid filters are applied and conflicts are filtered correctly",
+          "Error messages are cleared when valid input is provided",
+          "System maintains data integrity and does not display incorrect results"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  }
+]
