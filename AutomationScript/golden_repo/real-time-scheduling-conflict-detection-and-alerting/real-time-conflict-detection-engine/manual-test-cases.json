@@ -1,0 +1,740 @@
+[
+  {
+    "storyId": "story-11",
+    "storyTitle": "As Scheduler, I want to receive immediate alerts for overlapping bookings to prevent double-booking",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate detection of overlapping bookings",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Scheduler is logged in with valid credentials and appropriate role-based permissions",
+          "Scheduling system is operational and accessible",
+          "At least one existing booking is present in the system (e.g., Resource A booked from 10:00 AM to 11:00 AM)",
+          "Conflict detection service is running and responsive",
+          "Network connectivity is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the booking creation page in the scheduling system",
+            "expectedResult": "Booking creation page loads successfully with all required fields visible"
+          },
+          {
+            "step": 2,
+            "action": "Enter booking details that overlap with the existing booking (same Resource A, time slot 10:30 AM to 11:30 AM)",
+            "expectedResult": "All booking details are entered successfully in the form fields"
+          },
+          {
+            "step": 3,
+            "action": "Submit the booking request by clicking the 'Create Booking' button",
+            "expectedResult": "System processes the request and detects the conflict within 1 second"
+          },
+          {
+            "step": 4,
+            "action": "Observe the system response and alert mechanism",
+            "expectedResult": "System sends an immediate alert to the scheduler displaying conflict notification"
+          },
+          {
+            "step": 5,
+            "action": "Review the alert content for conflict details",
+            "expectedResult": "Scheduler receives detailed conflict alert showing: conflicting resource name (Resource A), existing booking time (10:00 AM - 11:00 AM), new booking time (10:30 AM - 11:30 AM), overlap duration, and conflicting booking owner"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to confirm the booking by clicking 'Confirm' or 'Save' button while conflict is unresolved",
+            "expectedResult": "System prevents booking confirmation and displays message: 'Cannot confirm booking. Please resolve the conflict first.' Booking remains in draft or pending state"
+          },
+          {
+            "step": 7,
+            "action": "Verify that the booking is not saved to the schedule",
+            "expectedResult": "The conflicting booking does not appear in the calendar view and is not persisted in the database"
+          }
+        ],
+        "postconditions": [
+          "Conflicting booking is not confirmed or saved in the system",
+          "Original existing booking remains unchanged",
+          "Conflict alert is displayed and logged",
+          "Scheduler is aware of the conflict and can take corrective action",
+          "System remains in a consistent state ready for next booking attempt"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify conflict logging",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Scheduler is logged in with valid credentials",
+          "Scheduling system is operational",
+          "At least one existing booking is present in the system",
+          "Conflict logging service is enabled and functional",
+          "User has permissions to access conflict logs",
+          "System clock is synchronized and accurate"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the booking creation page",
+            "expectedResult": "Booking creation page is displayed successfully"
+          },
+          {
+            "step": 2,
+            "action": "Create a booking that conflicts with an existing booking (e.g., same resource and overlapping time)",
+            "expectedResult": "Booking details are entered and submitted successfully"
+          },
+          {
+            "step": 3,
+            "action": "Observe the system response when conflict is detected",
+            "expectedResult": "System detects conflict and triggers alert within 1 second"
+          },
+          {
+            "step": 4,
+            "action": "Note the exact timestamp when the conflict was detected",
+            "expectedResult": "Conflict detection timestamp is visible in the alert or system response"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to the conflict logs section or admin panel",
+            "expectedResult": "Conflict logs page loads successfully with search and filter options"
+          },
+          {
+            "step": 6,
+            "action": "Search for the recently created conflict event using timestamp or user details",
+            "expectedResult": "Conflict event is found in the logs"
+          },
+          {
+            "step": 7,
+            "action": "Review the logged conflict details",
+            "expectedResult": "Logs contain accurate conflict details including: timestamp of conflict detection, user ID and username of scheduler who attempted the booking, conflicting resource details, existing booking ID and details, attempted booking details, conflict type (overlap), and duration of overlap"
+          },
+          {
+            "step": 8,
+            "action": "Verify the completeness and accuracy of logged information",
+            "expectedResult": "All required metadata is present and matches the actual conflict scenario. No data is missing or corrupted"
+          }
+        ],
+        "postconditions": [
+          "Conflict event is permanently logged in the system database",
+          "Log entry contains complete and accurate information for audit purposes",
+          "Log is accessible for future review and reporting",
+          "System maintains log integrity and consistency"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Test alert UI display",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "Scheduler is logged in with valid credentials",
+          "Scheduling system UI is fully loaded and responsive",
+          "At least one existing booking is present in the system",
+          "Browser supports all required UI components and JavaScript",
+          "Alert UI component is properly configured and enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the booking creation page",
+            "expectedResult": "Booking creation page is displayed with all form fields visible"
+          },
+          {
+            "step": 2,
+            "action": "Enter booking details that will trigger a conflict (overlapping resource and time)",
+            "expectedResult": "Booking details are entered successfully"
+          },
+          {
+            "step": 3,
+            "action": "Submit the booking to trigger conflict detection",
+            "expectedResult": "System processes the booking and detects the conflict within 1 second"
+          },
+          {
+            "step": 4,
+            "action": "Observe the alert UI component that appears on screen",
+            "expectedResult": "Alert UI component is displayed prominently on the screen with clear visibility. Alert includes: conflict icon or visual indicator, conflict title/heading, detailed conflict information (resource name, time slots, conflicting booking details), timestamp of conflict detection, and action buttons (Acknowledge, View Details, Cancel)"
+          },
+          {
+            "step": 5,
+            "action": "Verify the alert UI styling and positioning",
+            "expectedResult": "Alert is displayed in a modal or prominent notification area, uses appropriate color coding (e.g., red or orange for warning), text is readable and properly formatted, and alert does not obstruct critical UI elements"
+          },
+          {
+            "step": 6,
+            "action": "Click on 'View Details' button in the alert",
+            "expectedResult": "Detailed conflict information is displayed showing full details of both the existing booking and the attempted booking, including participants, resources, and exact time overlap"
+          },
+          {
+            "step": 7,
+            "action": "Click on 'Acknowledge' button to acknowledge the alert",
+            "expectedResult": "Scheduler successfully acknowledges the alert. Alert UI updates to show acknowledged status or closes gracefully. System records the acknowledgment action with timestamp"
+          },
+          {
+            "step": 8,
+            "action": "Verify that the alert can be dismissed or closed",
+            "expectedResult": "Alert UI provides a close button (X) that allows scheduler to dismiss the alert. Alert closes smoothly without errors"
+          }
+        ],
+        "postconditions": [
+          "Alert UI component has been displayed and tested successfully",
+          "Scheduler has viewed and acknowledged the conflict alert",
+          "Alert interaction is logged in the system",
+          "UI returns to normal state after alert dismissal",
+          "Conflicting booking remains unconfirmed"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-16",
+    "storyTitle": "As Scheduler, I want the system to support conflict detection across multiple scheduling calendars to ensure comprehensive conflict management",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Detect conflicts across multiple calendars",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Scheduler is logged in with valid credentials and cross-calendar access permissions",
+          "Multiple calendars are configured in the system (minimum 2 calendars: e.g., Team A Calendar and Team B Calendar)",
+          "Each calendar has at least one existing booking",
+          "Cross-calendar conflict detection service is enabled and operational",
+          "All calendars are synchronized and accessible",
+          "Test data includes a shared resource that can be booked across multiple calendars"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to Team A Calendar and create a booking for a shared resource (e.g., Conference Room 1) from 2:00 PM to 3:00 PM",
+            "expectedResult": "Booking is created successfully in Team A Calendar and saved to the system"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to Team B Calendar",
+            "expectedResult": "Team B Calendar loads successfully showing existing bookings"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to create a booking in Team B Calendar for the same shared resource (Conference Room 1) with overlapping time slot from 2:30 PM to 3:30 PM",
+            "expectedResult": "Booking details are entered in the form"
+          },
+          {
+            "step": 4,
+            "action": "Submit the booking request",
+            "expectedResult": "System detects cross-calendar conflict involving Conference Room 1 booked in both Team A and Team B calendars within 2 seconds"
+          },
+          {
+            "step": 5,
+            "action": "Review the conflict alert that appears",
+            "expectedResult": "Alert accurately reflects all conflicting bookings showing: source calendar (Team A Calendar), conflicting booking details (Conference Room 1, 2:00 PM - 3:00 PM), target calendar (Team B Calendar), attempted booking details (Conference Room 1, 2:30 PM - 3:30 PM), overlap period (2:30 PM - 3:00 PM), and resource name (Conference Room 1)"
+          },
+          {
+            "step": 6,
+            "action": "Note the conflict details and navigate back to Team B Calendar booking form",
+            "expectedResult": "Booking form remains open with conflict alert visible"
+          },
+          {
+            "step": 7,
+            "action": "Modify the booking time in Team B Calendar to a non-conflicting time slot (e.g., 3:30 PM to 4:30 PM)",
+            "expectedResult": "Booking details are updated successfully"
+          },
+          {
+            "step": 8,
+            "action": "Submit the modified booking request",
+            "expectedResult": "System processes the request and detects no conflicts across all calendars"
+          },
+          {
+            "step": 9,
+            "action": "Confirm the booking",
+            "expectedResult": "Booking is confirmed and saved successfully in Team B Calendar. Conflict alert is cleared and no longer displayed"
+          },
+          {
+            "step": 10,
+            "action": "Verify both calendars show correct bookings without conflicts",
+            "expectedResult": "Team A Calendar shows Conference Room 1 booked from 2:00 PM to 3:00 PM. Team B Calendar shows Conference Room 1 booked from 3:30 PM to 4:30 PM. No conflict indicators are present"
+          }
+        ],
+        "postconditions": [
+          "Cross-calendar conflict was successfully detected and alerted",
+          "Conflict was resolved by modifying the booking time",
+          "Both calendars contain valid, non-conflicting bookings",
+          "Shared resource (Conference Room 1) is properly allocated across calendars",
+          "Conflict alert is cleared from the system",
+          "All calendar data is synchronized and consistent"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify conflict detection latency with multiple calendars",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Scheduler is logged in with valid credentials",
+          "Multiple calendars are configured and operational (minimum 3 calendars for comprehensive testing)",
+          "Each calendar contains multiple existing bookings to simulate realistic load",
+          "Cross-calendar conflict detection service is running",
+          "System performance monitoring tools are available or timer is ready",
+          "At least one shared resource exists across multiple calendars",
+          "Network latency is within normal operational parameters"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Prepare a stopwatch or note the system timestamp before initiating the booking",
+            "expectedResult": "Timer is ready to measure conflict detection latency"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to any calendar (e.g., Calendar C) in the system",
+            "expectedResult": "Calendar C loads successfully"
+          },
+          {
+            "step": 3,
+            "action": "Identify a resource that is already booked in a different calendar (e.g., Projector X booked in Calendar A from 1:00 PM to 2:00 PM)",
+            "expectedResult": "Existing booking information is confirmed in Calendar A"
+          },
+          {
+            "step": 4,
+            "action": "Start the timer and immediately input a booking in Calendar C for the same resource (Projector X) with overlapping time (1:30 PM to 2:30 PM)",
+            "expectedResult": "Booking details are entered and form is ready for submission"
+          },
+          {
+            "step": 5,
+            "action": "Submit the booking request and continue timing",
+            "expectedResult": "Booking request is submitted to the system for processing"
+          },
+          {
+            "step": 6,
+            "action": "Observe when the conflict alert appears and stop the timer",
+            "expectedResult": "Conflict is detected and alert is displayed. Elapsed time from submission to alert display is recorded"
+          },
+          {
+            "step": 7,
+            "action": "Verify the measured latency",
+            "expectedResult": "Conflict detection latency is under 2 seconds. Alert appears within the acceptable performance threshold"
+          },
+          {
+            "step": 8,
+            "action": "Review the conflict alert content",
+            "expectedResult": "Alert displays accurate cross-calendar conflict information including: source calendar (Calendar A), conflicting resource (Projector X), existing booking time (1:00 PM - 2:00 PM), attempted booking calendar (Calendar C), attempted booking time (1:30 PM - 2:30 PM), and overlap duration (30 minutes)"
+          },
+          {
+            "step": 9,
+            "action": "Repeat the test with bookings across different calendar combinations (e.g., Calendar B to Calendar C, Calendar A to Calendar B)",
+            "expectedResult": "Each test iteration detects conflicts within 2 seconds consistently across all calendar combinations"
+          },
+          {
+            "step": 10,
+            "action": "Document the latency measurements for all test iterations",
+            "expectedResult": "All recorded latencies are under 2 seconds, demonstrating consistent performance with multiple calendars"
+          }
+        ],
+        "postconditions": [
+          "Conflict detection latency has been measured and verified to be under 2 seconds",
+          "System performance meets the specified requirements for cross-calendar conflict detection",
+          "Multiple test iterations confirm consistent performance",
+          "Test bookings can be cleaned up or cancelled",
+          "System remains responsive and operational",
+          "Performance metrics are documented for reporting"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-17",
+    "storyTitle": "As Scheduler, I want the system to log all detected conflicts with detailed metadata to support audit and analysis",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify conflict logging with metadata",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated with scheduler role",
+          "Conflict detection system is operational",
+          "Conflict log database is accessible",
+          "API endpoint GET /api/conflicts/logs is available",
+          "At least two overlapping bookings exist to trigger a conflict"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Create or trigger a scheduling conflict by attempting to book a resource that is already reserved for the same time slot",
+            "expectedResult": "System detects the conflict and triggers conflict detection mechanism"
+          },
+          {
+            "step": 2,
+            "action": "Verify that the conflict is logged in the conflict log database",
+            "expectedResult": "Conflict entry is created with complete metadata including timestamp (date and time of conflict detection), user ID of the user who triggered the conflict, resource ID involved in the conflict, and booking details"
+          },
+          {
+            "step": 3,
+            "action": "Send GET request to /api/conflicts/logs endpoint to query the conflict logs",
+            "expectedResult": "API returns the conflict logs with all metadata fields populated correctly"
+          },
+          {
+            "step": 4,
+            "action": "Measure the response time of the API query",
+            "expectedResult": "Logs are returned within 3 seconds with complete metadata including timestamp, user information, resource details, and conflict status"
+          },
+          {
+            "step": 5,
+            "action": "Verify the completeness of logged metadata fields",
+            "expectedResult": "All required fields are present: conflict ID, timestamp, user ID, resource ID, booking IDs involved, conflict type, and resolution status"
+          }
+        ],
+        "postconditions": [
+          "Conflict is logged in the database with complete metadata",
+          "Conflict log is queryable via API",
+          "System remains in operational state",
+          "No data corruption or loss occurred"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Test access control for conflict logs",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Conflict logs exist in the database",
+          "API endpoint GET /api/conflicts/logs is available",
+          "Test user accounts with different roles are configured (authorized and unauthorized)",
+          "Authentication and authorization mechanisms are active",
+          "Role-based access control (RBAC) is properly configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Authenticate as a user without authorized role (e.g., regular user or guest role)",
+            "expectedResult": "User is successfully authenticated but does not have admin or scheduler privileges"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to access conflict logs by sending GET request to /api/conflicts/logs endpoint",
+            "expectedResult": "Access is denied with HTTP 403 Forbidden status code and appropriate error message indicating insufficient permissions"
+          },
+          {
+            "step": 3,
+            "action": "Verify that no conflict log data is returned in the response",
+            "expectedResult": "Response body does not contain any conflict log information or sensitive data"
+          },
+          {
+            "step": 4,
+            "action": "Log out and authenticate as a user with authorized role (admin or scheduler)",
+            "expectedResult": "User is successfully authenticated with proper authorization credentials"
+          },
+          {
+            "step": 5,
+            "action": "Send GET request to /api/conflicts/logs endpoint with authorized credentials",
+            "expectedResult": "Access is granted with HTTP 200 OK status code"
+          },
+          {
+            "step": 6,
+            "action": "Verify the conflict logs are returned in the response",
+            "expectedResult": "Logs are accessible and returned with complete metadata within 3 seconds"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized access attempts are logged for security audit",
+          "Access control mechanisms remain intact",
+          "Authorized users can successfully access logs",
+          "No security vulnerabilities exposed"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-18",
+    "storyTitle": "As Scheduler, I want the system to prevent booking confirmation when conflicts exist to avoid scheduling errors",
+    "testCases": [
+      {
+        "id": "tc-003",
+        "title": "Block booking confirmation when conflict exists",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated with scheduler role",
+          "Scheduling system is operational",
+          "API endpoint POST /api/schedule/confirm is available",
+          "A booking exists that conflicts with the booking to be confirmed",
+          "Conflict detection service is running and functional",
+          "Test booking is in pending/unconfirmed state"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Create or select a booking that has a scheduling conflict with an existing confirmed booking (same resource, overlapping time)",
+            "expectedResult": "Booking is created in pending state with known conflict"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to confirm the conflicting booking by sending POST request to /api/schedule/confirm with the booking ID",
+            "expectedResult": "System performs real-time conflict check before processing confirmation"
+          },
+          {
+            "step": 3,
+            "action": "Verify the system response to the confirmation attempt",
+            "expectedResult": "System blocks the confirmation action and returns an error response with HTTP 409 Conflict status code"
+          },
+          {
+            "step": 4,
+            "action": "Review the error message returned by the system",
+            "expectedResult": "Clear error message is displayed detailing the conflict including conflicting resource, time slot, and existing booking information"
+          },
+          {
+            "step": 5,
+            "action": "Verify the booking status remains unchanged",
+            "expectedResult": "Booking remains in pending/unconfirmed state and is not confirmed"
+          },
+          {
+            "step": 6,
+            "action": "Resolve the conflict by modifying the booking (change time slot or resource to eliminate overlap)",
+            "expectedResult": "Booking is updated successfully with no conflicts detected"
+          },
+          {
+            "step": 7,
+            "action": "Retry the confirmation by sending POST request to /api/schedule/confirm with the updated booking ID",
+            "expectedResult": "System performs conflict check and finds no conflicts"
+          },
+          {
+            "step": 8,
+            "action": "Verify the confirmation is successful",
+            "expectedResult": "Booking is confirmed successfully with HTTP 200 OK status, booking status changes to confirmed, and confirmation details are returned"
+          }
+        ],
+        "postconditions": [
+          "Conflicting booking was blocked from confirmation",
+          "Resolved booking is successfully confirmed",
+          "Schedule integrity is maintained",
+          "No double-booking or scheduling errors occurred",
+          "Audit trail of confirmation attempts is logged"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-004",
+        "title": "Verify confirmation response time",
+        "type": "boundary",
+        "priority": "Medium",
+        "preconditions": [
+          "User is authenticated with scheduler role",
+          "Scheduling system is operational",
+          "API endpoint POST /api/schedule/confirm is available",
+          "Test booking exists in pending state with no conflicts",
+          "Performance monitoring tools are available to measure response time",
+          "System is under normal load conditions"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Prepare a valid booking confirmation request with booking ID that has no conflicts",
+            "expectedResult": "Request payload is properly formatted and ready to submit"
+          },
+          {
+            "step": 2,
+            "action": "Record the timestamp before sending the confirmation request",
+            "expectedResult": "Start time is captured accurately"
+          },
+          {
+            "step": 3,
+            "action": "Submit booking confirmation request by sending POST request to /api/schedule/confirm endpoint",
+            "expectedResult": "Request is sent successfully to the server"
+          },
+          {
+            "step": 4,
+            "action": "Wait for and receive the response from the server",
+            "expectedResult": "Server processes the request and returns a response"
+          },
+          {
+            "step": 5,
+            "action": "Record the timestamp when the response is received",
+            "expectedResult": "End time is captured accurately"
+          },
+          {
+            "step": 6,
+            "action": "Calculate the total response time (end time minus start time)",
+            "expectedResult": "Response time is calculated and displayed"
+          },
+          {
+            "step": 7,
+            "action": "Verify that the response time is under 2 seconds",
+            "expectedResult": "Confirmation response is received within 2 seconds, meeting the performance requirement"
+          },
+          {
+            "step": 8,
+            "action": "Verify the booking confirmation was successful",
+            "expectedResult": "Response contains HTTP 200 OK status and booking is confirmed"
+          }
+        ],
+        "postconditions": [
+          "Booking is successfully confirmed",
+          "Response time meets performance criteria (under 2 seconds)",
+          "System performance is within acceptable limits",
+          "Performance metrics are logged for monitoring"
+        ],
+        "estimatedTime": "5 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-19",
+    "storyTitle": "As Scheduler, I want the system to support concurrent scheduling inputs without missing conflict detections to maintain data integrity",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Ensure conflict detection under concurrent booking submissions",
+        "type": "edge-case",
+        "priority": "High",
+        "preconditions": [
+          "Scheduling system is operational and accessible",
+          "Database has transaction support enabled",
+          "Test environment supports at least 100 concurrent connections",
+          "Multiple scheduler accounts are created and authenticated",
+          "Test data includes resources with defined availability schedules",
+          "Performance monitoring tools are configured to track concurrent operations",
+          "API endpoint POST /api/schedule/book is available and functional"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Prepare 100 booking requests with intentionally overlapping time slots for the same resources",
+            "expectedResult": "100 booking payloads are created with overlapping times (e.g., 50 requests for Resource A from 10:00-11:00, 50 requests for Resource B from 14:00-15:00)"
+          },
+          {
+            "step": 2,
+            "action": "Initiate concurrent submission of all 100 booking requests simultaneously using load testing tool or multi-threaded script",
+            "expectedResult": "All 100 requests are sent to the system within a 1-2 second window"
+          },
+          {
+            "step": 3,
+            "action": "Monitor system response for each booking submission request",
+            "expectedResult": "System processes all 100 requests and returns responses for each submission"
+          },
+          {
+            "step": 4,
+            "action": "Analyze responses to verify conflict detection - check for conflict alerts/errors for overlapping bookings",
+            "expectedResult": "System detects all conflicts accurately: only 1 booking per resource per time slot is accepted, remaining 49 requests for each resource receive conflict error messages"
+          },
+          {
+            "step": 5,
+            "action": "Query the database to retrieve all bookings created during the concurrent submission test",
+            "expectedResult": "Database query returns only the successfully created bookings without conflicts"
+          },
+          {
+            "step": 6,
+            "action": "Verify no bookings were created with unresolved conflicts by checking each booking against the resource availability schedule",
+            "expectedResult": "No conflicting bookings are persisted in the database - each resource has only one booking per time slot with no overlaps"
+          },
+          {
+            "step": 7,
+            "action": "Review system logs and transaction records for any race conditions or deadlock errors",
+            "expectedResult": "Logs show proper transaction handling with no race conditions, deadlocks, or data integrity errors"
+          },
+          {
+            "step": 8,
+            "action": "Verify the count of successful bookings matches expected results (2 successful bookings for 2 resources)",
+            "expectedResult": "Exactly 2 bookings are confirmed (1 per resource), and 98 requests were rejected with appropriate conflict messages"
+          }
+        ],
+        "postconditions": [
+          "Only non-conflicting bookings are persisted in the database",
+          "All conflict errors are logged appropriately",
+          "System remains stable and responsive after concurrent load",
+          "No data corruption or inconsistencies exist in the scheduling database",
+          "All rejected booking requests have clear conflict error messages recorded"
+        ],
+        "estimatedTime": "20 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify data consistency during concurrent operations",
+        "type": "edge-case",
+        "priority": "High",
+        "preconditions": [
+          "Scheduling system is operational with transaction support enabled",
+          "Database is in a known consistent state with existing bookings",
+          "Multiple scheduler accounts are authenticated and have appropriate permissions",
+          "Test environment supports concurrent operations (minimum 50 concurrent users)",
+          "Baseline data snapshot is taken for comparison",
+          "API endpoints POST /api/schedule/book and DELETE /api/schedule/cancel are functional",
+          "Monitoring tools are configured to track data consistency metrics"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Create initial set of 25 confirmed bookings across various resources and time slots",
+            "expectedResult": "25 bookings are successfully created and persisted in the database with confirmed status"
+          },
+          {
+            "step": 2,
+            "action": "Take a snapshot of the current database state including all booking records, resource availability, and timestamps",
+            "expectedResult": "Database snapshot captured showing 25 confirmed bookings with all associated metadata"
+          },
+          {
+            "step": 3,
+            "action": "Prepare concurrent operations: 25 new booking requests and 15 cancellation requests for existing bookings",
+            "expectedResult": "40 total operations are prepared (25 create, 15 cancel) targeting different and some overlapping resources"
+          },
+          {
+            "step": 4,
+            "action": "Execute all 40 operations concurrently using multi-threaded approach to simulate real-world concurrent scheduler activity",
+            "expectedResult": "All 40 operations are submitted to the system simultaneously within a 2-3 second window"
+          },
+          {
+            "step": 5,
+            "action": "Monitor and collect responses from all concurrent operations",
+            "expectedResult": "System returns response for each of the 40 operations with appropriate success or error status codes"
+          },
+          {
+            "step": 6,
+            "action": "Query the database to retrieve current state of all bookings after concurrent operations complete",
+            "expectedResult": "Database query returns complete list of all bookings with their current status"
+          },
+          {
+            "step": 7,
+            "action": "Verify data consistency by checking: (a) All successful cancellations are reflected in database, (b) All successful new bookings are persisted, (c) No phantom bookings exist, (d) Resource availability is correctly updated",
+            "expectedResult": "Data remains consistent with no anomalies: cancelled bookings are removed or marked cancelled, new valid bookings are confirmed, no duplicate or orphaned records exist, resource availability accurately reflects current bookings"
+          },
+          {
+            "step": 8,
+            "action": "Perform referential integrity check to ensure all foreign key relationships are maintained",
+            "expectedResult": "All booking records have valid references to resources, schedulers, and related entities with no broken relationships"
+          },
+          {
+            "step": 9,
+            "action": "Compare final database state with expected state based on successful operations",
+            "expectedResult": "Final booking count and resource availability matches expected calculations: (25 initial + successful new bookings - successful cancellations)"
+          },
+          {
+            "step": 10,
+            "action": "Review transaction logs for any rollback operations, deadlocks, or consistency violations",
+            "expectedResult": "Transaction logs show proper atomic operations with appropriate rollbacks for failed transactions and no data consistency violations"
+          },
+          {
+            "step": 11,
+            "action": "Verify audit trail completeness for all operations performed",
+            "expectedResult": "Audit logs contain complete records of all 40 operations with timestamps, user information, and operation outcomes"
+          }
+        ],
+        "postconditions": [
+          "Database maintains complete data consistency with no anomalies",
+          "All successful bookings are persisted correctly",
+          "All successful cancellations are reflected in the system",
+          "No orphaned or duplicate records exist",
+          "Resource availability accurately reflects current booking state",
+          "System remains stable and responsive",
+          "All operations are properly logged in audit trail"
+        ],
+        "estimatedTime": "25 mins"
+      }
+    ]
+  }
+]
