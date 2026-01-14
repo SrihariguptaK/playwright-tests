@@ -1,0 +1,455 @@
+[
+  {
+    "storyId": "story-12",
+    "storyTitle": "As Scheduler, I want the system to detect scheduling conflicts within 2 seconds to enable immediate action",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify conflict detection within 2 seconds",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Scheduling system is operational and accessible",
+          "At least one existing booking is present in the system",
+          "System clock is synchronized",
+          "Conflict detection service is running"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the scheduling interface and note the current timestamp",
+            "expectedResult": "Scheduling interface loads successfully with booking creation form displayed"
+          },
+          {
+            "step": 2,
+            "action": "Create a new booking entry that overlaps with an existing booking (same resource, overlapping time slot)",
+            "expectedResult": "Booking submission is processed and conflict detection is triggered"
+          },
+          {
+            "step": 3,
+            "action": "Record the timestamp when conflict notification appears and calculate the time difference from submission",
+            "expectedResult": "System detects and displays the conflict within 2 seconds of booking submission"
+          },
+          {
+            "step": 4,
+            "action": "Navigate to an existing booking and update it to create a resource over-allocation (assign more resources than available)",
+            "expectedResult": "Booking update is submitted successfully"
+          },
+          {
+            "step": 5,
+            "action": "Monitor for conflict detection notification and measure response time",
+            "expectedResult": "Conflict is detected and logged promptly within 2 seconds, with notification displayed to the scheduler"
+          },
+          {
+            "step": 6,
+            "action": "Access the conflict logs via the system interface or API endpoint GET /api/conflicts",
+            "expectedResult": "Conflict logs are accessible and displayed"
+          },
+          {
+            "step": 7,
+            "action": "Verify that all conflicts from previous steps are recorded in the logs with accurate timestamps and relevant metadata (booking IDs, resource names, conflict type)",
+            "expectedResult": "All conflicts are recorded with correct timestamps showing detection within 2 seconds, including complete metadata for each conflict"
+          }
+        ],
+        "postconditions": [
+          "All test conflicts are logged in the system",
+          "No bookings are permanently saved with conflicts",
+          "System remains in operational state",
+          "Test data can be cleaned up or retained for audit"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Test detection under concurrent scheduling inputs",
+        "type": "edge-case",
+        "priority": "High",
+        "preconditions": [
+          "Multiple test user accounts with Scheduler role are available",
+          "Scheduling system is operational with adequate resources",
+          "Performance monitoring tools are configured and accessible",
+          "Test environment can simulate concurrent users",
+          "Baseline performance metrics are documented"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Set up simulation environment to create 5-10 concurrent scheduler sessions",
+            "expectedResult": "All concurrent sessions are established and authenticated successfully"
+          },
+          {
+            "step": 2,
+            "action": "Simultaneously create multiple overlapping bookings from different scheduler sessions targeting the same resources and time slots",
+            "expectedResult": "All booking requests are submitted concurrently to the system"
+          },
+          {
+            "step": 3,
+            "action": "Monitor each session for conflict detection notifications and record the detection time for each conflict",
+            "expectedResult": "System detects conflicts for all overlapping bookings without delay, all within 2 seconds of submission"
+          },
+          {
+            "step": 4,
+            "action": "Access system performance metrics dashboard or API to retrieve detection latency measurements during the concurrent load",
+            "expectedResult": "Performance metrics are retrieved successfully showing individual detection times"
+          },
+          {
+            "step": 5,
+            "action": "Analyze the performance data to verify that all conflict detections occurred within the 2-second threshold",
+            "expectedResult": "Detection latency remains under 2 seconds for all concurrent requests, with no performance degradation"
+          },
+          {
+            "step": 6,
+            "action": "Review conflict logs to create a comprehensive list of all expected conflicts based on the concurrent bookings created",
+            "expectedResult": "Complete list of expected conflicts is compiled"
+          },
+          {
+            "step": 7,
+            "action": "Cross-reference the conflict logs against the expected conflicts list to verify completeness",
+            "expectedResult": "All conflicts are identified accurately with no missed detections, 100% detection rate confirmed"
+          }
+        ],
+        "postconditions": [
+          "All concurrent test sessions are closed",
+          "System performance returns to baseline levels",
+          "All test conflicts are logged",
+          "Performance metrics are documented for future reference",
+          "Test bookings are cleaned up from the system"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-14",
+    "storyTitle": "As Scheduler, I want to configure conflict detection rules to tailor alerts to my resource types",
+    "testCases": [
+      {
+        "id": "tc-003",
+        "title": "Validate rule configuration and application",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role and appropriate permissions",
+          "Conflict rule configuration interface is accessible",
+          "At least two different resource types exist in the system",
+          "Current conflict detection rules are documented",
+          "System configuration database is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the conflict rule configuration interface via the system menu or direct URL",
+            "expectedResult": "Conflict rule configuration interface loads successfully"
+          },
+          {
+            "step": 2,
+            "action": "Review the displayed current rules for all resource types, noting existing settings and thresholds",
+            "expectedResult": "Current rules are displayed clearly with all configured parameters visible including resource types, overlap thresholds, and enabled/disabled checks"
+          },
+          {
+            "step": 3,
+            "action": "Select a specific resource type (e.g., Conference Room) and modify its rules with valid settings: set allowable overlap time to 15 minutes and enable buffer time check",
+            "expectedResult": "Rule modification interface accepts the changes and displays updated values"
+          },
+          {
+            "step": 4,
+            "action": "Click the Save button to persist the rule changes",
+            "expectedResult": "System validates the rules, displays a success confirmation message, and rules are saved successfully"
+          },
+          {
+            "step": 5,
+            "action": "Verify the saved rules by refreshing the configuration interface and checking that the modified settings persist",
+            "expectedResult": "Modified rules are displayed correctly showing the 15-minute overlap allowance and enabled buffer time check"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to create a new rule with invalid syntax (e.g., negative overlap time of -10 minutes)",
+            "expectedResult": "System displays validation error indicating invalid input"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to save conflicting rules (e.g., set minimum booking duration longer than maximum booking duration for the same resource type)",
+            "expectedResult": "System rejects the changes with a descriptive error message explaining the logical conflict between the rules"
+          },
+          {
+            "step": 8,
+            "action": "Correct the invalid rules to valid settings and attempt to save again",
+            "expectedResult": "System accepts the corrected rules and saves them successfully with confirmation message"
+          }
+        ],
+        "postconditions": [
+          "Valid rule changes are persisted in the configuration database",
+          "Invalid rule attempts are rejected without affecting existing rules",
+          "System maintains data integrity",
+          "Audit log contains record of rule modification attempts"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-004",
+        "title": "Verify detection engine applies updated rules",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Conflict rule configuration interface is accessible",
+          "Conflict detection engine is running",
+          "At least one resource type with configurable rules exists",
+          "Booking creation interface is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the conflict rule configuration interface and document the current rules for a specific resource type (e.g., Meeting Room)",
+            "expectedResult": "Current rules are displayed and documented, showing default settings"
+          },
+          {
+            "step": 2,
+            "action": "Modify the conflict detection rules for Meeting Room resource type: set allowable overlap to 30 minutes and disable strict time slot enforcement",
+            "expectedResult": "Rule modifications are entered successfully"
+          },
+          {
+            "step": 3,
+            "action": "Save the updated rules and note the exact timestamp of the save action",
+            "expectedResult": "System saves the rules successfully and displays confirmation with timestamp"
+          },
+          {
+            "step": 4,
+            "action": "Wait and monitor the system status for up to 1 minute to allow rule propagation to the detection engine",
+            "expectedResult": "System indicates that rules are being applied or shows active status"
+          },
+          {
+            "step": 5,
+            "action": "After 1 minute has elapsed, verify via system logs or admin interface that the updated rules have been applied to the detection engine",
+            "expectedResult": "Rules are applied to the detection engine within 1 minute of saving, confirmed by system logs or status indicators"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to the booking creation interface and create a new booking for a Meeting Room resource",
+            "expectedResult": "Booking creation form is displayed and ready for input"
+          },
+          {
+            "step": 7,
+            "action": "Create a booking that overlaps with an existing Meeting Room booking by exactly 25 minutes (within the new 30-minute allowable overlap threshold)",
+            "expectedResult": "Booking is submitted successfully"
+          },
+          {
+            "step": 8,
+            "action": "Observe the system response and check for conflict notifications",
+            "expectedResult": "No conflict is detected or alerted because the 25-minute overlap is within the configured 30-minute allowable threshold, demonstrating that updated rules are active"
+          },
+          {
+            "step": 9,
+            "action": "Create another booking that overlaps by 35 minutes (exceeding the 30-minute threshold)",
+            "expectedResult": "Booking is submitted successfully"
+          },
+          {
+            "step": 10,
+            "action": "Observe the system response for conflict detection",
+            "expectedResult": "Conflict is detected and notification is displayed because the 35-minute overlap exceeds the configured threshold, confirming conflict detection behaves according to updated rules"
+          }
+        ],
+        "postconditions": [
+          "Updated rules are active in the detection engine",
+          "Conflict detection behaves according to new rule parameters",
+          "Test bookings demonstrate rule application",
+          "System logs reflect rule changes and detection behavior",
+          "Test bookings can be removed or retained for further testing"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-15",
+    "storyTitle": "As Scheduler, I want the system to log all detected conflicts with timestamps and metadata for audit and analysis",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify logging of detected conflicts with metadata",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has authorized access to the conflict logging system",
+          "Conflict detection engine is running and operational",
+          "Centralized logging database is accessible and has sufficient storage",
+          "API endpoint GET /api/conflict-logs is available",
+          "At least two bookings exist that can create a conflict scenario",
+          "Detection rule version is configured and active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Create two overlapping bookings for the same resource to trigger a conflict detection event",
+            "expectedResult": "Conflict is detected by the system and conflict detection engine processes the event"
+          },
+          {
+            "step": 2,
+            "action": "Verify that the conflict is logged automatically by checking the logging service status",
+            "expectedResult": "Logging service confirms that the conflict event has been recorded with a unique log entry ID"
+          },
+          {
+            "step": 3,
+            "action": "Check that the log entry contains an accurate timestamp of when the conflict was detected",
+            "expectedResult": "Timestamp is present in ISO 8601 format and matches the time of conflict detection within acceptable margin (±1 second)"
+          },
+          {
+            "step": 4,
+            "action": "Verify that the log entry includes metadata for involved bookings (booking IDs, booking times, user information)",
+            "expectedResult": "All involved booking IDs are present with complete booking details including start time, end time, and associated user information"
+          },
+          {
+            "step": 5,
+            "action": "Verify that the log entry includes resource information (resource ID, resource name, resource type)",
+            "expectedResult": "Complete resource details are logged including resource ID, name, and type"
+          },
+          {
+            "step": 6,
+            "action": "Verify that the detection rule version used is recorded in the log entry",
+            "expectedResult": "Detection rule version number is present and matches the currently active rule version"
+          },
+          {
+            "step": 7,
+            "action": "Send a GET request to /api/conflict-logs endpoint with appropriate authentication credentials",
+            "expectedResult": "API responds with HTTP 200 status code and returns the conflict log data"
+          },
+          {
+            "step": 8,
+            "action": "Query the logs using the conflict ID or timestamp to retrieve the specific log entry created in previous steps",
+            "expectedResult": "Log entry is successfully retrieved with all complete details including timestamp, booking IDs, resource information, and detection rule version"
+          },
+          {
+            "step": 9,
+            "action": "Verify that the retrieved log entry matches the expected data structure and contains all required fields",
+            "expectedResult": "Log entry contains all mandatory fields: conflict_id, timestamp, involved_bookings[], resources[], detection_rule_version, conflict_type, and status"
+          },
+          {
+            "step": 10,
+            "action": "Initiate an export operation for the conflict logs through the API or UI, specifying the desired format (CSV, JSON, or XML)",
+            "expectedResult": "Export request is accepted and processing begins"
+          },
+          {
+            "step": 11,
+            "action": "Download or retrieve the exported log file",
+            "expectedResult": "Logs are successfully exported in the requested format with all data intact and properly formatted"
+          },
+          {
+            "step": 12,
+            "action": "Open and verify the exported file contains the conflict log entry with all metadata",
+            "expectedResult": "Exported file is readable, contains the logged conflict with complete metadata, and data integrity is maintained"
+          }
+        ],
+        "postconditions": [
+          "Conflict log entry remains stored in the centralized database",
+          "Log entry is available for future queries and audits",
+          "Exported log file is saved and accessible for analysis",
+          "No data corruption or loss occurred during logging or export process",
+          "System resources are released and logging service is ready for next event"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Ensure logging does not impact detection performance",
+        "type": "edge-case",
+        "priority": "High",
+        "preconditions": [
+          "Conflict detection engine is operational with logging enabled",
+          "Performance monitoring tools are configured and ready",
+          "Baseline performance metrics are established",
+          "Test environment has representative load conditions",
+          "System has sufficient resources (CPU, memory, disk I/O)",
+          "Ability to enable/disable logging feature for comparison testing",
+          "Multiple test conflict scenarios are prepared for consistent testing"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Ensure that the logging feature is enabled in the system configuration",
+            "expectedResult": "Logging feature status is confirmed as enabled through system settings or configuration file"
+          },
+          {
+            "step": 2,
+            "action": "Prepare a set of 10 conflict scenarios with overlapping bookings to ensure consistent testing conditions",
+            "expectedResult": "Test data is ready with 10 predefined conflict scenarios that can be triggered repeatedly"
+          },
+          {
+            "step": 3,
+            "action": "Clear any existing performance metrics and reset monitoring tools to baseline",
+            "expectedResult": "Performance monitoring tools are reset and ready to capture fresh metrics"
+          },
+          {
+            "step": 4,
+            "action": "Trigger the first conflict detection scenario and start measuring the detection latency from conflict occurrence to detection completion",
+            "expectedResult": "Conflict is detected and latency measurement is recorded"
+          },
+          {
+            "step": 5,
+            "action": "Repeat the conflict detection process for all 10 prepared scenarios while recording latency for each detection",
+            "expectedResult": "All 10 conflicts are detected and individual latency measurements are captured"
+          },
+          {
+            "step": 6,
+            "action": "Calculate the average detection latency with logging enabled across all 10 test runs",
+            "expectedResult": "Average detection latency is calculated and documented (e.g., 1.2 seconds)"
+          },
+          {
+            "step": 7,
+            "action": "Verify that the average detection latency with logging enabled remains within the acceptable threshold of 2 seconds",
+            "expectedResult": "Average latency is at or below 2 seconds, meeting the performance requirement"
+          },
+          {
+            "step": 8,
+            "action": "Verify that individual detection latencies do not exceed 2 seconds for any single test run",
+            "expectedResult": "All individual latency measurements are within the 2-second threshold"
+          },
+          {
+            "step": 9,
+            "action": "Disable the logging feature in the system configuration",
+            "expectedResult": "Logging feature is successfully disabled and confirmed through system settings"
+          },
+          {
+            "step": 10,
+            "action": "Clear performance metrics and reset monitoring tools again for the second test phase",
+            "expectedResult": "Monitoring tools are reset and ready for the next measurement phase"
+          },
+          {
+            "step": 11,
+            "action": "Trigger the same 10 conflict detection scenarios used previously and measure detection latency without logging",
+            "expectedResult": "All 10 conflicts are detected and latency measurements are captured without logging overhead"
+          },
+          {
+            "step": 12,
+            "action": "Calculate the average detection latency with logging disabled across all 10 test runs",
+            "expectedResult": "Average detection latency without logging is calculated and documented (e.g., 1.1 seconds)"
+          },
+          {
+            "step": 13,
+            "action": "Compare the average detection latency with logging enabled versus logging disabled",
+            "expectedResult": "Difference in average latency is calculated (e.g., 0.1 seconds difference)"
+          },
+          {
+            "step": 14,
+            "action": "Verify that the performance difference between logging enabled and disabled is not significant (less than 10% degradation or less than 200ms absolute difference)",
+            "expectedResult": "Performance impact is minimal and within acceptable limits, confirming that logging does not significantly degrade detection performance"
+          },
+          {
+            "step": 15,
+            "action": "Document the performance test results including both average latencies and the percentage difference",
+            "expectedResult": "Complete performance report is generated showing that logging has no measurable negative impact on conflict detection performance"
+          }
+        ],
+        "postconditions": [
+          "Logging feature is re-enabled to operational state",
+          "Performance metrics are documented and stored for future reference",
+          "System performance remains within acceptable parameters",
+          "No performance degradation is observed in conflict detection",
+          "Test data and scenarios are preserved for regression testing",
+          "Performance baseline is updated if necessary"
+        ],
+        "estimatedTime": "20 mins"
+      }
+    ]
+  }
+]
