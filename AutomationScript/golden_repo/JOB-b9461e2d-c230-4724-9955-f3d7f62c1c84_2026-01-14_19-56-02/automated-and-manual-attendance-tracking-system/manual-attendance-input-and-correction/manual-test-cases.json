@@ -1,0 +1,731 @@
+[
+  {
+    "storyId": "story-2",
+    "storyTitle": "As Attendance Manager, I want to review and approve manual attendance entries to ensure data accuracy",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Approve manual attendance entry successfully",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has valid Attendance Manager credentials",
+          "At least one manual attendance entry exists in pending status",
+          "Database is accessible and operational",
+          "User has approval permissions assigned to their role"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance management portal login page",
+            "expectedResult": "Login page is displayed with username and password fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid Attendance Manager credentials and click Login button",
+            "expectedResult": "User is successfully authenticated and redirected to the attendance management dashboard"
+          },
+          {
+            "step": 3,
+            "action": "Verify access to the manual attendance approval section in the navigation menu",
+            "expectedResult": "Manual attendance approval section is visible and accessible in the menu"
+          },
+          {
+            "step": 4,
+            "action": "Click on the manual attendance approval section link",
+            "expectedResult": "System navigates to the approval section and displays the pending entries page"
+          },
+          {
+            "step": 5,
+            "action": "View the list of pending manual attendance entries",
+            "expectedResult": "List displays all pending manual attendance entries with columns showing employee ID, date, time, reason, and submitter information"
+          },
+          {
+            "step": 6,
+            "action": "Select a specific pending entry from the list by clicking on it",
+            "expectedResult": "Entry details page opens showing complete information including employee name, ID, date, time, reason for manual entry, and submitter details"
+          },
+          {
+            "step": 7,
+            "action": "Review all details of the selected entry for accuracy and completeness",
+            "expectedResult": "All entry details are clearly displayed and readable"
+          },
+          {
+            "step": 8,
+            "action": "Click the Approve button for the reviewed entry",
+            "expectedResult": "Approval confirmation dialog appears asking to confirm the action"
+          },
+          {
+            "step": 9,
+            "action": "Confirm the approval action in the dialog",
+            "expectedResult": "System processes the approval within 2 seconds, entry status changes to 'Approved', success message is displayed, and timestamp with manager ID is recorded"
+          },
+          {
+            "step": 10,
+            "action": "Verify that the submitter receives a notification about the approval",
+            "expectedResult": "Submitter receives notification via system notification and/or email confirming that their manual attendance entry has been approved"
+          }
+        ],
+        "postconditions": [
+          "Manual attendance entry status is updated to 'Approved' in the database",
+          "Approval action is logged in audit trail with timestamp and manager user ID",
+          "Entry is removed from pending list",
+          "Submitter has received approval notification",
+          "Attendance record is finalized in the system"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Reject manual attendance entry with comments",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has valid Attendance Manager credentials",
+          "At least one manual attendance entry exists in pending status",
+          "Database is accessible and operational",
+          "User has approval permissions assigned to their role"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance management portal login page",
+            "expectedResult": "Login page is displayed with username and password fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid Attendance Manager credentials and click Login button",
+            "expectedResult": "User is successfully authenticated and redirected to the attendance management dashboard"
+          },
+          {
+            "step": 3,
+            "action": "Verify access to the manual attendance approval section in the navigation menu",
+            "expectedResult": "Manual attendance approval section is visible and accessible in the menu"
+          },
+          {
+            "step": 4,
+            "action": "Navigate to the manual attendance approval section",
+            "expectedResult": "Pending manual attendance entries list is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Select a pending manual attendance entry from the list",
+            "expectedResult": "Entry details page opens showing all information about the selected entry"
+          },
+          {
+            "step": 6,
+            "action": "Review the entry details and identify issues requiring rejection",
+            "expectedResult": "Entry details are displayed clearly for review"
+          },
+          {
+            "step": 7,
+            "action": "Click the Reject button for the selected entry",
+            "expectedResult": "Rejection dialog appears with a mandatory comments field"
+          },
+          {
+            "step": 8,
+            "action": "Enter detailed rejection comments explaining the reason for rejection (e.g., 'Invalid time entry - conflicts with existing biometric record')",
+            "expectedResult": "Comments are accepted in the text field without character limit errors"
+          },
+          {
+            "step": 9,
+            "action": "Click Confirm Rejection button",
+            "expectedResult": "System processes the rejection within 2 seconds, entry status changes to 'Rejected', rejection comments are saved, success message is displayed"
+          },
+          {
+            "step": 10,
+            "action": "Verify that rejection details are recorded in the system",
+            "expectedResult": "Entry status shows 'Rejected', comments are saved and visible, timestamp and manager ID are recorded in audit trail"
+          },
+          {
+            "step": 11,
+            "action": "Check that the submitter receives a rejection notification",
+            "expectedResult": "Submitter receives notification via system notification and/or email with rejection reason and comments included"
+          },
+          {
+            "step": 12,
+            "action": "Verify the notification contains the rejection comments",
+            "expectedResult": "Notification displays the exact rejection comments entered by the manager"
+          }
+        ],
+        "postconditions": [
+          "Manual attendance entry status is updated to 'Rejected' in the database",
+          "Rejection comments are saved and associated with the entry",
+          "Rejection action is logged in audit trail with timestamp and manager user ID",
+          "Entry remains visible in rejected entries list",
+          "Submitter has received rejection notification with comments",
+          "Entry is not finalized in the attendance system"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Prevent unauthorized user from accessing approval functionality",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User account exists without approval permissions",
+          "Role-based access control is configured and active",
+          "Manual attendance approval functionality exists in the system",
+          "Database and authentication services are operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance management portal login page",
+            "expectedResult": "Login page is displayed with username and password fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter credentials of a user without approval permissions (e.g., regular employee or clerk without manager role)",
+            "expectedResult": "User is successfully authenticated and redirected to their authorized dashboard"
+          },
+          {
+            "step": 3,
+            "action": "Check the navigation menu for manual attendance approval section",
+            "expectedResult": "Manual attendance approval section is not visible in the navigation menu"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to manually navigate to the approval section URL by typing it in the browser address bar",
+            "expectedResult": "System displays 'Access Denied' or '403 Forbidden' error page indicating insufficient permissions"
+          },
+          {
+            "step": 5,
+            "action": "Verify that no approval functionality is accessible through the UI",
+            "expectedResult": "User cannot access any approval buttons, pending entries list, or approval-related features"
+          },
+          {
+            "step": 6,
+            "action": "Open API testing tool (e.g., Postman) and attempt to call GET /api/manual-attendance/pending endpoint with the unauthorized user's authentication token",
+            "expectedResult": "API returns 401 Unauthorized or 403 Forbidden status code with error message indicating insufficient permissions"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to call POST /api/manual-attendance/approve endpoint with a valid entry ID using the unauthorized user's token",
+            "expectedResult": "API returns 401 Unauthorized or 403 Forbidden status code with error message 'User does not have approval permissions'"
+          },
+          {
+            "step": 8,
+            "action": "Verify that no data is returned or modified by the unauthorized API calls",
+            "expectedResult": "No pending entries data is exposed and no approval actions are processed"
+          },
+          {
+            "step": 9,
+            "action": "Check audit logs for the unauthorized access attempts",
+            "expectedResult": "Audit logs record the unauthorized access attempts with user ID, timestamp, and denied action"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized user remains unable to access approval functionality",
+          "No manual attendance entries are modified",
+          "Security logs contain records of unauthorized access attempts",
+          "System security integrity is maintained",
+          "No sensitive data is exposed to unauthorized user"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-4",
+    "storyTitle": "As Attendance Clerk, I want to input manual attendance entries to handle exceptions and corrections",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Add manual attendance entry successfully",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has valid Attendance Clerk credentials",
+          "User has manual attendance input permissions",
+          "At least one valid employee exists in the system",
+          "Database is accessible and operational",
+          "Manual attendance input section is available"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance system login page",
+            "expectedResult": "Login page is displayed with username and password fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid Attendance Clerk credentials and click Login button",
+            "expectedResult": "User is successfully authenticated and redirected to the attendance clerk dashboard"
+          },
+          {
+            "step": 3,
+            "action": "Verify access to the manual attendance input section in the navigation menu",
+            "expectedResult": "Manual attendance input section is visible and accessible in the menu"
+          },
+          {
+            "step": 4,
+            "action": "Click on the manual attendance input section link",
+            "expectedResult": "System navigates to the manual attendance input page displaying the input form"
+          },
+          {
+            "step": 5,
+            "action": "Click on 'Add New Manual Attendance Entry' button",
+            "expectedResult": "New entry form is displayed with fields for Employee ID, Date, Time, and Reason"
+          },
+          {
+            "step": 6,
+            "action": "Enter a valid employee ID in the Employee ID field (e.g., 'EMP12345')",
+            "expectedResult": "Employee ID is accepted and system validates that the employee exists, displaying employee name if validation is successful"
+          },
+          {
+            "step": 7,
+            "action": "Select a valid date from the date picker (current or past date)",
+            "expectedResult": "Date is accepted and displayed in the correct format (e.g., DD/MM/YYYY)"
+          },
+          {
+            "step": 8,
+            "action": "Enter a valid time in the time field (e.g., '09:00 AM')",
+            "expectedResult": "Time is accepted and displayed in the correct format without validation errors"
+          },
+          {
+            "step": 9,
+            "action": "Enter a reason for the manual entry in the Reason field (e.g., 'Biometric device malfunction')",
+            "expectedResult": "Reason text is accepted in the field"
+          },
+          {
+            "step": 10,
+            "action": "Verify that all required fields are filled and no validation errors are displayed",
+            "expectedResult": "All fields show valid data with green checkmarks or no error indicators"
+          },
+          {
+            "step": 11,
+            "action": "Click the Submit or Save button to save the manual attendance entry",
+            "expectedResult": "System processes the entry within 2 seconds and displays a success confirmation message (e.g., 'Manual attendance entry saved successfully')"
+          },
+          {
+            "step": 12,
+            "action": "Verify that the new entry appears in the list of manual attendance entries",
+            "expectedResult": "Newly created entry is visible in the manual attendance entries list with status 'Pending' and all entered details displayed correctly"
+          },
+          {
+            "step": 13,
+            "action": "Check that the audit log records the manual entry action",
+            "expectedResult": "Audit log contains a record of the manual entry creation with clerk user ID, timestamp, and entry details"
+          }
+        ],
+        "postconditions": [
+          "Manual attendance entry is saved in the database with status 'Pending'",
+          "Entry is visible in the manual attendance entries list",
+          "Audit trail contains record of the entry creation",
+          "Confirmation message is displayed to the clerk",
+          "Entry is ready for manager approval"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Edit and delete manual attendance entry",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Attendance Clerk with appropriate permissions",
+          "At least one manual attendance entry exists in the system",
+          "Entry is in editable status (not yet approved)",
+          "Database is accessible and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the manual attendance input section from the dashboard",
+            "expectedResult": "Manual attendance input page is displayed showing list of existing manual entries"
+          },
+          {
+            "step": 2,
+            "action": "Locate an existing manual attendance entry from the list",
+            "expectedResult": "List displays existing manual attendance entries with columns for Employee ID, Date, Time, Reason, and Status"
+          },
+          {
+            "step": 3,
+            "action": "Click on the Edit icon or button for the selected entry",
+            "expectedResult": "Entry details are displayed in edit mode with all fields populated with current values and editable"
+          },
+          {
+            "step": 4,
+            "action": "Verify that all current entry details are correctly displayed in the form",
+            "expectedResult": "Employee ID, Date, Time, and Reason fields show the existing values accurately"
+          },
+          {
+            "step": 5,
+            "action": "Modify the Time field to a different valid time (e.g., change from '09:00 AM' to '10:30 AM')",
+            "expectedResult": "New time value is accepted without validation errors"
+          },
+          {
+            "step": 6,
+            "action": "Modify the Reason field to update the explanation (e.g., 'Biometric device malfunction - corrected time')",
+            "expectedResult": "Updated reason text is accepted in the field"
+          },
+          {
+            "step": 7,
+            "action": "Click the Save Changes button",
+            "expectedResult": "System processes the update within 2 seconds and displays success confirmation message (e.g., 'Manual attendance entry updated successfully')"
+          },
+          {
+            "step": 8,
+            "action": "Verify that the updated entry shows the modified values in the list",
+            "expectedResult": "Entry in the list displays the updated time and reason, with modification timestamp updated"
+          },
+          {
+            "step": 9,
+            "action": "Check that the edit action is logged in the audit trail",
+            "expectedResult": "Audit log contains a record of the modification with clerk user ID, timestamp, and changed fields"
+          },
+          {
+            "step": 10,
+            "action": "Select the same or another manual attendance entry for deletion",
+            "expectedResult": "Entry is selected and Delete button or icon is visible and enabled"
+          },
+          {
+            "step": 11,
+            "action": "Click the Delete button for the selected entry",
+            "expectedResult": "Deletion confirmation dialog appears asking 'Are you sure you want to delete this entry?'"
+          },
+          {
+            "step": 12,
+            "action": "Click Confirm or Yes in the deletion confirmation dialog",
+            "expectedResult": "System processes the deletion within 2 seconds and displays success confirmation message (e.g., 'Manual attendance entry deleted successfully')"
+          },
+          {
+            "step": 13,
+            "action": "Verify that the deleted entry is removed from the list",
+            "expectedResult": "Entry no longer appears in the manual attendance entries list"
+          },
+          {
+            "step": 14,
+            "action": "Check that the deletion action is logged in the audit trail",
+            "expectedResult": "Audit log contains a record of the deletion with clerk user ID, timestamp, and deleted entry details"
+          }
+        ],
+        "postconditions": [
+          "Modified entry is updated in the database with new values",
+          "Deleted entry is removed from the database or marked as deleted",
+          "Both edit and delete actions are recorded in audit trail",
+          "Confirmation messages are displayed for both operations",
+          "Manual attendance entries list reflects the changes"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Prevent unauthorized access to manual attendance input",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User account exists without manual attendance input permissions",
+          "Role-based access control is configured and active",
+          "Manual attendance input functionality exists in the system",
+          "Database and authentication services are operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance system login page",
+            "expectedResult": "Login page is displayed with username and password fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter credentials of a user without manual attendance input permissions (e.g., regular employee or viewer role)",
+            "expectedResult": "User is successfully authenticated and redirected to their authorized dashboard"
+          },
+          {
+            "step": 3,
+            "action": "Check the navigation menu for manual attendance input section",
+            "expectedResult": "Manual attendance input section is not visible or accessible in the navigation menu"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to manually navigate to the manual attendance input URL by typing it in the browser address bar",
+            "expectedResult": "System displays 'Access Denied' or '403 Forbidden' error page with message indicating insufficient permissions"
+          },
+          {
+            "step": 5,
+            "action": "Verify that no manual attendance input functionality is accessible through the UI",
+            "expectedResult": "User cannot access any input forms, entry lists, or manual attendance-related features"
+          },
+          {
+            "step": 6,
+            "action": "Open API testing tool (e.g., Postman) and attempt to call POST /api/manual-attendance endpoint with the unauthorized user's authentication token",
+            "expectedResult": "API returns 401 Unauthorized or 403 Forbidden status code with error message 'User does not have manual attendance input permissions'"
+          },
+          {
+            "step": 7,
+            "action": "Prepare a valid manual attendance entry payload with Employee ID, Date, Time, and Reason",
+            "expectedResult": "Payload is prepared in correct JSON format"
+          },
+          {
+            "step": 8,
+            "action": "Send the POST request to create a manual attendance entry using the unauthorized user's token",
+            "expectedResult": "API returns authorization error and no entry is created in the database"
+          },
+          {
+            "step": 9,
+            "action": "Attempt to call PUT /api/manual-attendance/{id} endpoint to edit an existing entry using the unauthorized user's token",
+            "expectedResult": "API returns 401 Unauthorized or 403 Forbidden status code with appropriate error message"
+          },
+          {
+            "step": 10,
+            "action": "Attempt to call DELETE /api/manual-attendance/{id} endpoint to delete an entry using the unauthorized user's token",
+            "expectedResult": "API returns 401 Unauthorized or 403 Forbidden status code with appropriate error message"
+          },
+          {
+            "step": 11,
+            "action": "Verify that no manual attendance entries are created, modified, or deleted",
+            "expectedResult": "Database remains unchanged and no unauthorized operations are executed"
+          },
+          {
+            "step": 12,
+            "action": "Check security audit logs for the unauthorized access attempts",
+            "expectedResult": "Audit logs record all unauthorized access attempts with user ID, timestamp, attempted action, and denied status"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized user remains unable to access manual attendance input functionality",
+          "No manual attendance entries are created, modified, or deleted",
+          "Security logs contain records of all unauthorized access attempts",
+          "System security integrity is maintained",
+          "Database remains unchanged from unauthorized attempts"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-8",
+    "storyTitle": "As Attendance Clerk, I want to view attendance history for employees to verify and reconcile records",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Search and view attendance history",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Attendance Clerk user account exists with valid credentials",
+          "Attendance Clerk has role-based access to attendance history section",
+          "Attendance database contains historical biometric and manual attendance records",
+          "Test employee ID exists in the system with attendance data",
+          "Network connectivity is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance system login page",
+            "expectedResult": "Login page is displayed with username and password fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid Attendance Clerk credentials (username and password)",
+            "expectedResult": "Credentials are accepted and entered in the respective fields"
+          },
+          {
+            "step": 3,
+            "action": "Click the Login button",
+            "expectedResult": "User is successfully authenticated and redirected to the attendance system dashboard"
+          },
+          {
+            "step": 4,
+            "action": "Verify access to attendance history section in the navigation menu",
+            "expectedResult": "Attendance history section is visible and accessible based on role-based access control"
+          },
+          {
+            "step": 5,
+            "action": "Click on the Attendance History menu option",
+            "expectedResult": "Attendance history page loads displaying search interface with employee ID and date range fields"
+          },
+          {
+            "step": 6,
+            "action": "Enter a valid employee ID in the employee search field",
+            "expectedResult": "Employee ID is accepted and displayed in the input field without errors"
+          },
+          {
+            "step": 7,
+            "action": "Select a valid start date from the date picker",
+            "expectedResult": "Start date is selected and displayed in the date range field"
+          },
+          {
+            "step": 8,
+            "action": "Select a valid end date from the date picker (after start date)",
+            "expectedResult": "End date is selected and displayed in the date range field without validation errors"
+          },
+          {
+            "step": 9,
+            "action": "Click the Search button to submit the query",
+            "expectedResult": "Search query is processed and loading indicator appears"
+          },
+          {
+            "step": 10,
+            "action": "Wait for search results to load",
+            "expectedResult": "Attendance records are displayed within 5 seconds showing combined biometric and manual attendance data in a tabular format"
+          },
+          {
+            "step": 11,
+            "action": "Verify the displayed attendance records contain date, time, entry type (biometric/manual), and status columns",
+            "expectedResult": "All attendance records show complete information with both biometric and manual entries clearly identified"
+          },
+          {
+            "step": 12,
+            "action": "Review the records for data accuracy and completeness",
+            "expectedResult": "Attendance data matches the selected employee and date range with accurate timestamps and entry types"
+          }
+        ],
+        "postconditions": [
+          "User remains logged in to the attendance system",
+          "Attendance history search results are displayed on screen",
+          "Search parameters remain in the input fields for reference",
+          "System logs the search query for audit purposes"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Export attendance history data",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Attendance Clerk is logged into the attendance system",
+          "User has navigated to the attendance history section",
+          "Valid employee ID and date range have been entered",
+          "Attendance history search has been performed successfully",
+          "Search results are displayed on screen with attendance records",
+          "Browser allows file downloads"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Verify that attendance history search results are displayed on the screen",
+            "expectedResult": "Attendance records are visible in tabular format with multiple entries"
+          },
+          {
+            "step": 2,
+            "action": "Locate the Export button on the attendance history results page",
+            "expectedResult": "Export button is visible and enabled on the interface"
+          },
+          {
+            "step": 3,
+            "action": "Click the Export button",
+            "expectedResult": "Export process initiates and browser download dialog appears or file automatically downloads"
+          },
+          {
+            "step": 4,
+            "action": "Wait for the CSV file download to complete",
+            "expectedResult": "CSV file is successfully downloaded to the default downloads folder"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to the downloads folder and locate the exported CSV file",
+            "expectedResult": "CSV file is present with a meaningful filename containing employee ID and date range information"
+          },
+          {
+            "step": 6,
+            "action": "Open the downloaded CSV file using a spreadsheet application",
+            "expectedResult": "CSV file opens successfully displaying attendance data in structured columns"
+          },
+          {
+            "step": 7,
+            "action": "Verify CSV file contains all expected columns (Employee ID, Date, Time, Entry Type, Status)",
+            "expectedResult": "All required columns are present with proper headers"
+          },
+          {
+            "step": 8,
+            "action": "Verify the CSV data matches the attendance records displayed on screen",
+            "expectedResult": "All attendance entries from the search results are accurately reflected in the CSV file with correct data"
+          },
+          {
+            "step": 9,
+            "action": "Check that both biometric and manual attendance entries are included in the export",
+            "expectedResult": "CSV file contains combined biometric and manual attendance data as displayed in the search results"
+          }
+        ],
+        "postconditions": [
+          "CSV file is successfully downloaded and saved locally",
+          "Exported data is available for reconciliation purposes",
+          "User remains on the attendance history page with search results still displayed",
+          "Export action is logged in the system audit trail"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Validate search input errors",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Attendance Clerk is logged into the attendance system",
+          "User has navigated to the attendance history section",
+          "Attendance history search interface is displayed",
+          "Date range fields and employee ID field are accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance history search page",
+            "expectedResult": "Search interface is displayed with empty employee ID and date range fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter a valid employee ID in the employee search field",
+            "expectedResult": "Employee ID is accepted and displayed in the input field"
+          },
+          {
+            "step": 3,
+            "action": "Select an end date from the date picker",
+            "expectedResult": "End date is selected and displayed in the date range field"
+          },
+          {
+            "step": 4,
+            "action": "Select a start date that is after the previously selected end date (invalid date range)",
+            "expectedResult": "Start date is entered in the field"
+          },
+          {
+            "step": 5,
+            "action": "Observe the validation behavior on the date fields",
+            "expectedResult": "Validation error message is displayed indicating that end date cannot be before start date"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to click the Search button with invalid date range",
+            "expectedResult": "Search button is either disabled or clicking it triggers a validation error message preventing the search"
+          },
+          {
+            "step": 7,
+            "action": "Verify the error message clearly states the validation issue",
+            "expectedResult": "Error message displays: 'End date must be after start date' or similar clear validation message"
+          },
+          {
+            "step": 8,
+            "action": "Verify that no search query is executed with invalid inputs",
+            "expectedResult": "Search is blocked and no API call is made to the backend; no results are displayed"
+          },
+          {
+            "step": 9,
+            "action": "Correct the date range by selecting a valid start date that is before the end date",
+            "expectedResult": "Valid start date is selected and validation error message disappears"
+          },
+          {
+            "step": 10,
+            "action": "Verify the Search button becomes enabled after correcting the inputs",
+            "expectedResult": "Search button is now enabled and clickable without validation errors"
+          },
+          {
+            "step": 11,
+            "action": "Click the Search button with corrected valid inputs",
+            "expectedResult": "Search query executes successfully and attendance records are displayed"
+          }
+        ],
+        "postconditions": [
+          "Invalid search attempts are blocked by validation",
+          "User is informed of input errors through clear error messages",
+          "System prevents invalid data from being submitted to the backend",
+          "After correction, search functionality works as expected",
+          "Validation errors are logged for system monitoring"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  }
+]
