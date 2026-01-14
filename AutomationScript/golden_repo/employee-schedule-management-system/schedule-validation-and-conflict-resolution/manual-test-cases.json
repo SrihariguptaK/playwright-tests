@@ -1,0 +1,272 @@
+[
+  {
+    "storyId": "story-5",
+    "storyTitle": "As Schedule Manager, I want the system to validate schedules to detect conflicts to ensure compliance and accuracy",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Detect overlapping shifts for an employee",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Schedule Manager with valid credentials",
+          "Schedule management system is accessible",
+          "At least one employee exists in the system with valid employee ID",
+          "Labor rules and validation engine are configured and active",
+          "User has permissions to create and modify schedules"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule creation page and select an employee from the employee list",
+            "expectedResult": "Employee selection interface is displayed with available employees listed"
+          },
+          {
+            "step": 2,
+            "action": "Create a first shift for the selected employee with start time 09:00 AM and end time 05:00 PM on the same day",
+            "expectedResult": "First shift is created and displayed in the schedule grid"
+          },
+          {
+            "step": 3,
+            "action": "Create a second shift for the same employee with start time 02:00 PM and end time 10:00 PM on the same day (overlapping with first shift)",
+            "expectedResult": "Second shift is created and schedule is saved to the system"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Validate Schedule' button or trigger automatic validation",
+            "expectedResult": "Validation process initiates and completes within 2 seconds"
+          },
+          {
+            "step": 5,
+            "action": "Observe the validation results displayed on the screen",
+            "expectedResult": "System flags the overlapping shifts with a clear visual indicator (e.g., red highlight or warning icon) and displays an error message indicating 'Overlapping shifts detected for employee [Employee Name]'"
+          },
+          {
+            "step": 6,
+            "action": "Click on the conflict notification or flagged shifts to view detailed conflict information",
+            "expectedResult": "Detailed conflict information is displayed showing both shift times and the overlap period"
+          },
+          {
+            "step": 7,
+            "action": "Review the conflict resolution suggestions provided by the system",
+            "expectedResult": "System displays actionable suggestions such as 'Adjust shift times', 'Reassign second shift to different employee', or 'Remove overlapping shift' with clickable options"
+          }
+        ],
+        "postconditions": [
+          "Overlapping shifts remain flagged in the system until resolved",
+          "Schedule is marked as invalid and cannot be finalized",
+          "Conflict details are logged in the system for audit purposes",
+          "Manager is able to take corrective action based on suggestions"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Validate minimum rest period between shifts",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Schedule Manager with valid credentials",
+          "Schedule management system is accessible",
+          "Minimum rest period rule is configured in the system (e.g., 11 hours between shifts)",
+          "At least one employee exists in the system",
+          "User has permissions to create and modify schedules"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule creation page and select an employee",
+            "expectedResult": "Schedule creation interface is displayed with selected employee"
+          },
+          {
+            "step": 2,
+            "action": "Create a first shift for the employee with start time 06:00 PM and end time 02:00 AM (next day)",
+            "expectedResult": "First shift is created and saved successfully"
+          },
+          {
+            "step": 3,
+            "action": "Create a second consecutive shift for the same employee with start time 08:00 AM (same day as shift end) and end time 04:00 PM (only 6 hours rest between shifts)",
+            "expectedResult": "Second shift is created and schedule is saved to the system"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Validate Schedule' button to run validation checks",
+            "expectedResult": "Validation process executes and completes within 2 seconds"
+          },
+          {
+            "step": 5,
+            "action": "Review the validation results displayed on the screen",
+            "expectedResult": "System reports a rest period violation with message 'Minimum rest period violation: Only 6 hours between shifts. Required: 11 hours' and highlights the affected shifts"
+          },
+          {
+            "step": 6,
+            "action": "Note the suggested resolution options provided by the system",
+            "expectedResult": "System displays suggestions such as 'Move second shift to start at 01:00 PM or later' or 'Reassign second shift to different employee'"
+          },
+          {
+            "step": 7,
+            "action": "Adjust the second shift start time to 02:00 PM (providing 12 hours rest)",
+            "expectedResult": "Shift time is updated successfully in the schedule"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Validate Schedule' button again to revalidate the adjusted schedule",
+            "expectedResult": "Validation process runs successfully"
+          },
+          {
+            "step": 9,
+            "action": "Review the validation results after adjustment",
+            "expectedResult": "No violations are found, system displays 'Schedule validated successfully' message with green indicator, and schedule is marked as valid"
+          }
+        ],
+        "postconditions": [
+          "Schedule passes all validation checks",
+          "No rest period violations exist in the schedule",
+          "Schedule is eligible for finalization",
+          "Validation results are logged in the system",
+          "Employee has adequate rest period between consecutive shifts"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-8",
+    "storyTitle": "As Schedule Manager, I want to receive notifications about schedule conflicts to take timely corrective actions",
+    "testCases": [
+      {
+        "id": "tc-003",
+        "title": "Receive notification for detected schedule conflict",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Schedule Manager with valid credentials",
+          "Notification system is enabled and functioning",
+          "User has permissions to create schedules and view notifications",
+          "At least one employee exists in the system",
+          "Notification preferences are configured for the manager",
+          "Real-time conflict detection is active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule creation page",
+            "expectedResult": "Schedule creation interface is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Create a schedule with a conflict by assigning overlapping shifts to the same employee (e.g., Shift 1: 09:00 AM - 05:00 PM, Shift 2: 03:00 PM - 11:00 PM on the same day)",
+            "expectedResult": "Both shifts are created and saved in the system"
+          },
+          {
+            "step": 3,
+            "action": "Wait for the system to automatically detect the conflict (should occur within 1 minute)",
+            "expectedResult": "System detects the overlapping shift conflict and triggers the notification generation process"
+          },
+          {
+            "step": 4,
+            "action": "Navigate to the notifications section in the UI by clicking the notifications icon or menu item",
+            "expectedResult": "Notifications page is displayed showing all active notifications"
+          },
+          {
+            "step": 5,
+            "action": "Locate and review the newly generated conflict notification",
+            "expectedResult": "Notification is displayed with conflict details including: employee name, conflicting shift times, conflict type (overlapping shifts), and timestamp of detection"
+          },
+          {
+            "step": 6,
+            "action": "Click on the notification to view full details",
+            "expectedResult": "Detailed notification view opens showing complete conflict information and suggested actions such as 'Adjust shift times' or 'Reassign one shift'"
+          },
+          {
+            "step": 7,
+            "action": "Click the 'Acknowledge' button on the notification",
+            "expectedResult": "Notification status changes to 'Acknowledged', visual indicator (e.g., checkmark) appears, and notification is marked with acknowledgment timestamp"
+          },
+          {
+            "step": 8,
+            "action": "Verify the notification status in the notifications list",
+            "expectedResult": "Notification shows 'Acknowledged' status with the manager's name and acknowledgment time displayed"
+          }
+        ],
+        "postconditions": [
+          "Notification is marked as acknowledged in the system",
+          "Notification remains visible in the notifications list with acknowledged status",
+          "Acknowledgment is logged with timestamp and user information",
+          "Conflict remains unresolved but manager is aware of the issue",
+          "Notification delivery and acknowledgment are recorded in the system logs"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-004",
+        "title": "Dismiss notification and verify status",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "User is logged in as Schedule Manager with valid credentials",
+          "At least one active notification exists in the system",
+          "Notification system is functioning properly",
+          "User has permissions to view and manage notifications",
+          "Notification history logging is enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the notifications section by clicking the notifications icon in the main navigation",
+            "expectedResult": "Notifications page is displayed showing list of active notifications"
+          },
+          {
+            "step": 2,
+            "action": "Locate a specific notification from the list and click on it to select",
+            "expectedResult": "Selected notification is highlighted and notification details panel opens showing full information including conflict type, affected employee, shift details, and suggested actions"
+          },
+          {
+            "step": 3,
+            "action": "Review the notification details displayed in the details panel",
+            "expectedResult": "All notification information is clearly visible including timestamp, conflict description, and available actions"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Dismiss' button located in the notification details panel or notification item",
+            "expectedResult": "Confirmation dialog appears asking 'Are you sure you want to dismiss this notification?'"
+          },
+          {
+            "step": 5,
+            "action": "Confirm the dismissal action by clicking 'Yes' or 'Confirm' in the dialog",
+            "expectedResult": "Notification is dismissed, confirmation message 'Notification dismissed successfully' appears, and notification is removed from the active notifications list"
+          },
+          {
+            "step": 6,
+            "action": "Verify that the dismissed notification is no longer visible in the active notifications list",
+            "expectedResult": "Dismissed notification does not appear in the active notifications list, notification count is decremented by one"
+          },
+          {
+            "step": 7,
+            "action": "Navigate to the notification history section or filter notifications by 'Dismissed' status",
+            "expectedResult": "Notification history page or filtered view is displayed"
+          },
+          {
+            "step": 8,
+            "action": "Search for the dismissed notification in the history using the notification ID or timestamp",
+            "expectedResult": "Dismissed notification is found in the history with status 'Dismissed', showing dismissal timestamp, manager who dismissed it, and original notification details preserved"
+          },
+          {
+            "step": 9,
+            "action": "Verify the notification log entry contains complete information",
+            "expectedResult": "Log entry shows notification creation time, dismissal time, manager name, notification type, and all relevant conflict details"
+          }
+        ],
+        "postconditions": [
+          "Notification is removed from active notifications list",
+          "Notification status is permanently set to 'Dismissed'",
+          "Dismissal action is logged with timestamp and user information",
+          "Notification is accessible in notification history for audit purposes",
+          "System maintains complete audit trail of notification lifecycle",
+          "Dismissed notification cannot be re-activated"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  }
+]
