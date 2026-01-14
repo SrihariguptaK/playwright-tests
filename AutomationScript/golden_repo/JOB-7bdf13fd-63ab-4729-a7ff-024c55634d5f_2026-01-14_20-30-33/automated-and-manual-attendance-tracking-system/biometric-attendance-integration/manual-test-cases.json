@@ -1,0 +1,304 @@
+[
+  {
+    "storyId": "story-12",
+    "storyTitle": "As Biometric System Administrator, I want to configure biometric device connections to achieve real-time attendance data capture",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful biometric device addition and connectivity test",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as System Administrator with device configuration permissions",
+          "Biometric device is powered on and connected to the network",
+          "Device IP address, port, and credentials are available",
+          "System has network connectivity to the biometric device",
+          "Device configuration page is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the device configuration page from the admin dashboard",
+            "expectedResult": "Device configuration page loads successfully and displays the device configuration form with fields for device name, IP address, port, device type, location, and credentials"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid device details: Device Name='Main Entrance Scanner', IP Address='192.168.1.100', Port='4370', Device Type='Fingerprint', Location='Building A - Main Entrance', Username='admin', Password='devicepass123'",
+            "expectedResult": "All input fields accept the entered values without validation errors"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Test Connection' button",
+            "expectedResult": "System displays a loading indicator and initiates connection test to the biometric device"
+          },
+          {
+            "step": 4,
+            "action": "Observe the connection test result within 5 seconds",
+            "expectedResult": "System displays 'Connection Successful' message with green indicator, showing device model and firmware version"
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Save Configuration' button",
+            "expectedResult": "System saves the device configuration, displays success notification 'Device added successfully', and the new device appears in the device list with 'Online' status"
+          },
+          {
+            "step": 6,
+            "action": "Verify the device entry in the device list",
+            "expectedResult": "Device list shows the newly added device with all entered details, current status as 'Online', and timestamp of configuration"
+          }
+        ],
+        "postconditions": [
+          "Biometric device is successfully configured and connected to the system",
+          "Device appears in the active devices list with 'Online' status",
+          "Device configuration change is logged in the system audit log with administrator username and timestamp",
+          "System begins receiving real-time attendance data from the configured device"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify rejection of invalid device parameters",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as System Administrator with device configuration permissions",
+          "Device configuration page is accessible",
+          "No devices are currently being configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the device configuration page from the admin dashboard",
+            "expectedResult": "Device configuration page loads successfully and displays an empty device configuration form"
+          },
+          {
+            "step": 2,
+            "action": "Enter invalid IP address '999.999.999.999' in the IP Address field",
+            "expectedResult": "IP Address field accepts the input temporarily"
+          },
+          {
+            "step": 3,
+            "action": "Enter valid values for other fields: Device Name='Test Device', Port='4370', Device Type='Fingerprint', Location='Test Location', Username='admin', Password='pass123'",
+            "expectedResult": "All other fields accept the entered values"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Test Connection' or 'Save Configuration' button",
+            "expectedResult": "System displays validation error message 'Invalid IP address format. Please enter a valid IPv4 address (e.g., 192.168.1.100)' in red text below the IP Address field and prevents form submission"
+          },
+          {
+            "step": 5,
+            "action": "Correct the IP address to valid format '192.168.1.150'",
+            "expectedResult": "Validation error message disappears and the IP Address field shows valid state with green border or checkmark"
+          },
+          {
+            "step": 6,
+            "action": "Click the 'Test Connection' button",
+            "expectedResult": "System accepts the corrected input and initiates connection test to the device, displaying loading indicator"
+          },
+          {
+            "step": 7,
+            "action": "Observe the connection test result",
+            "expectedResult": "System either displays 'Connection Successful' if device is reachable, or 'Connection Failed' with appropriate error message if device is not reachable, but no validation errors are shown"
+          }
+        ],
+        "postconditions": [
+          "Invalid device parameters are rejected and not saved to the system",
+          "User is informed of validation errors with clear error messages",
+          "System maintains data integrity by preventing invalid configurations",
+          "After correction, valid parameters can be submitted successfully"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure unauthorized users cannot access device configuration",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Test user account with non-administrator role (e.g., 'Employee' or 'Attendance Manager') exists in the system",
+          "User credentials for non-administrator account are available: Username='testuser', Password='testpass123'",
+          "Device configuration page URL is known: '/admin/device-configuration'",
+          "Device configuration API endpoint is known: 'POST /api/devices'",
+          "User is currently logged out of the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the login page and enter non-administrator credentials: Username='testuser', Password='testpass123'",
+            "expectedResult": "System authenticates the user successfully and redirects to the appropriate dashboard for their role (not admin dashboard)"
+          },
+          {
+            "step": 2,
+            "action": "Verify the main navigation menu options available to the logged-in user",
+            "expectedResult": "Navigation menu does not display 'Device Configuration' or 'System Administration' options"
+          },
+          {
+            "step": 3,
+            "action": "Manually enter the device configuration page URL '/admin/device-configuration' in the browser address bar and press Enter",
+            "expectedResult": "System denies access and displays 'Access Denied' or '403 Forbidden' error page with message 'You do not have permission to access this page. Please contact your administrator.'"
+          },
+          {
+            "step": 4,
+            "action": "Open browser developer tools and attempt to make a POST request to '/api/devices' endpoint with sample device data: {\"deviceName\":\"Test\",\"ipAddress\":\"192.168.1.100\",\"port\":\"4370\"}",
+            "expectedResult": "API returns HTTP 403 Forbidden status code with JSON response: {\"error\":\"Authorization failed\",\"message\":\"Insufficient permissions to perform this action\"}"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to make a GET request to '/api/devices/status' endpoint",
+            "expectedResult": "API returns HTTP 403 Forbidden status code with authorization error message"
+          },
+          {
+            "step": 6,
+            "action": "Check system audit logs for unauthorized access attempts",
+            "expectedResult": "System logs the unauthorized access attempts with username, timestamp, attempted resource, and 'Access Denied' status"
+          }
+        ],
+        "postconditions": [
+          "Non-administrator user remains unable to access device configuration functionality",
+          "No device configurations are created or modified",
+          "All unauthorized access attempts are logged in the security audit log",
+          "System security and role-based access control remain intact"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-13",
+    "storyTitle": "As Attendance Manager, I want to review biometric attendance logs to verify employee check-ins",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate attendance log retrieval with filters",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Attendance Manager with log access permissions",
+          "Biometric attendance data exists in the system for multiple employees across different dates and devices",
+          "At least 50 attendance records exist for testing filter and export functionality",
+          "Sample data includes: Employee 'John Smith' with attendance records from '2024-01-01' to '2024-01-31' on Device 'Main Entrance Scanner'",
+          "Attendance logs page is accessible from the manager dashboard"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance logs page from the manager dashboard by clicking on 'Attendance Logs' menu item",
+            "expectedResult": "Attendance logs page loads successfully and displays the attendance logs UI with filter panel on the left, data grid in the center showing all recent attendance records with columns: Employee Name, Employee ID, Check-in Time, Check-out Time, Device Name, Location, Status"
+          },
+          {
+            "step": 2,
+            "action": "Verify the initial display of attendance logs without any filters applied",
+            "expectedResult": "System displays all attendance logs sorted by most recent timestamp first, showing at least 20 records per page with pagination controls at the bottom"
+          },
+          {
+            "step": 3,
+            "action": "In the filter panel, enter 'John Smith' in the Employee Name field",
+            "expectedResult": "Employee Name field accepts the input and displays autocomplete suggestions if available"
+          },
+          {
+            "step": 4,
+            "action": "Select date range filter: Start Date='2024-01-01', End Date='2024-01-15'",
+            "expectedResult": "Date picker controls accept the selected dates and display them in the filter panel"
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Apply Filters' button",
+            "expectedResult": "System processes the filters within 3 seconds and displays only attendance logs for employee 'John Smith' between '2024-01-01' and '2024-01-15', showing filtered record count (e.g., 'Showing 28 records')"
+          },
+          {
+            "step": 6,
+            "action": "Verify the accuracy of filtered results by checking employee names and dates in the displayed records",
+            "expectedResult": "All displayed records show 'John Smith' as the employee and dates fall within the specified range '2024-01-01' to '2024-01-15', with accurate timestamps and device information"
+          },
+          {
+            "step": 7,
+            "action": "Click the 'Export' button and select 'CSV' format from the dropdown menu",
+            "expectedResult": "System generates CSV file within 5 seconds and initiates download with filename format 'attendance_logs_YYYYMMDD_HHMMSS.csv'"
+          },
+          {
+            "step": 8,
+            "action": "Open the downloaded CSV file and verify its contents",
+            "expectedResult": "CSV file contains all filtered attendance records with proper headers (Employee Name, Employee ID, Check-in Time, Check-out Time, Device Name, Location, Status) and data matches the on-screen filtered results"
+          },
+          {
+            "step": 9,
+            "action": "Return to the attendance logs page and click the 'Export' button, then select 'PDF' format",
+            "expectedResult": "System generates PDF file within 5 seconds and initiates download with filename format 'attendance_logs_YYYYMMDD_HHMMSS.pdf'"
+          },
+          {
+            "step": 10,
+            "action": "Open the downloaded PDF file and verify its contents",
+            "expectedResult": "PDF file contains all filtered attendance records in a formatted table with company header, filter criteria summary, and data matches the on-screen filtered results with proper pagination"
+          }
+        ],
+        "postconditions": [
+          "Filtered attendance logs are displayed accurately on screen",
+          "CSV and PDF export files are successfully generated and downloaded",
+          "Export files contain accurate data matching the applied filters",
+          "User can continue to apply different filters or export additional reports",
+          "System performance remains within 3 seconds for log retrieval"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify access restriction for unauthorized users",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Test user account with non-attendance manager role (e.g., 'Employee' or 'HR Staff') exists in the system",
+          "User credentials for non-attendance manager account are available: Username='employee01', Password='emppass123'",
+          "Attendance logs page URL is known: '/manager/attendance-logs'",
+          "Attendance logs API endpoint is known: 'GET /api/attendance/logs'",
+          "User is currently logged out of the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the login page and enter non-attendance manager credentials: Username='employee01', Password='emppass123'",
+            "expectedResult": "System authenticates the user successfully and redirects to the employee dashboard appropriate for their role"
+          },
+          {
+            "step": 2,
+            "action": "Verify the main navigation menu options available to the logged-in user",
+            "expectedResult": "Navigation menu does not display 'Attendance Logs' or 'Attendance Management' options that are specific to Attendance Manager role"
+          },
+          {
+            "step": 3,
+            "action": "Manually enter the attendance logs page URL '/manager/attendance-logs' in the browser address bar and press Enter",
+            "expectedResult": "System denies access and displays 'Access Denied' or '403 Forbidden' error page with message 'You do not have permission to access attendance logs. This feature is restricted to Attendance Managers only.'"
+          },
+          {
+            "step": 4,
+            "action": "Verify that the user is not redirected to the attendance logs page and remains on the error page",
+            "expectedResult": "User remains on the access denied error page and cannot view any attendance log data"
+          },
+          {
+            "step": 5,
+            "action": "Open browser developer tools and attempt to make a GET request to '/api/attendance/logs' endpoint",
+            "expectedResult": "API returns HTTP 403 Forbidden status code with JSON response: {\"error\":\"Authorization failed\",\"message\":\"Insufficient permissions to access attendance logs\"}"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to make a GET request to '/api/attendance/logs' with query parameters: '?employeeName=John Smith&startDate=2024-01-01&endDate=2024-01-31'",
+            "expectedResult": "API returns HTTP 403 Forbidden status code regardless of query parameters, preventing any data access"
+          },
+          {
+            "step": 7,
+            "action": "Check system security audit logs for the unauthorized access attempts",
+            "expectedResult": "System logs all unauthorized access attempts with username 'employee01', timestamp, attempted resource '/manager/attendance-logs' and '/api/attendance/logs', and 'Access Denied' status"
+          }
+        ],
+        "postconditions": [
+          "Non-attendance manager user remains unable to access attendance logs functionality",
+          "No attendance log data is exposed or accessible to unauthorized users",
+          "All unauthorized access attempts are logged in the security audit log",
+          "System maintains 100% role-based access control enforcement",
+          "User session remains active but restricted to authorized features only"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  }
+]
