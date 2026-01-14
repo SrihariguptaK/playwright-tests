@@ -1,0 +1,276 @@
+[
+  {
+    "storyId": "story-15",
+    "storyTitle": "As Manager, I want to receive alerts for late arrivals to achieve timely workforce management",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate detection and alerting of late arrivals",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Manager user is logged into the system with appropriate permissions",
+          "Alert configuration module is accessible",
+          "Email and SMS notification services are active and configured",
+          "Test employee account exists in the system",
+          "System time is synchronized and accurate"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to Alert Configuration section and configure late arrival threshold to 9:00 AM",
+            "expectedResult": "Configuration is saved successfully with confirmation message displayed. Threshold value of 9:00 AM is visible in the configuration settings"
+          },
+          {
+            "step": 2,
+            "action": "Simulate employee check-in at 9:15 AM (15 minutes after threshold)",
+            "expectedResult": "System detects the late arrival, calculates the delay as 15 minutes, and triggers alert within 1 minute of check-in"
+          },
+          {
+            "step": 3,
+            "action": "Verify alert received via email by checking manager's email inbox",
+            "expectedResult": "Email alert is received containing employee name, check-in time (9:15 AM), scheduled time (9:00 AM), and delay duration (15 minutes)"
+          },
+          {
+            "step": 4,
+            "action": "Verify alert received via SMS by checking manager's mobile device",
+            "expectedResult": "SMS alert is received containing employee name, check-in time, and delay information"
+          },
+          {
+            "step": 5,
+            "action": "Verify alert displayed in dashboard by navigating to Alerts/Notifications section",
+            "expectedResult": "Dashboard displays the late arrival alert with complete employee details, check-in time (9:15 AM), threshold time (9:00 AM), and delay duration (15 minutes)"
+          }
+        ],
+        "postconditions": [
+          "Alert is logged in the system with timestamp",
+          "Alert remains visible in dashboard until acknowledged",
+          "Alert history is updated with the new entry",
+          "All notification channels show consistent information"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify alert configuration UI and validation",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Manager user is logged into the system with configuration permissions",
+          "Alert configuration page is accessible",
+          "No pending configuration changes exist"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to Alert Configuration section",
+            "expectedResult": "Alert configuration page loads successfully displaying current threshold settings and input fields"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to set invalid threshold time by entering text characters (e.g., 'ABC') in the time field",
+            "expectedResult": "System displays validation error message 'Invalid time format. Please enter a valid time.' and prevents saving the configuration"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to set threshold time with invalid format (e.g., '25:00' or '9:70')",
+            "expectedResult": "System displays validation error message 'Invalid time value. Please enter time in HH:MM format (00:00-23:59).' and prevents saving"
+          },
+          {
+            "step": 4,
+            "action": "Leave threshold time field empty and attempt to save",
+            "expectedResult": "System displays validation error message 'Threshold time is required.' and prevents saving the configuration"
+          },
+          {
+            "step": 5,
+            "action": "Enter valid threshold time (e.g., '09:00') and click Save",
+            "expectedResult": "Configuration is saved successfully with confirmation message 'Alert threshold updated successfully.'"
+          }
+        ],
+        "postconditions": [
+          "Invalid configurations are not saved to the database",
+          "Valid configuration is persisted and active",
+          "Configuration page displays the current valid threshold",
+          "Validation errors are cleared after successful save"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Test alert acknowledgment and logging",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "Manager user is logged into the system",
+          "At least one unacknowledged late arrival alert exists in the dashboard",
+          "Alert logging functionality is enabled",
+          "Manager has permission to acknowledge alerts"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the Alerts Dashboard section",
+            "expectedResult": "Dashboard displays list of alerts including at least one unacknowledged late arrival alert with status 'Pending'"
+          },
+          {
+            "step": 2,
+            "action": "Locate the specific late arrival alert and click on it to view details",
+            "expectedResult": "Alert details panel opens showing employee name, check-in time, delay duration, and alert timestamp"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Acknowledge' button on the alert",
+            "expectedResult": "Alert status changes from 'Pending' to 'Acknowledged' with confirmation message 'Alert acknowledged successfully.' displayed"
+          },
+          {
+            "step": 4,
+            "action": "Verify the alert status is updated in the dashboard list view",
+            "expectedResult": "Alert shows status as 'Acknowledged' with manager name and acknowledgment timestamp visible"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to Alert History/Logs section",
+            "expectedResult": "Alert log entry is created containing alert ID, employee details, alert timestamp, manager name, acknowledgment timestamp, and status change from 'Pending' to 'Acknowledged'"
+          },
+          {
+            "step": 6,
+            "action": "Verify the acknowledged alert is moved to appropriate section or filtered view",
+            "expectedResult": "Alert is no longer displayed in 'Pending Alerts' section and appears in 'Acknowledged Alerts' or 'Alert History' section"
+          }
+        ],
+        "postconditions": [
+          "Alert status is permanently updated to 'Acknowledged' in the database",
+          "Alert acknowledgment is logged with complete audit trail",
+          "Manager's acknowledgment action is recorded with timestamp",
+          "Alert is removed from pending notifications count"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-16",
+    "storyTitle": "As Manager, I want to receive notifications for unexcused absences to achieve proactive attendance management",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate detection and notification of unexcused absences",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Manager user is logged into the system with notification permissions",
+          "Test employee account exists with defined work schedule (e.g., start time 9:00 AM)",
+          "Employee has no approved leave requests for the test date",
+          "Notification services (email, SMS, dashboard) are active and configured",
+          "System time is set to at least 30 minutes after scheduled start time"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Simulate employee absence by ensuring no check-in record exists for the employee and no leave approval is present in the system for the current date",
+            "expectedResult": "System detects unexcused absence by cross-referencing attendance records and leave approval data. Absence is classified as 'Unexcused'"
+          },
+          {
+            "step": 2,
+            "action": "Wait for system to process absence detection (within 30 minutes of scheduled start time)",
+            "expectedResult": "System triggers notification workflow within 30 minutes of the scheduled start time (9:00 AM)"
+          },
+          {
+            "step": 3,
+            "action": "Check manager's email inbox for unexcused absence notification",
+            "expectedResult": "Email notification is received within 30 minutes containing employee name, scheduled start time, absence date, and absence duration. Subject line clearly indicates 'Unexcused Absence Alert'"
+          },
+          {
+            "step": 4,
+            "action": "Check manager's mobile device for SMS notification",
+            "expectedResult": "SMS notification is received within 30 minutes containing employee name, absence date, and brief absence details"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to Notifications Dashboard in the system",
+            "expectedResult": "Dashboard displays unexcused absence notification with complete details including employee name, employee ID, scheduled start time, absence date, absence duration, and notification timestamp"
+          },
+          {
+            "step": 6,
+            "action": "Click on the notification in the dashboard to view full details",
+            "expectedResult": "Notification details panel opens showing comprehensive information and 'Acknowledge' button is available"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Acknowledge' button to acknowledge the notification",
+            "expectedResult": "Notification status changes to 'Acknowledged' with confirmation message 'Notification acknowledged successfully.' Manager name and acknowledgment timestamp are recorded"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to Notification History/Logs section",
+            "expectedResult": "Acknowledgment is logged successfully with notification ID, employee details, notification timestamp, manager name, acknowledgment timestamp, and delivery status for all channels (email, SMS, dashboard)"
+          }
+        ],
+        "postconditions": [
+          "Unexcused absence is recorded in the system",
+          "Notification is logged with complete audit trail",
+          "Notification status is updated to 'Acknowledged'",
+          "All notification channels show consistent delivery status",
+          "Manager acknowledgment is permanently recorded"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify notification preference configuration",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "Manager user is logged into the system with configuration permissions",
+          "Notification preferences page is accessible",
+          "Current notification preferences are set to default (all channels enabled)",
+          "Manager profile has valid email and phone number configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to Notification Preferences or Settings section",
+            "expectedResult": "Notification preferences page loads successfully displaying current settings for unexcused absence notifications with options for email, SMS, and dashboard channels"
+          },
+          {
+            "step": 2,
+            "action": "Review current notification delivery preferences",
+            "expectedResult": "Current preferences are displayed showing enabled/disabled status for each channel (email, SMS, dashboard) and any configured notification timing preferences"
+          },
+          {
+            "step": 3,
+            "action": "Update notification delivery preferences by disabling SMS notifications and keeping email and dashboard enabled",
+            "expectedResult": "SMS checkbox is unchecked while email and dashboard checkboxes remain checked. Changes are reflected in the UI immediately"
+          },
+          {
+            "step": 4,
+            "action": "Configure notification timing preference (e.g., immediate vs. digest)",
+            "expectedResult": "Timing preference option is selected and highlighted in the UI"
+          },
+          {
+            "step": 5,
+            "action": "Click 'Save' or 'Update Preferences' button",
+            "expectedResult": "Preferences are saved successfully with confirmation message 'Notification preferences updated successfully.' displayed"
+          },
+          {
+            "step": 6,
+            "action": "Refresh the page or navigate away and return to verify persistence",
+            "expectedResult": "Updated preferences are displayed correctly showing SMS disabled, email and dashboard enabled, and selected timing preference"
+          },
+          {
+            "step": 7,
+            "action": "Trigger a test unexcused absence notification to verify preferences are applied",
+            "expectedResult": "Notification is sent only via email and dashboard. No SMS notification is received, confirming preferences are applied correctly"
+          }
+        ],
+        "postconditions": [
+          "Notification preferences are saved in the database",
+          "Updated preferences are active and applied to future notifications",
+          "Manager receives notifications only through selected channels",
+          "Preference changes are logged in the system audit trail"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  }
+]
