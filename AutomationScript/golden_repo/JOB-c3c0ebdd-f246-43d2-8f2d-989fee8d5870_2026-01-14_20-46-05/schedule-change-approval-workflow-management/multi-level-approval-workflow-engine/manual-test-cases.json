@@ -1,0 +1,905 @@
+[
+  {
+    "storyId": "story-2",
+    "storyTitle": "As Approver, I want to review schedule change requests to achieve timely and accurate approval decisions",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate viewing and decision making on pending approvals",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Approver user account exists with valid credentials",
+          "Approver has been assigned appropriate role and permissions",
+          "At least one pending schedule change request is assigned to the approver",
+          "System is accessible and all services are running",
+          "Database contains valid test data in ScheduleChangeRequests table"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the system login page and enter valid approver credentials (username and password)",
+            "expectedResult": "Approver is successfully authenticated and redirected to the dashboard/home page"
+          },
+          {
+            "step": 2,
+            "action": "Click on 'Pending Approvals' menu item or navigate to the pending approvals dashboard",
+            "expectedResult": "Pending approvals page loads successfully displaying a list of all schedule change requests assigned to the logged-in approver with columns showing request ID, requester name, date submitted, and current status"
+          },
+          {
+            "step": 3,
+            "action": "Select a specific schedule change request from the list by clicking on it",
+            "expectedResult": "Request details page opens showing comprehensive information including requester details, original schedule, proposed schedule, reason for change, supporting documentation, and submission timestamp"
+          },
+          {
+            "step": 4,
+            "action": "Review all displayed information and click on 'Approve' button",
+            "expectedResult": "Approval dialog box appears with a text field for optional comments"
+          },
+          {
+            "step": 5,
+            "action": "Enter approval comments in the comments field (e.g., 'Approved as requested - no conflicts identified')",
+            "expectedResult": "Comments are entered successfully in the text field"
+          },
+          {
+            "step": 6,
+            "action": "Click 'Submit' button to confirm the approval decision",
+            "expectedResult": "System processes the approval, request status updates to 'Approved', timestamp is recorded, and a confirmation message is displayed stating 'Request has been successfully approved'"
+          },
+          {
+            "step": 7,
+            "action": "Verify the request no longer appears in the pending approvals list",
+            "expectedResult": "The approved request is removed from the pending list and the list refreshes to show only remaining pending requests"
+          }
+        ],
+        "postconditions": [
+          "Request status is updated to 'Approved' in ScheduleChangeRequests table",
+          "Approval decision is recorded in ApprovalActions table with timestamp and approver ID",
+          "Approved request is removed from approver's pending queue",
+          "Requester can view the approved status of their request"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Validate rejection of schedule change requests",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Approver is logged into the system with valid credentials",
+          "Approver has appropriate permissions to reject requests",
+          "At least one pending schedule change request exists in the system",
+          "Approver is on the pending approvals dashboard",
+          "Database is accessible and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "From the pending approvals list, click on a schedule change request to view its details",
+            "expectedResult": "Request details page opens displaying all relevant information including requester name, original schedule, proposed changes, reason for change, and submission date"
+          },
+          {
+            "step": 2,
+            "action": "Review the request details and click on the 'Reject' button",
+            "expectedResult": "Rejection dialog box appears with a text field for mandatory or optional comments explaining the rejection reason"
+          },
+          {
+            "step": 3,
+            "action": "Enter rejection comments in the comments field (e.g., 'Rejected due to insufficient staffing coverage during proposed time')",
+            "expectedResult": "Comments are successfully entered and visible in the text field"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Submit' button to confirm the rejection decision",
+            "expectedResult": "System processes the rejection, request status updates to 'Rejected', timestamp is recorded, and a confirmation message is displayed stating 'Request has been rejected successfully'"
+          },
+          {
+            "step": 5,
+            "action": "Navigate back to the pending approvals list",
+            "expectedResult": "The rejected request no longer appears in the pending approvals list"
+          },
+          {
+            "step": 6,
+            "action": "Verify the rejection is recorded by checking the request history or audit trail",
+            "expectedResult": "Request shows status as 'Rejected' with the approver's comments, timestamp, and approver identification visible"
+          }
+        ],
+        "postconditions": [
+          "Request status is updated to 'Rejected' in ScheduleChangeRequests table",
+          "Rejection decision with comments is recorded in ApprovalActions table",
+          "Timestamp and approver information are logged",
+          "Rejected request is removed from pending queue",
+          "Requester is able to view rejection status and comments"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Validate audit logging of approval decisions",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Approver is logged into the system with valid credentials",
+          "At least one schedule change request is available for approval/rejection",
+          "Audit logging functionality is enabled in the system",
+          "User has permissions to view audit logs (if testing log retrieval)",
+          "ApprovalActions table is accessible and configured for logging"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to pending approvals and select a schedule change request",
+            "expectedResult": "Request details are displayed with approval and rejection options available"
+          },
+          {
+            "step": 2,
+            "action": "Click 'Approve' button, enter comments 'Test approval for audit logging', and click 'Submit'",
+            "expectedResult": "Approval is processed successfully and confirmation message is displayed"
+          },
+          {
+            "step": 3,
+            "action": "Access the database or audit log interface to query ApprovalActions table for the submitted request ID",
+            "expectedResult": "Audit log entry is created containing: request ID, approver user ID, decision type (Approved), timestamp of decision, and comments entered"
+          },
+          {
+            "step": 4,
+            "action": "Verify the timestamp recorded in the audit log matches the time of submission (within acceptable system time variance)",
+            "expectedResult": "Timestamp is accurate and reflects the actual time the approval decision was submitted"
+          },
+          {
+            "step": 5,
+            "action": "Verify the approver information logged includes correct user ID and username",
+            "expectedResult": "Audit log shows correct approver identification matching the logged-in user who made the decision"
+          },
+          {
+            "step": 6,
+            "action": "Select another pending request, reject it with comments 'Test rejection for audit logging', and submit",
+            "expectedResult": "Rejection is processed and confirmation is displayed"
+          },
+          {
+            "step": 7,
+            "action": "Retrieve audit logs for the rejected request from ApprovalActions table",
+            "expectedResult": "New audit log entry exists showing: request ID, approver user ID, decision type (Rejected), accurate timestamp, and rejection comments"
+          },
+          {
+            "step": 8,
+            "action": "Verify audit trail shows complete and accurate history of all approval actions for both requests",
+            "expectedResult": "Audit logs display chronological history of all decisions with complete information including user, timestamp, decision type, and comments for each action"
+          }
+        ],
+        "postconditions": [
+          "All approval and rejection decisions are logged in ApprovalActions table",
+          "Audit logs contain complete information: timestamp, user ID, decision type, and comments",
+          "Audit trail is retrievable and displays accurate historical data",
+          "No data integrity issues exist in audit logs",
+          "Logs are immutable and cannot be altered post-creation"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-4",
+    "storyTitle": "As System Administrator, I want to configure approval workflow rules to achieve flexible and compliant schedule change processes",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate creation and editing of approval workflow rules",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "System Administrator account exists with valid credentials",
+          "Administrator has full permissions to access workflow configuration",
+          "System is operational and workflow configuration module is accessible",
+          "WorkflowRules table exists and is accessible in the database",
+          "At least one existing workflow rule is present in the system for editing"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the system login page and enter valid administrator credentials",
+            "expectedResult": "Administrator is successfully authenticated and redirected to the admin dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Click on 'Workflow Configuration' or 'Approval Workflow Settings' menu item",
+            "expectedResult": "Workflow rule configuration page loads successfully displaying a list of all existing approval workflow rules with columns showing rule name, conditions, approver levels, and status"
+          },
+          {
+            "step": 3,
+            "action": "Click on 'Create New Rule' or 'Add Rule' button",
+            "expectedResult": "New rule creation form opens with fields for rule name, description, routing conditions, approver roles/levels, and priority"
+          },
+          {
+            "step": 4,
+            "action": "Enter rule details: Rule Name 'High Priority Schedule Changes', Condition 'Request Type = Urgent', Approver Level '2-Level Approval', Approver Roles 'Manager, Director'",
+            "expectedResult": "All fields accept input correctly and display entered information"
+          },
+          {
+            "step": 5,
+            "action": "Click 'Save' button to save the new workflow rule",
+            "expectedResult": "System validates the rule configuration, saves it to WorkflowRules table, and displays confirmation message 'Workflow rule created successfully'"
+          },
+          {
+            "step": 6,
+            "action": "Verify the newly created rule appears in the workflow rules list",
+            "expectedResult": "New rule 'High Priority Schedule Changes' is visible in the rules list with all configured details displayed correctly"
+          },
+          {
+            "step": 7,
+            "action": "Select an existing workflow rule from the list by clicking the 'Edit' button or clicking on the rule name",
+            "expectedResult": "Rule editing form opens pre-populated with the current rule configuration including all conditions, approver levels, and settings"
+          },
+          {
+            "step": 8,
+            "action": "Modify the rule by changing the Approver Level from '2-Level Approval' to '3-Level Approval' and adding 'VP' to Approver Roles",
+            "expectedResult": "Changes are accepted and displayed in the form fields"
+          },
+          {
+            "step": 9,
+            "action": "Click 'Save Changes' button to update the workflow rule",
+            "expectedResult": "System validates the updated configuration, saves changes to WorkflowRules table, and displays confirmation message 'Workflow rule updated successfully'"
+          },
+          {
+            "step": 10,
+            "action": "Verify the edited rule reflects the changes in the workflow rules list",
+            "expectedResult": "Updated rule shows modified approver level as '3-Level Approval' and includes 'VP' in the approver roles"
+          },
+          {
+            "step": 11,
+            "action": "Create a test schedule change request that matches the new rule conditions",
+            "expectedResult": "New schedule change request is created and the system applies the newly configured workflow rule, routing it according to the defined approval levels"
+          }
+        ],
+        "postconditions": [
+          "New workflow rule is saved in WorkflowRules table with all configurations",
+          "Existing rule modifications are persisted in the database",
+          "Updated rules are immediately applied to new schedule change requests",
+          "Rule changes are logged in AuditLogs table with timestamp and administrator info",
+          "No existing pending requests are affected by the rule changes"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Validate rule conflict detection",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Administrator is logged into the system with valid credentials",
+          "Administrator has access to workflow configuration page",
+          "At least one existing workflow rule is configured in the system",
+          "Rule validation engine is operational",
+          "System has conflict detection logic implemented"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the workflow rule configuration page",
+            "expectedResult": "Configuration page loads displaying existing workflow rules"
+          },
+          {
+            "step": 2,
+            "action": "Click 'Create New Rule' button to start creating a new workflow rule",
+            "expectedResult": "New rule creation form is displayed with all required fields"
+          },
+          {
+            "step": 3,
+            "action": "Enter rule details that create a conflict with an existing rule: Same conditions but different approver routing (e.g., Rule Name 'Conflicting Rule', Condition 'Request Type = Urgent', Approver Level '1-Level' when existing rule has '2-Level' for same condition)",
+            "expectedResult": "Form accepts the input and displays the entered information"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Save' button to attempt saving the conflicting rule",
+            "expectedResult": "System validation detects the conflict and displays error message 'Conflict detected: A rule with the same conditions already exists. Please modify the conditions or update the existing rule.' Save operation is prevented"
+          },
+          {
+            "step": 5,
+            "action": "Verify the conflicting rule is not saved to the database",
+            "expectedResult": "Conflicting rule does not appear in the workflow rules list and WorkflowRules table remains unchanged"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to create a circular dependency rule: Rule A routes to Approver Group 1, which routes back to Rule A's trigger condition",
+            "expectedResult": "Form accepts the input initially"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Save' button to attempt saving the circular rule",
+            "expectedResult": "System validation detects circular dependency and displays error message 'Circular dependency detected: This rule configuration creates an infinite loop. Please revise the routing logic.' Save operation is blocked"
+          },
+          {
+            "step": 8,
+            "action": "Verify no circular rule is created in the system",
+            "expectedResult": "Rule is not saved and does not appear in the workflow rules list"
+          },
+          {
+            "step": 9,
+            "action": "Create a valid rule without conflicts or circular dependencies with unique conditions",
+            "expectedResult": "Rule is validated successfully, saved to the database, and confirmation message 'Workflow rule created successfully' is displayed"
+          }
+        ],
+        "postconditions": [
+          "No conflicting rules exist in WorkflowRules table",
+          "No circular dependencies are present in the workflow configuration",
+          "System maintains data integrity with only valid rules saved",
+          "Error messages are logged for troubleshooting purposes",
+          "Valid rules are successfully saved and operational"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Validate access control for workflow configuration",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "System has role-based access control implemented",
+          "Non-administrator user account exists (e.g., Approver or Requester role)",
+          "Administrator account exists with workflow configuration permissions",
+          "Workflow configuration page URL is known",
+          "Authorization middleware is active and functioning"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log into the system using non-administrator credentials (e.g., Approver role user)",
+            "expectedResult": "User is successfully authenticated and redirected to their role-appropriate dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Verify that 'Workflow Configuration' menu item is not visible in the navigation menu",
+            "expectedResult": "Workflow Configuration option is hidden or not displayed in the user's menu, showing only options appropriate for their role"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to directly access the workflow configuration page by entering the URL in the browser (e.g., /admin/workflow-rules or /workflow-configuration)",
+            "expectedResult": "System denies access and displays error message 'Access Denied: You do not have permission to access this page' or 'Error 403: Forbidden' and redirects to unauthorized access page or user's home page"
+          },
+          {
+            "step": 4,
+            "action": "Verify the user remains on an error page or is redirected away from workflow configuration",
+            "expectedResult": "User cannot access workflow configuration page and no workflow rules are visible"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to access workflow configuration API endpoint directly using API testing tool or browser console (e.g., GET /workflow-rules)",
+            "expectedResult": "API returns 403 Forbidden status code with error message 'Unauthorized: Administrator privileges required'"
+          },
+          {
+            "step": 6,
+            "action": "Log out the non-administrator user and log in with valid administrator credentials",
+            "expectedResult": "Administrator is successfully authenticated and redirected to admin dashboard"
+          },
+          {
+            "step": 7,
+            "action": "Verify 'Workflow Configuration' menu item is visible and accessible in the administrator's navigation menu",
+            "expectedResult": "Workflow Configuration option is displayed in the menu"
+          },
+          {
+            "step": 8,
+            "action": "Click on 'Workflow Configuration' menu item",
+            "expectedResult": "Workflow configuration page loads successfully displaying all existing workflow rules with full access to create, edit, and delete functionality"
+          },
+          {
+            "step": 9,
+            "action": "Verify administrator can perform all workflow configuration operations",
+            "expectedResult": "Administrator has full access to view, create, edit, and manage workflow rules without any access restrictions"
+          }
+        ],
+        "postconditions": [
+          "Non-administrator users cannot access workflow configuration functionality",
+          "Access control is enforced at both UI and API levels",
+          "Unauthorized access attempts are logged in security audit logs",
+          "Administrator access remains functional and unrestricted",
+          "System security integrity is maintained"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-5",
+    "storyTitle": "As Approver, I want to escalate pending schedule change requests to higher authority to ensure timely decision making",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate manual escalation by approver",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Approver role and valid permissions",
+          "At least one pending schedule change request exists in the system",
+          "Higher-level approver is configured and available in the system",
+          "Escalation rules are properly configured",
+          "Notification service is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the pending schedule change requests dashboard",
+            "expectedResult": "Dashboard displays list of all pending schedule change requests with their details"
+          },
+          {
+            "step": 2,
+            "action": "Select a specific pending schedule change request from the list",
+            "expectedResult": "Request details are displayed with available actions including escalation option"
+          },
+          {
+            "step": 3,
+            "action": "Click on the 'Escalate' button or option for the selected request",
+            "expectedResult": "Escalation dialog or form appears prompting for escalation reason and higher-level approver selection"
+          },
+          {
+            "step": 4,
+            "action": "Enter escalation reason and confirm the escalation action",
+            "expectedResult": "System processes the escalation request and displays confirmation message indicating successful escalation"
+          },
+          {
+            "step": 5,
+            "action": "Verify the request status has been updated to 'Escalated'",
+            "expectedResult": "Request status shows as 'Escalated' and is routed to the designated higher-level approver"
+          },
+          {
+            "step": 6,
+            "action": "Log in as the escalated higher-level approver and check notifications",
+            "expectedResult": "Escalated approver receives notification containing complete request details, escalation reason, and original approver information"
+          },
+          {
+            "step": 7,
+            "action": "Verify the escalated request appears in the higher-level approver's pending queue",
+            "expectedResult": "Request is visible in the higher-level approver's dashboard with escalation indicator"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request is successfully escalated to higher-level approver",
+          "Escalation action is logged in the system with timestamp and user details",
+          "Notification is sent to escalated approver",
+          "Request status reflects escalation state",
+          "Original approver can view escalation status"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Validate automatic escalation of overdue requests",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "System has automatic escalation feature enabled",
+          "SLA thresholds are configured in the system (e.g., 24 hours)",
+          "At least one pending schedule change request exists that can exceed SLA",
+          "Higher-level approvers are configured for automatic escalation",
+          "Escalation rules and routing logic are properly set up",
+          "System scheduler/cron job for checking SLA is running"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Create or identify a pending schedule change request in the system",
+            "expectedResult": "Pending request is created with timestamp and assigned to an approver"
+          },
+          {
+            "step": 2,
+            "action": "Simulate or wait for the request to exceed the configured SLA threshold (e.g., modify system time or wait for actual threshold)",
+            "expectedResult": "Request remains pending beyond the configured SLA time limit"
+          },
+          {
+            "step": 3,
+            "action": "Trigger the automatic escalation process (either wait for scheduled job or manually trigger if test environment allows)",
+            "expectedResult": "System detects the overdue request and initiates automatic escalation process"
+          },
+          {
+            "step": 4,
+            "action": "Verify the request has been automatically escalated to the designated higher-level approver",
+            "expectedResult": "Request status changes to 'Escalated' and is routed to higher-level approver without manual intervention"
+          },
+          {
+            "step": 5,
+            "action": "Check the escalation logs in the system audit trail",
+            "expectedResult": "Escalation action is logged with timestamp, reason (SLA exceeded), original approver, escalated approver, and system-generated escalation indicator"
+          },
+          {
+            "step": 6,
+            "action": "Verify notifications were sent to the escalated approver",
+            "expectedResult": "Higher-level approver receives notification containing request details, SLA breach information, and escalation timestamp"
+          },
+          {
+            "step": 7,
+            "action": "Log in as the escalated approver and verify the request appears in their queue",
+            "expectedResult": "Escalated request is visible in higher-level approver's dashboard with automatic escalation indicator and SLA breach details"
+          },
+          {
+            "step": 8,
+            "action": "Verify the original approver is notified about the automatic escalation",
+            "expectedResult": "Original approver receives notification that the request has been escalated due to SLA breach"
+          }
+        ],
+        "postconditions": [
+          "Overdue request is automatically escalated to higher-level approver",
+          "Complete escalation history is logged with all relevant details",
+          "Notifications are sent to both escalated approver and original approver",
+          "Request status reflects automatic escalation",
+          "SLA breach is documented in the system",
+          "Escalation processing completed within 1 minute of SLA threshold breach"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-8",
+    "storyTitle": "As Approver, I want to add comments to schedule change requests during approval to provide context for decisions",
+    "testCases": [
+      {
+        "id": "tc-003",
+        "title": "Validate adding and saving comments during approval",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Approver role and valid permissions",
+          "At least one pending schedule change request exists and is assigned to the logged-in approver",
+          "Database connection is active and ApprovalActions table is accessible",
+          "Comment input field is configured with maximum length of 500 characters"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the pending schedule change requests dashboard",
+            "expectedResult": "Dashboard displays list of pending schedule change requests assigned to the approver"
+          },
+          {
+            "step": 2,
+            "action": "Select and open a specific schedule change request for review",
+            "expectedResult": "Request details page opens displaying all request information including employee details, schedule changes, and approval options"
+          },
+          {
+            "step": 3,
+            "action": "Verify the comment input field is visible on the approval form",
+            "expectedResult": "Comment input field is clearly visible and accessible with appropriate label (e.g., 'Add Comment' or 'Decision Rationale')"
+          },
+          {
+            "step": 4,
+            "action": "Enter a valid comment in the comment field (e.g., 'Approved due to valid business justification and adequate coverage')",
+            "expectedResult": "Comment text is entered successfully in the input field without errors"
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Approve' button to submit the approval decision with the comment",
+            "expectedResult": "System processes the approval, displays success confirmation message, and indicates that approval with comment has been saved"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to the schedule change request history or details page",
+            "expectedResult": "Request history page displays the complete timeline of actions taken on the request"
+          },
+          {
+            "step": 7,
+            "action": "Locate the approval action entry in the request history",
+            "expectedResult": "Approval action is displayed with timestamp, approver name, decision (Approved), and the comment text entered in step 4"
+          },
+          {
+            "step": 8,
+            "action": "Verify the comment is properly linked to the approval action in the database",
+            "expectedResult": "Comment is stored in ApprovalActions table with correct foreign key relationship to the approval record"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request is approved successfully",
+          "Comment is saved and linked to the approval action",
+          "Comment is visible in request history with proper attribution",
+          "Approval action with comment is logged with timestamp",
+          "Request status is updated to 'Approved'",
+          "Requester is notified of approval decision with comment"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-004",
+        "title": "Validate comment length validation",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Approver role and valid permissions",
+          "At least one pending schedule change request exists and is assigned to the logged-in approver",
+          "Comment field validation is configured with maximum length of 500 characters",
+          "Input validation rules are active in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the pending schedule change requests dashboard",
+            "expectedResult": "Dashboard displays list of pending schedule change requests"
+          },
+          {
+            "step": 2,
+            "action": "Select and open a schedule change request for approval",
+            "expectedResult": "Request details page opens with comment input field visible"
+          },
+          {
+            "step": 3,
+            "action": "Generate and enter a comment text that exceeds 500 characters (e.g., 501 characters or more)",
+            "expectedResult": "Comment text is entered in the input field"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to submit the approval or rejection decision with the oversized comment",
+            "expectedResult": "System displays validation error message indicating that comment exceeds maximum allowed length of 500 characters"
+          },
+          {
+            "step": 5,
+            "action": "Verify that the approval/rejection submission is blocked",
+            "expectedResult": "Form submission is prevented and user remains on the approval page with error message visible"
+          },
+          {
+            "step": 6,
+            "action": "Verify the error message clearly indicates the character limit and current character count",
+            "expectedResult": "Error message displays specific information such as 'Comment must not exceed 500 characters' with character counter if available"
+          },
+          {
+            "step": 7,
+            "action": "Reduce the comment text to exactly 500 characters or less",
+            "expectedResult": "Validation error clears and comment field shows valid state"
+          },
+          {
+            "step": 8,
+            "action": "Submit the approval decision with the valid-length comment",
+            "expectedResult": "Approval is processed successfully and confirmation message is displayed"
+          }
+        ],
+        "postconditions": [
+          "Comment length validation is enforced correctly",
+          "Oversized comments are rejected with clear error message",
+          "Valid-length comments are accepted and saved",
+          "No approval action is saved when validation fails",
+          "User is able to correct and resubmit with valid comment"
+        ],
+        "estimatedTime": "5 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-10",
+    "storyTitle": "As Approver, I want to filter and sort schedule change requests in my queue to prioritize my workload effectively",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate filtering by status and date range",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Approver role",
+          "Approver has access to pending requests dashboard",
+          "Multiple schedule change requests exist with varying statuses (Pending, Approved, Rejected)",
+          "Requests exist across different date ranges",
+          "At least 5 requests are assigned to the logged-in approver"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the pending requests dashboard",
+            "expectedResult": "Dashboard loads successfully displaying all assigned schedule change requests"
+          },
+          {
+            "step": 2,
+            "action": "Locate and click on the status filter dropdown",
+            "expectedResult": "Status filter dropdown opens showing available status options (Pending, Approved, Rejected, All)"
+          },
+          {
+            "step": 3,
+            "action": "Select 'Pending' status from the dropdown",
+            "expectedResult": "Status filter is set to 'Pending' and dropdown closes"
+          },
+          {
+            "step": 4,
+            "action": "Locate the date range filter and click on the 'From Date' field",
+            "expectedResult": "Date picker calendar opens for 'From Date' selection"
+          },
+          {
+            "step": 5,
+            "action": "Select a specific start date (e.g., first day of current month)",
+            "expectedResult": "Selected date is populated in the 'From Date' field"
+          },
+          {
+            "step": 6,
+            "action": "Click on the 'To Date' field",
+            "expectedResult": "Date picker calendar opens for 'To Date' selection"
+          },
+          {
+            "step": 7,
+            "action": "Select a specific end date (e.g., last day of current month)",
+            "expectedResult": "Selected date is populated in the 'To Date' field"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Apply Filter' button",
+            "expectedResult": "Request list updates within 2 seconds to show only requests with 'Pending' status submitted within the selected date range. Request count is updated to reflect filtered results"
+          },
+          {
+            "step": 9,
+            "action": "Verify each displayed request has 'Pending' status",
+            "expectedResult": "All displayed requests show 'Pending' status in the status column"
+          },
+          {
+            "step": 10,
+            "action": "Verify each displayed request falls within the selected date range",
+            "expectedResult": "All displayed requests have submission dates between the selected 'From Date' and 'To Date'"
+          }
+        ],
+        "postconditions": [
+          "Request list displays only filtered results matching the applied criteria",
+          "Filter settings remain active until cleared or modified",
+          "Total request count reflects filtered results",
+          "Page performance remains within 2 seconds response time"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Validate sorting by priority and submission date",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Approver role",
+          "Approver has access to pending requests dashboard",
+          "At least 10 schedule change requests are assigned to the approver",
+          "Requests have varying priority levels (High, Medium, Low)",
+          "Requests have different submission dates spanning multiple days",
+          "No filters are currently applied"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the pending requests dashboard",
+            "expectedResult": "Dashboard loads successfully displaying all assigned schedule change requests in default order"
+          },
+          {
+            "step": 2,
+            "action": "Locate the 'Priority' column header and click on it to sort",
+            "expectedResult": "Sort icon appears next to 'Priority' column header indicating descending order"
+          },
+          {
+            "step": 3,
+            "action": "Observe the order of requests in the list",
+            "expectedResult": "Requests are ordered with highest priority first (High priority at top, followed by Medium, then Low priority). Request list updates within 2 seconds"
+          },
+          {
+            "step": 4,
+            "action": "Verify the first 3 requests displayed have 'High' priority",
+            "expectedResult": "First 3 requests in the list show 'High' in the priority column"
+          },
+          {
+            "step": 5,
+            "action": "Scroll down and verify requests with 'Low' priority appear at the bottom",
+            "expectedResult": "Requests with 'Low' priority are displayed at the bottom of the list"
+          },
+          {
+            "step": 6,
+            "action": "Locate the 'Submission Date' column header and click on it",
+            "expectedResult": "Sort icon appears next to 'Submission Date' column header indicating ascending order. Previous priority sort is cleared"
+          },
+          {
+            "step": 7,
+            "action": "Observe the order of requests in the list",
+            "expectedResult": "Requests are ordered from oldest to newest submission date. Request list updates within 2 seconds"
+          },
+          {
+            "step": 8,
+            "action": "Verify the first request has the oldest submission date",
+            "expectedResult": "First request in the list displays the earliest submission date among all requests"
+          },
+          {
+            "step": 9,
+            "action": "Scroll to the bottom and verify the last request has the most recent submission date",
+            "expectedResult": "Last request in the list displays the most recent submission date"
+          },
+          {
+            "step": 10,
+            "action": "Click on 'Submission Date' column header again",
+            "expectedResult": "Sort order reverses to descending (newest to oldest). Sort icon updates to indicate descending order"
+          }
+        ],
+        "postconditions": [
+          "Request list is sorted according to the last applied sort criteria",
+          "Sort indicator is visible on the active column header",
+          "All requests remain visible with no data loss",
+          "Sort operation completes within 2 seconds"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Validate saving and applying filter presets",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Approver role",
+          "Approver has access to pending requests dashboard",
+          "Multiple schedule change requests exist with varying statuses and dates",
+          "At least 15 requests are assigned to the approver",
+          "No saved filter presets exist for the current user"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the pending requests dashboard",
+            "expectedResult": "Dashboard loads successfully displaying all assigned schedule change requests"
+          },
+          {
+            "step": 2,
+            "action": "Apply filter for 'Pending' status",
+            "expectedResult": "Request list updates to show only pending requests"
+          },
+          {
+            "step": 3,
+            "action": "Apply date range filter for current month",
+            "expectedResult": "Request list further filters to show only pending requests from current month"
+          },
+          {
+            "step": 4,
+            "action": "Sort the filtered results by priority descending",
+            "expectedResult": "Filtered requests are sorted with highest priority first"
+          },
+          {
+            "step": 5,
+            "action": "Locate and click on 'Save Filter Preset' button or icon",
+            "expectedResult": "Save preset dialog or modal opens prompting for preset name"
+          },
+          {
+            "step": 6,
+            "action": "Enter preset name 'Current Month High Priority' in the name field",
+            "expectedResult": "Preset name is entered in the input field"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Save' button in the preset dialog",
+            "expectedResult": "Preset is saved successfully. Success message displays 'Filter preset saved successfully'. Dialog closes and returns to dashboard"
+          },
+          {
+            "step": 8,
+            "action": "Clear all current filters by clicking 'Clear Filters' or 'Reset' button",
+            "expectedResult": "All filters and sorting are removed. Request list displays all assigned requests in default order"
+          },
+          {
+            "step": 9,
+            "action": "Verify the request list shows all requests without any filters",
+            "expectedResult": "Request list displays all assigned requests including different statuses and dates"
+          },
+          {
+            "step": 10,
+            "action": "Locate and click on 'Saved Presets' dropdown or button",
+            "expectedResult": "Dropdown menu opens displaying saved presets including 'Current Month High Priority'"
+          },
+          {
+            "step": 11,
+            "action": "Select 'Current Month High Priority' preset from the list",
+            "expectedResult": "Preset is applied. Request list updates within 2 seconds to show pending requests from current month sorted by priority descending"
+          },
+          {
+            "step": 12,
+            "action": "Verify filter indicators show 'Pending' status and current month date range",
+            "expectedResult": "Status filter displays 'Pending' and date range filter shows current month dates"
+          },
+          {
+            "step": 13,
+            "action": "Verify sort indicator shows priority descending",
+            "expectedResult": "Priority column header shows descending sort indicator"
+          },
+          {
+            "step": 14,
+            "action": "Verify the request list matches the previously saved filter criteria",
+            "expectedResult": "Request list displays the same filtered and sorted results as when the preset was saved"
+          }
+        ],
+        "postconditions": [
+          "Filter preset 'Current Month High Priority' is saved in the system",
+          "Preset is available for future use",
+          "Request list displays results according to the applied preset",
+          "Filter and sort settings match the saved preset configuration",
+          "Preset can be reapplied at any time"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  }
+]
