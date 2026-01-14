@@ -1,0 +1,179 @@
+[
+  {
+    "storyId": "story-1",
+    "storyTitle": "As HR Manager, I want to create shift templates to achieve standardized shift definitions",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful creation of valid shift template",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Manager",
+          "User has permissions to create shift templates",
+          "ShiftTemplates table is accessible",
+          "System is operational and responsive"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to shift template creation page",
+            "expectedResult": "Shift template form is displayed with fields for shift name, start time, end time, and break periods"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid start time (e.g., 09:00 AM), end time (e.g., 05:00 PM), and break periods (e.g., 30 minutes lunch break at 12:00 PM)",
+            "expectedResult": "All input fields accept the data without validation errors, fields display entered values correctly"
+          },
+          {
+            "step": 3,
+            "action": "Submit the form by clicking the Save button",
+            "expectedResult": "Shift template is saved to the database, confirmation message is displayed (e.g., 'Shift template created successfully'), and response time is under 2 seconds"
+          }
+        ],
+        "postconditions": [
+          "New shift template is stored in ShiftTemplates table",
+          "Template appears in the list of available templates",
+          "Template is available for future use",
+          "Audit log records the creation with timestamp and user"
+        ],
+        "estimatedTime": "3 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Reject shift template with invalid duration",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Manager",
+          "User has permissions to create shift templates",
+          "Shift template creation page is accessible",
+          "Validation rules are configured and active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to shift template creation page",
+            "expectedResult": "Shift template form is displayed with all required input fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter end time (e.g., 09:00 AM) that is earlier than start time (e.g., 05:00 PM)",
+            "expectedResult": "Validation error message is displayed indicating 'End time must be after start time' or similar error message, error is highlighted near the relevant field"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to submit the form by clicking the Save button",
+            "expectedResult": "Form submission is blocked, error message remains visible, no data is saved to the database, user remains on the form page"
+          }
+        ],
+        "postconditions": [
+          "No shift template is created in the database",
+          "User remains on the creation page to correct errors",
+          "Form retains entered data for correction",
+          "No audit log entry is created for failed submission"
+        ],
+        "estimatedTime": "3 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Prevent deletion of assigned shift template",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Manager",
+          "At least one shift template exists that is assigned to active schedules",
+          "At least one shift template exists that is not assigned to any schedules",
+          "User has permissions to delete shift templates"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to shift template list and attempt to delete a shift template that is assigned to schedules by clicking the Delete button",
+            "expectedResult": "System displays a warning message such as 'This template is assigned to active schedules and cannot be deleted' and prevents the deletion action"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to shift template list and attempt to delete a shift template that is not assigned to any schedules by clicking the Delete button",
+            "expectedResult": "System prompts for confirmation, upon confirmation the template is deleted successfully, confirmation message is displayed (e.g., 'Template deleted successfully')"
+          }
+        ],
+        "postconditions": [
+          "Assigned shift template remains in the database and is still available",
+          "Unassigned shift template is removed from the database",
+          "Deleted template no longer appears in the template list",
+          "Audit log records the deletion attempt and successful deletion with timestamp and user"
+        ],
+        "estimatedTime": "4 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-9",
+    "storyTitle": "As HR Manager, I want to manage user roles and permissions to achieve secure access control",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Create and assign user roles successfully",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Manager with admin privileges",
+          "User has access to role management features",
+          "Users, Roles, and Permissions tables are accessible",
+          "At least one user exists in the system to assign roles to"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "HR Manager navigates to role management page from the main menu or admin dashboard",
+            "expectedResult": "Role management UI is displayed showing existing roles, permissions list, and options to create new roles"
+          },
+          {
+            "step": 2,
+            "action": "Create a new role by entering role name (e.g., 'Scheduler'), selecting specific permissions (e.g., 'View Schedules', 'Edit Schedules'), and clicking Save Role button",
+            "expectedResult": "New role is created and saved to the Roles table, confirmation message is displayed (e.g., 'Role created successfully'), role appears in the roles list"
+          },
+          {
+            "step": 3,
+            "action": "Assign the newly created role to a user by selecting the user from the user list, choosing the role from dropdown, and clicking Assign button",
+            "expectedResult": "Role is successfully assigned to the user, confirmation message is displayed (e.g., 'Role assigned to user successfully'), user-role assignment is saved, audit log records the assignment with timestamp and HR Manager username"
+          }
+        ],
+        "postconditions": [
+          "New role exists in the Roles table with defined permissions",
+          "User has the assigned role and associated permissions",
+          "Audit log contains entries for role creation and assignment",
+          "User can access features according to new role permissions"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Restrict access to role management",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "A non-HR user account exists in the system (e.g., Employee or Scheduler role)",
+          "Non-HR user is logged into the system",
+          "Role management features are protected by role-based access control",
+          "Access control rules are properly configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Non-HR user attempts to access role management page by navigating directly via URL or menu (if visible)",
+            "expectedResult": "Access is denied, appropriate error message is displayed (e.g., 'Access Denied: You do not have permission to access this page' or 'Unauthorized Access'), user is redirected to their home page or previous page, no role management UI is displayed"
+          }
+        ],
+        "postconditions": [
+          "Non-HR user remains without access to role management features",
+          "No unauthorized changes are made to roles or permissions",
+          "Access attempt is logged in audit trail with timestamp and user details",
+          "System security remains intact"
+        ],
+        "estimatedTime": "2 mins"
+      }
+    ]
+  }
+]
