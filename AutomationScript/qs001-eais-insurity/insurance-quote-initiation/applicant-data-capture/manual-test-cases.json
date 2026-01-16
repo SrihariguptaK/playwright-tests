@@ -1,0 +1,667 @@
+[
+  {
+    "storyId": "story-1",
+    "storyTitle": "As Insurance Agent, I want to enter applicant personal details to achieve accurate identification of the applicant",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful applicant data entry with valid inputs",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an authorized insurance agent",
+          "User has active internet connection",
+          "Applicant data entry page is accessible",
+          "Database is available and responsive"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to applicant data entry page",
+            "expectedResult": "Applicant form is displayed with all mandatory fields including name, date of birth, gender, and contact details. Form loads within 2 seconds"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid first name (e.g., 'John') in the First Name field",
+            "expectedResult": "First name is accepted without validation errors. Field displays entered text"
+          },
+          {
+            "step": 3,
+            "action": "Enter valid last name (e.g., 'Smith') in the Last Name field",
+            "expectedResult": "Last name is accepted without validation errors. Field displays entered text"
+          },
+          {
+            "step": 4,
+            "action": "Enter valid date of birth (e.g., '01/15/1985') in the Date of Birth field",
+            "expectedResult": "Date is auto-formatted correctly. No validation errors are shown. Age is calculated automatically if applicable"
+          },
+          {
+            "step": 5,
+            "action": "Select gender from the dropdown (e.g., 'Male')",
+            "expectedResult": "Gender is selected and displayed in the field. No validation errors are shown"
+          },
+          {
+            "step": 6,
+            "action": "Enter valid phone number (e.g., '5551234567') in the Phone Number field",
+            "expectedResult": "Phone number is auto-formatted to standard format (e.g., '(555) 123-4567'). No validation errors are shown"
+          },
+          {
+            "step": 7,
+            "action": "Verify all mandatory fields are completed and no validation errors are present",
+            "expectedResult": "All fields show valid data. No error messages are displayed. Submit button is enabled"
+          },
+          {
+            "step": 8,
+            "action": "Click the Submit button",
+            "expectedResult": "Form is submitted successfully. Applicant data is saved to the database. Confirmation message is displayed (e.g., 'Applicant data saved successfully'). Unique applicant ID is generated and displayed"
+          }
+        ],
+        "postconditions": [
+          "Applicant record is created in the database with unique ID",
+          "All entered data is persisted and retrievable",
+          "Agent can proceed to next step in the workflow",
+          "Audit log entry is created for the data entry action"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify rejection of form submission with missing mandatory fields",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an authorized insurance agent",
+          "User has active internet connection",
+          "Applicant data entry page is accessible",
+          "Real-time validation is enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to applicant data entry page",
+            "expectedResult": "Applicant form is displayed with all mandatory fields clearly marked (e.g., with asterisk or 'Required' label)"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid first name (e.g., 'Jane') in the First Name field",
+            "expectedResult": "First name is accepted. Field shows valid state"
+          },
+          {
+            "step": 3,
+            "action": "Leave the Last Name field empty and move focus to the next field",
+            "expectedResult": "Real-time validation triggers. Inline error message is displayed below or next to the Last Name field (e.g., 'Last Name is required'). Field is highlighted in red or error color"
+          },
+          {
+            "step": 4,
+            "action": "Enter valid date of birth (e.g., '03/20/1990') in the Date of Birth field",
+            "expectedResult": "Date is accepted and auto-formatted. No validation errors for this field"
+          },
+          {
+            "step": 5,
+            "action": "Leave the Gender field unselected",
+            "expectedResult": "Gender field remains empty. Error state may be indicated"
+          },
+          {
+            "step": 6,
+            "action": "Enter valid phone number (e.g., '5559876543') in the Phone Number field",
+            "expectedResult": "Phone number is accepted and auto-formatted. No validation errors for this field"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to click the Submit button",
+            "expectedResult": "Form submission is blocked. Submit button may be disabled or clicking it triggers validation. Error summary message is displayed at the top of the form (e.g., 'Please correct the errors below before submitting')"
+          },
+          {
+            "step": 8,
+            "action": "Verify all missing mandatory fields are highlighted with error messages",
+            "expectedResult": "Last Name field shows error message 'Last Name is required'. Gender field shows error message 'Gender is required'. All error fields are highlighted. Form focus moves to the first error field"
+          },
+          {
+            "step": 9,
+            "action": "Verify that no data is submitted to the database",
+            "expectedResult": "No applicant record is created. No API call to POST /api/applicants is made or it returns validation error response"
+          }
+        ],
+        "postconditions": [
+          "No applicant record is created in the database",
+          "Form remains on the same page with entered data preserved",
+          "Error messages are clearly visible to the agent",
+          "Agent can correct errors and resubmit"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure draft save and resume functionality works correctly",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an authorized insurance agent",
+          "User has active internet connection",
+          "Applicant data entry page is accessible",
+          "Draft save functionality is enabled",
+          "Session management is configured correctly"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to applicant data entry page",
+            "expectedResult": "Applicant form is displayed with all fields empty. 'Save as Draft' button is visible and enabled"
+          },
+          {
+            "step": 2,
+            "action": "Enter partial applicant data: First Name 'Robert', Last Name 'Johnson', Date of Birth '05/10/1988'",
+            "expectedResult": "All entered fields accept the data without errors. Fields display the entered information"
+          },
+          {
+            "step": 3,
+            "action": "Leave Gender and Phone Number fields empty",
+            "expectedResult": "Fields remain empty. No validation errors are shown for draft save"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Save as Draft' button",
+            "expectedResult": "Draft is saved successfully. Confirmation message is displayed (e.g., 'Draft saved successfully'). Draft ID is generated and displayed or stored in session. No mandatory field validation is enforced for draft save"
+          },
+          {
+            "step": 5,
+            "action": "Note the draft ID or confirmation details, then close the browser or navigate away from the page",
+            "expectedResult": "Page closes or navigates away. Draft data is persisted in the database or session storage"
+          },
+          {
+            "step": 6,
+            "action": "Reopen the browser and log in again as the same insurance agent",
+            "expectedResult": "User is successfully logged in and authenticated"
+          },
+          {
+            "step": 7,
+            "action": "Navigate back to the applicant data entry page or access the saved draft from drafts list",
+            "expectedResult": "Form is displayed with previously saved draft data loaded. First Name shows 'Robert', Last Name shows 'Johnson', Date of Birth shows '05/10/1988'. Gender and Phone Number fields remain empty as they were not filled"
+          },
+          {
+            "step": 8,
+            "action": "Complete the remaining mandatory fields: Select Gender as 'Male' and enter Phone Number '5551112222'",
+            "expectedResult": "Gender is selected successfully. Phone number is entered and auto-formatted to '(555) 111-2222'. All mandatory fields are now complete. No validation errors are shown"
+          },
+          {
+            "step": 9,
+            "action": "Click the Submit button to finalize the applicant data",
+            "expectedResult": "Form is submitted successfully. Draft status is changed to completed. Applicant data is saved permanently to the database. Confirmation message is displayed (e.g., 'Applicant data saved successfully'). Unique applicant ID is generated"
+          },
+          {
+            "step": 10,
+            "action": "Verify the applicant record is retrievable and complete",
+            "expectedResult": "Applicant record can be retrieved using GET /api/applicants/{id}. All data fields are correctly saved and match the entered information"
+          }
+        ],
+        "postconditions": [
+          "Draft is converted to a completed applicant record",
+          "All applicant data is persisted in the database",
+          "Draft entry is removed from drafts list or marked as completed",
+          "Agent can proceed with the insurance quote process",
+          "Audit trail shows draft creation, save, and final submission"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-2",
+    "storyTitle": "As Insurance Agent, I want to input applicant contact information to achieve reliable communication channels",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate acceptance of correctly formatted contact information",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an authorized insurance agent",
+          "User has active internet connection",
+          "Contact information section is accessible",
+          "Applicant record exists or is being created",
+          "Database is available and responsive"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to contact information section of the applicant form",
+            "expectedResult": "Contact form is displayed with fields for phone number, email address, and mailing address. All fields are empty and ready for input. Validation response time is under 1 second"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid phone number '5551234567' in the Phone Number field",
+            "expectedResult": "Phone number is accepted and auto-formatted to standard format '(555) 123-4567'. No validation errors are shown. Field displays green checkmark or valid state indicator"
+          },
+          {
+            "step": 3,
+            "action": "Enter valid email address 'john.smith@example.com' in the Email Address field",
+            "expectedResult": "Email address is accepted. Real-time validation confirms correct format. No validation errors are shown. Field displays valid state indicator"
+          },
+          {
+            "step": 4,
+            "action": "Enter valid mailing address: Street '123 Main Street', City 'Springfield', State 'IL', ZIP '62701'",
+            "expectedResult": "All address fields accept the data. No validation errors are shown. ZIP code may be auto-formatted if applicable"
+          },
+          {
+            "step": 5,
+            "action": "Verify all contact fields show valid data with no error messages",
+            "expectedResult": "All fields display entered data correctly. No error messages are present. Save button is enabled"
+          },
+          {
+            "step": 6,
+            "action": "Click the Save button to save the contact information",
+            "expectedResult": "Contact information is saved successfully to the database via POST /api/applicants/contact. Confirmation message is displayed (e.g., 'Contact information saved successfully'). Data is persisted and linked to the applicant record"
+          }
+        ],
+        "postconditions": [
+          "Contact information is saved in the applicant contact info tables",
+          "Data is retrievable and correctly associated with the applicant",
+          "Agent can proceed to next section or submit the complete application",
+          "Audit log entry is created for the contact information save action"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify rejection of invalid phone and email formats",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an authorized insurance agent",
+          "User has active internet connection",
+          "Contact information section is accessible",
+          "Real-time validation with regex is enabled",
+          "Validation response time is under 1 second"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to contact information section of the applicant form",
+            "expectedResult": "Contact form is displayed with empty fields for phone number, email address, and mailing address"
+          },
+          {
+            "step": 2,
+            "action": "Enter invalid phone number '123' in the Phone Number field and move focus to next field",
+            "expectedResult": "Real-time validation triggers within 1 second. Inline validation error message is displayed (e.g., 'Please enter a valid 10-digit phone number'). Field is highlighted in red or error color. Error icon is displayed next to the field"
+          },
+          {
+            "step": 3,
+            "action": "Enter invalid email address 'invalidemail@' in the Email Address field and move focus to next field",
+            "expectedResult": "Real-time validation triggers within 1 second. Inline validation error message is displayed (e.g., 'Please enter a valid email address'). Field is highlighted in red or error color. Error icon is displayed next to the field"
+          },
+          {
+            "step": 4,
+            "action": "Enter valid mailing address: Street '456 Oak Avenue', City 'Chicago', State 'IL', ZIP '60601'",
+            "expectedResult": "Address fields accept the data. No validation errors for address fields"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to click the Save button",
+            "expectedResult": "Save action is blocked. Button may be disabled or clicking triggers validation summary. Error summary message is displayed at the top (e.g., 'Please correct the errors below before saving'). Form does not submit"
+          },
+          {
+            "step": 6,
+            "action": "Verify that both phone and email fields display error messages",
+            "expectedResult": "Phone Number field shows error: 'Please enter a valid 10-digit phone number'. Email Address field shows error: 'Please enter a valid email address'. Both fields remain highlighted in error state"
+          },
+          {
+            "step": 7,
+            "action": "Correct the phone number to valid format '5559876543'",
+            "expectedResult": "Phone number is accepted and auto-formatted to '(555) 987-6543'. Error message for phone field disappears. Field changes to valid state with green indicator"
+          },
+          {
+            "step": 8,
+            "action": "Correct the email address to valid format 'jane.doe@example.com'",
+            "expectedResult": "Email address is accepted. Error message for email field disappears. Field changes to valid state with green indicator"
+          },
+          {
+            "step": 9,
+            "action": "Verify all validation errors are cleared and Save button is enabled",
+            "expectedResult": "No error messages are displayed. All fields show valid state. Save button is enabled and clickable"
+          },
+          {
+            "step": 10,
+            "action": "Click the Save button",
+            "expectedResult": "Contact information is saved successfully. Confirmation message is displayed. Data is persisted to the database"
+          }
+        ],
+        "postconditions": [
+          "Contact information is saved only after all validation errors are corrected",
+          "Invalid data is not persisted to the database",
+          "Agent understands the correct format requirements",
+          "Form maintains data integrity with proper validation"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure contact information persistence after form reload",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an authorized insurance agent",
+          "User has active internet connection",
+          "Contact information section is accessible",
+          "Applicant record exists in the database",
+          "Data persistence mechanism is functioning correctly"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to contact information section of the applicant form",
+            "expectedResult": "Contact form is displayed with empty fields ready for input"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid phone number '5552223333' in the Phone Number field",
+            "expectedResult": "Phone number is accepted and auto-formatted to '(555) 222-3333'. No validation errors"
+          },
+          {
+            "step": 3,
+            "action": "Enter valid email address 'michael.brown@example.com' in the Email Address field",
+            "expectedResult": "Email address is accepted. Real-time validation confirms correct format. No validation errors"
+          },
+          {
+            "step": 4,
+            "action": "Enter valid mailing address: Street '789 Elm Street', City 'Boston', State 'MA', ZIP '02101'",
+            "expectedResult": "All address fields accept the data. No validation errors"
+          },
+          {
+            "step": 5,
+            "action": "Click the Save button to save the contact information",
+            "expectedResult": "Contact information is saved successfully. Confirmation message is displayed (e.g., 'Contact information saved successfully'). Data is persisted to the database via POST /api/applicants/contact"
+          },
+          {
+            "step": 6,
+            "action": "Note the applicant ID or record identifier for reference",
+            "expectedResult": "Applicant ID is visible and noted for retrieval"
+          },
+          {
+            "step": 7,
+            "action": "Refresh the browser page or navigate away and return to the contact information section",
+            "expectedResult": "Page reloads successfully. Contact information form is displayed again"
+          },
+          {
+            "step": 8,
+            "action": "Verify that previously saved contact information is displayed in the form fields",
+            "expectedResult": "Phone Number field displays '(555) 222-3333'. Email Address field displays 'michael.brown@example.com'. Mailing address fields display: Street '789 Elm Street', City 'Boston', State 'MA', ZIP '02101'. All data matches what was previously saved"
+          },
+          {
+            "step": 9,
+            "action": "Edit the phone number to '5554445555' and email to 'michael.brown.updated@example.com'",
+            "expectedResult": "Phone number is updated and auto-formatted to '(555) 444-5555'. Email address is updated and validated. No validation errors are shown"
+          },
+          {
+            "step": 10,
+            "action": "Click the Save button to save the updated contact information",
+            "expectedResult": "Updated contact information is saved successfully. Confirmation message is displayed (e.g., 'Contact information updated successfully'). Changes are persisted to the database"
+          },
+          {
+            "step": 11,
+            "action": "Reload the form page again to verify the updates persisted",
+            "expectedResult": "Page reloads. Contact information form displays the updated data: Phone Number '(555) 444-5555', Email 'michael.brown.updated@example.com', and unchanged address. All updates are correctly reflected"
+          }
+        ],
+        "postconditions": [
+          "Contact information is persistently stored in the database",
+          "Data retrieval works correctly across sessions",
+          "Updates to contact information are saved and reflected accurately",
+          "Data integrity is maintained through save and reload cycles",
+          "Audit trail shows initial save and subsequent update actions"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-3",
+    "storyTitle": "As Insurance Agent, I want to enter applicant history details to achieve comprehensive risk profiling",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful entry of multiple applicant history records",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an Insurance Agent with valid credentials",
+          "User has appropriate permissions to access applicant history section",
+          "Applicant profile exists in the system",
+          "Database connection is active and stable",
+          "Browser is compatible and up to date"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the applicant history section from the main dashboard or applicant profile page",
+            "expectedResult": "History entry form is displayed with all required fields visible including previous claims, coverage periods, and insurers fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter first history record with valid data: Previous insurer name 'ABC Insurance', coverage period from '01/01/2020' to '12/31/2020', claim amount '$5,000', claim date '06/15/2020', and claim type 'Property Damage'",
+            "expectedResult": "First history record is accepted without validation errors, all fields display entered data correctly"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Add Another Record' button to add a second history entry",
+            "expectedResult": "A new blank history entry form appears below the first record"
+          },
+          {
+            "step": 4,
+            "action": "Enter second history record with valid data: Previous insurer name 'XYZ Insurance', coverage period from '01/01/2021' to '12/31/2021', claim amount '$3,500', claim date '09/20/2021', and claim type 'Liability'",
+            "expectedResult": "Second history record is accepted without validation errors, no error messages are shown, both records are visible on the form"
+          },
+          {
+            "step": 5,
+            "action": "Click 'Add Another Record' button to add a third history entry",
+            "expectedResult": "A third blank history entry form appears below the second record"
+          },
+          {
+            "step": 6,
+            "action": "Enter third history record with valid data: Previous insurer name 'DEF Insurance', coverage period from '01/01/2022' to '12/31/2022', no claims filed",
+            "expectedResult": "Third history record is accepted, optional claim fields can be left blank without errors"
+          },
+          {
+            "step": 7,
+            "action": "Review all three entered history records for accuracy and completeness",
+            "expectedResult": "All three records are displayed correctly with all entered information visible and properly formatted"
+          },
+          {
+            "step": 8,
+            "action": "Click the 'Save' button to submit the history data",
+            "expectedResult": "System processes the save request, loading indicator appears briefly, success confirmation message is displayed stating 'Applicant history saved successfully', page response time is under 2 seconds"
+          },
+          {
+            "step": 9,
+            "action": "Verify the saved data by refreshing the page or navigating away and returning to the applicant history section",
+            "expectedResult": "All three history records are retrieved and displayed correctly with all previously entered data intact"
+          }
+        ],
+        "postconditions": [
+          "Three applicant history records are saved in the database",
+          "Data is associated with the correct applicant profile",
+          "Audit log records the data entry action with timestamp and user information",
+          "History data is available for risk profiling and quote generation",
+          "User remains on the applicant history page or is redirected to applicant summary"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify rejection of incomplete or invalid history data",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an Insurance Agent with valid credentials",
+          "User has appropriate permissions to access applicant history section",
+          "Applicant profile exists in the system",
+          "Validation rules are configured correctly in the system",
+          "Browser JavaScript is enabled for client-side validation"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the applicant history section from the main dashboard or applicant profile page",
+            "expectedResult": "History entry form is displayed with all required fields marked with asterisks or 'Required' labels"
+          },
+          {
+            "step": 2,
+            "action": "Leave the mandatory 'Previous Insurer Name' field blank and enter valid data in other fields: coverage period from '01/01/2020' to '12/31/2020'",
+            "expectedResult": "Inline validation error message appears near the 'Previous Insurer Name' field stating 'This field is required' or similar message"
+          },
+          {
+            "step": 3,
+            "action": "Enter 'ABC Insurance' in the 'Previous Insurer Name' field, but leave the mandatory 'Coverage Start Date' field blank",
+            "expectedResult": "Previous error clears, new inline validation error appears near the 'Coverage Start Date' field stating 'Coverage start date is required'"
+          },
+          {
+            "step": 4,
+            "action": "Enter an invalid date format '13/45/2020' in the 'Coverage Start Date' field",
+            "expectedResult": "Inline validation error appears stating 'Invalid date format. Please use MM/DD/YYYY' or similar message"
+          },
+          {
+            "step": 5,
+            "action": "Enter valid 'Coverage Start Date' as '01/01/2020' but enter 'Coverage End Date' as '12/31/2019' (end date before start date)",
+            "expectedResult": "Inline validation error appears stating 'Coverage end date must be after start date' or similar message"
+          },
+          {
+            "step": 6,
+            "action": "Correct the 'Coverage End Date' to '12/31/2020', then enter a 'Claim Date' as '06/15/2019' (outside coverage period)",
+            "expectedResult": "Inline validation error appears stating 'Claim date must fall within the coverage period' or similar message"
+          },
+          {
+            "step": 7,
+            "action": "Enter a negative value '-1000' in the 'Claim Amount' field",
+            "expectedResult": "Inline validation error appears stating 'Claim amount must be a positive number' or similar message"
+          },
+          {
+            "step": 8,
+            "action": "Enter non-numeric characters 'ABC' in the 'Claim Amount' field",
+            "expectedResult": "Inline validation error appears stating 'Claim amount must be a valid number' or field prevents non-numeric input"
+          },
+          {
+            "step": 9,
+            "action": "Attempt to click the 'Save' button while validation errors are still present on the form",
+            "expectedResult": "Save action is blocked, button may be disabled or clicking produces no action, error summary message appears at top of form stating 'Please correct the errors below before saving', form does not submit"
+          },
+          {
+            "step": 10,
+            "action": "Correct all validation errors by entering valid data in all mandatory fields with proper formats and date ranges",
+            "expectedResult": "All validation error messages disappear, 'Save' button becomes enabled or clickable"
+          },
+          {
+            "step": 11,
+            "action": "Click the 'Save' button after correcting all errors",
+            "expectedResult": "Form submits successfully, success confirmation message is displayed, data is saved to the database"
+          }
+        ],
+        "postconditions": [
+          "No invalid data is saved to the database",
+          "Form validation rules are enforced consistently",
+          "User is informed of all validation errors clearly",
+          "Only corrected valid data is persisted in the system",
+          "Data integrity is maintained in the applicant history tables"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure editing and deletion of history entries function correctly",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an Insurance Agent with valid credentials",
+          "User has appropriate permissions to edit and delete applicant history",
+          "Applicant profile exists in the system",
+          "At least one applicant history record already exists in the database",
+          "Database supports update and delete operations"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the applicant history section and click 'Add New Record' button",
+            "expectedResult": "Blank history entry form is displayed with all required fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter first history record with valid data: Previous insurer 'ABC Insurance', coverage period '01/01/2020' to '12/31/2020', claim amount '$5,000', claim date '06/15/2020'",
+            "expectedResult": "Data is entered without validation errors"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Add Another Record' and enter second history record: Previous insurer 'XYZ Insurance', coverage period '01/01/2021' to '12/31/2021', claim amount '$3,500', claim date '09/20/2021'",
+            "expectedResult": "Second record is added without validation errors"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Save' button to save both history records",
+            "expectedResult": "Success message is displayed stating 'Records saved successfully', both records are persisted in the database and displayed in the history list"
+          },
+          {
+            "step": 5,
+            "action": "Locate the first history record (ABC Insurance) in the saved records list and click the 'Edit' button or icon next to it",
+            "expectedResult": "The history record opens in edit mode with all fields populated with the existing data, fields are editable"
+          },
+          {
+            "step": 6,
+            "action": "Modify the claim amount from '$5,000' to '$6,500' and change the claim date from '06/15/2020' to '07/20/2020'",
+            "expectedResult": "Changes are accepted in the form fields without validation errors, modified values are displayed correctly"
+          },
+          {
+            "step": 7,
+            "action": "Click the 'Save Changes' or 'Update' button to save the edited record",
+            "expectedResult": "Success message is displayed stating 'Record updated successfully', form returns to view mode or list view"
+          },
+          {
+            "step": 8,
+            "action": "Verify the edited record by viewing it in the history list or reopening it",
+            "expectedResult": "The first record now shows updated claim amount '$6,500' and claim date '07/20/2020', all other fields remain unchanged, changes are reflected correctly"
+          },
+          {
+            "step": 9,
+            "action": "Refresh the page or navigate away and return to the applicant history section",
+            "expectedResult": "The edited data persists after page refresh, updated values are still displayed correctly"
+          },
+          {
+            "step": 10,
+            "action": "Locate the second history record (XYZ Insurance) in the saved records list and click the 'Delete' button or icon next to it",
+            "expectedResult": "Confirmation dialog appears asking 'Are you sure you want to delete this history record?' with 'Cancel' and 'Delete' options"
+          },
+          {
+            "step": 11,
+            "action": "Click 'Cancel' in the confirmation dialog",
+            "expectedResult": "Dialog closes, record is not deleted, second record remains in the history list"
+          },
+          {
+            "step": 12,
+            "action": "Click the 'Delete' button again for the second history record (XYZ Insurance)",
+            "expectedResult": "Confirmation dialog appears again"
+          },
+          {
+            "step": 13,
+            "action": "Click 'Delete' or 'Confirm' in the confirmation dialog",
+            "expectedResult": "Success message is displayed stating 'Record deleted successfully', the second record (XYZ Insurance) is removed from the history list immediately"
+          },
+          {
+            "step": 14,
+            "action": "Verify that only the first record (ABC Insurance with updated data) remains in the history list",
+            "expectedResult": "Only one history record is displayed showing ABC Insurance with claim amount '$6,500' and claim date '07/20/2020'"
+          },
+          {
+            "step": 15,
+            "action": "Refresh the page or navigate away and return to verify deletion persistence",
+            "expectedResult": "After page refresh, only the first record remains, the deleted record does not reappear, changes are persisted in the database"
+          }
+        ],
+        "postconditions": [
+          "Edited history record contains updated information in the database",
+          "Deleted history record is permanently removed from the database",
+          "Remaining history records are intact and unaffected",
+          "Audit log records both edit and delete actions with timestamps and user information",
+          "Data integrity is maintained after edit and delete operations",
+          "Only one history record (ABC Insurance with updated data) exists for the applicant"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  }
+]
