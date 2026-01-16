@@ -1,0 +1,351 @@
+[
+  {
+    "storyId": "story-2",
+    "storyTitle": "As Scheduler, I want to assign shift templates to employees to achieve efficient schedule creation",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Assign shift template to single employee without conflicts",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one employee exists in the system",
+          "At least one shift template is available",
+          "Selected employee has no existing shifts for the target date",
+          "Employee schedule assignment page is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to employee schedule assignment page",
+            "expectedResult": "Schedule assignment form is displayed with employee selection dropdown, shift template dropdown, and date picker fields"
+          },
+          {
+            "step": 2,
+            "action": "Select one employee from the employee dropdown list",
+            "expectedResult": "Employee is selected and displayed in the form without validation errors"
+          },
+          {
+            "step": 3,
+            "action": "Select a shift template from the shift template dropdown",
+            "expectedResult": "Shift template is selected and shift details (start time, end time, duration) are displayed"
+          },
+          {
+            "step": 4,
+            "action": "Select a specific date using the date picker",
+            "expectedResult": "Date is selected and displayed in the form, inputs accepted without validation errors"
+          },
+          {
+            "step": 5,
+            "action": "Click the Submit or Assign button to submit the assignment",
+            "expectedResult": "System processes the request, shift is assigned successfully, and confirmation message is displayed indicating successful assignment"
+          },
+          {
+            "step": 6,
+            "action": "Verify the assigned shift appears in the employee's schedule view",
+            "expectedResult": "The newly assigned shift is visible in the employee's schedule with correct date, time, and shift template details"
+          }
+        ],
+        "postconditions": [
+          "Shift template is successfully assigned to the employee for the specified date",
+          "Assignment is saved in the EmployeeSchedules table",
+          "Employee schedule reflects the new shift assignment",
+          "No conflicts exist in the employee's schedule"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Prevent overlapping shift assignments for the same employee",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "An employee exists in the system",
+          "Employee already has a shift assigned for a specific date and time (e.g., 9:00 AM - 5:00 PM)",
+          "At least one shift template exists that would overlap with the existing shift",
+          "Employee schedule assignment page is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to employee schedule assignment page",
+            "expectedResult": "Schedule assignment form is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Select the employee who already has an existing shift assigned",
+            "expectedResult": "Employee is selected successfully"
+          },
+          {
+            "step": 3,
+            "action": "Select a shift template that overlaps with the employee's existing shift time",
+            "expectedResult": "Shift template is selected"
+          },
+          {
+            "step": 4,
+            "action": "Select the same date as the existing shift",
+            "expectedResult": "Date is selected"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to submit the assignment by clicking Submit or Assign button",
+            "expectedResult": "System displays conflict error message indicating overlapping shift detected and prevents the assignment from being saved"
+          },
+          {
+            "step": 6,
+            "action": "Adjust the assignment to a non-overlapping time by selecting a different date or different shift template with non-overlapping hours",
+            "expectedResult": "System accepts the adjusted inputs without displaying any validation errors"
+          },
+          {
+            "step": 7,
+            "action": "Submit the adjusted assignment",
+            "expectedResult": "Shift is assigned successfully and confirmation message is displayed"
+          },
+          {
+            "step": 8,
+            "action": "Verify both shifts appear in the employee's schedule without conflicts",
+            "expectedResult": "Both the original and newly assigned shifts are visible in the schedule with no time overlaps"
+          }
+        ],
+        "postconditions": [
+          "Original shift assignment remains unchanged",
+          "New non-overlapping shift is successfully assigned",
+          "No overlapping shifts exist for the employee",
+          "Error handling for conflicts is validated"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Bulk assign shift templates to multiple employees",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Multiple employees (at least 3) exist in the system",
+          "At least one shift template is available",
+          "Selected employees have no conflicting shifts for the target date range",
+          "Bulk assignment feature is enabled and accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to employee schedule assignment page with bulk assignment capability",
+            "expectedResult": "Bulk assignment form is displayed with multi-select employee dropdown, shift template selector, and date range picker"
+          },
+          {
+            "step": 2,
+            "action": "Select multiple employees using the multi-select employee dropdown (select at least 3 employees)",
+            "expectedResult": "All selected employees are displayed in the selection list"
+          },
+          {
+            "step": 3,
+            "action": "Select a shift template from the shift template dropdown",
+            "expectedResult": "Shift template is selected and shift details are displayed"
+          },
+          {
+            "step": 4,
+            "action": "Specify a date range using the date range picker (e.g., 5 consecutive days)",
+            "expectedResult": "Date range is selected and displayed, bulk assignment form accepts all inputs without errors"
+          },
+          {
+            "step": 5,
+            "action": "Click Submit or Assign button to submit the bulk assignment",
+            "expectedResult": "System processes the bulk assignment request and displays a progress indicator"
+          },
+          {
+            "step": 6,
+            "action": "Wait for processing to complete",
+            "expectedResult": "System displays confirmation message indicating shifts have been assigned to all selected employees successfully, showing count of successful assignments"
+          },
+          {
+            "step": 7,
+            "action": "Navigate to the first selected employee's schedule view",
+            "expectedResult": "Employee's schedule displays the assigned shifts for all dates in the specified range"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to the second selected employee's schedule view",
+            "expectedResult": "Employee's schedule displays the assigned shifts for all dates in the specified range"
+          },
+          {
+            "step": 9,
+            "action": "Navigate to the third selected employee's schedule view and verify schedules",
+            "expectedResult": "Employee's schedule displays the assigned shifts for all dates in the specified range, all schedules reflect assigned shifts without conflicts"
+          }
+        ],
+        "postconditions": [
+          "Shift template is assigned to all selected employees for the specified date range",
+          "All assignments are saved in the EmployeeSchedules table",
+          "Each employee's schedule reflects the new shift assignments",
+          "No scheduling conflicts exist for any of the selected employees",
+          "Bulk assignment operation completed within performance requirements"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-9",
+    "storyTitle": "As Scheduler, I want to handle bulk schedule assignments to achieve efficient workforce planning",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Perform bulk assignment without conflicts",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Multiple employees (at least 5) exist in the system",
+          "At least one shift template is available",
+          "None of the selected employees have existing shifts for the target date range",
+          "Bulk assignment endpoint POST /api/schedules/bulk is operational",
+          "System can handle batch processing for multiple employees"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the bulk schedule assignment page",
+            "expectedResult": "Bulk assignment interface is displayed with employee multi-select, shift template selector, and date range fields"
+          },
+          {
+            "step": 2,
+            "action": "Select multiple employees (at least 5) from the employee multi-select dropdown",
+            "expectedResult": "All selected employees are displayed in the selection list, selection is accepted without errors"
+          },
+          {
+            "step": 3,
+            "action": "Select a shift template from the available shift templates dropdown",
+            "expectedResult": "Shift template is selected and template details (name, start time, end time) are displayed"
+          },
+          {
+            "step": 4,
+            "action": "Specify a date range using the date range picker (e.g., 7 consecutive days)",
+            "expectedResult": "Date range is selected and displayed in the form"
+          },
+          {
+            "step": 5,
+            "action": "Click Preview or Review button to view assignment summary",
+            "expectedResult": "System displays a summary showing all employees, selected shift template, date range, and total number of assignments to be created"
+          },
+          {
+            "step": 6,
+            "action": "Review the summary for accuracy and click Submit or Confirm button to submit the bulk assignment",
+            "expectedResult": "System initiates batch processing, displays progress indicator, and processes all assignments"
+          },
+          {
+            "step": 7,
+            "action": "Wait for bulk assignment processing to complete",
+            "expectedResult": "System displays success confirmation message indicating all assignments were saved successfully with count of total assignments created"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to the schedule view and select the first employee from the bulk assignment",
+            "expectedResult": "Employee's schedule is displayed showing all assigned shifts for the specified date range"
+          },
+          {
+            "step": 9,
+            "action": "Verify the schedule details match the assigned shift template",
+            "expectedResult": "Shift times, dates, and template details match the bulk assignment parameters"
+          },
+          {
+            "step": 10,
+            "action": "Repeat verification for at least 2 more employees from the bulk assignment",
+            "expectedResult": "All verified employee schedules reflect the assigned shifts correctly for the entire date range without any conflicts"
+          }
+        ],
+        "postconditions": [
+          "Shift template is assigned to all selected employees for the entire date range",
+          "All assignments are persisted in the database",
+          "Each employee's schedule displays the new assignments",
+          "No scheduling conflicts exist",
+          "Success confirmation is logged",
+          "Bulk assignment completed within acceptable performance timeframe"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Detect conflicts during bulk assignment",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Multiple employees exist in the system (at least 4)",
+          "At least one of the selected employees has an existing shift that will conflict with the bulk assignment",
+          "At least one shift template is available",
+          "Conflict detection mechanism is enabled",
+          "Bulk assignment page is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the bulk schedule assignment page",
+            "expectedResult": "Bulk assignment interface is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Select multiple employees including at least one employee who has a conflicting schedule for the target date",
+            "expectedResult": "All employees are selected and displayed in the selection list, selection is accepted"
+          },
+          {
+            "step": 3,
+            "action": "Select a shift template that will overlap with the existing shift of at least one selected employee",
+            "expectedResult": "Shift template is selected successfully"
+          },
+          {
+            "step": 4,
+            "action": "Specify a date range that includes the date with the conflicting shift",
+            "expectedResult": "Date range is selected and displayed"
+          },
+          {
+            "step": 5,
+            "action": "Click Preview or Review button to view assignment summary",
+            "expectedResult": "System displays summary of the bulk assignment"
+          },
+          {
+            "step": 6,
+            "action": "Click Submit or Confirm button to submit the bulk assignment",
+            "expectedResult": "System validates all assignments and detects conflicts for affected employees"
+          },
+          {
+            "step": 7,
+            "action": "Review the conflict report displayed by the system",
+            "expectedResult": "System reports conflicts clearly, displaying employee names, conflicting dates, and existing shift details for each affected employee. Assignment is not saved for employees with conflicts"
+          },
+          {
+            "step": 8,
+            "action": "Adjust the selection by either removing the employee with conflicts or changing the date range to avoid conflicts",
+            "expectedResult": "Adjusted selection or date range is accepted by the system"
+          },
+          {
+            "step": 9,
+            "action": "Click Submit or Confirm button to resubmit the adjusted bulk assignment",
+            "expectedResult": "System validates the adjusted assignment, finds no conflicts, and processes the bulk assignment"
+          },
+          {
+            "step": 10,
+            "action": "Wait for processing to complete",
+            "expectedResult": "System displays success confirmation message indicating assignments were saved successfully for all employees without conflicts"
+          },
+          {
+            "step": 11,
+            "action": "Verify schedules for the employees included in the final bulk assignment",
+            "expectedResult": "All verified employee schedules reflect the assigned shifts correctly without any conflicts"
+          }
+        ],
+        "postconditions": [
+          "Employees without conflicts have shifts successfully assigned",
+          "Employees with conflicts do not have conflicting shifts assigned",
+          "Conflict detection mechanism is validated",
+          "Error messages are clear and actionable",
+          "Final assignments are saved correctly in the database",
+          "System maintains data integrity by preventing overlapping shifts"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  }
+]
