@@ -1,0 +1,767 @@
+[
+  {
+    "storyId": "story-14",
+    "storyTitle": "As Employee, I want to receive notifications about schedule change request status to stay informed",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate notification delivery on request submission",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the system with valid credentials",
+          "Employee has a verified email address on file",
+          "Notification service is operational and configured",
+          "Employee has default notification preferences enabled (email and in-app)",
+          "Employee has permission to submit schedule change requests"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule change request submission page",
+            "expectedResult": "Schedule change request form is displayed with all required fields"
+          },
+          {
+            "step": 2,
+            "action": "Fill in all required fields for the schedule change request (date, time, reason, etc.)",
+            "expectedResult": "All fields accept valid input and display no validation errors"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Submit' button to submit the schedule change request",
+            "expectedResult": "System displays success message confirming request submission and generates a unique request ID"
+          },
+          {
+            "step": 4,
+            "action": "Check the employee's registered email inbox within 1 minute of submission",
+            "expectedResult": "Email notification is received confirming submission with request ID, submission timestamp, and request details"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to the in-app notification center or bell icon in the application",
+            "expectedResult": "In-app notification is displayed confirming submission with request ID, submission timestamp, and request details"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to the employee profile and access the notification history section",
+            "expectedResult": "Notification history page displays successfully with list of all notifications"
+          },
+          {
+            "step": 7,
+            "action": "Locate the submission notification in the notification history list",
+            "expectedResult": "Submission notification is listed with correct request ID, timestamp, status, and complete request details matching the submitted information"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request is saved in the system with 'Submitted' status",
+          "Both email and in-app notifications are logged in notification history",
+          "Notification delivery timestamp is recorded in the system",
+          "Request is queued for manager review"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify notification on approval and rejection",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee has submitted a schedule change request that is in 'Pending' status",
+          "Manager is logged into the system with valid credentials and approval permissions",
+          "Employee has default notification preferences enabled (email and in-app)",
+          "Notification service is operational",
+          "Employee's email address is verified and active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Manager navigates to the pending schedule change requests queue",
+            "expectedResult": "List of pending requests is displayed including the employee's submitted request"
+          },
+          {
+            "step": 2,
+            "action": "Manager selects the employee's schedule change request to review",
+            "expectedResult": "Request details are displayed with options to Approve, Reject, or Request More Information"
+          },
+          {
+            "step": 3,
+            "action": "Manager clicks 'Approve' button and adds optional approval comments",
+            "expectedResult": "System displays confirmation dialog for approval action"
+          },
+          {
+            "step": 4,
+            "action": "Manager confirms the approval action",
+            "expectedResult": "System displays success message, request status changes to 'Approved', and timestamp is recorded"
+          },
+          {
+            "step": 5,
+            "action": "Within 1 minute, check the employee's email inbox",
+            "expectedResult": "Email notification is received indicating approval with request ID, approval timestamp, manager name, and any comments"
+          },
+          {
+            "step": 6,
+            "action": "Employee logs into the system and checks the in-app notification center",
+            "expectedResult": "In-app notification is displayed indicating approval with request ID, approval timestamp, manager name, and any comments"
+          },
+          {
+            "step": 7,
+            "action": "Manager navigates to another pending schedule change request from a different employee",
+            "expectedResult": "Request details are displayed with action options"
+          },
+          {
+            "step": 8,
+            "action": "Manager clicks 'Reject' button and enters mandatory rejection reason",
+            "expectedResult": "System displays confirmation dialog for rejection action"
+          },
+          {
+            "step": 9,
+            "action": "Manager confirms the rejection action",
+            "expectedResult": "System displays success message, request status changes to 'Rejected', and timestamp is recorded"
+          },
+          {
+            "step": 10,
+            "action": "Within 1 minute, check the affected employee's email inbox",
+            "expectedResult": "Email notification is received indicating rejection with request ID, rejection timestamp, manager name, and rejection reason"
+          },
+          {
+            "step": 11,
+            "action": "Affected employee logs into the system and checks the in-app notification center",
+            "expectedResult": "In-app notification is displayed indicating rejection with request ID, rejection timestamp, manager name, and rejection reason"
+          }
+        ],
+        "postconditions": [
+          "Approved request status is updated to 'Approved' in the database",
+          "Rejected request status is updated to 'Rejected' in the database",
+          "All notifications are logged in notification history for respective employees",
+          "Notification delivery timestamps are recorded",
+          "Approved schedule changes are reflected in the employee's schedule",
+          "Rejected requests remain accessible for employee reference"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure notification preferences are respected",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the system with valid credentials",
+          "Employee has default notification preferences enabled (both email and in-app)",
+          "Employee has access to notification preferences settings",
+          "Notification service is operational",
+          "Employee has at least one pending or active schedule change request"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the employee profile or settings page",
+            "expectedResult": "Profile/settings page is displayed with navigation options"
+          },
+          {
+            "step": 2,
+            "action": "Click on 'Notification Preferences' or 'Notification Settings' option",
+            "expectedResult": "Notification preferences page is displayed showing current settings with toggles for email and in-app notifications"
+          },
+          {
+            "step": 3,
+            "action": "Verify current notification preferences show both email and in-app notifications are enabled",
+            "expectedResult": "Both email and in-app notification toggles are in 'ON' or 'Enabled' state"
+          },
+          {
+            "step": 4,
+            "action": "Toggle the email notification preference to 'OFF' or 'Disabled'",
+            "expectedResult": "Email notification toggle changes to disabled state while in-app notification remains enabled"
+          },
+          {
+            "step": 5,
+            "action": "Click 'Save' or 'Update Preferences' button",
+            "expectedResult": "System displays success message confirming preferences have been updated"
+          },
+          {
+            "step": 6,
+            "action": "Trigger a notification event by submitting a new schedule change request or having a manager update an existing request status",
+            "expectedResult": "Request is processed successfully and notification event is triggered"
+          },
+          {
+            "step": 7,
+            "action": "Within 1 minute, check the employee's email inbox",
+            "expectedResult": "No email notification is received for the triggered event"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to the in-app notification center in the application",
+            "expectedResult": "In-app notification is displayed for the triggered event with all relevant details (request ID, status, timestamp)"
+          },
+          {
+            "step": 9,
+            "action": "Navigate back to notification preferences and verify email notifications remain disabled",
+            "expectedResult": "Email notification toggle remains in 'OFF' state and in-app notification toggle remains in 'ON' state"
+          },
+          {
+            "step": 10,
+            "action": "Check notification history in employee profile",
+            "expectedResult": "Notification history shows the in-app notification was delivered but no email notification was sent for the recent event"
+          }
+        ],
+        "postconditions": [
+          "Employee notification preferences are updated in the database with email disabled",
+          "System continues to send only in-app notifications for future events",
+          "Preference change is logged in the audit trail",
+          "No email notifications are queued or sent for this employee until preferences are changed again"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-15",
+    "storyTitle": "As Administrator, I want to configure approval workflows for schedule changes to align with organizational policies",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Verify administrator can create and save valid workflow configurations",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Administrator is logged into the system with valid admin credentials",
+          "Administrator has 'Administrator' role with workflow configuration permissions",
+          "Workflow configuration UI is accessible and operational",
+          "At least one existing workflow configuration exists in the system",
+          "Valid approver users and roles are defined in the system",
+          "Database connection is active and ApprovalWorkflowConfig table is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the administration portal or admin dashboard",
+            "expectedResult": "Admin dashboard is displayed with administrative menu options"
+          },
+          {
+            "step": 2,
+            "action": "Click on 'Approval Workflow Settings' or 'Workflow Configuration' menu option",
+            "expectedResult": "Workflow configuration UI is displayed showing list of current workflow configurations with details (name, approvers, rules, status)"
+          },
+          {
+            "step": 3,
+            "action": "Verify the UI displays options to create new workflow, edit existing workflows, and view workflow details",
+            "expectedResult": "UI shows 'Create New Workflow' button and action buttons (Edit, View, Delete) for each existing workflow"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Create New Workflow' button",
+            "expectedResult": "Workflow creation form is displayed with fields for workflow name, description, approval levels, approvers, and conditional rules"
+          },
+          {
+            "step": 5,
+            "action": "Enter a unique workflow name (e.g., 'Department Manager Approval Workflow')",
+            "expectedResult": "Workflow name field accepts input without validation errors"
+          },
+          {
+            "step": 6,
+            "action": "Enter workflow description (e.g., 'Two-level approval for schedule changes requiring department manager and HR approval')",
+            "expectedResult": "Description field accepts input without validation errors"
+          },
+          {
+            "step": 7,
+            "action": "Add first approval level by clicking 'Add Approval Level' and select 'Department Manager' role as approver",
+            "expectedResult": "First approval level is added with Department Manager role displayed, showing level order as 1"
+          },
+          {
+            "step": 8,
+            "action": "Add second approval level and select 'HR Manager' role as approver",
+            "expectedResult": "Second approval level is added with HR Manager role displayed, showing level order as 2"
+          },
+          {
+            "step": 9,
+            "action": "Add conditional routing rule: 'If request duration > 5 days, require additional VP approval'",
+            "expectedResult": "Conditional rule is added and displayed in the rules section with condition and action clearly shown"
+          },
+          {
+            "step": 10,
+            "action": "Click 'Validate Configuration' button",
+            "expectedResult": "System validates the workflow configuration and displays success message: 'Workflow configuration is valid'"
+          },
+          {
+            "step": 11,
+            "action": "Click 'Save' button to save the new workflow configuration",
+            "expectedResult": "System displays success message confirming workflow has been saved, and new workflow appears in the workflow list with 'Active' status"
+          },
+          {
+            "step": 12,
+            "action": "Wait for 5 minutes to allow configuration propagation",
+            "expectedResult": "Time elapses without system errors"
+          },
+          {
+            "step": 13,
+            "action": "As an employee user, submit a new schedule change request that matches the workflow criteria",
+            "expectedResult": "Schedule change request is submitted successfully with confirmation message"
+          },
+          {
+            "step": 14,
+            "action": "As administrator, navigate to the submitted request details and verify approval workflow assignment",
+            "expectedResult": "Request shows the newly created workflow is assigned with approval routing to Department Manager as first approver"
+          },
+          {
+            "step": 15,
+            "action": "Verify the approval chain displays both Department Manager and HR Manager in correct sequence",
+            "expectedResult": "Approval chain shows Level 1: Department Manager (Pending), Level 2: HR Manager (Awaiting Level 1)"
+          }
+        ],
+        "postconditions": [
+          "New workflow configuration is saved in ApprovalWorkflowConfig table",
+          "Workflow is marked as 'Active' and available for assignment",
+          "Configuration change is logged in audit trail with administrator username and timestamp",
+          "New schedule change requests automatically use the updated workflow",
+          "Existing pending requests continue using their originally assigned workflows"
+        ],
+        "estimatedTime": "15 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Ensure invalid workflow configurations are rejected",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Administrator is logged into the system with valid admin credentials",
+          "Administrator has 'Administrator' role with workflow configuration permissions",
+          "Workflow configuration UI is accessible and operational",
+          "System validation rules are active and configured",
+          "Database connection is active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the workflow configuration UI via admin dashboard",
+            "expectedResult": "Workflow configuration page is displayed with list of existing workflows"
+          },
+          {
+            "step": 2,
+            "action": "Click 'Create New Workflow' button",
+            "expectedResult": "Workflow creation form is displayed with all required fields"
+          },
+          {
+            "step": 3,
+            "action": "Enter workflow name 'Test Invalid Workflow - Missing Approvers' and description",
+            "expectedResult": "Name and description fields accept input"
+          },
+          {
+            "step": 4,
+            "action": "Leave the approvers section empty without adding any approval levels",
+            "expectedResult": "Form displays with no approval levels configured"
+          },
+          {
+            "step": 5,
+            "action": "Click 'Save' button to attempt saving the workflow without approvers",
+            "expectedResult": "System prevents save operation and displays error message: 'Workflow must have at least one approval level with a valid approver'"
+          },
+          {
+            "step": 6,
+            "action": "Verify the workflow was not saved by checking the workflow list",
+            "expectedResult": "New workflow does not appear in the workflow configuration list"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Create New Workflow' button again to test circular rule scenario",
+            "expectedResult": "New workflow creation form is displayed"
+          },
+          {
+            "step": 8,
+            "action": "Enter workflow name 'Test Circular Rule Workflow' and add Department Manager as Level 1 approver",
+            "expectedResult": "Workflow name is entered and Level 1 approver is configured"
+          },
+          {
+            "step": 9,
+            "action": "Add conditional rule: 'If Department Manager rejects, route back to Department Manager for re-approval'",
+            "expectedResult": "Conditional rule is entered in the rules section"
+          },
+          {
+            "step": 10,
+            "action": "Click 'Validate Configuration' button",
+            "expectedResult": "System detects circular routing logic and displays error message: 'Circular approval routing detected. Approver cannot route back to themselves.'"
+          },
+          {
+            "step": 11,
+            "action": "Click 'Save' button to attempt saving the workflow with circular rule",
+            "expectedResult": "System prevents save operation and displays error message: 'Cannot save workflow with validation errors. Please fix circular routing rule.'"
+          },
+          {
+            "step": 12,
+            "action": "Verify the workflow was not saved by checking the workflow list",
+            "expectedResult": "Circular rule workflow does not appear in the workflow configuration list"
+          },
+          {
+            "step": 13,
+            "action": "Attempt to create workflow with duplicate name of an existing workflow",
+            "expectedResult": "System displays error message: 'Workflow name already exists. Please use a unique name.'"
+          },
+          {
+            "step": 14,
+            "action": "Attempt to create workflow with special characters or SQL injection patterns in the name field",
+            "expectedResult": "System displays error message: 'Invalid characters detected. Workflow name can only contain alphanumeric characters, spaces, and hyphens.'"
+          }
+        ],
+        "postconditions": [
+          "No invalid workflow configurations are saved in the database",
+          "System maintains data integrity by rejecting malformed configurations",
+          "Error messages are logged for audit purposes",
+          "Existing valid workflows remain unaffected",
+          "Administrator remains on the configuration page to correct errors"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Verify access control for workflow configuration features",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Non-administrator user account exists with 'Employee' or 'Manager' role (not Administrator role)",
+          "Non-administrator user has valid login credentials",
+          "Workflow configuration feature is protected by role-based access control",
+          "Administrator role is properly configured in the system",
+          "Authentication and authorization services are operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log into the system using non-administrator user credentials (Employee or Manager role)",
+            "expectedResult": "User successfully logs in and is redirected to their role-appropriate dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Verify the main navigation menu or dashboard for presence of admin options",
+            "expectedResult": "Administration menu, admin dashboard link, or workflow configuration options are not visible in the navigation"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to manually navigate to workflow configuration URL by entering '/admin/workflow-configuration' or similar path in browser address bar",
+            "expectedResult": "System denies access and displays error message: 'Access Denied. You do not have permission to access this resource.' or redirects to unauthorized page (403 Forbidden)"
+          },
+          {
+            "step": 4,
+            "action": "Verify the user remains on an error page or is redirected to their appropriate dashboard",
+            "expectedResult": "User is not able to access workflow configuration UI and sees appropriate error message or is redirected"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to access workflow configuration API endpoint directly using browser developer tools or API client (GET /api/workflows)",
+            "expectedResult": "API returns 403 Forbidden status code with error message: 'Insufficient permissions. Administrator role required.'"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to create a workflow using API endpoint (POST /api/workflows) with non-admin credentials",
+            "expectedResult": "API returns 403 Forbidden status code with error message: 'Insufficient permissions. Administrator role required.'"
+          },
+          {
+            "step": 7,
+            "action": "Log out the non-administrator user",
+            "expectedResult": "User is successfully logged out and redirected to login page"
+          },
+          {
+            "step": 8,
+            "action": "Log in using administrator credentials",
+            "expectedResult": "Administrator successfully logs in and is redirected to admin dashboard"
+          },
+          {
+            "step": 9,
+            "action": "Verify administration menu and workflow configuration options are visible",
+            "expectedResult": "Admin navigation menu displays with 'Workflow Configuration' or 'Approval Workflow Settings' option visible"
+          },
+          {
+            "step": 10,
+            "action": "Navigate to workflow configuration UI",
+            "expectedResult": "Workflow configuration page loads successfully with full access to view, create, edit, and delete workflows"
+          },
+          {
+            "step": 11,
+            "action": "Verify access is logged by checking audit trail or access logs",
+            "expectedResult": "System logs show denied access attempts by non-administrator user with timestamp and user ID"
+          }
+        ],
+        "postconditions": [
+          "Non-administrator users cannot access workflow configuration features",
+          "Administrator users retain full access to workflow configuration",
+          "All unauthorized access attempts are logged in audit trail",
+          "System security and role-based access control remain intact",
+          "No unauthorized changes are made to workflow configurations"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-16",
+    "storyTitle": "As Manager, I want to generate reports on schedule change approvals to monitor workflow efficiency",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate report generation with filters",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Manager user is logged into the system with valid credentials",
+          "Manager has role-based access to the reporting module",
+          "Approval workflow data exists in the system (ApprovalActions and ScheduleChangeRequests tables)",
+          "At least one department with approval data is available",
+          "Date range contains approval records for testing"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the reporting module from the main dashboard",
+            "expectedResult": "Reporting module page loads successfully and displays available report types"
+          },
+          {
+            "step": 2,
+            "action": "Select 'Approval Workflow Report' from the report type dropdown",
+            "expectedResult": "Filter options for date range and department are displayed"
+          },
+          {
+            "step": 3,
+            "action": "Select a start date and end date for the report (e.g., last 30 days)",
+            "expectedResult": "Date range is accepted and displayed in the filter section"
+          },
+          {
+            "step": 4,
+            "action": "Select one or more departments from the department filter dropdown",
+            "expectedResult": "Selected departments are displayed in the filter section"
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Generate Report' button",
+            "expectedResult": "Report generation begins and a loading indicator is displayed"
+          },
+          {
+            "step": 6,
+            "action": "Wait for report generation to complete",
+            "expectedResult": "Report is generated within 5 seconds and displays filtered data including approval times, volumes, and outcomes for the selected date range and departments"
+          },
+          {
+            "step": 7,
+            "action": "Review the report data table for accuracy",
+            "expectedResult": "Report displays correct data matching the applied filters with columns for request ID, department, submission date, approval time, status, and outcome"
+          },
+          {
+            "step": 8,
+            "action": "Scroll down to view visualizations section",
+            "expectedResult": "Visualizations section is visible with charts for approval times and volumes"
+          },
+          {
+            "step": 9,
+            "action": "Examine the approval times visualization (e.g., bar chart or line graph)",
+            "expectedResult": "Visualization accurately reflects the approval time data from the report, showing time metrics by department or date"
+          },
+          {
+            "step": 10,
+            "action": "Examine the approval volumes visualization (e.g., pie chart or bar chart)",
+            "expectedResult": "Visualization accurately reflects the approval volume data from the report, showing counts by status or department"
+          },
+          {
+            "step": 11,
+            "action": "Verify that visualization data matches the tabular report data",
+            "expectedResult": "All numbers and metrics in visualizations correspond exactly to the data shown in the report table"
+          }
+        ],
+        "postconditions": [
+          "Report remains displayed on screen for further actions",
+          "Filter selections are retained for potential report modifications",
+          "Report data is cached for export functionality",
+          "System logs the report generation activity"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify report export functionality",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Manager user is logged into the system with valid credentials",
+          "Manager has successfully generated an approval workflow report",
+          "Report is currently displayed on screen with data",
+          "Browser allows file downloads",
+          "System has export functionality enabled for CSV and PDF formats"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Locate the export options section on the generated report page",
+            "expectedResult": "Export section is visible with options for CSV and PDF formats"
+          },
+          {
+            "step": 2,
+            "action": "Click the 'Export as CSV' button",
+            "expectedResult": "CSV file download begins immediately and browser shows download progress"
+          },
+          {
+            "step": 3,
+            "action": "Wait for CSV download to complete and locate the downloaded file",
+            "expectedResult": "CSV file is successfully downloaded to the default downloads folder with a descriptive filename (e.g., 'Approval_Workflow_Report_YYYY-MM-DD.csv')"
+          },
+          {
+            "step": 4,
+            "action": "Open the downloaded CSV file in a spreadsheet application (e.g., Excel, Google Sheets)",
+            "expectedResult": "CSV file opens successfully and displays all report data in proper columns"
+          },
+          {
+            "step": 5,
+            "action": "Verify CSV content includes all data fields: request ID, department, dates, approval times, status, and outcomes",
+            "expectedResult": "All data fields are present and values match the report displayed on screen"
+          },
+          {
+            "step": 6,
+            "action": "Verify CSV formatting is correct with proper delimiters and no data corruption",
+            "expectedResult": "Data is properly formatted with comma delimiters, headers in first row, and all special characters are correctly encoded"
+          },
+          {
+            "step": 7,
+            "action": "Return to the report page in the browser",
+            "expectedResult": "Report page is still displayed with the same data"
+          },
+          {
+            "step": 8,
+            "action": "Click the 'Export as PDF' button",
+            "expectedResult": "PDF file download begins immediately and browser shows download progress"
+          },
+          {
+            "step": 9,
+            "action": "Wait for PDF download to complete and locate the downloaded file",
+            "expectedResult": "PDF file is successfully downloaded to the default downloads folder with a descriptive filename (e.g., 'Approval_Workflow_Report_YYYY-MM-DD.pdf')"
+          },
+          {
+            "step": 10,
+            "action": "Open the downloaded PDF file in a PDF reader application",
+            "expectedResult": "PDF file opens successfully and displays the report with proper formatting"
+          },
+          {
+            "step": 11,
+            "action": "Verify PDF content includes report title, filter parameters, data table, and visualizations",
+            "expectedResult": "PDF contains all report elements including header with filters applied, complete data table, and chart visualizations"
+          },
+          {
+            "step": 12,
+            "action": "Verify PDF data accuracy by comparing values to the on-screen report",
+            "expectedResult": "All data values in the PDF match exactly with the report displayed on screen"
+          },
+          {
+            "step": 13,
+            "action": "Check PDF formatting for readability including page breaks, headers, and footers",
+            "expectedResult": "PDF is professionally formatted with proper page breaks, page numbers, report generation timestamp, and company branding if applicable"
+          }
+        ],
+        "postconditions": [
+          "Two files (CSV and PDF) are saved in the downloads folder",
+          "Both exported files contain accurate and complete report data",
+          "Original report remains displayed on screen",
+          "System logs the export activities",
+          "Files are ready for sharing or archival purposes"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure scheduled report delivery",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Manager user is logged into the system with valid credentials",
+          "Manager has access to the reporting module with scheduling capabilities",
+          "Manager has a valid email address configured in their user profile",
+          "Email delivery service is configured and operational",
+          "SMTP settings are properly configured in the system",
+          "At least one report configuration exists or can be created"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the reporting module and generate or select an approval workflow report",
+            "expectedResult": "Report is displayed with scheduling options available"
+          },
+          {
+            "step": 2,
+            "action": "Locate and click the 'Schedule Report' button or link",
+            "expectedResult": "Schedule report configuration dialog or page opens"
+          },
+          {
+            "step": 3,
+            "action": "Select 'Daily' from the frequency dropdown menu",
+            "expectedResult": "Daily frequency is selected and additional daily scheduling options appear"
+          },
+          {
+            "step": 4,
+            "action": "Select the time for daily delivery (e.g., 8:00 AM)",
+            "expectedResult": "Selected time is displayed in the schedule configuration"
+          },
+          {
+            "step": 5,
+            "action": "Verify the email address field is pre-populated with the manager's email",
+            "expectedResult": "Manager's email address from user profile is displayed in the recipient field"
+          },
+          {
+            "step": 6,
+            "action": "Optionally add additional recipient email addresses if the feature allows",
+            "expectedResult": "Additional email addresses can be added and are displayed in the recipient list"
+          },
+          {
+            "step": 7,
+            "action": "Select the report format for email delivery (CSV, PDF, or both)",
+            "expectedResult": "Selected format(s) are indicated in the schedule configuration"
+          },
+          {
+            "step": 8,
+            "action": "Review the schedule summary showing frequency, time, recipients, and format",
+            "expectedResult": "Schedule summary displays all configured parameters correctly"
+          },
+          {
+            "step": 9,
+            "action": "Click the 'Save Schedule' or 'Activate Schedule' button",
+            "expectedResult": "Schedule is saved successfully and a confirmation message is displayed"
+          },
+          {
+            "step": 10,
+            "action": "Navigate to the scheduled reports list or dashboard",
+            "expectedResult": "Newly created schedule appears in the list with status 'Active' and shows next scheduled run time"
+          },
+          {
+            "step": 11,
+            "action": "Wait for the scheduled time or trigger a test delivery if available",
+            "expectedResult": "System processes the scheduled report at the designated time"
+          },
+          {
+            "step": 12,
+            "action": "Check the manager's email inbox at or shortly after the scheduled delivery time",
+            "expectedResult": "Email is received with the subject line containing the report name and date"
+          },
+          {
+            "step": 13,
+            "action": "Open the received email and verify the email body contains report summary or description",
+            "expectedResult": "Email body includes report details, date range, and any relevant summary information"
+          },
+          {
+            "step": 14,
+            "action": "Verify the email contains the report attachment(s) in the specified format(s)",
+            "expectedResult": "Report file(s) are attached in the selected format (CSV and/or PDF) with appropriate filenames"
+          },
+          {
+            "step": 15,
+            "action": "Download and open the attached report file(s)",
+            "expectedResult": "Attached files open successfully and contain accurate, up-to-date approval workflow data"
+          },
+          {
+            "step": 16,
+            "action": "Return to the system and check the scheduled report execution log",
+            "expectedResult": "Execution log shows successful delivery with timestamp and recipient information"
+          }
+        ],
+        "postconditions": [
+          "Scheduled report is active and will continue to run daily at the specified time",
+          "Email delivery is logged in the system",
+          "Manager receives automated reports without manual intervention",
+          "Schedule can be modified or deactivated by the manager as needed",
+          "System maintains schedule configuration for future executions"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  }
+]
