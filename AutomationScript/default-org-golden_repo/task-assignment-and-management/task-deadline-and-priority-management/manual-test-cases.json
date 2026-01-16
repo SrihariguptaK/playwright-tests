@@ -1,0 +1,539 @@
+[
+  {
+    "storyId": "story-3",
+    "storyTitle": "As Manager, I want to set deadlines for tasks to achieve timely completion",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Set valid future deadline successfully",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as a Manager with valid credentials",
+          "Manager has authorization to set task deadlines",
+          "At least one task exists in the system that requires a deadline",
+          "Task deadline setting interface is accessible",
+          "System date and time are correctly configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to task deadline setting page",
+            "expectedResult": "Deadline input form is displayed with date and time input fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter a valid future date and time (e.g., 7 days from current date at 5:00 PM)",
+            "expectedResult": "Input is accepted without errors, date and time fields show the entered values"
+          },
+          {
+            "step": 3,
+            "action": "Submit deadline by clicking the submit button",
+            "expectedResult": "Deadline is saved successfully and confirmation message is displayed to the manager"
+          },
+          {
+            "step": 4,
+            "action": "Verify the deadline is stored in the database",
+            "expectedResult": "Database query shows the deadline is correctly saved with the entered date and time"
+          },
+          {
+            "step": 5,
+            "action": "Check that notification is triggered for the assigned employee",
+            "expectedResult": "System logs show notification event was triggered for the employee"
+          }
+        ],
+        "postconditions": [
+          "Deadline is successfully saved in the task table",
+          "Confirmation message is displayed to the manager",
+          "Notification is sent to the assigned employee",
+          "Task status reflects the new deadline",
+          "Audit log records the deadline setting action"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Reject past date as deadline",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as a Manager with valid credentials",
+          "Manager has authorization to set task deadlines",
+          "At least one task exists in the system that requires a deadline",
+          "Task deadline setting interface is accessible",
+          "System date and time are correctly configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to deadline setting page",
+            "expectedResult": "Deadline input form is displayed with date and time input fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter a past date (e.g., yesterday's date at 3:00 PM)",
+            "expectedResult": "Validation error is displayed indicating that past dates cannot be set as deadlines"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to submit deadline by clicking the submit button",
+            "expectedResult": "Submission is blocked and error message is displayed: 'Deadline must be a future date'"
+          },
+          {
+            "step": 4,
+            "action": "Verify that no deadline is saved in the database",
+            "expectedResult": "Database query confirms no new deadline entry was created"
+          },
+          {
+            "step": 5,
+            "action": "Verify that no notification is triggered",
+            "expectedResult": "System logs show no notification event was triggered"
+          }
+        ],
+        "postconditions": [
+          "No deadline is saved in the database",
+          "Error message is displayed to the manager",
+          "No notification is sent to the employee",
+          "Task remains in its previous state without deadline changes",
+          "Form remains on the deadline setting page for correction"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Verify deadline update processing time",
+        "type": "boundary",
+        "priority": "Medium",
+        "preconditions": [
+          "User is logged in as a Manager with valid credentials",
+          "Manager has authorization to update task deadlines",
+          "A task with an existing deadline is available in the system",
+          "Task deadline update interface is accessible",
+          "System date and time are correctly configured",
+          "Performance monitoring tools are available to measure response time"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task with existing deadline and open deadline update interface",
+            "expectedResult": "Deadline update form is displayed with current deadline pre-populated"
+          },
+          {
+            "step": 2,
+            "action": "Update deadline with a valid future date (e.g., 10 days from current date at 2:00 PM) and note the timestamp before submission",
+            "expectedResult": "New deadline value is entered successfully in the input fields"
+          },
+          {
+            "step": 3,
+            "action": "Submit the updated deadline and measure response time",
+            "expectedResult": "Response is received within 2 seconds and confirmation message is displayed"
+          },
+          {
+            "step": 4,
+            "action": "Check database for updated deadline immediately after submission",
+            "expectedResult": "Database query shows the deadline is updated correctly with the new date and time"
+          },
+          {
+            "step": 5,
+            "action": "Confirm confirmation message display to manager",
+            "expectedResult": "Success message is shown to manager indicating deadline was updated successfully"
+          },
+          {
+            "step": 6,
+            "action": "Verify notification trigger for the employee",
+            "expectedResult": "System logs confirm notification event was triggered for deadline change"
+          }
+        ],
+        "postconditions": [
+          "Deadline is successfully updated in the task table",
+          "Update processing completed within 2 seconds SLA",
+          "Confirmation message is displayed to the manager",
+          "Notification is sent to the assigned employee about deadline change",
+          "Audit log records the deadline update action with timestamp"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-4",
+    "storyTitle": "As Manager, I want to assign priority levels to tasks to achieve effective workload management",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Assign valid priority level successfully",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as a Manager with valid credentials",
+          "Manager has authorization to assign task priorities",
+          "At least one task exists in the system that requires priority assignment",
+          "Task priority setting interface is accessible",
+          "Predefined priority levels (Low, Medium, High) are configured in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to task priority setting page",
+            "expectedResult": "Priority selection form is displayed with dropdown or radio buttons showing Low, Medium, and High options"
+          },
+          {
+            "step": 2,
+            "action": "Select a valid priority level (e.g., High) from the available options",
+            "expectedResult": "Selection is accepted without errors and the chosen priority level is highlighted or selected"
+          },
+          {
+            "step": 3,
+            "action": "Submit priority by clicking the submit button",
+            "expectedResult": "Priority is saved successfully and confirmation message is displayed to the manager"
+          },
+          {
+            "step": 4,
+            "action": "Verify the priority is stored correctly in the database",
+            "expectedResult": "Database query shows the priority is correctly saved as 'High' for the task"
+          },
+          {
+            "step": 5,
+            "action": "Check that notification is triggered for the assigned employee",
+            "expectedResult": "System logs show notification event was triggered for the employee about priority assignment"
+          }
+        ],
+        "postconditions": [
+          "Priority level is successfully saved in the task table",
+          "Confirmation message is displayed to the manager",
+          "Notification is sent to the assigned employee",
+          "Task displays the assigned priority level in the task list",
+          "Audit log records the priority assignment action"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Reject invalid priority values",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as a Manager with valid credentials",
+          "Manager has authorization to assign task priorities",
+          "At least one task exists in the system that requires priority assignment",
+          "Task priority setting interface is accessible",
+          "System has validation rules to accept only Low, Medium, or High priority values"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to priority setting page",
+            "expectedResult": "Priority selection form is displayed with predefined priority options"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to enter an invalid priority value (e.g., 'Critical' or 'Urgent' or manually input text not in predefined list)",
+            "expectedResult": "Validation error is displayed indicating that only Low, Medium, or High are valid priority levels"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to submit the invalid priority by clicking the submit button",
+            "expectedResult": "Submission is blocked and error message is displayed: 'Invalid priority value. Please select Low, Medium, or High'"
+          },
+          {
+            "step": 4,
+            "action": "Verify that no priority is saved in the database",
+            "expectedResult": "Database query confirms no new priority entry was created or updated"
+          },
+          {
+            "step": 5,
+            "action": "Verify that no notification is triggered",
+            "expectedResult": "System logs show no notification event was triggered"
+          }
+        ],
+        "postconditions": [
+          "No priority is saved or updated in the database",
+          "Error message is displayed to the manager",
+          "No notification is sent to the employee",
+          "Task remains in its previous state without priority changes",
+          "Form remains on the priority setting page for correction"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Verify priority update processing time",
+        "type": "boundary",
+        "priority": "Medium",
+        "preconditions": [
+          "User is logged in as a Manager with valid credentials",
+          "Manager has authorization to update task priorities",
+          "A task with an existing priority level is available in the system",
+          "Task priority update interface is accessible",
+          "Performance monitoring tools are available to measure response time"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task with existing priority and open priority update interface",
+            "expectedResult": "Priority update form is displayed with current priority level pre-selected"
+          },
+          {
+            "step": 2,
+            "action": "Update priority with a valid level (e.g., change from Medium to High) and note the timestamp before submission",
+            "expectedResult": "New priority level is selected successfully in the form"
+          },
+          {
+            "step": 3,
+            "action": "Submit the updated priority and measure response time",
+            "expectedResult": "Response is received within 2 seconds and confirmation message is displayed"
+          },
+          {
+            "step": 4,
+            "action": "Check database for updated priority immediately after submission",
+            "expectedResult": "Database query shows the priority is updated correctly to 'High'"
+          },
+          {
+            "step": 5,
+            "action": "Confirm confirmation message display to manager",
+            "expectedResult": "Success message is shown to manager indicating priority was updated successfully"
+          },
+          {
+            "step": 6,
+            "action": "Verify notification trigger for the employee",
+            "expectedResult": "System logs confirm notification event was triggered for priority change"
+          }
+        ],
+        "postconditions": [
+          "Priority level is successfully updated in the task table",
+          "Update processing completed within 2 seconds SLA",
+          "Confirmation message is displayed to the manager",
+          "Notification is sent to the assigned employee about priority change",
+          "Audit log records the priority update action with timestamp"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-8",
+    "storyTitle": "As Manager, I want to modify task deadlines to achieve flexibility in scheduling",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Modify task deadline with valid future date",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Manager role",
+          "Manager has authorization to modify task deadlines",
+          "At least one task exists in the system with an assigned deadline",
+          "Task is in editable state",
+          "System is connected to the task database"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task list and select a task that needs deadline modification",
+            "expectedResult": "Task is selected and highlighted in the task list"
+          },
+          {
+            "step": 2,
+            "action": "Click on the 'Edit Deadline' button or option to open the deadline edit form",
+            "expectedResult": "Deadline edit form is displayed showing the current deadline date in the input field"
+          },
+          {
+            "step": 3,
+            "action": "Clear the existing deadline and enter a new valid future date (e.g., a date 7 days from today)",
+            "expectedResult": "New deadline date is entered in the input field without any validation errors or warnings"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Submit' or 'Update' button to save the new deadline",
+            "expectedResult": "System processes the update within 2 seconds, deadline is updated in the database, and a confirmation message is displayed (e.g., 'Deadline updated successfully')"
+          },
+          {
+            "step": 5,
+            "action": "Verify the task list displays the updated deadline for the modified task",
+            "expectedResult": "Task list shows the new deadline date for the selected task"
+          },
+          {
+            "step": 6,
+            "action": "Check that the assigned employee receives a notification about the deadline change",
+            "expectedResult": "Notification is queued/sent to the assigned employee informing them of the deadline modification"
+          }
+        ],
+        "postconditions": [
+          "Task deadline is updated in the database with the new future date",
+          "Confirmation message is displayed to the manager",
+          "Deadline change is logged in the audit trail",
+          "Notification is sent to the assigned employee",
+          "Task list reflects the updated deadline"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Reject modification with past date",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Manager role",
+          "Manager has authorization to modify task deadlines",
+          "At least one task exists in the system with an assigned deadline",
+          "Task is in editable state",
+          "System is connected to the task database"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task list and select a task to modify",
+            "expectedResult": "Task is selected and highlighted in the task list"
+          },
+          {
+            "step": 2,
+            "action": "Click on the 'Edit Deadline' button or option to open the deadline edit form",
+            "expectedResult": "Deadline edit form is displayed showing the current deadline date"
+          },
+          {
+            "step": 3,
+            "action": "Clear the existing deadline and enter a past date (e.g., yesterday's date or any date before today)",
+            "expectedResult": "Past date is entered in the input field and a validation error message is displayed (e.g., 'Deadline must be a future date' or 'Past dates are not allowed')"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to click the 'Submit' or 'Update' button to save the invalid deadline",
+            "expectedResult": "Submission is blocked, the update button is disabled or non-functional, and the error message remains visible indicating that past dates cannot be set as deadlines"
+          },
+          {
+            "step": 5,
+            "action": "Verify that the original deadline remains unchanged in the database",
+            "expectedResult": "Task retains its original deadline and no changes are saved to the database"
+          },
+          {
+            "step": 6,
+            "action": "Close the edit form or navigate away",
+            "expectedResult": "Form closes without saving changes and task list shows the original deadline"
+          }
+        ],
+        "postconditions": [
+          "Task deadline remains unchanged in the database",
+          "No confirmation message is displayed",
+          "No deadline change is logged in the audit trail",
+          "No notification is sent to the assigned employee",
+          "Error message is displayed to the manager explaining the validation failure"
+        ],
+        "estimatedTime": "4 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-9",
+    "storyTitle": "As Manager, I want to modify task priorities to achieve dynamic workload adjustment",
+    "testCases": [
+      {
+        "id": "tc-003",
+        "title": "Modify task priority with valid level",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Manager role",
+          "Manager has authorization to modify task priorities",
+          "At least one task exists in the system with an assigned priority",
+          "Task is in editable state",
+          "System is connected to the task database",
+          "Valid priority levels are defined as Low, Medium, or High"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task list and select a task that needs priority modification",
+            "expectedResult": "Task is selected and highlighted in the task list"
+          },
+          {
+            "step": 2,
+            "action": "Click on the 'Edit Priority' button or option to open the priority edit form",
+            "expectedResult": "Priority edit form is displayed showing the current priority level (e.g., Low, Medium, or High) in a dropdown or selection field"
+          },
+          {
+            "step": 3,
+            "action": "Select a new valid priority level from the available options (e.g., change from Low to Medium)",
+            "expectedResult": "New priority level 'Medium' is selected in the dropdown without any validation errors or warnings"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Submit' or 'Update' button to save the new priority",
+            "expectedResult": "System processes the update within 2 seconds, priority is updated in the database, and a confirmation message is displayed (e.g., 'Priority updated successfully')"
+          },
+          {
+            "step": 5,
+            "action": "Verify the task list displays the updated priority for the modified task",
+            "expectedResult": "Task list shows the new priority level 'Medium' for the selected task with appropriate visual indicators (e.g., color coding or priority badge)"
+          },
+          {
+            "step": 6,
+            "action": "Check that the assigned employee receives a notification about the priority change",
+            "expectedResult": "Notification is queued/sent to the assigned employee informing them of the priority modification"
+          }
+        ],
+        "postconditions": [
+          "Task priority is updated in the database with the new valid level",
+          "Confirmation message is displayed to the manager",
+          "Priority change is logged in the audit trail",
+          "Notification is sent to the assigned employee",
+          "Task list reflects the updated priority with appropriate visual indicators"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-004",
+        "title": "Reject modification with invalid priority",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Manager role",
+          "Manager has authorization to modify task priorities",
+          "At least one task exists in the system with an assigned priority",
+          "Task is in editable state",
+          "System is connected to the task database",
+          "Valid priority levels are defined as Low, Medium, or High"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task list and select a task to modify",
+            "expectedResult": "Task is selected and highlighted in the task list"
+          },
+          {
+            "step": 2,
+            "action": "Click on the 'Edit Priority' button or option to open the priority edit form",
+            "expectedResult": "Priority edit form is displayed showing the current priority level"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to enter or select an invalid priority value (e.g., 'Critical', 'Urgent', numeric value, or any value not in the predefined list of Low, Medium, High)",
+            "expectedResult": "System displays a validation error message (e.g., 'Invalid priority value. Please select Low, Medium, or High') and highlights the invalid input"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to click the 'Submit' or 'Update' button to save the invalid priority",
+            "expectedResult": "Submission is blocked, the update button is disabled or non-functional, and the error message remains visible indicating that only Low, Medium, or High priority values are accepted"
+          },
+          {
+            "step": 5,
+            "action": "Verify that the original priority remains unchanged in the database",
+            "expectedResult": "Task retains its original priority level and no changes are saved to the database"
+          },
+          {
+            "step": 6,
+            "action": "Close the edit form or navigate away",
+            "expectedResult": "Form closes without saving changes and task list shows the original priority"
+          }
+        ],
+        "postconditions": [
+          "Task priority remains unchanged in the database",
+          "No confirmation message is displayed",
+          "No priority change is logged in the audit trail",
+          "No notification is sent to the assigned employee",
+          "Error message is displayed to the manager explaining the validation failure"
+        ],
+        "estimatedTime": "4 mins"
+      }
+    ]
+  }
+]
