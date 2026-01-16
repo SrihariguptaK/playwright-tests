@@ -1,0 +1,864 @@
+[
+  {
+    "storyId": "story-2",
+    "storyTitle": "As Approver, I want to review schedule change requests to achieve informed decision making",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate display of pending schedule change requests",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has valid Approver role credentials",
+          "At least 5 pending schedule change requests exist in the system",
+          "Requests have different dates and requesters for filtering",
+          "At least one request has attachments uploaded",
+          "System is accessible and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the application login page and enter valid Approver credentials (username and password), then click Login button",
+            "expectedResult": "User is successfully authenticated and redirected to the Approver dashboard displaying a list of pending schedule change requests with columns for request ID, requester name, date submitted, and status"
+          },
+          {
+            "step": 2,
+            "action": "Locate the filter section and select a specific date range from the date picker, then select a specific requester from the requester dropdown",
+            "expectedResult": "The pending requests list automatically refreshes and displays only the requests matching the selected date range and requester criteria. Request count updates to reflect filtered results"
+          },
+          {
+            "step": 3,
+            "action": "Click on one of the filtered schedule change requests from the list to open the detailed view",
+            "expectedResult": "Detailed view page opens showing complete request information including: request ID, requester details, submission date, requested schedule changes, reason for change, current status, request history, comments section, and all attached documents with download links"
+          }
+        ],
+        "postconditions": [
+          "User remains logged in as Approver",
+          "Detailed request view is displayed",
+          "No data has been modified",
+          "Filters remain applied to the list view"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify adding comments to schedule change requests",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with valid Approver credentials",
+          "At least one pending schedule change request exists in the system",
+          "User has permission to add comments to requests",
+          "Request detail view is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "From the pending requests list, click on a specific schedule change request to open its detail view",
+            "expectedResult": "Request detail page loads successfully displaying all request information, attachments, existing comments history, and a comment input field at the bottom of the page"
+          },
+          {
+            "step": 2,
+            "action": "Scroll to the comments section, enter text 'Please provide additional justification for this schedule change' in the comment input field, then click the Submit or Add Comment button",
+            "expectedResult": "Comment is successfully saved and immediately appears in the request history section with the approver's name, timestamp, and comment text. A success confirmation message is displayed. The comment input field is cleared"
+          },
+          {
+            "step": 3,
+            "action": "Click the browser refresh button or navigate away from the request and return to the same request detail view",
+            "expectedResult": "The request detail page reloads and the previously added comment 'Please provide additional justification for this schedule change' is still visible in the request history with correct timestamp and approver name"
+          }
+        ],
+        "postconditions": [
+          "Comment is permanently saved in the database",
+          "Request history is updated with the new comment",
+          "Request status remains unchanged",
+          "Audit log contains entry for comment addition"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure request list loads within performance requirements",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has valid Approver credentials",
+          "System has at least 50 pending schedule change requests for realistic load testing",
+          "Network connection is stable with normal bandwidth",
+          "System is under normal load conditions (not peak hours)",
+          "Browser performance monitoring tools or stopwatch available for timing"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the login page, enter valid Approver credentials, and click Login button while starting a timer",
+            "expectedResult": "User is authenticated and the Approver dashboard with pending requests list is fully loaded and displayed. All request entries are visible with complete data"
+          },
+          {
+            "step": 2,
+            "action": "Start a timer and click on the pending requests section or refresh the pending requests list",
+            "expectedResult": "The complete list of pending schedule change requests loads and displays within 3 seconds. All columns (request ID, requester, date, status) are populated with data. Stop timer and verify load time is ≤ 3 seconds"
+          },
+          {
+            "step": 3,
+            "action": "Start a timer, apply multiple filters (select a date range and a specific requester), then measure the time until the filtered results are fully displayed",
+            "expectedResult": "The filtered list of schedule change requests loads and displays within 3 seconds. Only requests matching the filter criteria are shown. Request count updates correctly. Stop timer and verify response time is ≤ 3 seconds"
+          }
+        ],
+        "postconditions": [
+          "All performance measurements are documented",
+          "System remains responsive",
+          "No performance degradation observed",
+          "Filters remain applied and functional"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-3",
+    "storyTitle": "As Approver, I want to approve or reject schedule change requests to ensure proper authorization",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate approval of schedule change request",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with valid Approver role credentials",
+          "At least one pending schedule change request exists in the system",
+          "User has approval permissions for the request",
+          "Audit logging system is operational",
+          "Database connection is active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the pending schedule change requests list and click on a specific pending request to open its detail view",
+            "expectedResult": "Request detail page opens displaying complete request information including: request ID, requester details, requested changes, current status showing 'Pending', and action buttons (Approve, Reject, Request More Info)"
+          },
+          {
+            "step": 2,
+            "action": "Review the request details, optionally enter approval comments in the comments field, then click the Approve button and confirm the action if prompted",
+            "expectedResult": "System processes the approval action and displays a success confirmation message. The request status immediately updates from 'Pending' to 'Approved'. The Approve button becomes disabled or changes to show 'Approved' state. Timestamp of approval is displayed"
+          },
+          {
+            "step": 3,
+            "action": "Navigate to the audit log section or admin panel and search for the audit entry corresponding to this request ID and approval action",
+            "expectedResult": "Audit log displays a new entry containing: the approver's username, exact timestamp of approval action, action type 'Approved', request ID, and any comments entered. All audit fields are populated correctly and match the approval action performed"
+          }
+        ],
+        "postconditions": [
+          "Request status is permanently changed to 'Approved'",
+          "Audit log entry is created and stored",
+          "Request is removed from pending list",
+          "Notification is queued for requester (if in scope)",
+          "Request cannot be modified further without proper workflow"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify rejection requires comments",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with valid Approver role credentials",
+          "At least one pending schedule change request exists in the system",
+          "User has rejection permissions for the request",
+          "Comment validation is enabled in the system",
+          "Audit logging system is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "From the pending requests list, click on a specific pending schedule change request to open its detail view",
+            "expectedResult": "Request detail page loads successfully displaying all request information, current status as 'Pending', and action buttons including Reject button. Comments field is visible and empty"
+          },
+          {
+            "step": 2,
+            "action": "Without entering any text in the comments field, click the Reject button",
+            "expectedResult": "System prevents the rejection submission and displays a validation error message such as 'Comments are required when rejecting a request' or 'Please provide a reason for rejection'. The request status remains 'Pending'. The Reject action is not processed"
+          },
+          {
+            "step": 3,
+            "action": "Enter rejection comments in the comments field (e.g., 'Insufficient justification provided for schedule change'), then click the Reject button and confirm if prompted",
+            "expectedResult": "System successfully processes the rejection. Request status updates from 'Pending' to 'Rejected'. Success confirmation message is displayed. The rejection comments are saved and visible in the request history. Audit log entry is created containing: approver username, timestamp, action type 'Rejected', request ID, and the rejection comments entered"
+          }
+        ],
+        "postconditions": [
+          "Request status is changed to 'Rejected'",
+          "Rejection comments are permanently saved",
+          "Audit log entry is created with all required details",
+          "Request is removed from pending list",
+          "Validation rules for comments are confirmed working"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure unauthorized users cannot approve requests",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User account exists without Approver role permissions (e.g., regular employee or requester role)",
+          "At least one pending schedule change request exists in the system",
+          "Role-based access control is configured and active",
+          "API endpoint security is properly configured",
+          "Audit logging system is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in to the system using credentials of a user without approval permissions (e.g., regular employee role), then navigate to the dashboard or attempt to access the schedule change requests section",
+            "expectedResult": "User successfully logs in but the approval-related features are not visible. Approval action buttons (Approve, Reject, Request More Info) are either hidden or disabled. The pending requests list may not be accessible at all, or if visible, shows no action buttons"
+          },
+          {
+            "step": 2,
+            "action": "Using API testing tools (e.g., Postman, curl) or browser developer console, attempt to directly call the approval API endpoint POST /api/schedule-changes/{id}/approval with a valid request ID and approval action payload",
+            "expectedResult": "API returns an authorization error response with HTTP status code 401 (Unauthorized) or 403 (Forbidden). Error message indicates 'Access denied' or 'Insufficient permissions to perform this action'. No changes are made to the request status in the database"
+          },
+          {
+            "step": 3,
+            "action": "Navigate to the audit log section (if accessible) or have an administrator check the audit logs for any entries related to the unauthorized access attempts made in previous steps",
+            "expectedResult": "Audit log shows no approval action entries for the unauthorized user. If security logging is enabled, there may be entries for failed authorization attempts showing the username, timestamp, attempted action, and 'Access Denied' result. No approval actions are recorded as successful"
+          }
+        ],
+        "postconditions": [
+          "No schedule change requests have been modified",
+          "System security remains intact",
+          "No unauthorized audit entries exist",
+          "Role-based access control is confirmed working",
+          "User remains logged in with limited permissions"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-4",
+    "storyTitle": "As System Administrator, I want to configure approval routing rules to achieve flexible workflow management",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate creation and saving of routing rules",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has System Administrator role and valid credentials",
+          "ApprovalRoutingRules table is accessible and operational",
+          "Routing rules management interface is deployed and functional",
+          "At least one department and approver exist in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the application login page and enter valid System Administrator credentials",
+            "expectedResult": "System authenticates successfully and redirects to administrator dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Click on 'Routing Rules Management' menu option from the navigation panel",
+            "expectedResult": "Routing rules management page loads displaying existing rules list and 'Create New Rule' button"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Create New Rule' button to open the rule creation form",
+            "expectedResult": "Rule creation form displays with fields for rule name, conditions, and approver assignments"
+          },
+          {
+            "step": 4,
+            "action": "Enter rule name 'Engineering Department Routing', select condition 'Department equals Engineering', and assign approver 'John Smith'",
+            "expectedResult": "All fields accept input without errors and display entered values correctly"
+          },
+          {
+            "step": 5,
+            "action": "Click 'Save' button to submit the new routing rule",
+            "expectedResult": "System validates the rule, saves it to ApprovalRoutingRules table, and displays success confirmation message 'Routing rule created successfully'"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to the active rules list view",
+            "expectedResult": "Active rules list displays the newly created rule 'Engineering Department Routing' with status 'Active' and correct configuration details"
+          }
+        ],
+        "postconditions": [
+          "New routing rule is persisted in ApprovalRoutingRules table",
+          "Rule is active and available for routing schedule change requests",
+          "Rule appears in the active rules list with correct details",
+          "System audit log contains rule creation entry"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify validation prevents conflicting routing rules",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as System Administrator",
+          "At least one active routing rule exists: 'Department equals Engineering assigns to John Smith'",
+          "Routing rules management page is accessible",
+          "Rule conflict validation logic is enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to routing rules management page and click 'Create New Rule' button",
+            "expectedResult": "Rule creation form opens with empty fields ready for input"
+          },
+          {
+            "step": 2,
+            "action": "Enter rule name 'Conflicting Engineering Rule', select condition 'Department equals Engineering', and assign different approver 'Jane Doe'",
+            "expectedResult": "Form accepts all input values and displays them correctly"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Save' button to attempt saving the conflicting rule",
+            "expectedResult": "System detects conflict with existing rule and displays error message: 'Conflict detected: A rule with identical conditions already exists for Engineering department. Please modify conditions or deactivate the existing rule.'"
+          },
+          {
+            "step": 4,
+            "action": "Verify the rule is not saved and form remains open with entered data",
+            "expectedResult": "Rule is not added to the database, form retains entered values, and save operation is blocked"
+          },
+          {
+            "step": 5,
+            "action": "Modify the condition to 'Department equals Engineering AND Request Type equals Shift Swap' to resolve the conflict",
+            "expectedResult": "Updated condition is displayed in the form with additional criteria added"
+          },
+          {
+            "step": 6,
+            "action": "Click 'Save' button again with the modified rule",
+            "expectedResult": "System validates successfully, saves the rule, and displays confirmation message 'Routing rule created successfully'"
+          },
+          {
+            "step": 7,
+            "action": "Verify the new rule appears in the active rules list without conflicts",
+            "expectedResult": "Both rules are listed as active with distinct conditions and no conflict warnings displayed"
+          }
+        ],
+        "postconditions": [
+          "Conflicting rule was prevented from being saved initially",
+          "Modified rule is successfully saved and active",
+          "No conflicting rules exist in the system",
+          "Validation error was logged in system logs"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure routing rules apply correctly to sample requests",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as System Administrator",
+          "At least two active routing rules exist with different conditions",
+          "Test feature is enabled in routing rules management interface",
+          "Sample schedule change request templates are available"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to routing rules management page and locate the 'Test Routing Rules' section",
+            "expectedResult": "Test section displays with options to input sample request parameters"
+          },
+          {
+            "step": 2,
+            "action": "Click 'Create Sample Request' button to open the test request form",
+            "expectedResult": "Sample request form opens with fields for Department, Request Type, Schedule Type, and Request Size"
+          },
+          {
+            "step": 3,
+            "action": "Enter sample request parameters: Department='Engineering', Request Type='Shift Swap', Schedule Type='Full-time', Request Size='Single'",
+            "expectedResult": "All parameters are entered and displayed correctly in the form"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Test Routing' button to apply routing rules to the sample request",
+            "expectedResult": "System evaluates active routing rules against sample request parameters and displays results within 1 second"
+          },
+          {
+            "step": 5,
+            "action": "Review the routing results displayed on screen",
+            "expectedResult": "System displays matched routing rule name, applied conditions, and assigned approvers list showing 'John Smith' based on the matching rule"
+          },
+          {
+            "step": 6,
+            "action": "Modify sample request parameters to Department='Marketing', keeping other parameters the same",
+            "expectedResult": "Updated parameter is reflected in the test form"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Test Routing' button again with modified parameters",
+            "expectedResult": "System re-evaluates routing rules and displays updated results showing different approver 'Sarah Johnson' assigned based on Marketing department rule"
+          },
+          {
+            "step": 8,
+            "action": "Verify routing results update reflects the parameter change accurately",
+            "expectedResult": "Routing results show correct rule match for Marketing department with appropriate approver assignment, confirming dynamic rule application"
+          }
+        ],
+        "postconditions": [
+          "Test routing functionality validated without affecting production data",
+          "Routing rules correctly matched sample requests based on conditions",
+          "No test data persisted in production tables",
+          "Rule evaluation performance met 1-second requirement"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-7",
+    "storyTitle": "As Approver, I want to escalate pending schedule change approvals to achieve timely decision making",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate automatic escalation of pending approvals",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Escalation rules are configured with threshold set to 24 hours",
+          "At least one backup approver is designated in the system",
+          "Escalation service is running and operational",
+          "Email/notification service is configured and functional",
+          "Test schedule change request exists in pending approval status"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Create a new schedule change request as an employee and submit for approval",
+            "expectedResult": "Schedule change request is created successfully with status 'Pending Approval' and timestamp recorded"
+          },
+          {
+            "step": 2,
+            "action": "Verify the request is assigned to primary approver and remains in pending status",
+            "expectedResult": "Request appears in primary approver's queue with 'Pending' status and no escalation flag"
+          },
+          {
+            "step": 3,
+            "action": "Simulate time passage by adjusting system time or waiting for the configured escalation threshold (24 hours) to be exceeded",
+            "expectedResult": "Request remains in pending status throughout the threshold period without any action from primary approver"
+          },
+          {
+            "step": 4,
+            "action": "Wait for escalation processing service to run its scheduled check (within 1 minute of threshold breach)",
+            "expectedResult": "Escalation service detects the pending request exceeding threshold and triggers automatic escalation process"
+          },
+          {
+            "step": 5,
+            "action": "Verify the request status is updated to 'Escalated' in the ApprovalActions table",
+            "expectedResult": "Request status changes to 'Escalated' with escalation timestamp recorded and escalation flag set to true"
+          },
+          {
+            "step": 6,
+            "action": "Check the backup approver's notification inbox or email",
+            "expectedResult": "Escalation notification is received by backup approver containing request details, original approver name, escalation reason, and action link"
+          },
+          {
+            "step": 7,
+            "action": "Verify the request now appears in backup approver's pending approvals queue",
+            "expectedResult": "Escalated request is visible in backup approver's queue with 'Escalated' badge and priority indicator"
+          }
+        ],
+        "postconditions": [
+          "Request status is 'Escalated' in the database",
+          "Backup approver has received notification and can access the request",
+          "Original approver retains visibility of the escalated request",
+          "Escalation event is logged in system audit trail",
+          "Escalation metrics are updated for reporting"
+        ],
+        "estimatedTime": "15 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify escalation logging and status tracking",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has authorized access to escalation monitoring interface",
+          "At least one schedule change request is pending beyond escalation threshold",
+          "Escalation service is active and monitoring pending requests",
+          "Escalation logging functionality is enabled",
+          "Database tables ApprovalActions and EscalationRules are accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Identify a pending schedule change request that has exceeded the escalation threshold",
+            "expectedResult": "Pending request is identified with timestamp showing it has been pending for more than configured threshold"
+          },
+          {
+            "step": 2,
+            "action": "Wait for or manually trigger the escalation process for the identified request",
+            "expectedResult": "Escalation process executes and escalates the pending request to backup approver"
+          },
+          {
+            "step": 3,
+            "action": "Query the ApprovalActions table to retrieve escalation log entry for the request",
+            "expectedResult": "Escalation action record exists with fields: request ID, action type 'Escalated', timestamp of escalation, original approver ID, backup approver ID, and escalation reason"
+          },
+          {
+            "step": 4,
+            "action": "Verify the timestamp in the log entry matches the actual escalation time within acceptable margin",
+            "expectedResult": "Timestamp is accurate and reflects the exact time escalation was triggered (within 1 minute of threshold breach)"
+          },
+          {
+            "step": 5,
+            "action": "Verify user details in the log include both original approver and backup approver information",
+            "expectedResult": "Log entry contains complete user details: original approver name and ID, backup approver name and ID, and escalation initiator (system)"
+          },
+          {
+            "step": 6,
+            "action": "Log in as authorized user and navigate to the escalation monitoring UI dashboard",
+            "expectedResult": "Escalation monitoring dashboard loads displaying list of all escalated requests with status indicators"
+          },
+          {
+            "step": 7,
+            "action": "Locate the escalated request in the monitoring interface and review displayed status information",
+            "expectedResult": "Request is displayed with accurate status 'Escalated', escalation timestamp, current assignee (backup approver), days pending, and escalation level"
+          },
+          {
+            "step": 8,
+            "action": "Click on the escalated request to view detailed escalation history",
+            "expectedResult": "Detailed view shows complete escalation timeline including original submission, threshold breach time, escalation trigger time, and all notification events"
+          }
+        ],
+        "postconditions": [
+          "Escalation action is permanently logged in ApprovalActions table",
+          "Escalation status is accurately reflected in monitoring UI",
+          "Audit trail is complete with all timestamps and user details",
+          "Escalation data is available for reporting and analytics",
+          "No data inconsistencies exist between database and UI"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure escalation processing meets performance requirements",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "Escalation service is running with performance monitoring enabled",
+          "Multiple schedule change requests are in pending status",
+          "Escalation threshold is configured to a testable value (e.g., 5 minutes for testing)",
+          "System performance monitoring tools are active",
+          "Notification service has capacity to handle multiple simultaneous notifications",
+          "Test environment mirrors production load conditions"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Create 10 schedule change requests and submit them for approval simultaneously",
+            "expectedResult": "All 10 requests are created successfully with 'Pending Approval' status and identical submission timestamps"
+          },
+          {
+            "step": 2,
+            "action": "Configure or simulate time to exceed the escalation threshold for all 10 requests simultaneously",
+            "expectedResult": "All requests reach threshold breach point at the same time, triggering bulk escalation scenario"
+          },
+          {
+            "step": 3,
+            "action": "Start performance timer and monitor escalation service processing",
+            "expectedResult": "Escalation service detects all 10 pending requests exceeding threshold and begins processing"
+          },
+          {
+            "step": 4,
+            "action": "Measure the time taken from threshold breach to completion of escalation processing for all requests",
+            "expectedResult": "All 10 requests are escalated and status updated within 1 minute of threshold breach, meeting performance requirement"
+          },
+          {
+            "step": 5,
+            "action": "Verify all escalation records are created in the database with accurate timestamps",
+            "expectedResult": "Database contains 10 escalation log entries, all with timestamps within 1 minute of threshold breach time"
+          },
+          {
+            "step": 6,
+            "action": "Check notification delivery timestamps for all backup approvers",
+            "expectedResult": "All 10 escalation notifications are generated and queued for delivery within the 1-minute processing window"
+          },
+          {
+            "step": 7,
+            "action": "Verify notifications are delivered to backup approvers within SLA (95% within defined timeframe)",
+            "expectedResult": "At least 9 out of 10 notifications (95%) are delivered successfully within the SLA timeframe, confirming prompt delivery"
+          },
+          {
+            "step": 8,
+            "action": "Review system performance metrics including CPU usage, memory consumption, and database query times during escalation processing",
+            "expectedResult": "System resources remain within acceptable limits, no performance degradation observed, and all operations complete within 1-minute requirement"
+          },
+          {
+            "step": 9,
+            "action": "Verify no escalations were missed or delayed beyond the 1-minute processing requirement",
+            "expectedResult": "100% of eligible requests were escalated within performance threshold with no failures or delays"
+          }
+        ],
+        "postconditions": [
+          "All test requests successfully escalated within performance requirements",
+          "Performance metrics documented and meet specified thresholds",
+          "Notification delivery meets 95% SLA requirement",
+          "System stability maintained under load conditions",
+          "No pending requests remain unprocessed",
+          "Performance test results logged for compliance verification"
+        ],
+        "estimatedTime": "20 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-10",
+    "storyTitle": "As Approver, I want to request additional information on schedule change requests to achieve informed approvals",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate approver can request additional information",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Approver role",
+          "At least one pending schedule change request exists in the system",
+          "Approver has permission to access schedule change requests",
+          "Notification system is configured and operational",
+          "Requester user account is active and has valid contact information"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule change requests dashboard",
+            "expectedResult": "Dashboard displays with list of pending schedule change requests"
+          },
+          {
+            "step": 2,
+            "action": "Select and open a pending schedule change request",
+            "expectedResult": "Request details page opens displaying all request information including requester name, schedule details, reason for change, and current status"
+          },
+          {
+            "step": 3,
+            "action": "Locate and click the 'Request More Info' button",
+            "expectedResult": "A comment entry dialog or form appears with a mandatory text field for entering comments"
+          },
+          {
+            "step": 4,
+            "action": "Enter detailed comments explaining what additional information is needed (e.g., 'Please provide justification for the extended hours and manager approval')",
+            "expectedResult": "Comments are entered successfully in the text field with character count displayed if applicable"
+          },
+          {
+            "step": 5,
+            "action": "Click 'Submit' or 'Send Request' button",
+            "expectedResult": "System displays a confirmation message indicating the information request has been submitted successfully"
+          },
+          {
+            "step": 6,
+            "action": "Verify the request status has changed to 'Info Requested' or similar status",
+            "expectedResult": "Request status is updated and displayed on the request details page"
+          },
+          {
+            "step": 7,
+            "action": "Check that the notification has been sent to the requester by verifying notification logs or system notifications panel",
+            "expectedResult": "Notification entry shows successful delivery to requester with timestamp and notification content"
+          },
+          {
+            "step": 8,
+            "action": "Log in as the requester user in a separate browser or session",
+            "expectedResult": "Requester successfully logs in and dashboard is displayed"
+          },
+          {
+            "step": 9,
+            "action": "Check notifications or inbox for the information request notification",
+            "expectedResult": "Notification is visible showing the approver's request for additional information with the comments entered"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request status is updated to 'Info Requested'",
+          "Notification is successfully delivered to requester",
+          "Info request is logged in the system with timestamp and approver details",
+          "Request remains in pending state awaiting additional information",
+          "Approver can view the info request in the request history"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify requester can submit additional information",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Schedule Coordinator (requester) role",
+          "An information request has been submitted by an approver for one of the requester's schedule change requests",
+          "Notification for info request is present in the requester's notification panel",
+          "Original schedule change request is in 'Info Requested' status",
+          "Requester has permission to update their schedule change requests"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in to the system as Schedule Coordinator",
+            "expectedResult": "User successfully logs in and is redirected to the dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the notifications panel or inbox",
+            "expectedResult": "Notifications panel displays with unread notification badge or indicator"
+          },
+          {
+            "step": 3,
+            "action": "Locate and view the information request notification",
+            "expectedResult": "Notification is visible showing the approver's name, request details, and comments explaining what information is needed"
+          },
+          {
+            "step": 4,
+            "action": "Click on the notification to open the associated schedule change request",
+            "expectedResult": "Schedule change request details page opens showing original request details and the approver's information request with comments"
+          },
+          {
+            "step": 5,
+            "action": "Locate the 'Submit Additional Information' or 'Respond' section on the request page",
+            "expectedResult": "A text entry field or form is displayed for entering additional information"
+          },
+          {
+            "step": 6,
+            "action": "Enter the requested additional information in the response field (e.g., 'Manager approval attached. Extended hours needed due to project deadline on March 15th')",
+            "expectedResult": "Additional information is entered successfully in the text field"
+          },
+          {
+            "step": 7,
+            "action": "Attach any supporting documents if applicable",
+            "expectedResult": "Documents are uploaded and attached successfully with file names displayed"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Submit' or 'Send Response' button",
+            "expectedResult": "System displays confirmation message that additional information has been submitted successfully"
+          },
+          {
+            "step": 9,
+            "action": "Verify the request status has changed to 'Pending Review' or similar status",
+            "expectedResult": "Request status is updated and displayed on the request details page"
+          },
+          {
+            "step": 10,
+            "action": "Verify the submitted information is linked to the original request by checking the request history or timeline",
+            "expectedResult": "Additional information appears in the request timeline with timestamp and is clearly linked to the original request"
+          },
+          {
+            "step": 11,
+            "action": "Log in as the approver in a separate browser or session",
+            "expectedResult": "Approver successfully logs in and dashboard is displayed"
+          },
+          {
+            "step": 12,
+            "action": "Open the same schedule change request",
+            "expectedResult": "Request details page opens with all information displayed"
+          },
+          {
+            "step": 13,
+            "action": "Locate and review the additional information section",
+            "expectedResult": "Additional information submitted by the requester is visible and clearly displayed with timestamp, including any attached documents"
+          }
+        ],
+        "postconditions": [
+          "Additional information is saved and linked to the original schedule change request",
+          "Request status is updated to 'Pending Review' or equivalent",
+          "Approver can view the additional information provided",
+          "Response action is logged in the audit trail",
+          "Notification may be sent to approver indicating response has been submitted"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure all info request actions are logged",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has Approver role access",
+          "User has Schedule Coordinator (requester) role access or separate test accounts for both roles",
+          "At least one pending schedule change request exists",
+          "Audit logging is enabled in the system",
+          "User has permission to view audit logs or system administrator access is available"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as Approver",
+            "expectedResult": "Approver successfully logs in and dashboard is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Open a pending schedule change request",
+            "expectedResult": "Request details page is displayed with all request information"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Request More Info' button and enter comments 'Need clarification on shift timing'",
+            "expectedResult": "Comment entry form is displayed and comments are entered successfully"
+          },
+          {
+            "step": 4,
+            "action": "Submit the information request",
+            "expectedResult": "Confirmation message is displayed and request status is updated to 'Info Requested'"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to the audit log or system logs section (may require admin access)",
+            "expectedResult": "Audit log page is displayed with list of recent system actions"
+          },
+          {
+            "step": 6,
+            "action": "Filter or search for the schedule change request ID or recent 'Info Request' actions",
+            "expectedResult": "Audit log entries are filtered to show relevant actions"
+          },
+          {
+            "step": 7,
+            "action": "Verify the info request action is logged with complete details",
+            "expectedResult": "Audit log entry shows: Action type 'Info Request', Approver username, Request ID, Timestamp (date and time), Comments entered, and any other relevant metadata"
+          },
+          {
+            "step": 8,
+            "action": "Log out and log in as Schedule Coordinator (requester)",
+            "expectedResult": "Requester successfully logs in and dashboard is displayed"
+          },
+          {
+            "step": 9,
+            "action": "Navigate to the schedule change request with info request",
+            "expectedResult": "Request details page opens showing the info request from approver"
+          },
+          {
+            "step": 10,
+            "action": "Submit additional information in response to the info request (e.g., 'Shift timing is 2 PM to 10 PM')",
+            "expectedResult": "Additional information is submitted successfully with confirmation message"
+          },
+          {
+            "step": 11,
+            "action": "Navigate back to the audit log section",
+            "expectedResult": "Audit log page is displayed"
+          },
+          {
+            "step": 12,
+            "action": "Search for the same schedule change request ID or recent 'Info Response' actions",
+            "expectedResult": "Audit log entries are filtered to show the response action"
+          },
+          {
+            "step": 13,
+            "action": "Verify the info response action is logged in the audit trail with complete details",
+            "expectedResult": "Audit log entry shows: Action type 'Info Response' or 'Additional Info Submitted', Requester username, Request ID, Timestamp (date and time), Response content or reference, and any other relevant metadata"
+          },
+          {
+            "step": 14,
+            "action": "Verify both actions (info request and info response) are visible in chronological order in the audit trail",
+            "expectedResult": "Both audit log entries are displayed in sequence showing the complete information request workflow with all required details preserved"
+          }
+        ],
+        "postconditions": [
+          "Info request action is permanently logged in audit trail with user and timestamp",
+          "Info response action is permanently logged in audit trail with user and timestamp",
+          "Audit logs are accessible for compliance and review purposes",
+          "Complete audit trail shows the information request workflow from request to response",
+          "All logged data includes sufficient detail for audit and compliance requirements"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  }
+]
