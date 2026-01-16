@@ -1,0 +1,412 @@
+[
+  {
+    "storyId": "story-25",
+    "storyTitle": "As Underwriting Manager, I want to receive automatic declination notifications to achieve faster decision-making and workload management",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate automatic declination marking and notification",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has valid underwriting manager credentials",
+          "Rules engine is configured with declination criteria",
+          "Notification service is operational",
+          "Manager dashboard is accessible",
+          "Test application data is prepared that meets declination criteria"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Submit an application that meets declination criteria (e.g., credit score below threshold, debt-to-income ratio exceeds limit)",
+            "expectedResult": "Application is successfully submitted to the rules engine for evaluation"
+          },
+          {
+            "step": 2,
+            "action": "Wait for rules engine to process the application (maximum 2 seconds)",
+            "expectedResult": "Rules engine evaluates the application against declination criteria"
+          },
+          {
+            "step": 3,
+            "action": "Verify the application status in the system database or via GET /api/declinations endpoint",
+            "expectedResult": "System marks the application status as 'Declined' with appropriate declination code"
+          },
+          {
+            "step": 4,
+            "action": "Check the underwriting manager's notification inbox/email/dashboard alerts",
+            "expectedResult": "Notification is received by the underwriting manager promptly (within real-time threshold) containing application ID and declination summary"
+          },
+          {
+            "step": 5,
+            "action": "Log in as underwriting manager and navigate to the declined applications dashboard",
+            "expectedResult": "Manager dashboard loads successfully and displays the declined applications section"
+          },
+          {
+            "step": 6,
+            "action": "Locate the recently declined application in the dashboard list",
+            "expectedResult": "Declined application is listed in the dashboard with application ID, applicant name, declination date, and timestamp"
+          },
+          {
+            "step": 7,
+            "action": "Click on the declined application to view detailed declination reasons",
+            "expectedResult": "Detailed view displays complete declination reasons (e.g., 'Credit score 580 below minimum 620', 'DTI ratio 48% exceeds maximum 43%') with audit trail information"
+          },
+          {
+            "step": 8,
+            "action": "Verify declination reason is logged in the audit system",
+            "expectedResult": "Audit log contains entry with application ID, declination timestamp, specific reasons, and rules engine decision details"
+          }
+        ],
+        "postconditions": [
+          "Application remains in declined status",
+          "Declination notification is recorded in notification history",
+          "Audit log contains complete declination record",
+          "Manager dashboard reflects the declined application",
+          "System is ready for next application processing"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-26",
+    "storyTitle": "As Underwriting Manager, I want to review and override automatic declinations to achieve flexibility in underwriting decisions",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify declination override process",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has valid underwriting manager credentials with override permissions",
+          "At least one application exists in declined status",
+          "Override functionality is enabled in the system",
+          "Audit logging service is operational",
+          "Notification service is configured for stakeholder alerts",
+          "Manager is logged into the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the declined applications dashboard as underwriting manager",
+            "expectedResult": "Dashboard displays list of all declined applications with relevant details (application ID, applicant name, declination date, reasons)"
+          },
+          {
+            "step": 2,
+            "action": "Select a declined application from the list to review for potential override",
+            "expectedResult": "Application details page opens showing complete declination information, applicant data, and declination reasons"
+          },
+          {
+            "step": 3,
+            "action": "Click on the 'Override Declination' button or option",
+            "expectedResult": "Override UI is displayed with a mandatory reason input field, confirmation message, and submit/cancel buttons"
+          },
+          {
+            "step": 4,
+            "action": "Enter a valid override reason in the text field (e.g., 'Applicant provided additional income documentation showing sufficient capacity')",
+            "expectedResult": "Override reason text is accepted and displayed in the input field with character count if applicable"
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Submit Override' button to confirm the override action",
+            "expectedResult": "System processes the override request via POST /api/declinations/override endpoint within 2 seconds"
+          },
+          {
+            "step": 6,
+            "action": "Verify the application status has been updated in the system",
+            "expectedResult": "Application status changes from 'Declined' to 'Under Review' or 'Override Approved' immediately, and success confirmation message is displayed"
+          },
+          {
+            "step": 7,
+            "action": "Check the audit log for the override action",
+            "expectedResult": "Audit log contains new entry with override timestamp, manager username, manager ID, original declination reason, override reason, and application ID"
+          },
+          {
+            "step": 8,
+            "action": "Verify notifications are sent to relevant stakeholders (underwriting team, loan officers, applicant contact if configured)",
+            "expectedResult": "Notifications are successfully sent to all configured stakeholders containing application ID, override action, and manager name"
+          },
+          {
+            "step": 9,
+            "action": "Check stakeholder notification inboxes/emails to confirm receipt",
+            "expectedResult": "All relevant stakeholders receive notifications with accurate override information and application details"
+          },
+          {
+            "step": 10,
+            "action": "Return to declined applications dashboard and verify the overridden application is no longer listed",
+            "expectedResult": "Overridden application is removed from declined applications list or marked with 'Overridden' status indicator"
+          }
+        ],
+        "postconditions": [
+          "Application status is updated to reflect override",
+          "Complete audit trail exists for the override action",
+          "All stakeholders have been notified of the override",
+          "Application is available for continued underwriting processing",
+          "Override reason is permanently stored and accessible",
+          "Manager remains logged in and can perform additional actions"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-30",
+    "storyTitle": "As Underwriting Manager, I want to generate reports on referrals, questions, and declinations to achieve data-driven decision making",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate report generation with filters",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Underwriting Manager role",
+          "Reporting module is accessible and functional",
+          "Test data exists in the system: at least 20 referrals, 15 questions, and 10 declinations with varying dates and statuses",
+          "User has permissions to access GET /api/reports/underwriting endpoint",
+          "Browser is compatible and up-to-date"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the reporting module from the main dashboard",
+            "expectedResult": "Reporting module page loads successfully with available report types displayed"
+          },
+          {
+            "step": 2,
+            "action": "Select 'Referrals' as the report type from the dropdown menu",
+            "expectedResult": "Referrals report type is selected and filter options become available"
+          },
+          {
+            "step": 3,
+            "action": "Apply date range filter: Set start date to 30 days ago and end date to today",
+            "expectedResult": "Date range filter is applied and displayed in the filter summary section"
+          },
+          {
+            "step": 4,
+            "action": "Apply status filter: Select 'Pending' status from the status dropdown",
+            "expectedResult": "Status filter is applied and displayed in the filter summary section"
+          },
+          {
+            "step": 5,
+            "action": "Apply user filter: Select a specific underwriter from the user dropdown",
+            "expectedResult": "User filter is applied and displayed in the filter summary section"
+          },
+          {
+            "step": 6,
+            "action": "Click 'Generate Report' button",
+            "expectedResult": "Report generation starts, loading indicator appears, and report completes within 10 seconds"
+          },
+          {
+            "step": 7,
+            "action": "Review the generated report data in the display area",
+            "expectedResult": "Report displays only referrals matching all applied filters: date range (last 30 days), status (Pending), and selected user. Data includes referral ID, date, status, assigned user, and relevant details"
+          },
+          {
+            "step": 8,
+            "action": "Verify report accuracy by cross-checking sample records against the database",
+            "expectedResult": "All displayed records match the filter criteria with 100% accuracy"
+          },
+          {
+            "step": 9,
+            "action": "Change report type to 'Questions' and apply date range filter only",
+            "expectedResult": "Questions report is generated showing all questions within the specified date range"
+          },
+          {
+            "step": 10,
+            "action": "Change report type to 'Declinations' and apply status filter only",
+            "expectedResult": "Declinations report is generated showing all declinations with the selected status"
+          }
+        ],
+        "postconditions": [
+          "Report data is displayed on screen and matches all applied filter criteria",
+          "System logs the report generation activity",
+          "User remains on the reporting module page",
+          "Filters remain applied for subsequent operations"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Export report to PDF and Excel",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Underwriting Manager role",
+          "A report has been successfully generated with applied filters",
+          "Report data is displayed on screen",
+          "User has download permissions enabled in browser",
+          "Sufficient disk space available for file downloads"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Locate the 'Export' button or dropdown on the report display page",
+            "expectedResult": "Export options are visible with PDF and Excel format choices available"
+          },
+          {
+            "step": 2,
+            "action": "Click 'Export to PDF' option",
+            "expectedResult": "PDF file download initiates immediately, download progress indicator appears"
+          },
+          {
+            "step": 3,
+            "action": "Wait for PDF download to complete and locate the downloaded file",
+            "expectedResult": "PDF file downloads successfully to the default download folder with naming convention: ReportType_DateRange_Timestamp.pdf"
+          },
+          {
+            "step": 4,
+            "action": "Open the downloaded PDF file using a PDF reader",
+            "expectedResult": "PDF file opens without errors, displays report title, filter criteria, generation date/time, and all report data in formatted tables with proper headers and pagination"
+          },
+          {
+            "step": 5,
+            "action": "Verify PDF content matches the on-screen report data",
+            "expectedResult": "All data in PDF exactly matches the displayed report including row counts, values, and formatting"
+          },
+          {
+            "step": 6,
+            "action": "Return to the report display page and click 'Export to Excel' option",
+            "expectedResult": "Excel file download initiates immediately, download progress indicator appears"
+          },
+          {
+            "step": 7,
+            "action": "Wait for Excel download to complete and locate the downloaded file",
+            "expectedResult": "Excel file downloads successfully to the default download folder with naming convention: ReportType_DateRange_Timestamp.xlsx"
+          },
+          {
+            "step": 8,
+            "action": "Open the downloaded Excel file using Microsoft Excel or compatible spreadsheet application",
+            "expectedResult": "Excel file opens without errors or corruption warnings, displays report data in structured spreadsheet format"
+          },
+          {
+            "step": 9,
+            "action": "Verify Excel content structure: Check headers, data rows, and formatting",
+            "expectedResult": "Excel file contains: Sheet name matching report type, header row with column names, all data rows matching the report, proper date formatting, and filter criteria in a summary section"
+          },
+          {
+            "step": 10,
+            "action": "Verify Excel data accuracy by comparing row count and sample values with on-screen report",
+            "expectedResult": "All data in Excel exactly matches the displayed report with correct values and no missing records"
+          },
+          {
+            "step": 11,
+            "action": "Test Excel functionality by sorting a column and applying a filter",
+            "expectedResult": "Excel file is fully functional, allows sorting, filtering, and data manipulation without errors"
+          }
+        ],
+        "postconditions": [
+          "Two files are downloaded: one PDF and one Excel file",
+          "Both files contain accurate report data matching the generated report",
+          "Files are accessible and functional without errors",
+          "Download activity is logged in the system",
+          "User remains on the reporting module page"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Schedule recurring report",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Underwriting Manager role",
+          "A report has been successfully generated with desired filters applied",
+          "Email delivery system is configured and operational",
+          "User has a valid email address in the system",
+          "Scheduling service is running and accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Locate and click the 'Schedule Report' button on the report display page",
+            "expectedResult": "Schedule Report dialog or form opens displaying scheduling options"
+          },
+          {
+            "step": 2,
+            "action": "Enter a descriptive name for the scheduled report: 'Weekly Pending Referrals Report'",
+            "expectedResult": "Report name is entered and displayed in the name field"
+          },
+          {
+            "step": 3,
+            "action": "Select recurrence frequency: Choose 'Weekly' from the frequency dropdown",
+            "expectedResult": "Weekly frequency is selected and additional weekly options appear (day of week selection)"
+          },
+          {
+            "step": 4,
+            "action": "Select day of week: Choose 'Monday' for report generation",
+            "expectedResult": "Monday is selected as the scheduled day"
+          },
+          {
+            "step": 5,
+            "action": "Select time for report generation: Set time to 8:00 AM",
+            "expectedResult": "Time is set to 8:00 AM and displayed in the schedule summary"
+          },
+          {
+            "step": 6,
+            "action": "Select report format for delivery: Check both 'PDF' and 'Excel' checkboxes",
+            "expectedResult": "Both PDF and Excel formats are selected for automated delivery"
+          },
+          {
+            "step": 7,
+            "action": "Enter delivery email address: Verify or enter manager's email address",
+            "expectedResult": "Email address is populated and validated (format check shows valid)"
+          },
+          {
+            "step": 8,
+            "action": "Add additional recipients: Enter two additional email addresses separated by commas",
+            "expectedResult": "Additional email addresses are accepted and displayed in the recipients list"
+          },
+          {
+            "step": 9,
+            "action": "Review the schedule summary displaying all configured settings",
+            "expectedResult": "Summary shows: Report name, type, filters, frequency (Weekly - Monday 8:00 AM), formats (PDF, Excel), and recipient list"
+          },
+          {
+            "step": 10,
+            "action": "Click 'Save Schedule' or 'Confirm' button",
+            "expectedResult": "Schedule is saved successfully, confirmation message appears: 'Scheduled report created successfully. Next run: [Date and Time]'"
+          },
+          {
+            "step": 11,
+            "action": "Navigate to 'Scheduled Reports' section or list",
+            "expectedResult": "Scheduled Reports page displays with the newly created schedule visible in the list"
+          },
+          {
+            "step": 12,
+            "action": "Verify the scheduled report entry shows correct details: name, frequency, next run date, status (Active)",
+            "expectedResult": "All schedule details are correctly displayed and status shows 'Active'"
+          },
+          {
+            "step": 13,
+            "action": "Wait for the scheduled time or trigger a test run if available",
+            "expectedResult": "At scheduled time, report generation is triggered automatically"
+          },
+          {
+            "step": 14,
+            "action": "Check email inbox of all recipients at or shortly after the scheduled time",
+            "expectedResult": "Email is received by all recipients within 5 minutes of scheduled time containing: Subject line with report name and date, email body with summary, and both PDF and Excel attachments"
+          },
+          {
+            "step": 15,
+            "action": "Open both attachments from the email",
+            "expectedResult": "Both PDF and Excel files open successfully, contain report data matching the configured filters, and show the correct generation date"
+          },
+          {
+            "step": 16,
+            "action": "Verify the scheduled report status is updated in the system",
+            "expectedResult": "Scheduled report entry shows 'Last Run' timestamp updated to the execution time and 'Next Run' updated to the following scheduled occurrence"
+          }
+        ],
+        "postconditions": [
+          "Scheduled report is created and active in the system",
+          "Schedule is stored in the database with all configuration details",
+          "Report is generated and delivered automatically at the scheduled time",
+          "Email with report attachments is successfully delivered to all recipients",
+          "System logs the schedule creation and execution activities",
+          "Next scheduled run is calculated and displayed"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  }
+]
