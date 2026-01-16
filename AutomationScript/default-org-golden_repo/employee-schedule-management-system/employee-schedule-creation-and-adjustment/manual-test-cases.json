@@ -1,0 +1,868 @@
+[
+  {
+    "storyId": "story-3",
+    "storyTitle": "As Scheduler, I want to assign shift templates to employees to create their schedules",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Assign shift templates to employees successfully",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one shift template exists in the system",
+          "At least one employee exists in the employee directory",
+          "Schedule assignment page is accessible",
+          "No existing schedules conflict with the test dates"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to schedule assignment page",
+            "expectedResult": "Page displays employee selector and calendar view with available dates"
+          },
+          {
+            "step": 2,
+            "action": "Select one or more employees from the employee directory",
+            "expectedResult": "Selected employees are highlighted and displayed in the selection panel"
+          },
+          {
+            "step": 3,
+            "action": "Select specific dates on the calendar for shift assignment",
+            "expectedResult": "Selected dates are highlighted on the calendar"
+          },
+          {
+            "step": 4,
+            "action": "Choose shift templates from the available templates list and assign to selected employees on the chosen dates",
+            "expectedResult": "Assignments are displayed on the calendar with employee names and shift details, no validation errors appear"
+          },
+          {
+            "step": 5,
+            "action": "Click the Submit or Save button to finalize assignments",
+            "expectedResult": "System processes the request, schedules are saved successfully, and a confirmation message is displayed"
+          }
+        ],
+        "postconditions": [
+          "Employee schedules are saved in the database",
+          "Assigned shifts are visible in the calendar view",
+          "Notification trigger is sent to assigned employees",
+          "Schedule data is retrievable via API"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Detect and prevent overlapping shift assignments",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one employee has an existing shift assignment",
+          "Multiple shift templates are available",
+          "Schedule assignment page is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to schedule assignment page and select an employee who already has a shift assigned",
+            "expectedResult": "Employee is selected and existing shifts are visible on the calendar"
+          },
+          {
+            "step": 2,
+            "action": "Assign a new shift template that overlaps with the employee's existing shift on the same date",
+            "expectedResult": "System detects the conflict and displays a conflict alert message indicating overlapping shifts with specific time details"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to save the conflicting schedule by clicking the Submit or Save button",
+            "expectedResult": "Save operation is blocked, error message is displayed stating that conflicts must be resolved before saving, and the schedule is not saved to the database"
+          }
+        ],
+        "postconditions": [
+          "No conflicting schedule is saved in the database",
+          "Original employee schedule remains unchanged",
+          "Conflict alert remains visible until resolved",
+          "User can modify or remove the conflicting assignment"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Display assigned shifts in calendar view",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one employee exists in the system",
+          "At least one shift template is available",
+          "Schedule assignment page is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to schedule assignment page and select an employee",
+            "expectedResult": "Employee is selected and calendar view is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Assign one or more shift templates to the selected employee on specific dates",
+            "expectedResult": "Shift assignments are created and displayed on the calendar"
+          },
+          {
+            "step": 3,
+            "action": "Click Submit or Save button to save the assignments",
+            "expectedResult": "Assignments are saved successfully with confirmation message displayed"
+          },
+          {
+            "step": 4,
+            "action": "View the employee schedule calendar after saving",
+            "expectedResult": "Assigned shifts are displayed correctly on the calendar with accurate dates, times, shift names, and employee information"
+          },
+          {
+            "step": 5,
+            "action": "Verify shift details by clicking on individual shifts in the calendar",
+            "expectedResult": "Each shift displays complete details including shift template name, start time, end time, role, and assigned employee"
+          }
+        ],
+        "postconditions": [
+          "All assigned shifts are visible in the calendar view",
+          "Shift data matches the assigned templates",
+          "Calendar displays accurate date and time information",
+          "Shifts are retrievable for reporting and employee viewing"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-4",
+    "storyTitle": "As Employee, I want to view my assigned schedule to plan my workdays",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Employee views assigned schedule successfully",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee account exists in the system with valid credentials",
+          "Employee has at least one shift assigned in the schedule",
+          "System is accessible and operational",
+          "Employee has not logged in yet"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the system login page and enter valid employee credentials (username and password)",
+            "expectedResult": "Authentication succeeds, employee is logged in, and the dashboard or home page loads successfully"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to 'My Schedule' page from the main menu or dashboard",
+            "expectedResult": "My Schedule page loads and displays a calendar view with all assigned shifts for the employee"
+          },
+          {
+            "step": 3,
+            "action": "Verify that assigned shifts are visible on the calendar with basic information (date, time, shift name)",
+            "expectedResult": "All assigned shifts are displayed on the correct dates with accurate basic information"
+          },
+          {
+            "step": 4,
+            "action": "Click on a specific shift in the calendar to view detailed information",
+            "expectedResult": "Shift details popup or panel is displayed showing complete information including shift name, start time, end time, role, location, and any additional notes"
+          },
+          {
+            "step": 5,
+            "action": "Close the shift details popup and verify calendar remains functional",
+            "expectedResult": "Popup closes and calendar view remains intact with all shifts still visible"
+          }
+        ],
+        "postconditions": [
+          "Employee remains logged in",
+          "Schedule data is displayed accurately",
+          "No data modifications have occurred",
+          "Employee can continue to navigate the system"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Schedule loads within performance requirements",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the system",
+          "Employee has assigned shifts in the schedule",
+          "Network connection is stable",
+          "Performance monitoring tool or timer is available"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Start timer or performance monitoring tool",
+            "expectedResult": "Timer is started and ready to measure load time"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to 'My Schedule' page or click on the schedule menu option",
+            "expectedResult": "Schedule page begins loading"
+          },
+          {
+            "step": 3,
+            "action": "Measure the time from navigation click until the schedule calendar is fully rendered with all shift data visible",
+            "expectedResult": "Schedule data loads completely and is displayed within 2 seconds, meeting the performance requirement"
+          },
+          {
+            "step": 4,
+            "action": "Verify that all shifts are visible and interactive after the load completes",
+            "expectedResult": "All assigned shifts are displayed correctly and calendar is fully functional"
+          }
+        ],
+        "postconditions": [
+          "Schedule page is fully loaded",
+          "Performance requirement of 2 seconds is met",
+          "All schedule data is accessible",
+          "Page remains responsive for further interactions"
+        ],
+        "estimatedTime": "3 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Notifications display for schedule changes",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "Employee account exists and is logged into the system",
+          "Employee has at least one assigned shift",
+          "Scheduler has access to modify employee schedules",
+          "Notification system is enabled and functional"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Scheduler logs in and navigates to schedule management page",
+            "expectedResult": "Scheduler successfully accesses the schedule management interface"
+          },
+          {
+            "step": 2,
+            "action": "Scheduler selects the employee's existing schedule and makes a modification (change shift time, date, or assignment)",
+            "expectedResult": "Schedule modification is accepted by the system"
+          },
+          {
+            "step": 3,
+            "action": "Scheduler saves the updated schedule",
+            "expectedResult": "Schedule is saved successfully and notification trigger is sent to the affected employee"
+          },
+          {
+            "step": 4,
+            "action": "Employee views the notification center or notification icon in the system",
+            "expectedResult": "New notification is visible indicating a schedule change has occurred"
+          },
+          {
+            "step": 5,
+            "action": "Employee clicks on the notification to view details",
+            "expectedResult": "Notification content is displayed showing accurate information about the schedule change including what was changed, old values, new values, and effective date. Notification includes actionable link to view updated schedule"
+          },
+          {
+            "step": 6,
+            "action": "Click on the actionable link in the notification",
+            "expectedResult": "Employee is navigated to 'My Schedule' page showing the updated schedule with changes highlighted or indicated"
+          }
+        ],
+        "postconditions": [
+          "Notification is marked as read or viewed",
+          "Employee is aware of schedule changes",
+          "Updated schedule is displayed in calendar view",
+          "Notification remains in history for future reference"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-5",
+    "storyTitle": "As Scheduler, I want to receive alerts for scheduling conflicts to prevent errors",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Detect overlapping shift conflicts during scheduling",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role permissions",
+          "Schedule management interface is accessible",
+          "At least one employee exists in the system",
+          "Employee has no existing shifts assigned for the test time period"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule management interface",
+            "expectedResult": "Schedule management interface loads successfully with employee list visible"
+          },
+          {
+            "step": 2,
+            "action": "Select an employee from the employee list",
+            "expectedResult": "Employee is selected and available for shift assignment"
+          },
+          {
+            "step": 3,
+            "action": "Assign a shift to the employee (e.g., Monday 9:00 AM - 5:00 PM)",
+            "expectedResult": "First shift is assigned successfully without any alerts"
+          },
+          {
+            "step": 4,
+            "action": "Assign a second overlapping shift to the same employee (e.g., Monday 3:00 PM - 11:00 PM)",
+            "expectedResult": "Conflict alert is displayed immediately indicating overlapping shift times with specific details of the conflict"
+          },
+          {
+            "step": 5,
+            "action": "Review the conflict alert message",
+            "expectedResult": "Alert clearly shows both conflicting shift times and identifies the overlap period"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to save the schedule with the unresolved conflict",
+            "expectedResult": "Save action is blocked and error message is displayed stating that conflicts must be resolved before saving"
+          }
+        ],
+        "postconditions": [
+          "Schedule is not saved due to unresolved conflict",
+          "Conflict alert remains visible on screen",
+          "Employee still has only the first shift assigned",
+          "System remains in edit mode awaiting conflict resolution"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Enforce minimum rest period between shifts",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role permissions",
+          "Schedule management interface is accessible",
+          "Minimum rest period policy is configured in the system (e.g., 8 hours between shifts)",
+          "At least one employee exists in the system",
+          "Employee has no existing shifts assigned for the test time period"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule management interface",
+            "expectedResult": "Schedule management interface loads successfully"
+          },
+          {
+            "step": 2,
+            "action": "Select an employee from the employee list",
+            "expectedResult": "Employee is selected and ready for shift assignment"
+          },
+          {
+            "step": 3,
+            "action": "Assign a shift to the employee (e.g., Monday 9:00 AM - 5:00 PM)",
+            "expectedResult": "First shift is assigned successfully without alerts"
+          },
+          {
+            "step": 4,
+            "action": "Assign a second shift that violates the minimum rest period (e.g., Monday 9:00 PM - Tuesday 5:00 AM, only 4 hours rest)",
+            "expectedResult": "Alert is displayed immediately indicating rest period violation with specific details about required vs actual rest time"
+          },
+          {
+            "step": 5,
+            "action": "Review the rest period violation alert",
+            "expectedResult": "Alert clearly states the minimum rest period requirement and the actual time between shifts"
+          },
+          {
+            "step": 6,
+            "action": "Adjust the second shift to comply with rest period policy (e.g., change to Tuesday 1:00 AM - 9:00 AM, providing 8 hours rest)",
+            "expectedResult": "Alert disappears immediately and no validation errors are shown"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to save the schedule",
+            "expectedResult": "Schedule saves successfully with confirmation message displayed"
+          }
+        ],
+        "postconditions": [
+          "Schedule is saved successfully with both shifts",
+          "No conflict alerts are displayed",
+          "Employee has two shifts assigned with compliant rest period between them",
+          "Audit log records the schedule creation"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Revalidate conflicts after schedule adjustments",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role permissions",
+          "Schedule management interface is accessible",
+          "At least one employee exists in the system",
+          "Employee has an existing schedule with a conflict (overlapping shifts or rest period violation)"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule management interface",
+            "expectedResult": "Schedule management interface loads with existing schedule visible"
+          },
+          {
+            "step": 2,
+            "action": "View the schedule with existing conflicts",
+            "expectedResult": "Conflict alerts are displayed for the existing scheduling conflicts"
+          },
+          {
+            "step": 3,
+            "action": "Select one of the conflicting shifts for editing",
+            "expectedResult": "Shift details are displayed in editable form"
+          },
+          {
+            "step": 4,
+            "action": "Modify the shift time to resolve the conflict (e.g., change end time to eliminate overlap)",
+            "expectedResult": "System rechecks conflicts in real-time and conflict alert disappears immediately"
+          },
+          {
+            "step": 5,
+            "action": "Verify that no conflict alerts are displayed",
+            "expectedResult": "All conflict alerts have been cleared and schedule shows as valid"
+          },
+          {
+            "step": 6,
+            "action": "Make an additional minor adjustment to another shift (non-conflicting change)",
+            "expectedResult": "System revalidates all shifts in real-time and confirms no new conflicts introduced"
+          },
+          {
+            "step": 7,
+            "action": "Save the schedule after resolving all conflicts",
+            "expectedResult": "Schedule saves successfully with confirmation message displayed"
+          },
+          {
+            "step": 8,
+            "action": "Verify the saved schedule",
+            "expectedResult": "All shifts are saved correctly with no conflicts and updated times are reflected"
+          }
+        ],
+        "postconditions": [
+          "Schedule is saved successfully without any conflicts",
+          "All conflict alerts have been resolved and cleared",
+          "Employee shifts are updated with adjusted times",
+          "System displays confirmation of successful save",
+          "Audit log records the schedule modifications"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-7",
+    "storyTitle": "As Scheduler, I want to manually adjust assigned shifts to handle exceptions",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Edit assigned shift successfully with validation",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role permissions",
+          "Schedule management interface is accessible",
+          "At least one employee exists with assigned shifts",
+          "Employee has at least one shift assigned that can be edited",
+          "No existing conflicts in the current schedule"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule management interface",
+            "expectedResult": "Schedule management interface loads successfully showing list of assigned shifts"
+          },
+          {
+            "step": 2,
+            "action": "Locate an assigned shift in the schedule view",
+            "expectedResult": "Assigned shift is visible with current details (employee name, date, time, role)"
+          },
+          {
+            "step": 3,
+            "action": "Select the assigned shift for editing by clicking on it",
+            "expectedResult": "Shift details are displayed in an editable form with all fields populated (start time, end time, role, employee)"
+          },
+          {
+            "step": 4,
+            "action": "Modify the shift start time to a valid new time (e.g., change from 9:00 AM to 10:00 AM)",
+            "expectedResult": "Start time field updates with the new value and no validation errors are shown"
+          },
+          {
+            "step": 5,
+            "action": "Modify the shift end time to a valid new time (e.g., change from 5:00 PM to 6:00 PM)",
+            "expectedResult": "End time field updates with the new value and no validation errors are shown"
+          },
+          {
+            "step": 6,
+            "action": "Modify the role assignment if applicable (e.g., change from 'Cashier' to 'Floor Staff')",
+            "expectedResult": "Role field updates with the new value and no validation errors are shown"
+          },
+          {
+            "step": 7,
+            "action": "Review all modified fields to ensure changes are correct",
+            "expectedResult": "All fields display the updated values correctly"
+          },
+          {
+            "step": 8,
+            "action": "Click the Save button to save the changes",
+            "expectedResult": "Shift is updated successfully and confirmation message is displayed (e.g., 'Shift updated successfully')"
+          },
+          {
+            "step": 9,
+            "action": "Verify the updated shift in the schedule view",
+            "expectedResult": "Schedule displays the shift with all updated details (new times and role)"
+          }
+        ],
+        "postconditions": [
+          "Shift is updated with new times and role in the database",
+          "Schedule view reflects the updated shift details",
+          "Confirmation message is displayed to the user",
+          "Audit log contains entry with user ID, timestamp, and details of the modification",
+          "No conflicts exist in the schedule"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Prevent saving adjustments with conflicts",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role permissions",
+          "Schedule management interface is accessible",
+          "At least one employee exists with assigned shifts",
+          "Employee has at least two shifts assigned on different times",
+          "Current schedule has no conflicts"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule management interface",
+            "expectedResult": "Schedule management interface loads successfully with assigned shifts visible"
+          },
+          {
+            "step": 2,
+            "action": "Select an assigned shift for editing",
+            "expectedResult": "Shift details are displayed in editable form with current values"
+          },
+          {
+            "step": 3,
+            "action": "Modify the shift time to create an overlap with another existing shift for the same employee (e.g., change shift from 9:00 AM - 5:00 PM to 2:00 PM - 10:00 PM when employee already has a shift from 6:00 PM - 11:00 PM)",
+            "expectedResult": "Validation error is displayed immediately indicating the conflict with specific details about the overlapping shifts"
+          },
+          {
+            "step": 4,
+            "action": "Review the validation error message",
+            "expectedResult": "Error message clearly identifies the conflicting shifts with times and explains the overlap"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to save the changes by clicking the Save button",
+            "expectedResult": "Save action is blocked and error message is displayed stating 'Cannot save shift with unresolved conflicts' or similar"
+          },
+          {
+            "step": 6,
+            "action": "Verify that the Save button is disabled or the save action shows an error",
+            "expectedResult": "Save functionality is prevented and user cannot proceed until conflict is resolved"
+          },
+          {
+            "step": 7,
+            "action": "Modify the shift again to remove the conflict (e.g., change end time to 5:00 PM to eliminate overlap)",
+            "expectedResult": "Validation error disappears and no conflict messages are shown"
+          },
+          {
+            "step": 8,
+            "action": "Attempt to save the changes again",
+            "expectedResult": "Shift saves successfully with confirmation message displayed"
+          }
+        ],
+        "postconditions": [
+          "Shift is saved only after conflict resolution",
+          "No conflicting shifts exist in the schedule",
+          "Validation errors are cleared after successful save",
+          "Schedule reflects the corrected shift times",
+          "Audit log records the successful adjustment"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Verify audit trail records manual adjustments",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "User is logged in with Scheduler role permissions",
+          "Schedule management interface is accessible",
+          "Audit log system is functioning and accessible",
+          "At least one employee exists with assigned shifts",
+          "User has permissions to view audit logs",
+          "System timestamp is accurate"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule management interface",
+            "expectedResult": "Schedule management interface loads successfully"
+          },
+          {
+            "step": 2,
+            "action": "Note the current timestamp before making changes",
+            "expectedResult": "Current system time is recorded for verification purposes"
+          },
+          {
+            "step": 3,
+            "action": "Select an assigned shift for editing",
+            "expectedResult": "Shift details are displayed in editable form"
+          },
+          {
+            "step": 4,
+            "action": "Make a manual adjustment to the shift (e.g., change start time from 9:00 AM to 10:00 AM)",
+            "expectedResult": "Shift time is updated in the form with no validation errors"
+          },
+          {
+            "step": 5,
+            "action": "Save the changes by clicking the Save button",
+            "expectedResult": "Adjustment is saved successfully and confirmation message is displayed"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to the audit log interface or section",
+            "expectedResult": "Audit log interface loads successfully showing list of recent activities"
+          },
+          {
+            "step": 7,
+            "action": "Query or filter audit logs for the specific shift adjustment (using shift ID, employee name, or time range)",
+            "expectedResult": "Audit log displays filtered results relevant to the recent adjustment"
+          },
+          {
+            "step": 8,
+            "action": "Locate the audit entry for the manual adjustment just made",
+            "expectedResult": "Audit entry exists in the log for the shift modification"
+          },
+          {
+            "step": 9,
+            "action": "Verify the audit entry contains the user ID or username who made the change",
+            "expectedResult": "Audit entry shows correct user identification matching the logged-in scheduler"
+          },
+          {
+            "step": 10,
+            "action": "Verify the audit entry contains an accurate timestamp of when the change was made",
+            "expectedResult": "Timestamp in audit entry matches the time when the save action was performed (within acceptable margin)"
+          },
+          {
+            "step": 11,
+            "action": "Verify the audit entry contains details of what was changed (old value vs new value)",
+            "expectedResult": "Audit entry shows the previous shift time (9:00 AM) and new shift time (10:00 AM) along with any other modified fields"
+          },
+          {
+            "step": 12,
+            "action": "Verify the audit entry contains the action type (e.g., 'Shift Updated' or 'Manual Adjustment')",
+            "expectedResult": "Audit entry clearly identifies the type of action performed"
+          }
+        ],
+        "postconditions": [
+          "Shift adjustment is saved in the database",
+          "Complete audit trail entry exists with all required information",
+          "Audit log contains user ID/username of the scheduler who made the change",
+          "Audit log contains accurate timestamp of the modification",
+          "Audit log contains before and after values of the modified shift",
+          "Audit log is accessible for compliance and tracking purposes"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-10",
+    "storyTitle": "As Scheduler, I want to receive notifications when schedules are created or changed to keep employees informed",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify automatic notification on schedule creation",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role and has appropriate permissions",
+          "At least one employee exists in the system with valid email address",
+          "Notification service is running and configured properly",
+          "System time is synchronized for accurate timestamp tracking"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule creation page",
+            "expectedResult": "Schedule creation page loads successfully with all required fields visible"
+          },
+          {
+            "step": 2,
+            "action": "Select an employee from the employee dropdown list",
+            "expectedResult": "Employee is selected and displayed in the schedule form"
+          },
+          {
+            "step": 3,
+            "action": "Enter schedule details including date, time, shift type, and location",
+            "expectedResult": "All schedule details are entered and validated without errors"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Save' or 'Create Schedule' button",
+            "expectedResult": "Schedule is saved successfully and confirmation message is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Note the current timestamp and wait for up to 1 minute",
+            "expectedResult": "System triggers notification automatically within 1 minute of schedule creation"
+          },
+          {
+            "step": 6,
+            "action": "Verify notification delivery status in the scheduler dashboard or notification log",
+            "expectedResult": "Notification status shows as 'Sent' or 'Delivered' with timestamp within 1 minute of schedule creation"
+          },
+          {
+            "step": 7,
+            "action": "Check employee's email inbox or system alert panel",
+            "expectedResult": "Employee receives notification via email or system alert"
+          },
+          {
+            "step": 8,
+            "action": "Review the notification content received by the employee",
+            "expectedResult": "Notification contains accurate schedule details including employee name, date, time, shift type, and location matching the created schedule"
+          }
+        ],
+        "postconditions": [
+          "New schedule is created and stored in the database",
+          "Notification is sent and logged in the notification tracking system",
+          "Employee has received notification with accurate schedule information",
+          "Notification delivery status is available for scheduler review"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Resend notification manually",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role and has appropriate permissions",
+          "At least one schedule exists with a previously sent notification",
+          "Notification tracking system is operational",
+          "Scheduler has access to notification status interface"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the scheduler dashboard or notification management section",
+            "expectedResult": "Dashboard or notification management page loads successfully"
+          },
+          {
+            "step": 2,
+            "action": "Locate and access the notification status view or notification history",
+            "expectedResult": "Notification status interface is displayed with list of sent notifications"
+          },
+          {
+            "step": 3,
+            "action": "View the notification status for a specific schedule",
+            "expectedResult": "Delivery status is displayed showing details such as 'Sent', 'Delivered', 'Failed', timestamp, recipient, and schedule information"
+          },
+          {
+            "step": 4,
+            "action": "Identify a notification that needs to be resent and locate the resend option",
+            "expectedResult": "Resend notification button or link is visible and enabled for the selected notification"
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Resend Notification' button",
+            "expectedResult": "System prompts for confirmation or immediately processes the resend request"
+          },
+          {
+            "step": 6,
+            "action": "Confirm the resend action if prompted",
+            "expectedResult": "Notification is resent to the employee and confirmation message is displayed"
+          },
+          {
+            "step": 7,
+            "action": "Refresh or check the notification status view",
+            "expectedResult": "Notification status is updated showing new 'Resent' status with updated timestamp and delivery confirmation"
+          },
+          {
+            "step": 8,
+            "action": "Verify employee receives the resent notification",
+            "expectedResult": "Employee receives duplicate notification via email or system alert with same schedule details"
+          }
+        ],
+        "postconditions": [
+          "Notification is resent and logged in the notification tracking system",
+          "Notification status is updated with resend timestamp and delivery status",
+          "Employee has received the resent notification",
+          "Notification history shows both original and resent notification records"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure notification privacy and security",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Multiple user accounts exist with different roles (Scheduler, Employee, Unauthorized user)",
+          "At least one schedule with notifications exists in the system",
+          "Authentication and authorization mechanisms are properly configured",
+          "Test user account without notification access permissions is available"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log out from any existing session",
+            "expectedResult": "User is successfully logged out and redirected to login page"
+          },
+          {
+            "step": 2,
+            "action": "Log in with an unauthorized user account (user without scheduler or notification access permissions)",
+            "expectedResult": "User is successfully authenticated and logged into the system with limited permissions"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to navigate directly to the notification status page or notification management URL",
+            "expectedResult": "Access is denied with appropriate error message such as '403 Forbidden' or 'Access Denied - Insufficient Permissions'"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to access notification details via API endpoint or direct link if available",
+            "expectedResult": "API returns authorization error (401 or 403) and access is blocked"
+          },
+          {
+            "step": 5,
+            "action": "Search for any navigation menu items or links related to notifications",
+            "expectedResult": "Notification management options are not visible or accessible in the user interface for unauthorized user"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to view another employee's notification details by manipulating URL parameters or request data",
+            "expectedResult": "System validates authorization and denies access, preventing unauthorized viewing of notification data"
+          },
+          {
+            "step": 7,
+            "action": "Log out and log in with a Scheduler role account",
+            "expectedResult": "Scheduler user can successfully access notification status and management features"
+          },
+          {
+            "step": 8,
+            "action": "Verify that notification content does not expose sensitive information to unauthorized parties",
+            "expectedResult": "Notification privacy is maintained and only authorized users can access notification details"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized access attempts are logged in security audit logs",
+          "No notification data is exposed to unauthorized users",
+          "System security and privacy controls are validated as functioning correctly",
+          "Authorized users retain proper access to notification features"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  }
+]
