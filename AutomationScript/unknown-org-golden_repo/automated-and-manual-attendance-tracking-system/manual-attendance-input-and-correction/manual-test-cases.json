@@ -1,0 +1,117 @@
+[
+  {
+    "storyId": "story-5",
+    "storyTitle": "As HR Officer, I want to delete incorrect manual attendance records to maintain data integrity",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Delete manual attendance record with confirmation",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "HR officer account with delete permissions exists in the system",
+          "At least one manual attendance record exists in the database",
+          "User has valid login credentials for authorized HR officer account",
+          "Manual attendance records module is accessible and functional"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the application login page and enter valid HR officer credentials (username and password)",
+            "expectedResult": "User is successfully authenticated and redirected to the HR dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the manual attendance records section from the main menu",
+            "expectedResult": "Manual attendance records page is displayed with a list of existing records and search/filter options"
+          },
+          {
+            "step": 3,
+            "action": "Locate the specific manual attendance record to be deleted using search or browse functionality",
+            "expectedResult": "Target manual attendance record is visible in the list with all relevant details (employee name, date, time, etc.)"
+          },
+          {
+            "step": 4,
+            "action": "Click on the delete button/icon associated with the selected manual attendance record",
+            "expectedResult": "A confirmation dialog box appears with warning message asking 'Are you sure you want to delete this attendance record?' with options to Confirm or Cancel"
+          },
+          {
+            "step": 5,
+            "action": "Review the record details displayed in the confirmation prompt and click the 'Confirm' button",
+            "expectedResult": "The record is successfully deleted from the system and a success confirmation message is displayed (e.g., 'Attendance record deleted successfully')"
+          },
+          {
+            "step": 6,
+            "action": "Verify the deleted record no longer appears in the manual attendance records list",
+            "expectedResult": "The deleted record is removed from the list and is no longer visible in search results"
+          },
+          {
+            "step": 7,
+            "action": "Check the audit log for the deletion entry",
+            "expectedResult": "Audit log contains an entry with deletion timestamp, HR officer username, and deleted record details"
+          }
+        ],
+        "postconditions": [
+          "Manual attendance record is permanently deleted from the database",
+          "Deletion is logged in the audit trail with user and timestamp information",
+          "Attendance reports reflect the updated data without the deleted record",
+          "User remains logged in and can perform additional operations"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Prevent unauthorized deletion attempts",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Unauthorized user account exists in the system without delete permissions",
+          "At least one manual attendance record exists in the database",
+          "User has valid login credentials for unauthorized account",
+          "Role-based access control is properly configured in the system",
+          "API endpoint DELETE /api/attendance/manual/{id} is active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the application login page and enter credentials for an unauthorized user (non-HR officer role)",
+            "expectedResult": "User is successfully authenticated and redirected to their respective dashboard without HR officer privileges"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to the manual attendance records section or access the delete functionality through the UI",
+            "expectedResult": "Access is denied - either the menu option is not visible, or an error message is displayed stating 'You do not have permission to access this feature' or similar authorization error"
+          },
+          {
+            "step": 3,
+            "action": "Open API testing tool (e.g., Postman) and construct a DELETE request to /api/attendance/manual/{id} endpoint using the unauthorized user's authentication token",
+            "expectedResult": "API testing tool is ready with the DELETE request configured with valid record ID and unauthorized user token"
+          },
+          {
+            "step": 4,
+            "action": "Execute the DELETE API request with the unauthorized user's credentials",
+            "expectedResult": "API returns HTTP 403 Forbidden or 401 Unauthorized status code with error message such as 'Access denied: Insufficient permissions to delete attendance records'"
+          },
+          {
+            "step": 5,
+            "action": "Verify the manual attendance record still exists in the database by querying through an authorized account",
+            "expectedResult": "The attendance record remains intact and unchanged in the system, confirming no deletion occurred"
+          },
+          {
+            "step": 6,
+            "action": "Check the audit log for any unauthorized access attempts",
+            "expectedResult": "Audit log contains an entry recording the failed deletion attempt with unauthorized user details and timestamp"
+          }
+        ],
+        "postconditions": [
+          "Manual attendance record remains unchanged in the database",
+          "No deletion is logged in the audit trail",
+          "Unauthorized access attempt is recorded in security logs",
+          "System security integrity is maintained",
+          "Unauthorized user remains unable to delete records"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  }
+]
