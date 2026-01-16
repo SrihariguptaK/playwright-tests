@@ -1,0 +1,454 @@
+[
+  {
+    "storyId": "story-21",
+    "storyTitle": "As Underwriting Specialist, I want to receive automatic referral flags to achieve timely review of complex applications",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate automatic referral flagging on application submission",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has valid credentials to submit applications",
+          "Underwriting rules engine is operational and accessible",
+          "Underwriting specialist dashboard is accessible",
+          "Test application data meets at least one referral criteria",
+          "Database is accessible for logging referral decisions"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log into the application submission portal with valid credentials",
+            "expectedResult": "User is successfully authenticated and redirected to application submission page"
+          },
+          {
+            "step": 2,
+            "action": "Fill out application form with data that meets referral criteria (e.g., high risk occupation, elevated coverage amount, or adverse medical history)",
+            "expectedResult": "All required fields are populated with valid data meeting referral triggers"
+          },
+          {
+            "step": 3,
+            "action": "Submit the application by clicking the Submit button",
+            "expectedResult": "Application is submitted successfully and confirmation message is displayed"
+          },
+          {
+            "step": 4,
+            "action": "Verify system sends application data to underwriting rules engine via POST /api/underwriting/evaluate endpoint",
+            "expectedResult": "API call is made successfully and rules engine returns referral flag response within 2 seconds"
+          },
+          {
+            "step": 5,
+            "action": "Log into the underwriting specialist dashboard with specialist credentials",
+            "expectedResult": "Specialist is authenticated and dashboard loads successfully"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to the referrals section or filter applications by referral status",
+            "expectedResult": "Submitted application is displayed in the dashboard with visible referral flag indicator"
+          },
+          {
+            "step": 7,
+            "action": "Access the referral log database or audit trail for the submitted application",
+            "expectedResult": "Referral decision entry exists with accurate timestamp, rule reference, and application ID"
+          },
+          {
+            "step": 8,
+            "action": "Verify the timestamp of the referral flag is within 2 seconds of application submission time",
+            "expectedResult": "Timestamp difference between submission and referral flagging is 2 seconds or less"
+          }
+        ],
+        "postconditions": [
+          "Application status is updated to 'Referral Flagged' in the system",
+          "Referral log entry is permanently stored in the database",
+          "Application remains visible in specialist dashboard until processed",
+          "System is ready to accept new application submissions"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify notification alert for new referrals",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Underwriting specialist account is active and configured to receive notifications",
+          "Notification service is operational",
+          "Application submission system is functional",
+          "Test application data triggers referral criteria",
+          "Specialist has permissions to clear referral flags"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Ensure underwriting specialist is logged into the system or has notification preferences configured",
+            "expectedResult": "Specialist account is active and notification settings are enabled"
+          },
+          {
+            "step": 2,
+            "action": "Submit a new application with data that triggers referral criteria (e.g., coverage amount exceeding threshold)",
+            "expectedResult": "Application is submitted successfully and processed by underwriting rules engine"
+          },
+          {
+            "step": 3,
+            "action": "Check notification delivery mechanism (email, in-app notification, or dashboard alert)",
+            "expectedResult": "Notification alert is sent to the underwriting specialist within 2 seconds of referral flagging"
+          },
+          {
+            "step": 4,
+            "action": "Verify notification content includes application ID, referral reason summary, and timestamp",
+            "expectedResult": "Notification contains all required information for specialist to identify the referral"
+          },
+          {
+            "step": 5,
+            "action": "Log into underwriting specialist dashboard",
+            "expectedResult": "Dashboard loads successfully and displays active referrals section"
+          },
+          {
+            "step": 6,
+            "action": "Locate the referral flagged application in the dashboard",
+            "expectedResult": "Application is visible with referral flag indicator and matches the notification details"
+          },
+          {
+            "step": 7,
+            "action": "Click on the referral flagged application to view details",
+            "expectedResult": "Application details page opens showing referral status and relevant information"
+          },
+          {
+            "step": 8,
+            "action": "Clear the referral flag by clicking the Clear or Process button",
+            "expectedResult": "System prompts for confirmation of flag clearance action"
+          },
+          {
+            "step": 9,
+            "action": "Confirm the clearance action",
+            "expectedResult": "Referral flag status is updated to 'Cleared' or 'Processed' in the system"
+          },
+          {
+            "step": 10,
+            "action": "Verify notification is cleared or marked as resolved in the notification center",
+            "expectedResult": "Notification status is updated and no longer appears in active alerts"
+          },
+          {
+            "step": 11,
+            "action": "Refresh the dashboard and verify the application no longer appears in active referrals",
+            "expectedResult": "Application is removed from active referrals list or moved to processed referrals section"
+          }
+        ],
+        "postconditions": [
+          "Referral flag is cleared and status is updated in the database",
+          "Notification is marked as resolved",
+          "Application is moved to processed referrals or appropriate status",
+          "Audit log records the clearance action with specialist ID and timestamp",
+          "System is ready to process new referrals"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-22",
+    "storyTitle": "As Underwriting Specialist, I want to view detailed referral reasons to achieve better understanding of flagged applications",
+    "testCases": [
+      {
+        "id": "tc-003",
+        "title": "Verify referral reason details display",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "At least one application has been flagged for referral with documented reasons",
+          "Underwriting specialist account with proper authorization exists",
+          "Unauthorized user account exists for negative testing",
+          "Referral logs and rules engine metadata are accessible",
+          "GET /api/referrals/{id}/details endpoint is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log into the system as an authorized underwriting specialist",
+            "expectedResult": "Specialist is successfully authenticated and has access to underwriting dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the referrals section of the dashboard",
+            "expectedResult": "List of referral flagged applications is displayed"
+          },
+          {
+            "step": 3,
+            "action": "Select a referral flagged application from the list by clicking on it",
+            "expectedResult": "Application details page loads successfully"
+          },
+          {
+            "step": 4,
+            "action": "Locate and view the referral reasons section on the application details page",
+            "expectedResult": "Referral reason codes and detailed descriptions are displayed clearly"
+          },
+          {
+            "step": 5,
+            "action": "Verify each referral reason includes the specific underwriting rule code that triggered it",
+            "expectedResult": "Rule codes are displayed alongside each referral reason (e.g., RULE-001, RULE-045)"
+          },
+          {
+            "step": 6,
+            "action": "Click on a rule code link to view the complete rule details",
+            "expectedResult": "System displays the full underwriting rule definition, criteria, and thresholds"
+          },
+          {
+            "step": 7,
+            "action": "Measure the time taken from clicking the application to displaying referral details",
+            "expectedResult": "Referral detail retrieval completes within 1 second"
+          },
+          {
+            "step": 8,
+            "action": "Verify API call to GET /api/referrals/{id}/details returns response within performance threshold",
+            "expectedResult": "API response time is 1 second or less with status code 200"
+          },
+          {
+            "step": 9,
+            "action": "Log out from the specialist account",
+            "expectedResult": "User is successfully logged out and session is terminated"
+          },
+          {
+            "step": 10,
+            "action": "Log into the system with an unauthorized user account (non-specialist role)",
+            "expectedResult": "User is authenticated but does not have specialist privileges"
+          },
+          {
+            "step": 11,
+            "action": "Attempt to access the referral flagged application details directly via URL or navigation",
+            "expectedResult": "Access denied error message is displayed (HTTP 403 Forbidden or equivalent)"
+          },
+          {
+            "step": 12,
+            "action": "Attempt to call GET /api/referrals/{id}/details API endpoint with unauthorized credentials",
+            "expectedResult": "API returns 403 Forbidden status with appropriate error message"
+          },
+          {
+            "step": 13,
+            "action": "Log out from unauthorized account and log back in as authorized specialist",
+            "expectedResult": "Specialist is authenticated and has full access restored"
+          },
+          {
+            "step": 14,
+            "action": "Navigate back to the referral flagged application details page",
+            "expectedResult": "Application details with referral reasons are displayed"
+          },
+          {
+            "step": 15,
+            "action": "Locate and access the referral history section",
+            "expectedResult": "Complete referral history is displayed in chronological order"
+          },
+          {
+            "step": 16,
+            "action": "Verify each history entry includes timestamp, rule triggered, and status change",
+            "expectedResult": "All history entries show accurate timestamps in format (YYYY-MM-DD HH:MM:SS), rule codes, and status transitions"
+          },
+          {
+            "step": 17,
+            "action": "Verify the initial referral flagging timestamp matches the application submission processing time",
+            "expectedResult": "Timestamps are consistent and show referral was flagged within 2 seconds of submission"
+          },
+          {
+            "step": 18,
+            "action": "Check if any subsequent changes to referral status are logged with specialist ID",
+            "expectedResult": "All status changes include the specialist who made the change and accurate timestamp"
+          }
+        ],
+        "postconditions": [
+          "Referral details remain accessible for authorized specialists",
+          "Unauthorized users continue to be blocked from accessing referral information",
+          "Referral history is preserved and audit trail is intact",
+          "No data modifications occurred during read-only operations",
+          "System performance metrics are logged for monitoring"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-27",
+    "storyTitle": "As System Administrator, I want to monitor the integration health with the underwriting rules engine to achieve system reliability and quick issue resolution",
+    "testCases": [
+      {
+        "id": "tc-027-001",
+        "title": "Validate integration health monitoring and alerts",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with System Administrator role",
+          "Integration monitoring dashboard is accessible",
+          "Underwriting rules engine integration is active",
+          "Alert notification system is configured and operational",
+          "Test environment allows simulation of integration failures",
+          "Historical performance data exists for at least 24 hours"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the integration monitoring dashboard by accessing the admin panel and selecting 'Integration Monitoring' option",
+            "expectedResult": "Integration monitoring dashboard loads successfully and displays the main interface"
+          },
+          {
+            "step": 2,
+            "action": "Verify the current status section displays real-time integration status with the underwriting rules engine",
+            "expectedResult": "Current status is displayed showing 'Active' or 'Connected' state with timestamp of last update (within 30 seconds)"
+          },
+          {
+            "step": 3,
+            "action": "Review the logs section on the dashboard for recent integration activities",
+            "expectedResult": "Recent logs are displayed showing API calls, response times, and any errors with timestamps and details"
+          },
+          {
+            "step": 4,
+            "action": "Check the latency metrics displayed on the dashboard",
+            "expectedResult": "Latency metrics are visible showing average response times, min/max values, and trend graphs"
+          },
+          {
+            "step": 5,
+            "action": "Simulate an integration failure by triggering a test failure scenario or temporarily disconnecting the rules engine connection",
+            "expectedResult": "Integration status changes to 'Failed' or 'Disconnected' state immediately"
+          },
+          {
+            "step": 6,
+            "action": "Verify that the error is logged in the dashboard logs section",
+            "expectedResult": "Error entry appears in logs with timestamp, error type, error message, and failure details"
+          },
+          {
+            "step": 7,
+            "action": "Check for alert notification delivery to administrator",
+            "expectedResult": "Alert notification is sent within 5 minutes via configured channels (email, system notification) containing error details and timestamp"
+          },
+          {
+            "step": 8,
+            "action": "Acknowledge the alert notification from the notification panel",
+            "expectedResult": "Alert status updates to 'Acknowledged' with administrator name and timestamp"
+          },
+          {
+            "step": 9,
+            "action": "Restore the integration connection to normal state",
+            "expectedResult": "Integration status returns to 'Active' or 'Connected' and recovery is logged"
+          },
+          {
+            "step": 10,
+            "action": "Navigate to the historical performance reports section of the dashboard",
+            "expectedResult": "Historical performance reports interface is displayed with date range selector and report options"
+          },
+          {
+            "step": 11,
+            "action": "Select a date range covering the simulated failure period and generate the performance report",
+            "expectedResult": "Report is generated showing uptime percentage, number of failures, average latency, error count, and timeline graph accurately reflecting the simulated failure"
+          },
+          {
+            "step": 12,
+            "action": "Verify the report includes the simulated failure event with correct timestamp and duration",
+            "expectedResult": "Failure event is accurately recorded in the report with exact start time, end time, duration, and error details"
+          }
+        ],
+        "postconditions": [
+          "Integration status is restored to normal 'Active' state",
+          "All simulated failures are logged in system history",
+          "Alert notifications have been sent and acknowledged",
+          "Historical report accurately reflects the test activities",
+          "No residual errors remain in the system",
+          "Dashboard displays current accurate status"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-28",
+    "storyTitle": "As Underwriting Specialist, I want to receive notifications for updated referrals and questions to achieve timely follow-up and decision-making",
+    "testCases": [
+      {
+        "id": "tc-028-001",
+        "title": "Verify notification delivery for referral updates",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Underwriting Specialist role",
+          "At least one referral exists in the system assigned to the logged-in specialist",
+          "Notification preferences are configured for the specialist (email and system alerts enabled)",
+          "Notification system is operational and connected",
+          "Email service is configured and functional",
+          "Specialist has valid email address in their profile"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the referrals list and select an existing referral assigned to the current specialist",
+            "expectedResult": "Referral details page opens displaying current status and information"
+          },
+          {
+            "step": 2,
+            "action": "Note the current referral status and timestamp before making changes",
+            "expectedResult": "Current status is clearly visible (e.g., 'Pending Review', 'In Progress') with last updated timestamp"
+          },
+          {
+            "step": 3,
+            "action": "Update the referral status to a different state (e.g., from 'Pending Review' to 'Under Investigation')",
+            "expectedResult": "Status update is saved successfully and confirmation message is displayed"
+          },
+          {
+            "step": 4,
+            "action": "Verify that a notification is generated immediately after the status update",
+            "expectedResult": "System generates notification event within 1 second as indicated by system logs or notification queue"
+          },
+          {
+            "step": 5,
+            "action": "Check the system notification panel or bell icon in the application header",
+            "expectedResult": "New notification appears in the notification panel showing referral ID, updated status, and timestamp within 1 second of the update"
+          },
+          {
+            "step": 6,
+            "action": "Verify the notification content includes relevant details about the referral update",
+            "expectedResult": "Notification displays referral reference number, previous status, new status, who made the change, and timestamp"
+          },
+          {
+            "step": 7,
+            "action": "Check the specialist's email inbox for the notification email",
+            "expectedResult": "Email notification is received within 1 second containing the same referral update information with actionable link to the referral"
+          },
+          {
+            "step": 8,
+            "action": "Click on the notification in the system notification panel",
+            "expectedResult": "Notification is marked as read and the system navigates to the updated referral details page"
+          },
+          {
+            "step": 9,
+            "action": "Verify the notification is visible and actionable by checking available actions",
+            "expectedResult": "Notification shows options to 'View Referral', 'Acknowledge', or 'Dismiss' and all actions are clickable"
+          },
+          {
+            "step": 10,
+            "action": "Click the 'Acknowledge' button on the notification",
+            "expectedResult": "Notification status updates to 'Acknowledged' with timestamp and specialist name recorded"
+          },
+          {
+            "step": 11,
+            "action": "Navigate to the notification history section from the user profile or settings menu",
+            "expectedResult": "Notification history page opens displaying all past notifications in chronological order"
+          },
+          {
+            "step": 12,
+            "action": "Search for the acknowledged notification using the referral ID or date filter",
+            "expectedResult": "Acknowledged notification appears in search results showing status as 'Acknowledged', acknowledgment timestamp, and full notification details"
+          },
+          {
+            "step": 13,
+            "action": "Verify the notification history shows the complete audit trail",
+            "expectedResult": "History displays notification sent time, delivery status, read time, and acknowledgment time with all timestamps accurate"
+          }
+        ],
+        "postconditions": [
+          "Referral status is updated to the new state",
+          "Notification is successfully delivered via both system alert and email",
+          "Notification is acknowledged and recorded in history",
+          "Notification status shows as 'Acknowledged' in the system",
+          "Notification history contains complete audit trail of the notification",
+          "Specialist can access the updated referral from notification link"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  }
+]
