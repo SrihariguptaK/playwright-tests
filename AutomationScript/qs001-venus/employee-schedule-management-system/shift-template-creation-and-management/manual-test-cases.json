@@ -1,0 +1,344 @@
+[
+  {
+    "storyId": "story-1",
+    "storyTitle": "As HR Manager, I want to create shift templates to achieve standardized shift definitions",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful creation of a shift template with valid times",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Manager",
+          "User has appropriate role-based permissions to create shift templates",
+          "Shift template management page is accessible",
+          "Database connection is active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to shift template creation page",
+            "expectedResult": "Shift template form is displayed with fields for shift name, start time, end time, and break periods"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid start time (e.g., 09:00 AM), end time (e.g., 05:00 PM), and break periods (e.g., 12:00 PM - 01:00 PM)",
+            "expectedResult": "Form accepts inputs without validation errors, all fields display entered values correctly"
+          },
+          {
+            "step": 3,
+            "action": "Submit the form by clicking the 'Save' or 'Create' button",
+            "expectedResult": "Shift template is created successfully, confirmation message is displayed, and the new template appears in the shift templates list"
+          }
+        ],
+        "postconditions": [
+          "New shift template is saved in ShiftTemplates table",
+          "Shift template appears in the searchable list",
+          "User remains on shift template management page or is redirected to the list view"
+        ],
+        "estimatedTime": "3 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Prevent creation of overlapping shift templates",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Manager",
+          "At least one shift template already exists (e.g., 09:00 AM - 05:00 PM)",
+          "User has appropriate role-based permissions to create shift templates",
+          "Shift template creation page is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Attempt to create a shift template with times overlapping an existing template (e.g., start time 08:00 AM, end time 10:00 AM when 09:00 AM - 05:00 PM exists)",
+            "expectedResult": "System displays error message indicating overlap with existing template and prevents creation"
+          },
+          {
+            "step": 2,
+            "action": "Adjust times to non-overlapping values (e.g., start time 06:00 AM, end time 08:00 AM)",
+            "expectedResult": "Form accepts inputs without errors, validation error message is cleared"
+          },
+          {
+            "step": 3,
+            "action": "Submit the form by clicking the 'Save' or 'Create' button",
+            "expectedResult": "Shift template is created successfully and confirmation message is displayed"
+          }
+        ],
+        "postconditions": [
+          "Non-overlapping shift template is saved in ShiftTemplates table",
+          "Original overlapping template remains unchanged",
+          "New template appears in the shift templates list"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Edit and delete existing shift templates",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Manager",
+          "At least one shift template exists in the system",
+          "User has appropriate role-based permissions to edit and delete shift templates",
+          "Shift template list page is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Select an existing shift template from the list by clicking on it or clicking an 'Edit' button",
+            "expectedResult": "Template details are displayed in an editable form showing current start time, end time, and break periods"
+          },
+          {
+            "step": 2,
+            "action": "Modify template details (e.g., change end time from 05:00 PM to 06:00 PM) and click 'Save' button",
+            "expectedResult": "Changes are saved successfully, confirmation message is displayed, and updated template appears in the list with modified values"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Delete' button for the shift template",
+            "expectedResult": "System displays a confirmation prompt asking to confirm deletion"
+          },
+          {
+            "step": 4,
+            "action": "Confirm deletion by clicking 'Yes' or 'Confirm' in the confirmation dialog",
+            "expectedResult": "Template is deleted from the system, confirmation message is displayed, and template is removed from the list"
+          }
+        ],
+        "postconditions": [
+          "Edited template changes are persisted in ShiftTemplates table",
+          "Deleted template is removed from ShiftTemplates table",
+          "Shift template list reflects the deletion",
+          "User remains on shift template management page"
+        ],
+        "estimatedTime": "5 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-5",
+    "storyTitle": "As Scheduler, I want to search and filter shift templates to achieve efficient template management",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Search shift templates by name",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Scheduler",
+          "User has appropriate role-based permissions to view shift templates",
+          "Multiple shift templates exist in the system with different names",
+          "Shift template list page is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to shift template list page",
+            "expectedResult": "List of all shift templates is displayed with columns showing template name, start time, end time, and other attributes"
+          },
+          {
+            "step": 2,
+            "action": "Enter a keyword in the search box (e.g., 'Morning' to find morning shift templates)",
+            "expectedResult": "List updates dynamically to show only templates matching the search keyword, non-matching templates are filtered out"
+          },
+          {
+            "step": 3,
+            "action": "Clear search box by deleting the text or clicking a 'Clear' button",
+            "expectedResult": "Full list of all shift templates is restored and displayed"
+          }
+        ],
+        "postconditions": [
+          "Search functionality returns to default state",
+          "All shift templates are visible in the list",
+          "No filters are applied"
+        ],
+        "estimatedTime": "3 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Filter shift templates by start time",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Scheduler",
+          "User has appropriate role-based permissions to view shift templates",
+          "Multiple shift templates exist with varying start times",
+          "Shift template list page is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Select a start time filter criterion (e.g., start time = 09:00 AM) from the filter dropdown or input field",
+            "expectedResult": "List updates to show only templates with the specified start time, other templates are filtered out"
+          },
+          {
+            "step": 2,
+            "action": "Combine with search keywords by entering text in the search box (e.g., 'Shift A') while filter is active",
+            "expectedResult": "List shows only templates matching both the start time filter and the search keyword criteria"
+          },
+          {
+            "step": 3,
+            "action": "Remove filters by clearing the filter selection and search box",
+            "expectedResult": "Full list of all shift templates is displayed again without any filtering applied"
+          }
+        ],
+        "postconditions": [
+          "All filters are cleared",
+          "Complete list of shift templates is visible",
+          "System is ready for new search or filter operations"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Sort shift templates by duration",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "User is logged in as Scheduler",
+          "User has appropriate role-based permissions to view shift templates",
+          "Multiple shift templates exist with different durations",
+          "Shift template list page is accessible with sortable columns"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Click on the duration column header in the shift templates list",
+            "expectedResult": "Templates are sorted in ascending order by duration (shortest to longest), with a visual indicator (arrow) showing ascending sort"
+          },
+          {
+            "step": 2,
+            "action": "Click again on the duration column header",
+            "expectedResult": "Templates are sorted in descending order by duration (longest to shortest), with visual indicator changing to show descending sort"
+          }
+        ],
+        "postconditions": [
+          "Shift templates remain sorted by duration in descending order",
+          "Sort state is maintained until user changes it",
+          "All templates remain visible in the sorted list"
+        ],
+        "estimatedTime": "2 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-7",
+    "storyTitle": "As HR Manager, I want to validate shift template data to achieve data integrity",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate time format and logical order",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Manager",
+          "User has permission to create shift templates",
+          "Shift template creation form is accessible",
+          "System validation rules are active on frontend and backend"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to shift template creation page",
+            "expectedResult": "Shift template creation form is displayed with all required fields (shift name, start time, end time, break times)"
+          },
+          {
+            "step": 2,
+            "action": "Enter invalid time format in start time field (e.g., '25:00', 'abc', '13:75')",
+            "expectedResult": "Inline error message is displayed immediately below the start time field indicating 'Invalid time format. Please use HH:mm format (00:00 - 23:59)'"
+          },
+          {
+            "step": 3,
+            "action": "Clear the start time field and enter a valid start time (e.g., '09:00')",
+            "expectedResult": "Error message disappears and field is marked as valid"
+          },
+          {
+            "step": 4,
+            "action": "Enter end time earlier than start time (e.g., start time: '09:00', end time: '08:00')",
+            "expectedResult": "Validation error message is displayed stating 'End time must be after start time'"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to submit the form with the invalid end time",
+            "expectedResult": "Form submission is prevented, error message remains visible, and focus returns to the end time field"
+          },
+          {
+            "step": 6,
+            "action": "Correct the end time to a valid time after start time (e.g., '17:00')",
+            "expectedResult": "Validation error disappears and field is marked as valid"
+          },
+          {
+            "step": 7,
+            "action": "Complete all remaining required fields with valid data and submit the form",
+            "expectedResult": "No validation errors are displayed, form is successfully submitted, and confirmation message appears indicating shift template was created"
+          }
+        ],
+        "postconditions": [
+          "Valid shift template is saved in the system",
+          "Shift template appears in the list of available templates",
+          "No invalid data is persisted in the database",
+          "User remains on shift template management page or is redirected to template list"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Prevent overlapping shift templates",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Manager",
+          "User has permission to create shift templates",
+          "At least one existing shift template is already created (e.g., 'Morning Shift' from 08:00 to 16:00)",
+          "Shift template creation form is accessible",
+          "Overlap validation is enabled on both frontend and backend"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to shift template creation page",
+            "expectedResult": "Shift template creation form is displayed with all required fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter shift template name (e.g., 'Mid-Day Shift')",
+            "expectedResult": "Shift name is accepted and field shows valid state"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to create a shift template with times that overlap an existing template (e.g., start time: '10:00', end time: '18:00' when existing shift is 08:00-16:00)",
+            "expectedResult": "Validation error message is displayed stating 'Shift template overlaps with existing template: Morning Shift (08:00 - 16:00). Please adjust the times.'"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to submit the form with overlapping times",
+            "expectedResult": "Form submission is blocked, error message remains visible, and no data is sent to the backend"
+          },
+          {
+            "step": 5,
+            "action": "Adjust the start time to a non-overlapping value (e.g., start time: '16:00', end time: '23:00')",
+            "expectedResult": "Validation error disappears and fields are marked as valid"
+          },
+          {
+            "step": 6,
+            "action": "Complete all remaining required fields and submit the form",
+            "expectedResult": "Form is successfully submitted without errors, confirmation message is displayed, and new shift template is created"
+          },
+          {
+            "step": 7,
+            "action": "Verify the newly created shift template appears in the shift template list",
+            "expectedResult": "New shift template 'Mid-Day Shift' (16:00 - 23:00) is visible in the list alongside existing templates without any overlap conflicts"
+          }
+        ],
+        "postconditions": [
+          "Non-overlapping shift template is successfully saved in the system",
+          "No overlapping shift templates exist in the database",
+          "Both shift templates are available for schedule assignment",
+          "System maintains data integrity with no conflicting time ranges"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  }
+]
