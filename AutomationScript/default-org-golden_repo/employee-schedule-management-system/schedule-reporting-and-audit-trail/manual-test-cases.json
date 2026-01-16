@@ -1,0 +1,340 @@
+[
+  {
+    "storyId": "story-8",
+    "storyTitle": "As HR Manager, I want to generate reports on shift template usage to analyze scheduling efficiency",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Generate shift template usage report with filters",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Manager with valid credentials",
+          "Shift template usage data exists in the system for multiple departments",
+          "At least 30 days of historical scheduling data is available",
+          "User has 'Report Generation' permission enabled",
+          "Reporting module is accessible and functional"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the reporting module from the main dashboard",
+            "expectedResult": "Reporting module page loads successfully and displays available reporting options including 'Shift Template Usage Report'"
+          },
+          {
+            "step": 2,
+            "action": "Select 'Shift Template Usage Report' from the list of available reports",
+            "expectedResult": "Report configuration screen is displayed with filter options for date range and department"
+          },
+          {
+            "step": 3,
+            "action": "Set the date range filter to the last 30 days using the date picker",
+            "expectedResult": "Date range is selected and displayed correctly in the filter field"
+          },
+          {
+            "step": 4,
+            "action": "Select a specific department from the department dropdown filter",
+            "expectedResult": "Department is selected and displayed in the filter field"
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Generate Report' button",
+            "expectedResult": "Report is generated and displayed on screen within 5 seconds showing template usage data filtered by selected date range and department with usage frequency, adoption metrics, and scheduling outcomes"
+          },
+          {
+            "step": 6,
+            "action": "Click the 'Export to PDF' button",
+            "expectedResult": "PDF file is downloaded to the default download location containing the complete filtered report data with proper formatting, headers, and all visible data from the screen report"
+          },
+          {
+            "step": 7,
+            "action": "Open the downloaded PDF file",
+            "expectedResult": "PDF opens successfully and displays all report data accurately matching the on-screen report with correct date range and department filters applied"
+          }
+        ],
+        "postconditions": [
+          "Report data remains displayed on screen",
+          "PDF file is saved in the downloads folder",
+          "Audit log records the report generation activity",
+          "User session remains active",
+          "No data is modified in the system"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Restrict report access to authorized users",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with non-HR Manager role (e.g., Employee or Scheduler)",
+          "User does not have 'Report Generation' permission",
+          "Reporting module URL is known",
+          "Role-based access control is configured and active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Attempt to navigate to the reporting module by entering the URL directly or clicking on a reporting link",
+            "expectedResult": "Access is denied and an appropriate error message is displayed stating 'Access Denied: You do not have permission to view reports. Please contact your administrator.' or similar message"
+          },
+          {
+            "step": 2,
+            "action": "Verify that the user is redirected to an appropriate page (dashboard or error page)",
+            "expectedResult": "User is redirected to their dashboard or a 403 Forbidden error page without accessing any report data"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to access the report API endpoint directly using GET /api/reports/shifttemplateusage",
+            "expectedResult": "API returns 403 Forbidden status code with error message indicating insufficient permissions"
+          }
+        ],
+        "postconditions": [
+          "No report data is exposed to unauthorized user",
+          "Access attempt is logged in security audit trail",
+          "User remains on authorized pages only",
+          "System security remains intact"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Verify report generation performance",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Manager with valid credentials",
+          "Large dataset exists with at least 10,000 shift template usage records",
+          "Database contains data spanning multiple years across all departments",
+          "System performance monitoring tools are available",
+          "Network connection is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the reporting module",
+            "expectedResult": "Reporting module loads successfully"
+          },
+          {
+            "step": 2,
+            "action": "Select 'Shift Template Usage Report' option",
+            "expectedResult": "Report configuration screen is displayed"
+          },
+          {
+            "step": 3,
+            "action": "Set date range filter to maximum range (e.g., last 12 months or all available data)",
+            "expectedResult": "Date range is set to maximum available period"
+          },
+          {
+            "step": 4,
+            "action": "Select 'All Departments' option to include all departments in the report",
+            "expectedResult": "All departments filter is applied"
+          },
+          {
+            "step": 5,
+            "action": "Start a timer and click 'Generate Report' button",
+            "expectedResult": "Report generation begins and loading indicator is displayed"
+          },
+          {
+            "step": 6,
+            "action": "Monitor the time taken for the report to fully load and display on screen",
+            "expectedResult": "Report is completely generated and displayed within 5 seconds showing all data for the large dataset with proper pagination or scrolling functionality"
+          },
+          {
+            "step": 7,
+            "action": "Verify that all data is rendered correctly and the report is fully interactive",
+            "expectedResult": "Report displays complete data with all charts, tables, and metrics properly rendered and responsive to user interactions"
+          }
+        ],
+        "postconditions": [
+          "Report is fully loaded and functional",
+          "System performance remains stable",
+          "No timeout errors occurred",
+          "Database connections are properly closed",
+          "Memory usage returns to normal levels"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-9",
+    "storyTitle": "As Manager, I want to view audit trails of schedule changes to ensure compliance",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Verify audit logging of schedule changes",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Two user accounts are available: one with Scheduler role and one with Manager role",
+          "Scheduler user is logged in and has permission to modify schedules",
+          "At least one employee schedule exists in the system",
+          "Audit logging functionality is enabled in the system",
+          "Manager user has access to audit trail module"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "As Scheduler user, navigate to the schedule management page",
+            "expectedResult": "Schedule management page loads successfully displaying existing schedules"
+          },
+          {
+            "step": 2,
+            "action": "Select an existing employee schedule and modify the shift time from 9:00 AM to 10:00 AM",
+            "expectedResult": "Schedule modification interface allows the change and displays updated time"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Save' button to save the schedule change",
+            "expectedResult": "Success message is displayed confirming 'Schedule updated successfully' and the new shift time is reflected in the schedule"
+          },
+          {
+            "step": 4,
+            "action": "Note the current timestamp and log out from the Scheduler account",
+            "expectedResult": "User is successfully logged out and redirected to login page"
+          },
+          {
+            "step": 5,
+            "action": "Log in as Manager user with valid credentials",
+            "expectedResult": "Manager successfully logs in and is redirected to the manager dashboard"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to the audit trail module from the main menu",
+            "expectedResult": "Audit trail interface loads successfully displaying search and filter options"
+          },
+          {
+            "step": 7,
+            "action": "Query the audit trail for the employee whose schedule was modified in the previous steps",
+            "expectedResult": "Audit trail displays change entries showing the schedule modification with details including: previous shift time (9:00 AM), new shift time (10:00 AM), username of the Scheduler who made the change, timestamp of the change, and change type (Schedule Edit)"
+          },
+          {
+            "step": 8,
+            "action": "Click on the audit entry to view detailed change information",
+            "expectedResult": "Detailed view displays complete change information including all modified fields, before and after values, and full audit metadata"
+          }
+        ],
+        "postconditions": [
+          "Schedule change remains saved in the system",
+          "Audit log entry is permanently recorded in AuditLogs table",
+          "Manager remains logged in to audit trail module",
+          "No data integrity issues exist",
+          "Audit trail is available for future queries"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Search and filter audit logs",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Manager with audit trail access permissions",
+          "Multiple audit log entries exist in the system for different employees",
+          "Audit logs span multiple dates and include changes by different users",
+          "At least 20 audit log entries are available for testing filter functionality",
+          "Audit trail module is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the audit trail module",
+            "expectedResult": "Audit trail interface loads displaying all recent audit logs with filter options visible including employee filter, date range filter, and user filter"
+          },
+          {
+            "step": 2,
+            "action": "Note the total number of audit entries currently displayed",
+            "expectedResult": "Total count of audit entries is visible (e.g., 'Showing 50 entries')"
+          },
+          {
+            "step": 3,
+            "action": "Select a specific employee from the employee filter dropdown",
+            "expectedResult": "Employee is selected and displayed in the filter field"
+          },
+          {
+            "step": 4,
+            "action": "Set the date range filter to show only entries from the last 7 days",
+            "expectedResult": "Date range is set and displayed in the filter field showing start and end dates"
+          },
+          {
+            "step": 5,
+            "action": "Click 'Apply Filters' or observe auto-filtering if enabled",
+            "expectedResult": "Audit logs table updates immediately to display only entries matching the selected employee and date range. The total count updates to reflect filtered results (e.g., 'Showing 8 entries')"
+          },
+          {
+            "step": 6,
+            "action": "Verify that all displayed entries match the applied filters by checking employee name and date on each entry",
+            "expectedResult": "All visible audit log entries show the selected employee name and have timestamps within the last 7 days. No entries outside the filter criteria are displayed"
+          },
+          {
+            "step": 7,
+            "action": "Clear the employee filter and add a user filter to show changes made by a specific scheduler",
+            "expectedResult": "Filter updates and audit logs display only entries where the specified user made the changes, regardless of which employee was affected"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Clear All Filters' button",
+            "expectedResult": "All filters are removed and the audit trail returns to showing all available entries with the original total count restored"
+          }
+        ],
+        "postconditions": [
+          "Filters can be reapplied as needed",
+          "Audit log data remains unchanged",
+          "Filter state is cleared for next use",
+          "User session remains active",
+          "System performance remains stable"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Restrict audit trail access to authorized users",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with a non-Manager role (e.g., Employee or Scheduler without audit access)",
+          "User does not have 'Audit Trail Access' permission",
+          "Audit trail module URL is known",
+          "Role-based access control is properly configured",
+          "Audit log data exists in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Attempt to navigate to the audit trail module by clicking on audit trail link or entering the URL directly",
+            "expectedResult": "Access is denied and system displays an appropriate error message such as 'Access Denied: You do not have permission to view audit trails. This feature is restricted to authorized managers only.'"
+          },
+          {
+            "step": 2,
+            "action": "Verify the page content to ensure no audit log data is visible",
+            "expectedResult": "No audit trail data, filters, or sensitive information is displayed. User sees only the access denied message"
+          },
+          {
+            "step": 3,
+            "action": "Check if user is redirected to an appropriate page",
+            "expectedResult": "User is automatically redirected to their authorized dashboard or remains on an error page without access to audit functionality"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to access the audit logs API endpoint directly using GET /api/auditlogs",
+            "expectedResult": "API returns 403 Forbidden status code with JSON error response indicating insufficient permissions and no audit data in the response body"
+          },
+          {
+            "step": 5,
+            "action": "Verify that the unauthorized access attempt is logged",
+            "expectedResult": "Security audit log records the unauthorized access attempt with user details, timestamp, and attempted resource"
+          }
+        ],
+        "postconditions": [
+          "No audit trail data is exposed to unauthorized user",
+          "Unauthorized access attempt is logged in security audit",
+          "User remains restricted to authorized areas only",
+          "System security and data integrity remain intact",
+          "No session or authentication issues occur"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  }
+]
