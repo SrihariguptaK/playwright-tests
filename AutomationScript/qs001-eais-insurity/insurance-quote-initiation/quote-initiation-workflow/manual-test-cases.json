@@ -1,0 +1,511 @@
+[
+  {
+    "storyId": "story-8",
+    "storyTitle": "As Insurance Agent, I want to view confirmation of quote initiation to achieve assurance of successful quote creation",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate display of quote initiation confirmation",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an Insurance Agent",
+          "Quote initiation form is accessible and functional",
+          "All mandatory fields for quote submission are available",
+          "System is connected to quote processing backend",
+          "Printer or save functionality is available in browser"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the quote initiation form",
+            "expectedResult": "Quote initiation form is displayed with all required fields"
+          },
+          {
+            "step": 2,
+            "action": "Fill in all mandatory applicant information fields (name, contact details, address)",
+            "expectedResult": "All applicant fields are populated with valid data"
+          },
+          {
+            "step": 3,
+            "action": "Fill in all mandatory risk data fields (coverage type, coverage amount, risk details)",
+            "expectedResult": "All risk data fields are populated with valid data"
+          },
+          {
+            "step": 4,
+            "action": "Click the Submit button to submit the completed quote",
+            "expectedResult": "Confirmation screen is displayed within 2 seconds showing successful quote initiation"
+          },
+          {
+            "step": 5,
+            "action": "Verify that a unique quote ID is displayed on the confirmation screen",
+            "expectedResult": "A unique alphanumeric quote ID is clearly visible on the confirmation screen"
+          },
+          {
+            "step": 6,
+            "action": "Verify that the confirmation screen shows a summary of submitted applicant data",
+            "expectedResult": "Applicant name, contact details, and address match the data submitted in the form"
+          },
+          {
+            "step": 7,
+            "action": "Verify that the confirmation screen shows a summary of submitted risk data",
+            "expectedResult": "Coverage type, coverage amount, and risk details match the data submitted in the form"
+          },
+          {
+            "step": 8,
+            "action": "Locate and click the Print option on the confirmation screen",
+            "expectedResult": "Print dialog opens with confirmation details formatted correctly for printing"
+          },
+          {
+            "step": 9,
+            "action": "Complete the print action or cancel the print dialog",
+            "expectedResult": "Confirmation details are printed successfully or print dialog is closed without errors"
+          },
+          {
+            "step": 10,
+            "action": "Locate and click the Save option on the confirmation screen",
+            "expectedResult": "Save dialog opens allowing user to save confirmation details as a file (PDF or other format)"
+          },
+          {
+            "step": 11,
+            "action": "Save the confirmation details to a local directory",
+            "expectedResult": "Confirmation details are saved successfully and file can be opened to verify content"
+          }
+        ],
+        "postconditions": [
+          "Quote is successfully created in the system with unique quote ID",
+          "Confirmation screen remains accessible for review",
+          "Confirmation details are available in printed or saved format",
+          "Agent can proceed to next workflow steps",
+          "Quote data is stored in the database"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Ensure confirmation is only visible to submitting user",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Two different user accounts exist: User A and User B",
+          "Both users have Insurance Agent role and valid credentials",
+          "User A is logged into the system",
+          "Quote initiation form is accessible",
+          "System enforces user-level security for quote confirmations"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in to the system as User A",
+            "expectedResult": "User A is successfully authenticated and logged into the system"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the quote initiation form as User A",
+            "expectedResult": "Quote initiation form is displayed for User A"
+          },
+          {
+            "step": 3,
+            "action": "Fill in all mandatory fields with valid applicant and risk data as User A",
+            "expectedResult": "All required fields are populated with valid data"
+          },
+          {
+            "step": 4,
+            "action": "Submit the completed quote as User A",
+            "expectedResult": "Confirmation screen is displayed to User A with unique quote ID and data summary"
+          },
+          {
+            "step": 5,
+            "action": "Note the unique quote ID and confirmation URL displayed to User A",
+            "expectedResult": "Quote ID and URL are recorded for later verification"
+          },
+          {
+            "step": 6,
+            "action": "Verify that User A can view all confirmation details including quote ID and submitted data summary",
+            "expectedResult": "User A has full access to view the confirmation screen with all details"
+          },
+          {
+            "step": 7,
+            "action": "Log out User A from the system",
+            "expectedResult": "User A is successfully logged out and session is terminated"
+          },
+          {
+            "step": 8,
+            "action": "Log in to the system as User B using different credentials",
+            "expectedResult": "User B is successfully authenticated and logged into the system"
+          },
+          {
+            "step": 9,
+            "action": "Attempt to access User A's confirmation screen by navigating to the confirmation URL or quote ID",
+            "expectedResult": "Access is denied with appropriate error message (e.g., 'Unauthorized access' or 'Confirmation not found')"
+          },
+          {
+            "step": 10,
+            "action": "Verify that User B cannot view any details of User A's quote confirmation",
+            "expectedResult": "No quote ID, applicant data, or risk data from User A's submission is visible to User B"
+          },
+          {
+            "step": 11,
+            "action": "Verify that the system does not display sensitive information in the access denial message",
+            "expectedResult": "Error message is generic and does not reveal quote details or User A's information"
+          }
+        ],
+        "postconditions": [
+          "User A's quote confirmation remains secure and accessible only to User A",
+          "User B is unable to access User A's confirmation details",
+          "System security logs record the unauthorized access attempt",
+          "No data breach or information leakage occurs",
+          "Both user sessions are properly managed"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-9",
+    "storyTitle": "As Insurance Agent, I want to receive error messages during quote initiation to achieve clarity on issues preventing submission",
+    "testCases": [
+      {
+        "id": "tc-003",
+        "title": "Validate display of specific error messages on invalid submission",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an Insurance Agent",
+          "Quote initiation form is accessible and functional",
+          "Form validation rules are configured and active",
+          "Mandatory fields include: applicant name, contact number, email, address, coverage type, coverage amount",
+          "System validation engine is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the quote initiation form",
+            "expectedResult": "Quote initiation form is displayed with all fields visible"
+          },
+          {
+            "step": 2,
+            "action": "Leave the applicant name field empty",
+            "expectedResult": "Applicant name field remains blank"
+          },
+          {
+            "step": 3,
+            "action": "Leave the contact number field empty",
+            "expectedResult": "Contact number field remains blank"
+          },
+          {
+            "step": 4,
+            "action": "Leave the email field empty",
+            "expectedResult": "Email field remains blank"
+          },
+          {
+            "step": 5,
+            "action": "Leave the coverage type field unselected",
+            "expectedResult": "Coverage type field has no selection"
+          },
+          {
+            "step": 6,
+            "action": "Click the Submit button with multiple mandatory fields empty",
+            "expectedResult": "Form submission is prevented and error messages are displayed within 1 second"
+          },
+          {
+            "step": 7,
+            "action": "Verify that a specific error message is displayed for the missing applicant name field",
+            "expectedResult": "Error message reads 'Applicant name is required' or similar specific message near the name field"
+          },
+          {
+            "step": 8,
+            "action": "Verify that a specific error message is displayed for the missing contact number field",
+            "expectedResult": "Error message reads 'Contact number is required' or similar specific message near the contact field"
+          },
+          {
+            "step": 9,
+            "action": "Verify that a specific error message is displayed for the missing email field",
+            "expectedResult": "Error message reads 'Email address is required' or similar specific message near the email field"
+          },
+          {
+            "step": 10,
+            "action": "Verify that a specific error message is displayed for the missing coverage type field",
+            "expectedResult": "Error message reads 'Coverage type must be selected' or similar specific message near the coverage type field"
+          },
+          {
+            "step": 11,
+            "action": "Verify that all fields with errors are visually highlighted or distinguished",
+            "expectedResult": "Fields with missing data are highlighted with red border, background color, or icon indicating error state"
+          },
+          {
+            "step": 12,
+            "action": "Verify that error messages provide guidance on how to correct each error",
+            "expectedResult": "Each error message includes actionable guidance (e.g., 'Please enter applicant full name', 'Please provide valid email format')"
+          },
+          {
+            "step": 13,
+            "action": "Fill in the applicant name field with valid data",
+            "expectedResult": "Applicant name field is populated and error highlighting is removed from this field"
+          },
+          {
+            "step": 14,
+            "action": "Fill in the contact number field with valid data",
+            "expectedResult": "Contact number field is populated and error highlighting is removed from this field"
+          },
+          {
+            "step": 15,
+            "action": "Fill in the email field with valid data",
+            "expectedResult": "Email field is populated and error highlighting is removed from this field"
+          },
+          {
+            "step": 16,
+            "action": "Select a valid coverage type from the dropdown",
+            "expectedResult": "Coverage type is selected and error highlighting is removed from this field"
+          },
+          {
+            "step": 17,
+            "action": "Fill in all remaining mandatory fields with valid data",
+            "expectedResult": "All mandatory fields are populated with valid data and no error indicators remain"
+          },
+          {
+            "step": 18,
+            "action": "Click the Submit button to resubmit the corrected quote",
+            "expectedResult": "Form submission succeeds without errors and confirmation screen is displayed with quote ID"
+          }
+        ],
+        "postconditions": [
+          "All validation errors are resolved",
+          "Quote is successfully submitted and created in the system",
+          "No error messages are displayed on confirmation screen",
+          "User receives confirmation with unique quote ID",
+          "Form data is saved to database"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-004",
+        "title": "Ensure error messages do not expose sensitive data",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an Insurance Agent",
+          "Quote initiation form is accessible",
+          "Form contains fields that may contain sensitive data (SSN, credit card, bank account, medical information)",
+          "Validation rules are configured to detect invalid data formats",
+          "System security policies prohibit exposure of sensitive data in error messages"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the quote initiation form",
+            "expectedResult": "Quote initiation form is displayed with all fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter an invalid format for a sensitive field (e.g., invalid SSN format like '123-45-678X')",
+            "expectedResult": "Invalid SSN data is entered in the field"
+          },
+          {
+            "step": 3,
+            "action": "Enter invalid data in other fields that may contain sensitive information (e.g., invalid credit score, invalid medical condition code)",
+            "expectedResult": "Invalid data is entered in multiple sensitive fields"
+          },
+          {
+            "step": 4,
+            "action": "Click the Submit button to trigger validation",
+            "expectedResult": "Form validation is triggered and errors are detected"
+          },
+          {
+            "step": 5,
+            "action": "Review all error messages displayed on the screen",
+            "expectedResult": "Error messages are displayed for fields with invalid data"
+          },
+          {
+            "step": 6,
+            "action": "Verify that error messages do not display the actual invalid SSN value entered",
+            "expectedResult": "Error message reads 'Invalid SSN format' or 'Please enter valid SSN' without showing '123-45-678X'"
+          },
+          {
+            "step": 7,
+            "action": "Verify that error messages do not display any partial sensitive data (e.g., last 4 digits, masked values)",
+            "expectedResult": "No portion of the sensitive data is visible in error messages"
+          },
+          {
+            "step": 8,
+            "action": "Verify that error messages do not expose internal system information (database fields, table names, validation logic)",
+            "expectedResult": "Error messages contain only user-friendly text without technical or system details"
+          },
+          {
+            "step": 9,
+            "action": "Verify that error messages do not reveal information about other users or quotes",
+            "expectedResult": "Error messages are specific to current submission only and contain no references to other data"
+          },
+          {
+            "step": 10,
+            "action": "Check browser console and network logs for any sensitive data exposure",
+            "expectedResult": "No sensitive data is logged in browser console or visible in network response payloads"
+          },
+          {
+            "step": 11,
+            "action": "Verify that all error messages provide generic but helpful guidance without exposing confidential information",
+            "expectedResult": "Error messages are actionable (e.g., 'Please enter valid format') but do not contain sensitive or confidential details"
+          }
+        ],
+        "postconditions": [
+          "No sensitive data is exposed in error messages",
+          "User receives clear guidance to correct errors without security risk",
+          "System maintains security compliance standards",
+          "Error handling does not create data breach vulnerability",
+          "Form remains in editable state for corrections"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-10",
+    "storyTitle": "As Insurance Agent, I want to navigate through the quote initiation process efficiently to achieve a streamlined user experience",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate step-by-step navigation with progress indicators",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an Insurance Agent with valid credentials",
+          "User has permissions to create quotes",
+          "Quote initiation system is accessible and operational",
+          "Browser is supported (Chrome, Firefox, Safari, Edge - latest versions)",
+          "Network connection is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the quote initiation page and click 'Start New Quote' button",
+            "expectedResult": "Quote initiation process begins and displays the first step (Applicant Data). Navigation controls (Next, Previous, Save) are visible at the bottom. Progress indicator shows Step 1 of 4 with visual representation (e.g., progress bar or step numbers). Current step is highlighted."
+          },
+          {
+            "step": 2,
+            "action": "Enter valid applicant data in all required fields (Name, Contact Information, Address)",
+            "expectedResult": "All fields accept input correctly. Required field indicators are displayed. No validation errors appear for valid data."
+          },
+          {
+            "step": 3,
+            "action": "Click 'Next' button to proceed to the next step",
+            "expectedResult": "System navigates to Step 2 (Risk Data). Progress indicator updates to show Step 2 of 4. Previous step is marked as completed. Entered applicant data is saved automatically. Navigation transition completes in under 1 second."
+          },
+          {
+            "step": 4,
+            "action": "Enter valid risk data in all required fields (Property Type, Coverage Amount, Risk Assessment)",
+            "expectedResult": "All risk data fields accept input correctly. Field validations work as expected. No errors are displayed for valid entries."
+          },
+          {
+            "step": 5,
+            "action": "Click 'Previous' button to return to the Applicant Data step",
+            "expectedResult": "System navigates back to Step 1 (Applicant Data). Progress indicator updates to show Step 1 of 4. All previously entered applicant data is retained and displayed correctly. No data loss occurs."
+          },
+          {
+            "step": 6,
+            "action": "Click 'Next' button to return to Risk Data step",
+            "expectedResult": "System navigates to Step 2 (Risk Data). Previously entered risk data is retained and displayed correctly. Progress indicator shows Step 2 of 4."
+          },
+          {
+            "step": 7,
+            "action": "Click 'Next' button to proceed to Step 3",
+            "expectedResult": "System navigates to Step 3 (Additional Information/Coverage Details). Progress indicator updates to Step 3 of 4. All previous data is saved. Navigation controls remain visible and functional."
+          },
+          {
+            "step": 8,
+            "action": "Complete Step 3 fields and click 'Next' to proceed to the Review step",
+            "expectedResult": "System navigates to Step 4 (Review and Submit). Progress indicator shows Step 4 of 4. All entered data from previous steps is displayed in a summary format for review."
+          },
+          {
+            "step": 9,
+            "action": "Review all entered information and click 'Submit Quote' button",
+            "expectedResult": "Quote is submitted successfully. Confirmation message is displayed with quote reference number. Progress indicator shows completion (100%). User is redirected to quote confirmation page or dashboard."
+          }
+        ],
+        "postconditions": [
+          "Quote is saved in the system with status 'Submitted'",
+          "Quote reference number is generated and stored",
+          "All entered data is persisted in the database",
+          "User can access the submitted quote from their dashboard",
+          "Navigation progress is reset for next quote initiation",
+          "System logs the successful quote submission with timestamp"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Ensure navigation is responsive and accessible",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an Insurance Agent with valid credentials",
+          "Quote initiation system is accessible",
+          "Multiple test devices/browsers are available (Desktop, Tablet, Mobile)",
+          "Screen reader software is installed and configured (JAWS, NVDA, or VoiceOver)",
+          "Accessibility testing tools are available",
+          "Different screen resolutions are configured for testing (1920x1080, 1366x768, 768x1024, 375x667)"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Access quote initiation page on a desktop browser with 1920x1080 resolution",
+            "expectedResult": "Page loads correctly. Navigation controls are fully visible and properly aligned. Progress indicators are clearly displayed. All buttons and form fields are appropriately sized and spaced. No horizontal scrolling is required."
+          },
+          {
+            "step": 2,
+            "action": "Resize browser window to 1366x768 resolution",
+            "expectedResult": "Page layout adjusts responsively. Navigation controls remain visible and functional. Progress indicators adapt to smaller screen size. All interactive elements remain accessible and clickable. Content is readable without zooming."
+          },
+          {
+            "step": 3,
+            "action": "Access quote initiation page on a tablet device (iPad or similar) in portrait orientation (768x1024)",
+            "expectedResult": "Page renders correctly for tablet screen size. Navigation controls are touch-friendly with adequate tap targets (minimum 44x44 pixels). Progress indicators are visible and clear. Form fields are appropriately sized for touch input. Virtual keyboard does not obscure important content."
+          },
+          {
+            "step": 4,
+            "action": "Rotate tablet to landscape orientation and verify navigation",
+            "expectedResult": "Page layout adjusts to landscape orientation. Navigation controls remain accessible. Progress indicators are still visible. No content is cut off or hidden. All functionality remains intact."
+          },
+          {
+            "step": 5,
+            "action": "Access quote initiation page on a mobile device (iPhone or Android) with 375x667 resolution",
+            "expectedResult": "Page is fully responsive on mobile screen. Navigation controls are stacked or collapsed appropriately. Progress indicators are visible (may be simplified for mobile). All buttons are touch-friendly. Content is readable without horizontal scrolling. Mobile-optimized layout is applied."
+          },
+          {
+            "step": 6,
+            "action": "Navigate through all steps using only keyboard (Tab, Shift+Tab, Enter, Space keys)",
+            "expectedResult": "All interactive elements can be accessed via keyboard. Tab order is logical and follows visual flow. Focus indicators are clearly visible on all focusable elements. 'Next' and 'Previous' buttons can be activated with Enter or Space. No keyboard traps exist. Skip navigation links are available."
+          },
+          {
+            "step": 7,
+            "action": "Enable screen reader (JAWS, NVDA, or VoiceOver) and navigate through the quote initiation process",
+            "expectedResult": "Screen reader announces page title and main heading. Progress indicators are announced with current step and total steps. Form labels are properly associated and announced. Navigation buttons have descriptive labels announced. Error messages and validation feedback are announced. ARIA landmarks and roles are properly implemented. All content is accessible in logical reading order."
+          },
+          {
+            "step": 8,
+            "action": "Use screen reader to navigate backward and forward through steps",
+            "expectedResult": "Screen reader announces step changes. Progress updates are communicated. Data retention is confirmed through screen reader feedback. Navigation state changes are announced appropriately."
+          },
+          {
+            "step": 9,
+            "action": "Test color contrast and visual accessibility using accessibility tools (WAVE, axe DevTools)",
+            "expectedResult": "Color contrast ratios meet WCAG 2.1 AA standards (minimum 4.5:1 for normal text). Progress indicators are distinguishable without relying solely on color. Navigation controls have sufficient contrast. No accessibility violations are reported for navigation components."
+          },
+          {
+            "step": 10,
+            "action": "Verify navigation performance across all tested devices",
+            "expectedResult": "Navigation transitions complete in under 1 second on all devices. No lag or delay in button responses. Progress indicator updates are smooth. Page rendering is optimized for each device type."
+          }
+        ],
+        "postconditions": [
+          "Navigation is confirmed functional across all tested devices and screen sizes",
+          "Accessibility compliance is verified for WCAG 2.1 AA standards",
+          "Keyboard navigation is fully operational",
+          "Screen reader compatibility is confirmed",
+          "Performance benchmarks are met across all platforms",
+          "Test results are documented for compliance records"
+        ],
+        "estimatedTime": "25 mins"
+      }
+    ]
+  }
+]
