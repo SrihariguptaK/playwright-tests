@@ -1,0 +1,691 @@
+[
+  {
+    "storyId": "story-11",
+    "storyTitle": "As Scheduler, I want to submit schedule change requests to achieve formal approval before implementation",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful schedule change request submission",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Scheduler user account exists and is active",
+          "Scheduler has valid login credentials",
+          "Schedule change request page is accessible",
+          "At least one valid document file is available for attachment (PDF, DOC, or DOCX format, under size limit)",
+          "Network connectivity is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open web browser and navigate to the system login page",
+            "expectedResult": "Login page is displayed with username and password fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid scheduler credentials and click Login button",
+            "expectedResult": "Scheduler is authenticated and redirected to the dashboard"
+          },
+          {
+            "step": 3,
+            "action": "Navigate to the schedule change request page from the main menu",
+            "expectedResult": "Submission form is displayed with all mandatory fields including: Change Type, Effective Date, Reason for Change, Description, and Attachment option"
+          },
+          {
+            "step": 4,
+            "action": "Fill in the 'Change Type' field by selecting an option from the dropdown",
+            "expectedResult": "Selected change type is displayed in the field without errors"
+          },
+          {
+            "step": 5,
+            "action": "Enter a future date in the 'Effective Date' field using the date picker",
+            "expectedResult": "Date is accepted and displayed in the correct format"
+          },
+          {
+            "step": 6,
+            "action": "Enter a valid reason in the 'Reason for Change' text field (minimum 10 characters)",
+            "expectedResult": "Text is accepted and character count updates if displayed"
+          },
+          {
+            "step": 7,
+            "action": "Enter detailed description in the 'Description' text area (minimum 20 characters)",
+            "expectedResult": "Description text is accepted without validation errors"
+          },
+          {
+            "step": 8,
+            "action": "Click on 'Attach Document' button and select a valid document file (PDF format, under 5MB)",
+            "expectedResult": "File upload dialog opens, file is selected, and attachment preview is displayed with file name and size"
+          },
+          {
+            "step": 9,
+            "action": "Review all entered information for accuracy",
+            "expectedResult": "All fields display the entered information correctly with no validation errors"
+          },
+          {
+            "step": 10,
+            "action": "Click the 'Submit Request' button",
+            "expectedResult": "System processes the submission and displays a confirmation message with a unique request ID (format: SCR-YYYYMMDD-XXXX)"
+          },
+          {
+            "step": 11,
+            "action": "Note the unique request ID from the confirmation message",
+            "expectedResult": "Request ID is clearly visible and can be copied for future reference"
+          },
+          {
+            "step": 12,
+            "action": "Navigate to 'My Requests' dashboard",
+            "expectedResult": "Newly submitted request appears in the list with status 'Pending' and correct timestamp"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request is created in the database with status 'Pending'",
+          "Unique request ID is generated and associated with the request",
+          "Attached document is stored in the system and linked to the request",
+          "Request appears in scheduler's dashboard",
+          "Approval workflow is initiated",
+          "Scheduler remains logged in"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify rejection of submission with missing mandatory fields",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Scheduler user account exists and is active",
+          "Scheduler is logged into the system",
+          "Schedule change request submission form is accessible",
+          "Browser supports JavaScript for real-time validation"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule change request submission form from the dashboard",
+            "expectedResult": "Form is displayed with all mandatory fields marked with asterisks (*) or 'Required' labels"
+          },
+          {
+            "step": 2,
+            "action": "Leave the 'Change Type' field empty and click on the next field",
+            "expectedResult": "Real-time validation highlights the 'Change Type' field with red border and displays inline error message 'This field is required'"
+          },
+          {
+            "step": 3,
+            "action": "Leave the 'Effective Date' field empty and click on the next field",
+            "expectedResult": "Real-time validation highlights the 'Effective Date' field with red border and displays inline error message 'Effective Date is required'"
+          },
+          {
+            "step": 4,
+            "action": "Leave the 'Reason for Change' field empty and click on the next field",
+            "expectedResult": "Real-time validation highlights the 'Reason for Change' field with red border and displays inline error message 'Reason is required'"
+          },
+          {
+            "step": 5,
+            "action": "Leave the 'Description' field empty",
+            "expectedResult": "Field remains empty without any entered text"
+          },
+          {
+            "step": 6,
+            "action": "Scroll down and click the 'Submit Request' button without filling any mandatory fields",
+            "expectedResult": "Submission is blocked and form does not proceed to confirmation page"
+          },
+          {
+            "step": 7,
+            "action": "Observe the error messages displayed on the form",
+            "expectedResult": "All mandatory fields are highlighted with red borders and inline error messages are displayed: 'Change Type is required', 'Effective Date is required', 'Reason for Change is required', 'Description is required'"
+          },
+          {
+            "step": 8,
+            "action": "Verify that a summary error message appears at the top of the form",
+            "expectedResult": "Error summary banner is displayed stating 'Please complete all required fields before submitting' with count of errors"
+          },
+          {
+            "step": 9,
+            "action": "Fill in only the 'Change Type' field and attempt to submit again",
+            "expectedResult": "Submission is still blocked, 'Change Type' field error is cleared, but other mandatory field errors remain visible"
+          },
+          {
+            "step": 10,
+            "action": "Verify that the page focus moves to the first field with an error",
+            "expectedResult": "Browser automatically scrolls to and focuses on the first empty mandatory field"
+          }
+        ],
+        "postconditions": [
+          "No schedule change request is created in the database",
+          "No request ID is generated",
+          "Form remains on the submission page with entered data preserved",
+          "Validation errors are clearly visible to the user",
+          "Scheduler remains logged in"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Test attachment upload and validation",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Scheduler user account exists and is active",
+          "Scheduler is logged into the system",
+          "Schedule change request submission form is accessible",
+          "Test document files are available in supported formats (PDF, DOC, DOCX)",
+          "Test document is under the maximum file size limit (5MB)",
+          "Browser supports file upload functionality"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule change request submission form",
+            "expectedResult": "Form is displayed with 'Attach Document' button or file upload field visible"
+          },
+          {
+            "step": 2,
+            "action": "Fill in all mandatory fields (Change Type, Effective Date, Reason for Change, Description) with valid data",
+            "expectedResult": "All mandatory fields accept the input without validation errors"
+          },
+          {
+            "step": 3,
+            "action": "Click on the 'Attach Document' button or file upload field",
+            "expectedResult": "File browser dialog opens allowing file selection from local system"
+          },
+          {
+            "step": 4,
+            "action": "Select a supported document file (e.g., 'schedule_change_justification.pdf', 2MB size)",
+            "expectedResult": "File browser closes and selected file is loaded into the form"
+          },
+          {
+            "step": 5,
+            "action": "Observe the attachment preview area",
+            "expectedResult": "Attachment preview is displayed showing file name 'schedule_change_justification.pdf', file size '2MB', file type icon (PDF icon), and a remove/delete option"
+          },
+          {
+            "step": 6,
+            "action": "Verify that the file upload progress indicator shows completion",
+            "expectedResult": "Progress bar shows 100% or success checkmark appears next to the file name"
+          },
+          {
+            "step": 7,
+            "action": "Review the complete form with all fields filled and attachment added",
+            "expectedResult": "All mandatory fields contain valid data and attachment is displayed in the preview area"
+          },
+          {
+            "step": 8,
+            "action": "Click the 'Submit Request' button",
+            "expectedResult": "System processes the submission successfully and displays confirmation message with unique request ID"
+          },
+          {
+            "step": 9,
+            "action": "Note the request ID and navigate to 'My Requests' dashboard",
+            "expectedResult": "Dashboard displays the list of submitted requests including the newly created one"
+          },
+          {
+            "step": 10,
+            "action": "Locate the newly submitted request in the list and click on it to view details",
+            "expectedResult": "Request details page opens showing all submitted information including Change Type, Effective Date, Reason, Description, Status, and Attachments section"
+          },
+          {
+            "step": 11,
+            "action": "Scroll to the Attachments section in the request details",
+            "expectedResult": "Attachments section displays the uploaded file 'schedule_change_justification.pdf' with file size and upload timestamp"
+          },
+          {
+            "step": 12,
+            "action": "Click on the attachment file name or download icon",
+            "expectedResult": "File download is initiated and the document 'schedule_change_justification.pdf' is downloaded to the local system"
+          },
+          {
+            "step": 13,
+            "action": "Open the downloaded file using appropriate application (PDF reader)",
+            "expectedResult": "File opens successfully without corruption, displaying the original content correctly"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request is created with status 'Pending'",
+          "Attachment is stored in the system database or file storage",
+          "Attachment is linked to the request record",
+          "Attachment is accessible and downloadable from request details page",
+          "File integrity is maintained (no corruption)",
+          "Request appears in scheduler's dashboard with attachment indicator",
+          "Scheduler remains logged in"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-14",
+    "storyTitle": "As Scheduler, I want to track the status of my schedule change requests to stay informed about approval progress",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate display of scheduler's submitted requests with status",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Scheduler user account exists and is active",
+          "Scheduler has valid login credentials",
+          "At least 3 schedule change requests have been previously submitted by the scheduler with different statuses (Pending, Approved, Rejected)",
+          "At least one request has approval history with comments",
+          "Notification system is enabled and configured",
+          "Email notification settings are configured (if applicable)"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open web browser and navigate to the system login page",
+            "expectedResult": "Login page is displayed with username and password fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid scheduler credentials and click Login button",
+            "expectedResult": "Scheduler is authenticated and redirected to the main dashboard"
+          },
+          {
+            "step": 3,
+            "action": "Locate and click on 'My Requests' menu item or dashboard widget",
+            "expectedResult": "'My Requests' dashboard page loads and displays a list view of all submitted schedule change requests"
+          },
+          {
+            "step": 4,
+            "action": "Observe the list of submitted requests displayed on the dashboard",
+            "expectedResult": "List displays all requests submitted by the logged-in scheduler with columns: Request ID, Change Type, Submission Date, Effective Date, Current Status, and Actions"
+          },
+          {
+            "step": 5,
+            "action": "Verify that each request shows a status indicator with appropriate visual styling",
+            "expectedResult": "Status indicators are displayed with color coding: 'Pending' (yellow/orange), 'Approved' (green), 'Rejected' (red), 'More Info Required' (blue)"
+          },
+          {
+            "step": 6,
+            "action": "Check the timestamps displayed for each request",
+            "expectedResult": "Each request shows submission date and time in consistent format (e.g., 'MM/DD/YYYY HH:MM AM/PM')"
+          },
+          {
+            "step": 7,
+            "action": "Verify that requests are sorted by submission date with most recent first",
+            "expectedResult": "Requests are listed in descending order by submission date"
+          },
+          {
+            "step": 8,
+            "action": "Select a request with status 'Approved' by clicking on the request row or 'View Details' button",
+            "expectedResult": "Request details page opens displaying comprehensive information including Request ID, Change Type, Effective Date, Reason, Description, Current Status, and Approval History section"
+          },
+          {
+            "step": 9,
+            "action": "Scroll to the Approval History section in the request details",
+            "expectedResult": "Approval History section displays a timeline of all approval actions including: Date/Time, Approver Name, Action Taken (Submitted, Reviewed, Approved), and Comments"
+          },
+          {
+            "step": 10,
+            "action": "Review the comments provided by approvers in the approval history",
+            "expectedResult": "Comments are displayed clearly with approver name, timestamp, and full comment text visible"
+          },
+          {
+            "step": 11,
+            "action": "Navigate back to 'My Requests' dashboard",
+            "expectedResult": "Dashboard reloads showing the complete list of requests"
+          },
+          {
+            "step": 12,
+            "action": "Have an administrator or approver change the status of one of the scheduler's pending requests to 'Approved' in the backend",
+            "expectedResult": "Status change is processed in the system"
+          },
+          {
+            "step": 13,
+            "action": "Observe the 'My Requests' dashboard without refreshing the page",
+            "expectedResult": "Within 5 seconds, the status indicator for the updated request automatically changes from 'Pending' to 'Approved' with updated color coding (real-time update)"
+          },
+          {
+            "step": 14,
+            "action": "Check for in-app notification indicator (bell icon or notification badge)",
+            "expectedResult": "Notification indicator shows a new notification count (e.g., red badge with number '1')"
+          },
+          {
+            "step": 15,
+            "action": "Click on the notification indicator to view notifications",
+            "expectedResult": "Notification panel opens displaying the status change notification: 'Your schedule change request [Request ID] has been Approved' with timestamp"
+          },
+          {
+            "step": 16,
+            "action": "Check the email inbox associated with the scheduler account (if email notifications are enabled)",
+            "expectedResult": "Email notification is received with subject line 'Schedule Change Request [Request ID] - Status Update' containing request details and new status"
+          },
+          {
+            "step": 17,
+            "action": "Click on the notification to navigate to the request details",
+            "expectedResult": "System navigates directly to the detailed view of the updated request showing the new 'Approved' status and updated approval history"
+          }
+        ],
+        "postconditions": [
+          "All submitted requests are visible on the dashboard",
+          "Status indicators accurately reflect current request states",
+          "Approval history and comments are accessible",
+          "Real-time status updates are functioning",
+          "Notifications are delivered successfully",
+          "Scheduler remains logged in",
+          "No unauthorized access to other users' requests"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify access restriction to own requests only",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Two scheduler user accounts exist: Scheduler A and Scheduler B",
+          "Scheduler A is logged into the system",
+          "Scheduler B has submitted at least one schedule change request",
+          "Scheduler B's request ID is known (e.g., SCR-20240115-0042)",
+          "Direct URL access to request details is possible via format: /requests/{requestId}",
+          "Role-based access control is implemented and active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in to the system as Scheduler A using valid credentials",
+            "expectedResult": "Scheduler A is authenticated and redirected to the dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to 'My Requests' dashboard",
+            "expectedResult": "Dashboard displays only the requests submitted by Scheduler A"
+          },
+          {
+            "step": 3,
+            "action": "Verify that Scheduler B's requests are not visible in the list",
+            "expectedResult": "Only Scheduler A's requests are displayed; no requests from other schedulers are shown"
+          },
+          {
+            "step": 4,
+            "action": "Note the URL format of one of Scheduler A's request detail pages (e.g., /requests/SCR-20240115-0035)",
+            "expectedResult": "URL format is identified and accessible for Scheduler A's own request"
+          },
+          {
+            "step": 5,
+            "action": "Manually modify the URL in the browser address bar to access Scheduler B's request by entering the known request ID (e.g., change URL to /requests/SCR-20240115-0042)",
+            "expectedResult": "URL is entered in the address bar"
+          },
+          {
+            "step": 6,
+            "action": "Press Enter to navigate to the modified URL",
+            "expectedResult": "System processes the request and performs authorization check"
+          },
+          {
+            "step": 7,
+            "action": "Observe the response from the system",
+            "expectedResult": "Access is denied and an error page is displayed with HTTP 403 Forbidden status or similar authorization error"
+          },
+          {
+            "step": 8,
+            "action": "Verify the error message displayed on the page",
+            "expectedResult": "Appropriate error message is shown: 'Access Denied - You do not have permission to view this request' or 'Error 403: Unauthorized access to this resource'"
+          },
+          {
+            "step": 9,
+            "action": "Check that no sensitive information from Scheduler B's request is visible on the error page",
+            "expectedResult": "Error page does not display any details of the unauthorized request (no data leakage)"
+          },
+          {
+            "step": 10,
+            "action": "Verify that the browser URL remains at the attempted unauthorized URL",
+            "expectedResult": "URL shows the attempted request ID but content is blocked"
+          },
+          {
+            "step": 11,
+            "action": "Click on 'Back to My Requests' link or navigate back using browser back button",
+            "expectedResult": "System redirects to Scheduler A's 'My Requests' dashboard showing only authorized requests"
+          },
+          {
+            "step": 12,
+            "action": "Check system logs or audit trail (if accessible) for the unauthorized access attempt",
+            "expectedResult": "Security event is logged with details: User ID (Scheduler A), Attempted Resource (Scheduler B's request ID), Timestamp, and Action (Access Denied)"
+          }
+        ],
+        "postconditions": [
+          "Scheduler A remains logged in",
+          "No unauthorized access to Scheduler B's request data occurred",
+          "Security event is logged in the audit trail",
+          "Scheduler A is returned to authorized area of the application",
+          "System security controls are validated as functioning correctly",
+          "No data breach or information leakage occurred"
+        ],
+        "estimatedTime": "4 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-17",
+    "storyTitle": "As Scheduler, I want to edit or withdraw pending schedule change requests to correct errors or cancel changes",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate editing of pending schedule change request",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one schedule change request exists with 'Pending' status",
+          "Scheduler is the owner of the pending request",
+          "Request has not been approved yet",
+          "System has PUT /api/schedule-change-requests/{id} endpoint available"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule change requests dashboard",
+            "expectedResult": "Dashboard displays list of all schedule change requests with their current statuses"
+          },
+          {
+            "step": 2,
+            "action": "Filter or locate a request with 'Pending' status",
+            "expectedResult": "Pending requests are visible and identifiable in the list"
+          },
+          {
+            "step": 3,
+            "action": "Click on the pending request to view details",
+            "expectedResult": "Request details page opens showing all current information including date, time, reason, and attachments with edit options enabled"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Edit' button or icon",
+            "expectedResult": "Request fields become editable and modification interface is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Modify request details such as schedule date, time, or reason text",
+            "expectedResult": "Changes are accepted in the input fields without validation errors"
+          },
+          {
+            "step": 6,
+            "action": "Remove an existing attachment from the request",
+            "expectedResult": "Attachment is removed from the request and interface updates to reflect removal"
+          },
+          {
+            "step": 7,
+            "action": "Add a new attachment to the request",
+            "expectedResult": "New attachment is uploaded successfully and appears in the attachments list"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Submit' or 'Save Changes' button",
+            "expectedResult": "System processes the update request and displays a confirmation message indicating successful update"
+          },
+          {
+            "step": 9,
+            "action": "Verify the confirmation message content",
+            "expectedResult": "Confirmation message states 'Request updated successfully' and indicates that approvers have been notified"
+          },
+          {
+            "step": 10,
+            "action": "Check the request details page after update",
+            "expectedResult": "Updated information is displayed correctly with all modifications saved"
+          },
+          {
+            "step": 11,
+            "action": "Verify notification was sent to assigned approvers",
+            "expectedResult": "Approvers receive notification about the request modification with details of changes made"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request is updated with new details",
+          "Request status remains 'Pending'",
+          "All changes are logged in the audit trail",
+          "Approvers are notified of the modifications",
+          "Modified timestamp is updated on the request"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify withdrawal of pending request with reason",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one schedule change request exists with 'Pending' status",
+          "Scheduler is the owner of the pending request",
+          "Request has not been approved or withdrawn yet",
+          "Approvers are assigned to the request"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule change requests dashboard",
+            "expectedResult": "Dashboard displays list of schedule change requests"
+          },
+          {
+            "step": 2,
+            "action": "Locate and select a pending request to withdraw",
+            "expectedResult": "Request details are displayed with available actions"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Withdraw' button or option",
+            "expectedResult": "Withdrawal confirmation dialog appears on screen"
+          },
+          {
+            "step": 4,
+            "action": "Verify the withdrawal dialog content",
+            "expectedResult": "Dialog displays request summary, warning message about withdrawal action, and a required reason field"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to confirm withdrawal without providing a reason",
+            "expectedResult": "System displays validation error indicating that withdrawal reason is required"
+          },
+          {
+            "step": 6,
+            "action": "Enter a valid withdrawal reason in the text field (e.g., 'Schedule conflict resolved, request no longer needed')",
+            "expectedResult": "Reason text is accepted and validation error clears"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Confirm Withdrawal' button",
+            "expectedResult": "System processes the withdrawal and displays success confirmation message"
+          },
+          {
+            "step": 8,
+            "action": "Verify the confirmation message",
+            "expectedResult": "Message confirms 'Request withdrawn successfully' and indicates approvers have been notified"
+          },
+          {
+            "step": 9,
+            "action": "Check the request status in the dashboard",
+            "expectedResult": "Request status is updated to 'Withdrawn' and is no longer in pending list"
+          },
+          {
+            "step": 10,
+            "action": "Open the withdrawn request details",
+            "expectedResult": "Request shows 'Withdrawn' status, displays the withdrawal reason, and shows timestamp of withdrawal"
+          },
+          {
+            "step": 11,
+            "action": "Verify approvers received withdrawal notification",
+            "expectedResult": "Assigned approvers receive notification about request withdrawal including the reason provided"
+          }
+        ],
+        "postconditions": [
+          "Request status is changed to 'Withdrawn'",
+          "Withdrawal reason is stored with the request",
+          "Approvers are notified of the withdrawal",
+          "Withdrawal action is logged in audit trail",
+          "Request is no longer actionable by approvers"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Test prevention of edits after approval",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one schedule change request exists with 'Approved' status",
+          "Scheduler is the owner of the approved request",
+          "Request was previously in pending status and has been approved by an approver"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule change requests dashboard",
+            "expectedResult": "Dashboard displays list of all schedule change requests including approved ones"
+          },
+          {
+            "step": 2,
+            "action": "Filter or locate a request with 'Approved' status",
+            "expectedResult": "Approved request is visible in the list with 'Approved' status indicator"
+          },
+          {
+            "step": 3,
+            "action": "Click on the approved request to view details",
+            "expectedResult": "Request details page opens showing all information in read-only mode"
+          },
+          {
+            "step": 4,
+            "action": "Verify the availability of edit controls",
+            "expectedResult": "Edit button is either disabled, hidden, or not present on the approved request"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to click the edit button if visible but disabled",
+            "expectedResult": "No action occurs or tooltip displays message indicating editing is not allowed for approved requests"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to directly access the edit endpoint via URL manipulation (e.g., /edit?id=approved-request-id)",
+            "expectedResult": "System redirects to request details page or displays error message"
+          },
+          {
+            "step": 7,
+            "action": "Verify the error message content",
+            "expectedResult": "Error message clearly states 'Cannot edit approved requests' or 'Editing is not allowed for requests that have been approved'"
+          },
+          {
+            "step": 8,
+            "action": "Attempt to withdraw the approved request",
+            "expectedResult": "Withdraw option is either disabled, hidden, or displays error message preventing withdrawal"
+          },
+          {
+            "step": 9,
+            "action": "Verify withdrawal prevention message if applicable",
+            "expectedResult": "System displays message 'Cannot withdraw approved requests' or similar appropriate error"
+          },
+          {
+            "step": 10,
+            "action": "Attempt to modify request via API call using PUT /api/schedule-change-requests/{approved-id}",
+            "expectedResult": "API returns error response with status code 403 or 400 and error message indicating operation not permitted on approved requests"
+          }
+        ],
+        "postconditions": [
+          "Approved request remains unchanged",
+          "Request status remains 'Approved'",
+          "No modifications are saved to the database",
+          "Attempt to edit is logged in audit trail as unauthorized action",
+          "User receives clear feedback about why edit was prevented"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  }
+]
