@@ -1,0 +1,473 @@
+[
+  {
+    "storyId": "story-13",
+    "storyTitle": "As Scheduler, I want to receive real-time alerts for scheduling conflicts to take immediate corrective action",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify real-time alert delivery within 5 seconds",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged into the system as a Scheduler",
+          "User has valid alert preferences configured",
+          "Conflict detection service is running and operational",
+          "At least one notification channel is enabled for the user",
+          "System time is synchronized and accurate"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Trigger a scheduling conflict by creating overlapping resource assignments or double-booking a time slot",
+            "expectedResult": "System detects the conflict and conflict detection service identifies the issue"
+          },
+          {
+            "step": 2,
+            "action": "Start a timer and observe alert delivery to user via configured channels (in-app, email, or SMS)",
+            "expectedResult": "Alert is received within 5 seconds of conflict detection via the user's configured notification channels"
+          },
+          {
+            "step": 3,
+            "action": "Navigate to the alert log section and check for the timestamp and delivery status of the triggered alert",
+            "expectedResult": "Alert is logged with correct timestamp, conflict details, delivery status marked as 'Delivered', and associated user information"
+          }
+        ],
+        "postconditions": [
+          "Alert is successfully delivered and logged in the system",
+          "Alert log contains complete audit trail with timestamp",
+          "Conflict remains in the system awaiting resolution",
+          "User notification channels show the alert message"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Test user alert preference configuration",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged into the system as a Scheduler",
+          "User has access to alert preference settings",
+          "Multiple notification channels are available (in-app, email, SMS)",
+          "User profile exists in the system",
+          "Email service is configured and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to user alert preferences settings page and update alert preferences to receive email only by unchecking other channels",
+            "expectedResult": "Preferences are saved successfully with confirmation message displayed, and only email channel is selected"
+          },
+          {
+            "step": 2,
+            "action": "Trigger a scheduling conflict by creating a resource conflict or time slot overlap",
+            "expectedResult": "User receives alert via email only, with no notifications sent to in-app or SMS channels"
+          }
+        ],
+        "postconditions": [
+          "User alert preferences are persisted in the database",
+          "Only email channel is active for future alerts",
+          "Alert is delivered exclusively via email",
+          "No alerts sent to disabled channels (in-app, SMS)"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Validate alert escalation after unresolved conflict",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged into the system as a Scheduler",
+          "Escalation settings are configured with specific time period",
+          "Designated escalation users are defined in the system",
+          "Conflict detection and alert services are operational",
+          "Initial alert delivery channels are configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Trigger a scheduling conflict and verify that the initial alert is sent to the primary scheduler",
+            "expectedResult": "Initial alert is delivered successfully to the scheduler via configured channels with conflict details"
+          },
+          {
+            "step": 2,
+            "action": "Wait for the configured escalation period to elapse without acknowledging or resolving the conflict",
+            "expectedResult": "System automatically sends escalation alert to designated users (supervisors/managers) after the configured time period expires, with escalation flag and original conflict details included"
+          }
+        ],
+        "postconditions": [
+          "Escalation alert is logged in the system with escalation timestamp",
+          "Designated escalation users receive the alert",
+          "Original conflict remains unresolved and flagged as escalated",
+          "Alert audit trail shows both initial and escalation alerts"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-14",
+    "storyTitle": "As Scheduler, I want to configure my alert preferences to receive notifications via preferred channels",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Save and apply alert preferences",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged into the system as a Scheduler",
+          "User has access to alert preference settings page",
+          "Email and SMS notification services are configured and operational",
+          "User has valid email address and phone number in profile",
+          "Alert preference API endpoints are accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the alert preference settings page from user profile or settings menu",
+            "expectedResult": "Alert preference settings UI is displayed showing all available notification channels (in-app, email, SMS) and frequency options"
+          },
+          {
+            "step": 2,
+            "action": "Select email and SMS as alert channels by checking the respective checkboxes and set frequency to 'immediate' from the dropdown menu, then click Save button",
+            "expectedResult": "Preferences are saved successfully with a confirmation message displayed, and the selected channels (email and SMS) and frequency (immediate) are persisted"
+          },
+          {
+            "step": 3,
+            "action": "Trigger a scheduling conflict by creating overlapping schedules or resource conflicts",
+            "expectedResult": "Alerts are received via both email and SMS channels as configured, with immediate delivery and no alerts sent to in-app channel"
+          }
+        ],
+        "postconditions": [
+          "User preferences are saved in the user profile database",
+          "Email and SMS channels are active for the user",
+          "In-app notifications are disabled",
+          "Future alerts will follow the configured preferences",
+          "Preference changes are effective immediately"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Validate input for alert preferences",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged into the system as a Scheduler",
+          "User has access to alert preference settings page",
+          "Input validation rules are configured in the system",
+          "Alert preference form is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Enter invalid channel values (e.g., unsupported channel type) or invalid frequency values (e.g., negative numbers, non-numeric values) in the alert preference form",
+            "expectedResult": "Validation errors are displayed next to the invalid fields with clear error messages, and the Save button is disabled or save action is prevented"
+          },
+          {
+            "step": 2,
+            "action": "Correct the inputs by selecting valid channels from the available options and choosing a valid frequency value, then click Save button",
+            "expectedResult": "Preferences are saved successfully with confirmation message, validation errors are cleared, and the valid preferences are persisted in the system"
+          }
+        ],
+        "postconditions": [
+          "Invalid preferences are not saved to the database",
+          "Valid preferences are successfully persisted",
+          "User receives confirmation of successful save",
+          "System maintains data integrity with validated inputs only"
+        ],
+        "estimatedTime": "5 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-16",
+    "storyTitle": "As Scheduler, I want to receive escalation alerts for unresolved scheduling conflicts to ensure timely resolution",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Trigger escalation alert after unresolved conflict threshold",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Escalation time threshold is configured in system settings (e.g., 30 minutes)",
+          "Designated escalation recipients are configured in the system",
+          "Alert notification system is operational",
+          "At least one scheduling conflict exists in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Create a scheduling conflict in the system by overlapping two resource bookings",
+            "expectedResult": "Scheduling conflict is detected and created in the system"
+          },
+          {
+            "step": 2,
+            "action": "Verify that initial alert is sent to the primary scheduler",
+            "expectedResult": "Initial alert is delivered successfully to the primary scheduler with conflict details, timestamp, and alert ID"
+          },
+          {
+            "step": 3,
+            "action": "Monitor the conflict status and wait for the configured escalation time threshold to pass without resolving the conflict",
+            "expectedResult": "System tracks the elapsed time since initial alert was sent and conflict remains in unresolved status"
+          },
+          {
+            "step": 4,
+            "action": "Verify that escalation alert is automatically triggered after the threshold time has elapsed",
+            "expectedResult": "Escalation alert is sent to all designated escalation recipients with conflict details, original alert timestamp, and escalation reason"
+          },
+          {
+            "step": 5,
+            "action": "Check that escalation recipients receive the alert through configured notification channels",
+            "expectedResult": "All designated escalation recipients receive the escalation alert with complete conflict information and escalation context"
+          },
+          {
+            "step": 6,
+            "action": "Have each escalation recipient acknowledge the escalation alert through the system interface",
+            "expectedResult": "System accepts acknowledgment from each recipient and displays confirmation message"
+          },
+          {
+            "step": 7,
+            "action": "Verify that all acknowledgments are logged in the system with recipient details and timestamps",
+            "expectedResult": "Acknowledgment log entries are created with user ID, timestamp, alert ID, and acknowledgment status for each recipient"
+          }
+        ],
+        "postconditions": [
+          "Escalation alert is marked as acknowledged in the system",
+          "All escalation events are logged in audit trail",
+          "Conflict remains in system until manually resolved",
+          "Escalation notification history is available for review"
+        ],
+        "estimatedTime": "45 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Validate secure delivery of escalation alerts",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User authentication system is operational",
+          "SSL/TLS encryption is enabled for alert delivery",
+          "Escalation alert system is configured and active",
+          "Test user accounts with and without proper authorization exist",
+          "At least one escalation alert is ready to be sent"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Trigger an escalation alert from an unresolved conflict",
+            "expectedResult": "Escalation alert is generated and queued for delivery"
+          },
+          {
+            "step": 2,
+            "action": "Monitor the alert delivery process and verify encryption protocol is used",
+            "expectedResult": "Alert is delivered using secure HTTPS/TLS protocol with valid SSL certificate"
+          },
+          {
+            "step": 3,
+            "action": "Verify that recipient authentication is required before alert content is displayed",
+            "expectedResult": "System prompts for authentication credentials before showing escalation alert details"
+          },
+          {
+            "step": 4,
+            "action": "Log in as authorized escalation recipient and access the escalation alert",
+            "expectedResult": "Alert is delivered securely and displayed with all details intact, authentication token is validated"
+          },
+          {
+            "step": 5,
+            "action": "Log out and attempt to access the escalation alert URL directly without authentication",
+            "expectedResult": "Access is denied with 401 Unauthorized error, user is redirected to login page"
+          },
+          {
+            "step": 6,
+            "action": "Log in as a user without escalation recipient privileges and attempt to access escalation alerts",
+            "expectedResult": "Access is denied with 403 Forbidden error, appropriate error message is displayed indicating insufficient permissions"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to intercept or access escalation alert data through API without proper authentication token",
+            "expectedResult": "API request is rejected with authentication error, no alert data is exposed"
+          },
+          {
+            "step": 8,
+            "action": "Verify that all unauthorized access attempts are logged in security audit trail",
+            "expectedResult": "Security log entries are created with timestamp, attempted user/IP, resource accessed, and denial reason"
+          }
+        ],
+        "postconditions": [
+          "Escalation alert remains secure and accessible only to authorized recipients",
+          "All unauthorized access attempts are logged",
+          "System security integrity is maintained",
+          "No sensitive data is exposed to unauthorized users"
+        ],
+        "estimatedTime": "30 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-21",
+    "storyTitle": "As Scheduler, I want the system to log all alerts and user acknowledgments for audit and compliance",
+    "testCases": [
+      {
+        "id": "tc-003",
+        "title": "Verify alert and acknowledgment logging",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Audit logging system is enabled and operational",
+          "Database has sufficient storage for log entries",
+          "At least one user with alert recipient privileges exists",
+          "User has authorization to access audit logs",
+          "System time synchronization is accurate"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Create a scheduling conflict that triggers an alert to be sent to a specific user",
+            "expectedResult": "Alert is generated and queued for delivery to the designated recipient"
+          },
+          {
+            "step": 2,
+            "action": "Send the alert to the target user through the alert notification system",
+            "expectedResult": "Alert is successfully delivered to the user via configured notification channel"
+          },
+          {
+            "step": 3,
+            "action": "Query the audit logs to verify the alert event was logged",
+            "expectedResult": "Alert log entry exists with complete details including alert ID, timestamp, recipient user ID, alert type, conflict details, and delivery status"
+          },
+          {
+            "step": 4,
+            "action": "Verify that the logged timestamp matches the actual alert send time within acceptable tolerance",
+            "expectedResult": "Timestamp in log is accurate within 1 second of actual send time"
+          },
+          {
+            "step": 5,
+            "action": "Log in as the alert recipient user and view the received alert",
+            "expectedResult": "Alert is displayed in user's notification inbox with all details"
+          },
+          {
+            "step": 6,
+            "action": "Have the user acknowledge the alert by clicking the acknowledge button",
+            "expectedResult": "System processes acknowledgment and displays confirmation message to user"
+          },
+          {
+            "step": 7,
+            "action": "Query the audit logs to verify the acknowledgment event was logged",
+            "expectedResult": "Acknowledgment log entry exists with user ID, timestamp, alert ID, and acknowledgment action"
+          },
+          {
+            "step": 8,
+            "action": "Verify that the acknowledgment timestamp is accurate and matches the actual acknowledgment time",
+            "expectedResult": "Acknowledgment timestamp in log is accurate within 1 second of actual acknowledgment time"
+          },
+          {
+            "step": 9,
+            "action": "Log in as an authorized user with audit access privileges",
+            "expectedResult": "User successfully authenticates and gains access to audit log interface"
+          },
+          {
+            "step": 10,
+            "action": "Access the audit logs through the system interface using GET /alerts/logs endpoint",
+            "expectedResult": "Audit log interface loads successfully"
+          },
+          {
+            "step": 11,
+            "action": "Query for the specific alert and acknowledgment log entries created in previous steps",
+            "expectedResult": "Both alert and acknowledgment log entries are displayed accurately with all details intact"
+          },
+          {
+            "step": 12,
+            "action": "Measure the response time for the audit log query",
+            "expectedResult": "Audit logs are retrieved and displayed within 2 seconds"
+          },
+          {
+            "step": 13,
+            "action": "Verify that log entries contain all required fields: event type, timestamp, user ID, alert ID, action details, and status",
+            "expectedResult": "All required fields are present and populated with correct data for both alert and acknowledgment entries"
+          }
+        ],
+        "postconditions": [
+          "Alert event is permanently logged in audit database",
+          "Acknowledgment event is permanently logged in audit database",
+          "Audit trail is complete and accurate for compliance review",
+          "Log entries are timestamped and attributed to correct users",
+          "Audit logs remain accessible for future queries"
+        ],
+        "estimatedTime": "25 mins"
+      },
+      {
+        "id": "tc-004",
+        "title": "Validate audit log security",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Audit logging system is operational",
+          "Role-based access control is configured and enforced",
+          "Test user accounts exist with different permission levels",
+          "At least one user without audit log access authorization exists",
+          "Audit logs contain test data entries",
+          "Encryption is enabled for audit log storage"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as a user without audit log access privileges (e.g., basic scheduler role without audit permissions)",
+            "expectedResult": "User successfully authenticates but has limited role permissions"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to the audit logs interface through the application menu",
+            "expectedResult": "Audit logs menu option is not visible or is disabled for this user role"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to directly access the audit logs URL by typing the path in browser",
+            "expectedResult": "Access is denied with 403 Forbidden error, user is shown an error message indicating insufficient permissions"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to access audit logs via API endpoint GET /alerts/logs without proper authorization token",
+            "expectedResult": "API returns 401 Unauthorized error with appropriate error message, no log data is returned"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to access audit logs via API with valid authentication but insufficient role permissions",
+            "expectedResult": "API returns 403 Forbidden error indicating user lacks required permissions, no log data is exposed"
+          },
+          {
+            "step": 6,
+            "action": "Verify that the unauthorized access attempt is logged in the security audit trail",
+            "expectedResult": "Security log entry is created with timestamp, user ID, attempted resource, and access denial reason"
+          },
+          {
+            "step": 7,
+            "action": "Log in as an authorized administrator and verify audit log data is encrypted at rest",
+            "expectedResult": "Database inspection shows audit log data is stored in encrypted format"
+          },
+          {
+            "step": 8,
+            "action": "Attempt to modify an existing audit log entry through the database or API",
+            "expectedResult": "Modification attempt is blocked, audit logs are immutable and tamper-proof"
+          },
+          {
+            "step": 9,
+            "action": "Verify that audit log integrity checks are in place (checksums or digital signatures)",
+            "expectedResult": "Each log entry has integrity verification mechanism that would detect any tampering"
+          }
+        ],
+        "postconditions": [
+          "Audit logs remain secure and inaccessible to unauthorized users",
+          "All unauthorized access attempts are logged",
+          "Audit log data integrity is maintained",
+          "No sensitive audit information is exposed",
+          "System security posture is verified and compliant"
+        ],
+        "estimatedTime": "20 mins"
+      }
+    ]
+  }
+]
