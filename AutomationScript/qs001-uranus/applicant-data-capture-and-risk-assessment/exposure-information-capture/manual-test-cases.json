@@ -1,0 +1,617 @@
+[
+  {
+    "storyId": "story-3",
+    "storyTitle": "As Exposure Data Specialist, I want to input property exposure details to achieve comprehensive exposure capture",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful property exposure data submission",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated and authorized as Exposure Data Specialist",
+          "Property exposure data entry form is accessible",
+          "Valid supporting documents are prepared (PDF, JPG, PNG format, under size limit)",
+          "Database connection is active and PropertyExposure table is available"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to property exposure data entry form",
+            "expectedResult": "Form is displayed with all mandatory fields including property type, location, value, usage, and document attachment section clearly visible"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid property type (e.g., Commercial Building)",
+            "expectedResult": "Property type is accepted and no validation error is displayed"
+          },
+          {
+            "step": 3,
+            "action": "Enter valid location details (e.g., 123 Main Street, New York, NY 10001)",
+            "expectedResult": "Location details are accepted and no validation error is displayed"
+          },
+          {
+            "step": 4,
+            "action": "Enter valid property value (e.g., 1500000)",
+            "expectedResult": "Property value is accepted, formatted correctly, and no validation error is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Enter valid property usage (e.g., Office Space)",
+            "expectedResult": "Property usage is accepted and no validation error is displayed"
+          },
+          {
+            "step": 6,
+            "action": "Click on document attachment button and select valid supporting documents (PDF file, 2MB)",
+            "expectedResult": "Document is uploaded successfully and file name is displayed in the attachment section"
+          },
+          {
+            "step": 7,
+            "action": "Review all entered data for accuracy",
+            "expectedResult": "All entered data is displayed correctly in the form fields"
+          },
+          {
+            "step": 8,
+            "action": "Click the Submit button",
+            "expectedResult": "Form is submitted successfully, confirmation message is displayed, and response time is under 2 seconds"
+          },
+          {
+            "step": 9,
+            "action": "Verify the confirmation message details",
+            "expectedResult": "Confirmation message displays submission success with reference number or timestamp"
+          }
+        ],
+        "postconditions": [
+          "Property exposure data is saved in PropertyExposure table",
+          "Supporting documents are stored securely",
+          "User receives confirmation of successful submission",
+          "Data is available for review and further processing"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify rejection of submission with invalid exposure data",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated and authorized as Exposure Data Specialist",
+          "Property exposure data entry form is accessible",
+          "Validation rules are configured for mandatory fields and numeric ranges"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to property exposure data entry form",
+            "expectedResult": "Form is displayed with all mandatory fields marked appropriately"
+          },
+          {
+            "step": 2,
+            "action": "Leave property type field empty",
+            "expectedResult": "Field remains empty without immediate error (validation on blur or submit)"
+          },
+          {
+            "step": 3,
+            "action": "Enter invalid numeric value in property value field (e.g., -50000 or alphabetic characters)",
+            "expectedResult": "Inline validation error is displayed indicating invalid numeric value or out of range"
+          },
+          {
+            "step": 4,
+            "action": "Leave location field empty",
+            "expectedResult": "Field remains empty without immediate error"
+          },
+          {
+            "step": 5,
+            "action": "Enter property value exceeding maximum allowed range (e.g., 999999999999)",
+            "expectedResult": "Inline validation error is displayed indicating value exceeds maximum limit"
+          },
+          {
+            "step": 6,
+            "action": "Click the Submit button",
+            "expectedResult": "Submission is blocked and form remains on the same page"
+          },
+          {
+            "step": 7,
+            "action": "Verify error messages displayed on the form",
+            "expectedResult": "Clear error messages are shown for each invalid or empty mandatory field, including property type, location, and property value"
+          },
+          {
+            "step": 8,
+            "action": "Verify that no data is saved to the database",
+            "expectedResult": "No new record is created in PropertyExposure table"
+          }
+        ],
+        "postconditions": [
+          "Form remains in edit mode with validation errors displayed",
+          "No data is saved to the database",
+          "User can correct errors and resubmit",
+          "System maintains data integrity"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Test document attachment restrictions",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated and authorized as Exposure Data Specialist",
+          "Property exposure data entry form is accessible",
+          "Test files are prepared: oversized file (>10MB), unsupported format (.exe, .zip), and valid files (PDF, JPG, PNG under size limit)",
+          "File type and size restrictions are configured in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to property exposure data entry form",
+            "expectedResult": "Form is displayed with document attachment section visible"
+          },
+          {
+            "step": 2,
+            "action": "Click on document attachment button and select a file exceeding size limit (e.g., 15MB PDF)",
+            "expectedResult": "System rejects the file and displays error message indicating file size exceeds maximum allowed limit"
+          },
+          {
+            "step": 3,
+            "action": "Verify the file is not added to the attachment list",
+            "expectedResult": "File is not displayed in the attachment section and no upload progress is shown"
+          },
+          {
+            "step": 4,
+            "action": "Click on document attachment button and select an unsupported file format (e.g., .exe file)",
+            "expectedResult": "System rejects the file and displays error message indicating unsupported file format"
+          },
+          {
+            "step": 5,
+            "action": "Verify the unsupported file is not added to the attachment list",
+            "expectedResult": "File is not displayed in the attachment section"
+          },
+          {
+            "step": 6,
+            "action": "Click on document attachment button and select a valid file (e.g., 2MB PDF)",
+            "expectedResult": "File is accepted and upload progress is displayed"
+          },
+          {
+            "step": 7,
+            "action": "Verify the valid file appears in the attachment list",
+            "expectedResult": "File name and size are displayed in the attachment section with option to remove"
+          },
+          {
+            "step": 8,
+            "action": "Fill in all mandatory property exposure fields with valid data",
+            "expectedResult": "All fields are populated without validation errors"
+          },
+          {
+            "step": 9,
+            "action": "Click the Submit button",
+            "expectedResult": "Form is submitted successfully with confirmation message displayed"
+          },
+          {
+            "step": 10,
+            "action": "Verify the valid file is saved with the property exposure data",
+            "expectedResult": "Confirmation indicates both data and attachment were saved successfully"
+          }
+        ],
+        "postconditions": [
+          "Only valid files within size and format restrictions are saved",
+          "Invalid files are rejected with appropriate error messages",
+          "Property exposure data with valid attachments is stored in the database",
+          "System maintains file upload security and integrity"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-6",
+    "storyTitle": "As Exposure Data Specialist, I want to review and update exposure information to achieve data completeness and accuracy",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate successful exposure data update",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated and authorized as Exposure Data Specialist",
+          "Existing exposure data record is available in ExposureInformation table",
+          "Exposure data edit form is accessible",
+          "User has permission to update exposure data"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to exposure data review page",
+            "expectedResult": "Exposure data review page is displayed with list of existing exposure records"
+          },
+          {
+            "step": 2,
+            "action": "Select an existing exposure record to edit",
+            "expectedResult": "Exposure data edit form is displayed with all existing data pre-populated in the respective fields"
+          },
+          {
+            "step": 3,
+            "action": "Verify all existing data is correctly displayed in the form",
+            "expectedResult": "All fields show current values including property type, location, value, and usage"
+          },
+          {
+            "step": 4,
+            "action": "Modify property value field with valid updated value (e.g., change from 1500000 to 1750000)",
+            "expectedResult": "Updated value is accepted and no validation error is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Modify property usage field with valid updated information (e.g., change from Office Space to Mixed Use)",
+            "expectedResult": "Updated usage is accepted and no validation error is displayed"
+          },
+          {
+            "step": 6,
+            "action": "Review all modified fields for accuracy",
+            "expectedResult": "All updated data is displayed correctly in the form fields"
+          },
+          {
+            "step": 7,
+            "action": "Click the Save or Update button",
+            "expectedResult": "Form is submitted successfully and response time is under 2 seconds"
+          },
+          {
+            "step": 8,
+            "action": "Verify confirmation message is displayed",
+            "expectedResult": "Success confirmation message is displayed indicating exposure data has been updated successfully"
+          },
+          {
+            "step": 9,
+            "action": "Navigate back to exposure data review page and locate the updated record",
+            "expectedResult": "Updated record is displayed with the new values for property value and usage"
+          }
+        ],
+        "postconditions": [
+          "Exposure data is updated in ExposureInformation table",
+          "Audit log entry is created with update details",
+          "Updated data is available for review and further processing",
+          "User receives confirmation of successful update"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify rejection of update with invalid exposure data",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated and authorized as Exposure Data Specialist",
+          "Existing exposure data record is available in ExposureInformation table",
+          "Exposure data edit form is accessible",
+          "Validation rules are configured for mandatory fields and numeric ranges"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to exposure data review page",
+            "expectedResult": "Exposure data review page is displayed with list of existing exposure records"
+          },
+          {
+            "step": 2,
+            "action": "Select an existing exposure record to edit",
+            "expectedResult": "Exposure data edit form is displayed with all existing data pre-populated"
+          },
+          {
+            "step": 3,
+            "action": "Clear the mandatory property type field",
+            "expectedResult": "Field becomes empty and may show inline validation error on blur"
+          },
+          {
+            "step": 4,
+            "action": "Enter invalid numeric value in property value field (e.g., -100000 or text characters)",
+            "expectedResult": "Inline validation error is displayed indicating invalid numeric value"
+          },
+          {
+            "step": 5,
+            "action": "Clear the mandatory location field",
+            "expectedResult": "Field becomes empty and may show inline validation error on blur"
+          },
+          {
+            "step": 6,
+            "action": "Click the Save or Update button",
+            "expectedResult": "Save operation is blocked and form remains in edit mode"
+          },
+          {
+            "step": 7,
+            "action": "Verify error messages are displayed for all invalid fields",
+            "expectedResult": "Clear error messages are shown for property type (required), property value (invalid), and location (required)"
+          },
+          {
+            "step": 8,
+            "action": "Verify no changes are saved to the database",
+            "expectedResult": "Original data remains unchanged in ExposureInformation table"
+          },
+          {
+            "step": 9,
+            "action": "Navigate back to exposure data review page and verify the record",
+            "expectedResult": "Record displays original values without any updates"
+          }
+        ],
+        "postconditions": [
+          "Form remains in edit mode with validation errors displayed",
+          "No data is updated in the database",
+          "Original exposure data remains intact",
+          "User can correct errors and attempt to save again"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Check audit log creation after successful exposure update",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "User is authenticated and authorized as Exposure Data Specialist",
+          "Existing exposure data record is available in ExposureInformation table",
+          "Audit logging is enabled and functional",
+          "User has permission to view audit logs"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to exposure data review page",
+            "expectedResult": "Exposure data review page is displayed with list of existing exposure records"
+          },
+          {
+            "step": 2,
+            "action": "Select an existing exposure record to edit and note the current values",
+            "expectedResult": "Exposure data edit form is displayed with existing data pre-populated"
+          },
+          {
+            "step": 3,
+            "action": "Modify property value field with valid updated value (e.g., change from 1500000 to 1800000)",
+            "expectedResult": "Updated value is accepted without validation errors"
+          },
+          {
+            "step": 4,
+            "action": "Modify property usage field with valid updated information",
+            "expectedResult": "Updated usage is accepted without validation errors"
+          },
+          {
+            "step": 5,
+            "action": "Click the Save or Update button",
+            "expectedResult": "Update is processed successfully and confirmation message is displayed"
+          },
+          {
+            "step": 6,
+            "action": "Note the timestamp and confirmation details of the update",
+            "expectedResult": "Confirmation message includes timestamp or reference number for the update"
+          },
+          {
+            "step": 7,
+            "action": "Navigate to audit logs section or access audit logs for the updated exposure record",
+            "expectedResult": "Audit logs interface is displayed with search or filter options"
+          },
+          {
+            "step": 8,
+            "action": "Search for audit log entries related to the updated exposure record using record ID or timestamp",
+            "expectedResult": "Audit log entry for the update is displayed in the results"
+          },
+          {
+            "step": 9,
+            "action": "Verify audit log entry contains update details",
+            "expectedResult": "Audit log shows user ID, timestamp, record ID, fields modified (property value, property usage), old values, and new values"
+          },
+          {
+            "step": 10,
+            "action": "Verify the audit log timestamp matches the update confirmation timestamp",
+            "expectedResult": "Timestamps are consistent and accurately reflect when the update occurred"
+          }
+        ],
+        "postconditions": [
+          "Exposure data is successfully updated in ExposureInformation table",
+          "Complete audit log entry exists with all change details",
+          "Audit trail is maintained for compliance and tracking",
+          "Audit log is accessible for future reference and reporting"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-9",
+    "storyTitle": "As Exposure Data Specialist, I want to validate exposure data inputs to achieve data accuracy and compliance",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate acceptance of correct exposure data inputs",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Exposure Data Specialist",
+          "User has access to exposure data entry form",
+          "ExposureInformation tables are accessible",
+          "API endpoint POST /api/applicants/exposures is available",
+          "User has valid applicant record to attach exposure data"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the exposure data entry form",
+            "expectedResult": "Exposure data entry form is displayed with all mandatory fields visible"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid exposure type from the dropdown list",
+            "expectedResult": "Exposure type is selected and no validation error is displayed"
+          },
+          {
+            "step": 3,
+            "action": "Enter valid numeric value in the exposure amount field (e.g., 50000)",
+            "expectedResult": "Numeric value is accepted and no validation error is displayed"
+          },
+          {
+            "step": 4,
+            "action": "Enter valid date in the exposure date field",
+            "expectedResult": "Date is accepted in correct format and no validation error is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Fill in all remaining mandatory exposure fields with valid data",
+            "expectedResult": "All fields accept valid data and no validation errors are displayed anywhere on the form"
+          },
+          {
+            "step": 6,
+            "action": "Click the Submit button",
+            "expectedResult": "Form submission is processed successfully with confirmation message displayed"
+          },
+          {
+            "step": 7,
+            "action": "Verify the exposure data is saved in the system",
+            "expectedResult": "Data is saved successfully and can be retrieved from ExposureInformation tables"
+          }
+        ],
+        "postconditions": [
+          "Exposure data is stored in ExposureInformation tables",
+          "Success confirmation message is displayed to user",
+          "Form is cleared or redirected to confirmation page",
+          "Audit log records the data entry action"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify rejection of invalid exposure data inputs",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Exposure Data Specialist",
+          "User has access to exposure data entry form",
+          "Validation rules are configured for mandatory fields and numeric ranges",
+          "API endpoint POST /api/applicants/exposures is available",
+          "Real-time validation is enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the exposure data entry form",
+            "expectedResult": "Exposure data entry form is displayed with all fields empty"
+          },
+          {
+            "step": 2,
+            "action": "Leave the mandatory exposure type field empty and move to next field",
+            "expectedResult": "Inline validation error message is displayed indicating exposure type is required"
+          },
+          {
+            "step": 3,
+            "action": "Enter alphabetic characters (e.g., 'ABC') in the numeric exposure amount field",
+            "expectedResult": "Inline validation error message is displayed indicating numeric value is required"
+          },
+          {
+            "step": 4,
+            "action": "Enter a numeric value outside the acceptable range (e.g., -1000 or exceeding maximum limit)",
+            "expectedResult": "Inline validation error message is displayed indicating value must be within acceptable range"
+          },
+          {
+            "step": 5,
+            "action": "Leave other mandatory fields empty",
+            "expectedResult": "Inline validation error messages are displayed for each empty mandatory field"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to click the Submit button with validation errors present",
+            "expectedResult": "Form submission is blocked and error summary message is displayed indicating all errors must be corrected"
+          },
+          {
+            "step": 7,
+            "action": "Correct all validation errors by entering valid data in all fields",
+            "expectedResult": "All inline error messages disappear and Submit button becomes enabled"
+          },
+          {
+            "step": 8,
+            "action": "Click the Submit button after correcting all errors",
+            "expectedResult": "Form is submitted successfully and confirmation message is displayed"
+          }
+        ],
+        "postconditions": [
+          "Invalid data is not saved to ExposureInformation tables",
+          "User is informed of all validation errors",
+          "Form remains on screen with user-entered data until errors are corrected",
+          "After correction, valid data is saved successfully"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Test validation for multiple exposure types",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Exposure Data Specialist",
+          "User has access to exposure data entry form",
+          "Multiple exposure types are configured in the system (e.g., Property, Liability, Auto, Workers Compensation)",
+          "Validation rules are defined for each exposure type",
+          "API endpoint POST /api/applicants/exposures is available"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the exposure data entry form",
+            "expectedResult": "Exposure data entry form is displayed with exposure type dropdown available"
+          },
+          {
+            "step": 2,
+            "action": "Select 'Property' exposure type from the dropdown",
+            "expectedResult": "Property exposure type is selected and relevant fields for property exposure are displayed"
+          },
+          {
+            "step": 3,
+            "action": "Enter valid data for all mandatory property exposure fields",
+            "expectedResult": "All property exposure fields accept valid data with no validation errors displayed"
+          },
+          {
+            "step": 4,
+            "action": "Click Submit button",
+            "expectedResult": "Property exposure data is saved successfully with confirmation message"
+          },
+          {
+            "step": 5,
+            "action": "Navigate back to exposure data entry form and select 'Liability' exposure type",
+            "expectedResult": "Liability exposure type is selected and relevant fields for liability exposure are displayed"
+          },
+          {
+            "step": 6,
+            "action": "Enter valid data for all mandatory liability exposure fields",
+            "expectedResult": "All liability exposure fields accept valid data with no validation errors displayed"
+          },
+          {
+            "step": 7,
+            "action": "Click Submit button",
+            "expectedResult": "Liability exposure data is saved successfully with confirmation message"
+          },
+          {
+            "step": 8,
+            "action": "Navigate back to exposure data entry form and select 'Auto' exposure type",
+            "expectedResult": "Auto exposure type is selected and relevant fields for auto exposure are displayed"
+          },
+          {
+            "step": 9,
+            "action": "Enter valid data for all mandatory auto exposure fields",
+            "expectedResult": "All auto exposure fields accept valid data with no validation errors displayed"
+          },
+          {
+            "step": 10,
+            "action": "Click Submit button",
+            "expectedResult": "Auto exposure data is saved successfully with confirmation message"
+          },
+          {
+            "step": 11,
+            "action": "Verify all submitted exposure records are stored in the system",
+            "expectedResult": "All three exposure types (Property, Liability, Auto) are successfully saved and retrievable from ExposureInformation tables"
+          }
+        ],
+        "postconditions": [
+          "Multiple exposure type records are stored in ExposureInformation tables",
+          "Each exposure type maintains its specific validation rules",
+          "All submitted data passes validation for respective exposure types",
+          "Success confirmation is displayed for each submission",
+          "Audit log records all exposure data entries"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  }
+]
