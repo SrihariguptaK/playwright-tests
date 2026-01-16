@@ -1,0 +1,284 @@
+[
+  {
+    "storyId": "story-20",
+    "storyTitle": "As Administrator, I want to audit approval workflows and decisions to ensure compliance and traceability",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate logging of approval workflow configuration changes",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Administrator is logged into the system with valid credentials",
+          "Administrator has permissions to modify approval workflows",
+          "Administrator has access to audit logs module",
+          "At least one approval workflow exists in the system",
+          "Audit logging service is active and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the approval workflow configuration page",
+            "expectedResult": "Workflow configuration page loads successfully displaying existing workflows"
+          },
+          {
+            "step": 2,
+            "action": "Select an existing approval workflow to modify",
+            "expectedResult": "Workflow details are displayed with editable fields"
+          },
+          {
+            "step": 3,
+            "action": "Modify workflow parameters (e.g., change approval threshold, add/remove approver, update workflow name)",
+            "expectedResult": "Changes are accepted and validation passes"
+          },
+          {
+            "step": 4,
+            "action": "Save the workflow configuration changes",
+            "expectedResult": "System displays success message confirming workflow has been updated"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to the audit logs module",
+            "expectedResult": "Audit logs interface loads successfully with search and filter options"
+          },
+          {
+            "step": 6,
+            "action": "Search for audit logs related to the modified workflow using workflow ID or name",
+            "expectedResult": "Search results display relevant audit log entries"
+          },
+          {
+            "step": 7,
+            "action": "Locate and open the most recent workflow modification entry",
+            "expectedResult": "Audit log entry displays complete details including: workflow ID, modification type, changed fields, old values, new values, administrator username, timestamp, and session information"
+          },
+          {
+            "step": 8,
+            "action": "Verify the timestamp matches the time of modification",
+            "expectedResult": "Timestamp is accurate within acceptable system time tolerance (±2 seconds)"
+          },
+          {
+            "step": 9,
+            "action": "Verify the logged user matches the administrator who made the change",
+            "expectedResult": "User identity in audit log matches the currently logged-in administrator"
+          },
+          {
+            "step": 10,
+            "action": "Verify all modified fields are accurately recorded in the audit log",
+            "expectedResult": "All changes made to the workflow are present in the audit log with correct before and after values"
+          }
+        ],
+        "postconditions": [
+          "Workflow configuration change is successfully saved in the system",
+          "Complete audit trail entry exists for the workflow modification",
+          "Audit log entry is immutable and timestamped",
+          "No system errors or warnings are present"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify audit log immutability and access control",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "System has multiple user roles configured (authorized and unauthorized users)",
+          "Audit logs contain existing entries from previous approval activities",
+          "Unauthorized user account exists without audit log access permissions",
+          "Authorized administrator account exists with audit log read permissions",
+          "Role-based access control (RBAC) is properly configured",
+          "Audit log database is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log out any currently logged-in user",
+            "expectedResult": "User is successfully logged out and redirected to login page"
+          },
+          {
+            "step": 2,
+            "action": "Log in with unauthorized user credentials (user without audit log access permissions)",
+            "expectedResult": "User successfully logs into the system with standard user interface"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to navigate to the audit logs module URL directly",
+            "expectedResult": "System denies access and displays 'Access Denied' or '403 Forbidden' error message"
+          },
+          {
+            "step": 4,
+            "action": "Verify that audit logs menu option is not visible in the navigation",
+            "expectedResult": "Audit logs option is hidden or disabled in the user interface for unauthorized user"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to access audit logs via API endpoint GET /api/audit-logs using unauthorized user token",
+            "expectedResult": "API returns 403 Forbidden status code with appropriate error message"
+          },
+          {
+            "step": 6,
+            "action": "Log out the unauthorized user",
+            "expectedResult": "Unauthorized user is successfully logged out"
+          },
+          {
+            "step": 7,
+            "action": "Log in with authorized administrator credentials",
+            "expectedResult": "Administrator successfully logs in with full system access"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to the audit logs module",
+            "expectedResult": "Audit logs interface loads successfully displaying existing log entries"
+          },
+          {
+            "step": 9,
+            "action": "Select an existing audit log entry",
+            "expectedResult": "Audit log entry details are displayed in read-only format"
+          },
+          {
+            "step": 10,
+            "action": "Attempt to edit or modify any field in the audit log entry through the UI",
+            "expectedResult": "All fields are read-only and cannot be modified; no edit buttons or options are available"
+          },
+          {
+            "step": 11,
+            "action": "Attempt to delete the audit log entry through the UI",
+            "expectedResult": "No delete option is available; entry cannot be removed"
+          },
+          {
+            "step": 12,
+            "action": "Attempt to modify audit log entry via API using PUT or PATCH request",
+            "expectedResult": "API returns 405 Method Not Allowed or 403 Forbidden status code; modification is prevented"
+          },
+          {
+            "step": 13,
+            "action": "Verify that the modification attempt itself is logged in the audit trail",
+            "expectedResult": "A new audit log entry is created documenting the unauthorized modification attempt with user identity, timestamp, and action details"
+          },
+          {
+            "step": 14,
+            "action": "Verify the original audit log entry remains unchanged",
+            "expectedResult": "Original audit log entry retains all original values with no modifications"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized user access attempts are blocked and logged",
+          "All audit log entries remain immutable and unchanged",
+          "Modification attempts are recorded in the audit trail",
+          "System security integrity is maintained",
+          "No unauthorized access to sensitive audit data occurred"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Test export of audit reports",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Administrator is logged into the system with audit log access permissions",
+          "Audit logs contain multiple entries spanning different dates and users",
+          "System supports multiple export formats (CSV, PDF, Excel)",
+          "Administrator has sufficient storage space for downloaded files",
+          "Export functionality is enabled and operational",
+          "Network connection is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the audit logs module",
+            "expectedResult": "Audit logs interface loads successfully with search, filter, and export options visible"
+          },
+          {
+            "step": 2,
+            "action": "Apply filters to the audit logs (e.g., date range: last 30 days, user: specific administrator, action type: workflow modifications)",
+            "expectedResult": "Audit logs are filtered and display only entries matching the specified criteria"
+          },
+          {
+            "step": 3,
+            "action": "Verify the filtered results show the expected number of entries",
+            "expectedResult": "Result count is displayed and matches the expected number of audit entries for the applied filters"
+          },
+          {
+            "step": 4,
+            "action": "Click on the 'Export' or 'Generate Report' button",
+            "expectedResult": "Export options dialog appears showing available formats (CSV, PDF, Excel)"
+          },
+          {
+            "step": 5,
+            "action": "Select CSV format from the export options",
+            "expectedResult": "CSV format is selected and highlighted"
+          },
+          {
+            "step": 6,
+            "action": "Click 'Generate Report' or 'Download' button",
+            "expectedResult": "System begins generating the report; progress indicator or loading message is displayed"
+          },
+          {
+            "step": 7,
+            "action": "Wait for report generation to complete",
+            "expectedResult": "Report is generated within 5 seconds; download dialog appears or file automatically downloads"
+          },
+          {
+            "step": 8,
+            "action": "Save the downloaded CSV file to local storage",
+            "expectedResult": "File is successfully saved with appropriate filename including timestamp (e.g., audit_report_2024-01-15.csv)"
+          },
+          {
+            "step": 9,
+            "action": "Open the downloaded CSV file using spreadsheet application",
+            "expectedResult": "CSV file opens successfully and is properly formatted with headers and data"
+          },
+          {
+            "step": 10,
+            "action": "Verify the CSV contains all expected columns (e.g., Timestamp, User, Action, Workflow ID, Details, IP Address)",
+            "expectedResult": "All required audit log fields are present as columns in the CSV"
+          },
+          {
+            "step": 11,
+            "action": "Verify the CSV contains only the filtered audit log entries",
+            "expectedResult": "Number of rows in CSV matches the filtered result count; all entries match the applied filters"
+          },
+          {
+            "step": 12,
+            "action": "Return to audit logs interface and repeat export process selecting PDF format",
+            "expectedResult": "PDF export is generated within 5 seconds and downloads successfully"
+          },
+          {
+            "step": 13,
+            "action": "Open the downloaded PDF file",
+            "expectedResult": "PDF opens successfully with properly formatted audit report including headers, company logo (if applicable), and tabular data"
+          },
+          {
+            "step": 14,
+            "action": "Verify PDF contains the same filtered data as CSV export",
+            "expectedResult": "PDF report contains identical audit log entries with all relevant fields displayed"
+          },
+          {
+            "step": 15,
+            "action": "Return to audit logs interface and repeat export process selecting Excel format",
+            "expectedResult": "Excel export is generated within 5 seconds and downloads successfully"
+          },
+          {
+            "step": 16,
+            "action": "Open the downloaded Excel file",
+            "expectedResult": "Excel file opens successfully with data in structured worksheet format with proper column headers"
+          },
+          {
+            "step": 17,
+            "action": "Verify Excel contains the same filtered data with proper formatting",
+            "expectedResult": "Excel report contains identical audit log entries with formatted cells, headers, and data types"
+          }
+        ],
+        "postconditions": [
+          "Audit reports are successfully exported in all requested formats",
+          "Exported files contain accurate and complete filtered audit data",
+          "Files are properly formatted and readable",
+          "Export operation is logged in the audit trail",
+          "No data corruption or loss occurred during export",
+          "System performance remains stable after export operations"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  }
+]
