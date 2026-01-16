@@ -1,0 +1,548 @@
+[
+  {
+    "storyId": "story-5",
+    "storyTitle": "As Scheduler, I want to view a history log of scheduling conflicts to analyze and improve scheduling practices",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify conflict history retrieval with filters",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Conflict history database contains at least 20 conflict records",
+          "Conflicts exist for multiple date ranges and resources",
+          "User has authorization to access conflict history"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to conflict history page by clicking on 'Conflict History' menu item",
+            "expectedResult": "Conflict history page loads successfully displaying empty filter form with fields for date range, resource, and conflict type. Default view shows paginated list of all conflicts"
+          },
+          {
+            "step": 2,
+            "action": "Select start date as '01/01/2024' and end date as '01/31/2024' in date range filter",
+            "expectedResult": "Date range filter accepts the input and displays selected dates"
+          },
+          {
+            "step": 3,
+            "action": "Select a specific resource 'Conference Room A' from resource dropdown filter",
+            "expectedResult": "Resource filter displays selected resource"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Apply Filters' button",
+            "expectedResult": "System processes filters and displays filtered conflict records. Loading indicator appears during processing"
+          },
+          {
+            "step": 5,
+            "action": "Review the displayed conflict records in the results table",
+            "expectedResult": "Only conflicts matching the filter criteria are shown: conflicts between 01/01/2024 and 01/31/2024 for Conference Room A. Each record displays conflict ID, date, resource, type, and status"
+          },
+          {
+            "step": 6,
+            "action": "Verify each displayed record's date falls within selected range and resource matches filter",
+            "expectedResult": "All displayed records have dates between 01/01/2024 and 01/31/2024 and resource is 'Conference Room A'. No records outside filter criteria are shown"
+          }
+        ],
+        "postconditions": [
+          "Filtered conflict records remain displayed on screen",
+          "Filter selections remain active and visible",
+          "User can apply additional filters or clear existing ones",
+          "System maintains filter state for current session"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Validate export functionality for conflict history",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Conflict history page is accessible",
+          "At least 10 conflict records exist in the database",
+          "User has export permissions enabled",
+          "Browser allows file downloads"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to conflict history page",
+            "expectedResult": "Conflict history page loads with list of all conflicts and filter options visible"
+          },
+          {
+            "step": 2,
+            "action": "Apply date range filter from '01/01/2024' to '01/15/2024'",
+            "expectedResult": "Date filter is applied successfully"
+          },
+          {
+            "step": 3,
+            "action": "Select conflict type 'Resource Double Booking' from type filter dropdown",
+            "expectedResult": "Type filter is applied successfully"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Apply Filters' button",
+            "expectedResult": "Filtered results are displayed showing only conflicts matching date range and type criteria. Record count is visible"
+          },
+          {
+            "step": 5,
+            "action": "Click 'Export to CSV' button",
+            "expectedResult": "CSV file download initiates immediately. File name follows format 'conflict_history_YYYYMMDD.csv'. Download progress is visible"
+          },
+          {
+            "step": 6,
+            "action": "Open downloaded CSV file in spreadsheet application",
+            "expectedResult": "CSV file opens successfully and contains all filtered conflict records with columns: Conflict ID, Date, Time, Resource, Type, Status, Description. Data matches what was displayed on screen"
+          },
+          {
+            "step": 7,
+            "action": "Return to conflict history page and click 'Export to PDF' button",
+            "expectedResult": "PDF file download initiates. File name follows format 'conflict_history_YYYYMMDD.pdf'. Download progress is visible"
+          },
+          {
+            "step": 8,
+            "action": "Open downloaded PDF file in PDF reader",
+            "expectedResult": "PDF file opens successfully with professional formatting. Contains header with export date, filtered conflict records in table format with all relevant columns, and footer with page numbers. Data matches filtered results"
+          }
+        ],
+        "postconditions": [
+          "Two files are downloaded: CSV and PDF formats",
+          "Both files contain identical filtered data",
+          "Original filtered view remains unchanged on screen",
+          "Export action is logged in system audit trail",
+          "Files are saved to user's default download location"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure access control for conflict history",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Test user account exists without Scheduler role or conflict history permissions",
+          "Conflict history feature is enabled in the system",
+          "Access control rules are configured properly",
+          "User is logged into the system with unauthorized account"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in to the system using unauthorized user credentials (user without Scheduler role)",
+            "expectedResult": "User successfully logs into the system with limited permissions"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to conflict history page by entering URL '/conflicts/history' directly in browser",
+            "expectedResult": "System blocks access and redirects to error page or dashboard"
+          },
+          {
+            "step": 3,
+            "action": "Verify error message displayed on screen",
+            "expectedResult": "Clear error message is displayed: 'Access Denied: You do not have permission to view conflict history. Please contact your administrator.' HTTP 403 Forbidden status is returned"
+          },
+          {
+            "step": 4,
+            "action": "Check main navigation menu for conflict history option",
+            "expectedResult": "Conflict history menu item is not visible or is disabled/grayed out for unauthorized user"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to access conflict history API endpoint directly using GET /conflicts/history",
+            "expectedResult": "API returns 403 Forbidden error with JSON response containing error message about insufficient permissions"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized user remains unable to access conflict history",
+          "Access attempt is logged in security audit log",
+          "User session remains active but restricted",
+          "No conflict data is exposed to unauthorized user",
+          "System security integrity is maintained"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-8",
+    "storyTitle": "As Scheduler, I want the system to log all detected conflicts for audit and compliance purposes",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Verify all conflicts are logged with metadata",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Conflict detection engine is running and operational",
+          "Logging service is active and connected to database",
+          "Test scheduling data exists with potential conflicts",
+          "User has access to query log database",
+          "System time is synchronized correctly"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Create a scheduling conflict by attempting to book 'Conference Room A' for two different meetings at the same time slot (2:00 PM - 3:00 PM on 02/15/2024)",
+            "expectedResult": "System detects the scheduling conflict and displays conflict alert to user. Conflict detection engine triggers immediately"
+          },
+          {
+            "step": 2,
+            "action": "Note the conflict ID and timestamp displayed in the conflict alert",
+            "expectedResult": "Conflict alert shows unique conflict ID (e.g., CONF-2024-001234) and timestamp of detection"
+          },
+          {
+            "step": 3,
+            "action": "Access the logging database using authorized query tool or admin interface",
+            "expectedResult": "Successfully connected to logging database with read permissions"
+          },
+          {
+            "step": 4,
+            "action": "Query logs for the conflict entry using conflict ID: SELECT * FROM conflict_logs WHERE conflict_id = 'CONF-2024-001234'",
+            "expectedResult": "Log entry is retrieved successfully from database"
+          },
+          {
+            "step": 5,
+            "action": "Verify log entry contains all required metadata fields",
+            "expectedResult": "Log entry contains: conflict_id, timestamp, conflict_type (Resource Double Booking), resource_id (Conference Room A), affected_bookings (both booking IDs), severity_level, detection_method, system_version, user_id_initiator, and conflict_description"
+          },
+          {
+            "step": 6,
+            "action": "Validate timestamp accuracy by comparing log timestamp with conflict detection time",
+            "expectedResult": "Log timestamp matches conflict detection time within 1 second accuracy"
+          },
+          {
+            "step": 7,
+            "action": "Verify all metadata values are accurate and complete",
+            "expectedResult": "All metadata fields contain correct, non-null values matching the actual conflict scenario. Resource ID, booking IDs, and user information are accurate"
+          }
+        ],
+        "postconditions": [
+          "Conflict is permanently logged in database",
+          "Log entry is immutable and timestamped",
+          "Conflict remains in detected state until resolved",
+          "Log is available for future audit queries",
+          "System continues monitoring for new conflicts"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Validate user action logging on conflicts",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Active scheduling conflict exists in the system",
+          "Conflict alert is displayed to user",
+          "User is logged in with Scheduler role",
+          "Logging service is operational",
+          "User action tracking is enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Locate an active conflict alert displayed on the dashboard showing conflict ID 'CONF-2024-001235'",
+            "expectedResult": "Conflict alert is visible with options to 'Acknowledge' or 'Dismiss' the conflict"
+          },
+          {
+            "step": 2,
+            "action": "Click 'Acknowledge' button on the conflict alert",
+            "expectedResult": "System processes acknowledgment. Conflict status changes to 'Acknowledged'. Confirmation message appears: 'Conflict acknowledged successfully'"
+          },
+          {
+            "step": 3,
+            "action": "Access logging database and query for user action: SELECT * FROM conflict_logs WHERE conflict_id = 'CONF-2024-001235' AND action_type = 'ACKNOWLEDGE'",
+            "expectedResult": "Log entry for acknowledgment action is retrieved"
+          },
+          {
+            "step": 4,
+            "action": "Verify log entry contains user action details",
+            "expectedResult": "Log entry includes: conflict_id, action_type (ACKNOWLEDGE), user_id, username, action_timestamp, previous_status, new_status (Acknowledged), ip_address, and session_id"
+          },
+          {
+            "step": 5,
+            "action": "Create another conflict and click 'Dismiss' button on the conflict alert",
+            "expectedResult": "Conflict is dismissed. Status changes to 'Dismissed'. Confirmation message appears"
+          },
+          {
+            "step": 6,
+            "action": "Query logs for dismiss action on the new conflict",
+            "expectedResult": "Log entry for dismiss action is found with action_type 'DISMISS' and all required metadata including user information and timestamp"
+          },
+          {
+            "step": 7,
+            "action": "Verify chronological order of logged actions",
+            "expectedResult": "All user actions are logged in correct chronological sequence with accurate timestamps showing progression of conflict handling"
+          }
+        ],
+        "postconditions": [
+          "All user actions are permanently recorded in logs",
+          "Audit trail is complete and traceable",
+          "Conflict status reflects latest user action",
+          "Logs maintain data integrity",
+          "User action history is available for compliance review"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure logs are securely stored and retrievable",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Conflict logs exist in the database",
+          "Encryption is enabled for log storage",
+          "Authorized user credentials are available",
+          "Unauthorized test user account exists",
+          "Audit access interface is configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in to the system using authorized auditor credentials with log access permissions",
+            "expectedResult": "Successfully authenticated and logged into system with auditor role"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to audit log access interface or admin panel",
+            "expectedResult": "Audit log interface loads successfully showing log query options"
+          },
+          {
+            "step": 3,
+            "action": "Execute query to retrieve conflict logs from the past 30 days: SELECT * FROM conflict_logs WHERE log_date >= CURRENT_DATE - 30",
+            "expectedResult": "Query executes successfully and returns list of conflict log entries"
+          },
+          {
+            "step": 4,
+            "action": "Verify data integrity by checking log entry completeness and format",
+            "expectedResult": "All log entries are intact with complete data fields. No corruption or missing data detected. Timestamps are sequential and logical"
+          },
+          {
+            "step": 5,
+            "action": "Verify encryption status by checking database storage configuration",
+            "expectedResult": "Logs are stored with encryption enabled. Encryption algorithm (e.g., AES-256) is confirmed. Encrypted fields include sensitive data like user information and conflict details"
+          },
+          {
+            "step": 6,
+            "action": "Export a sample of logs to verify data is decrypted properly for authorized access",
+            "expectedResult": "Exported logs are readable and properly decrypted. All data fields are accessible and in correct format"
+          },
+          {
+            "step": 7,
+            "action": "Log out and log in using unauthorized user credentials without audit access permissions",
+            "expectedResult": "Successfully logged in as unauthorized user with limited permissions"
+          },
+          {
+            "step": 8,
+            "action": "Attempt to access audit log interface or query conflict logs directly",
+            "expectedResult": "Access is denied. Error message displayed: 'Access Denied: Insufficient permissions to view audit logs.' HTTP 403 Forbidden status returned"
+          },
+          {
+            "step": 9,
+            "action": "Attempt to access log database directly using unauthorized credentials",
+            "expectedResult": "Database connection is refused or authentication fails. No log data is accessible. Security event is logged"
+          },
+          {
+            "step": 10,
+            "action": "Verify unauthorized access attempt is logged in security audit trail",
+            "expectedResult": "Security log contains entry for unauthorized access attempt with user ID, timestamp, attempted resource, and denial reason"
+          }
+        ],
+        "postconditions": [
+          "Authorized users can access logs successfully",
+          "Unauthorized access attempts are blocked and logged",
+          "Log data integrity is maintained",
+          "Encryption remains active on stored logs",
+          "Audit trail includes both successful and failed access attempts",
+          "System security posture is verified and intact"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-10",
+    "storyTitle": "As Scheduler, I want the system to provide suggestions for alternative scheduling options when conflicts occur to facilitate quick resolution",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate generation of alternative scheduling suggestions",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one appointment exists in the system",
+          "Multiple resources are available in the system",
+          "Scheduling UI is accessible",
+          "Resource availability data is up to date"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the scheduling interface",
+            "expectedResult": "Scheduling interface loads successfully with calendar view"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to schedule an appointment that conflicts with an existing appointment (same resource, overlapping time)",
+            "expectedResult": "System detects the scheduling conflict and displays a conflict notification"
+          },
+          {
+            "step": 3,
+            "action": "Trigger the alternative suggestions feature by clicking on 'View Alternatives' or similar option",
+            "expectedResult": "Alternative scheduling suggestions are automatically generated and displayed"
+          },
+          {
+            "step": 4,
+            "action": "Review the suggestions displayed in the UI",
+            "expectedResult": "Suggestions are clearly displayed showing available time slots with corresponding available resources, including date, time, and resource name"
+          },
+          {
+            "step": 5,
+            "action": "Select one of the suggested alternative time slots from the list",
+            "expectedResult": "Selected suggestion is highlighted and a confirmation or apply button becomes active"
+          },
+          {
+            "step": 6,
+            "action": "Click the apply or confirm button to apply the selected suggestion",
+            "expectedResult": "Appointment is successfully updated with the new time slot and resource, conflict is resolved, and confirmation message is displayed"
+          },
+          {
+            "step": 7,
+            "action": "Verify the updated appointment in the calendar view",
+            "expectedResult": "Appointment appears in the calendar at the new time slot with the assigned resource, no conflict indicators are present"
+          }
+        ],
+        "postconditions": [
+          "Appointment is successfully rescheduled without conflicts",
+          "Original conflicting time slot remains occupied by the existing appointment",
+          "New time slot is now occupied by the rescheduled appointment",
+          "System logs the rescheduling action",
+          "Resource availability is updated in the system"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify suggestion generation latency under 2 seconds",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "System has normal load conditions",
+          "Multiple resources and appointments exist in the database",
+          "Timing measurement tool or browser developer tools are available",
+          "Network connection is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open browser developer tools and navigate to the Network tab to monitor API response times",
+            "expectedResult": "Developer tools are open and ready to capture network activity"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the scheduling interface",
+            "expectedResult": "Scheduling interface loads successfully"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to create an appointment that will trigger a scheduling conflict",
+            "expectedResult": "Conflict is detected by the system"
+          },
+          {
+            "step": 4,
+            "action": "Note the timestamp when requesting alternative suggestions and trigger the suggestion generation",
+            "expectedResult": "Request is sent to GET /scheduling/alternatives API endpoint, timestamp is recorded"
+          },
+          {
+            "step": 5,
+            "action": "Monitor the Network tab for the API response time",
+            "expectedResult": "API response is received and displayed in the Network tab with timing information"
+          },
+          {
+            "step": 6,
+            "action": "Verify the total time from request initiation to suggestions appearing in the UI",
+            "expectedResult": "Alternative suggestions appear in the UI within 2 seconds of the request, API response time is under 2 seconds as shown in developer tools"
+          },
+          {
+            "step": 7,
+            "action": "Repeat the test 3 more times with different conflict scenarios to ensure consistent performance",
+            "expectedResult": "All iterations complete suggestion generation within 2 seconds"
+          }
+        ],
+        "postconditions": [
+          "Performance metrics are documented",
+          "System meets the 2-second latency requirement",
+          "No performance degradation is observed",
+          "Test results are logged for reporting"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure suggestions reflect current resource availability",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Multiple resources exist in the system with known schedules",
+          "Some resources have appointments scheduled, others are available",
+          "Resource availability data is current and accurate",
+          "Access to view resource schedules independently is available"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open the resource management view and document the current availability of all resources including their scheduled appointments",
+            "expectedResult": "Resource schedules are visible showing occupied and available time slots for each resource"
+          },
+          {
+            "step": 2,
+            "action": "Identify specific time slots where certain resources are already booked",
+            "expectedResult": "Booked time slots and resources are clearly identified and documented"
+          },
+          {
+            "step": 3,
+            "action": "Navigate to the scheduling interface and attempt to create an appointment that triggers a conflict",
+            "expectedResult": "Conflict is detected and conflict notification appears"
+          },
+          {
+            "step": 4,
+            "action": "Request alternative scheduling suggestions",
+            "expectedResult": "System generates and displays alternative suggestions"
+          },
+          {
+            "step": 5,
+            "action": "Review each suggested time slot and resource combination",
+            "expectedResult": "All suggestions display specific time slots with assigned resources"
+          },
+          {
+            "step": 6,
+            "action": "Cross-reference each suggested resource and time slot against the documented resource schedules from step 1",
+            "expectedResult": "All suggested resources are confirmed to be available during the suggested time slots, no suggestions include resources that are already booked"
+          },
+          {
+            "step": 7,
+            "action": "Verify that resources with known conflicts during suggested times are NOT included in the suggestions",
+            "expectedResult": "Suggestions exclude any resources that have existing appointments during the suggested time slots"
+          },
+          {
+            "step": 8,
+            "action": "Check that the suggestions only include time slots within valid scheduling hours and resource working hours",
+            "expectedResult": "All suggested time slots fall within appropriate business hours and resource availability windows"
+          }
+        ],
+        "postconditions": [
+          "All suggestions are verified to reflect accurate resource availability",
+          "No double-booking scenarios are present in suggestions",
+          "Resource schedule integrity is maintained",
+          "Test validation results are documented"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  }
+]
