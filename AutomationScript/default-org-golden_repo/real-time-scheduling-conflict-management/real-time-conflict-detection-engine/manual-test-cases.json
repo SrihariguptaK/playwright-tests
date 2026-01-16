@@ -1,0 +1,421 @@
+[
+  {
+    "storyId": "story-1",
+    "storyTitle": "As Scheduler, I want to receive immediate alerts for overlapping appointments to avoid double bookings",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate real-time detection of overlapping appointments",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Scheduling database is accessible and populated with existing appointments",
+          "At least one existing appointment is present in the system (e.g., Room A booked from 10:00 AM to 11:00 AM)",
+          "Appointment creation page is accessible",
+          "User has necessary permissions to create appointments"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the appointment creation page by clicking on 'Create Appointment' button or menu option",
+            "expectedResult": "Appointment creation form is displayed with all required fields: date, time, duration, resource type, resource name, and description"
+          },
+          {
+            "step": 2,
+            "action": "Enter appointment details that overlap with an existing appointment: select date matching existing appointment, enter start time that overlaps (e.g., 10:30 AM if existing is 10:00-11:00 AM), select duration (e.g., 1 hour), and select the same resource (e.g., Room A)",
+            "expectedResult": "Real-time alert is displayed immediately showing conflict message with details: 'Conflict Detected: This appointment overlaps with existing appointment in Room A from 10:00 AM to 11:00 AM'"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to save the appointment by clicking 'Save' or 'Submit' button without resolving the conflict",
+            "expectedResult": "System prevents the save operation and displays a confirmation prompt: 'This appointment conflicts with an existing booking. Do you want to override and create anyway?' with options to 'Cancel' or 'Override and Save'"
+          }
+        ],
+        "postconditions": [
+          "Conflicting appointment is not saved to the database unless override is confirmed",
+          "Alert message remains visible until user takes action",
+          "Existing appointment data remains unchanged",
+          "User remains on the appointment creation page"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify conflict detection latency under 1 second",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Scheduling database contains existing appointments",
+          "Performance monitoring tool or browser developer tools are available to measure response time",
+          "Network connection is stable",
+          "System is under normal load conditions"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open browser developer tools and navigate to Network tab to monitor API calls and response times",
+            "expectedResult": "Developer tools are open and ready to capture network activity with timestamp information"
+          },
+          {
+            "step": 2,
+            "action": "Input appointment details that trigger a conflict: enter date, time overlapping with existing appointment, and resource that matches existing booking, then note the exact timestamp when the last field is completed",
+            "expectedResult": "Conflict detection API call (POST /appointments/check-conflict) is triggered and alert appears on screen within 1 second of completing the input"
+          },
+          {
+            "step": 3,
+            "action": "Measure and record the time difference between the API request initiation and alert display by reviewing the network timeline in developer tools",
+            "expectedResult": "Measured latency from input completion to alert display is less than 1 second (< 1000ms), confirming system meets performance requirement"
+          }
+        ],
+        "postconditions": [
+          "Performance metrics are documented",
+          "Alert was displayed within acceptable time frame",
+          "System responsiveness meets the 1-second requirement",
+          "No performance degradation observed"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure conflict detection supports multiple resource types",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Scheduling database contains existing appointments for different resource types",
+          "At least one existing appointment with personnel resource (e.g., Dr. Smith booked 2:00 PM - 3:00 PM)",
+          "At least one existing appointment with room resource (e.g., Conference Room B booked 3:00 PM - 4:00 PM)",
+          "Multiple resource types are configured in the system (personnel, rooms, equipment)"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to appointment creation page and select 'Personnel' as resource type from dropdown",
+            "expectedResult": "Resource type is set to 'Personnel' and personnel list is displayed in resource selection dropdown"
+          },
+          {
+            "step": 2,
+            "action": "Create an appointment with personnel resource conflict: select date, enter time overlapping with existing personnel appointment (e.g., 2:30 PM - 3:30 PM), and select the same personnel (e.g., Dr. Smith)",
+            "expectedResult": "Conflict alert is displayed immediately with message: 'Conflict Detected: Dr. Smith is already scheduled from 2:00 PM to 3:00 PM' including personnel resource details"
+          },
+          {
+            "step": 3,
+            "action": "Clear the form or navigate back to appointment creation page, then select 'Room' as resource type from dropdown",
+            "expectedResult": "Resource type is changed to 'Room' and room list is displayed in resource selection dropdown, previous conflict alert is cleared"
+          },
+          {
+            "step": 4,
+            "action": "Create an appointment with room resource conflict: select date, enter time overlapping with existing room appointment (e.g., 3:15 PM - 4:15 PM), and select the same room (e.g., Conference Room B)",
+            "expectedResult": "Conflict alert is displayed immediately with message: 'Conflict Detected: Conference Room B is already booked from 3:00 PM to 4:00 PM' including room resource details"
+          }
+        ],
+        "postconditions": [
+          "Conflict detection functionality is confirmed for personnel resource type",
+          "Conflict detection functionality is confirmed for room resource type",
+          "No conflicting appointments are saved",
+          "System demonstrates support for multiple resource types as required"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-2",
+    "storyTitle": "As Scheduler, I want to receive alerts for double bookings to maintain schedule accuracy",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate detection of double bookings in real-time",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Booking database is accessible and contains existing bookings",
+          "At least one existing booking is present (e.g., Customer A booked for Service X at 1:00 PM on current date)",
+          "Booking creation page is functional and accessible",
+          "User has permissions to create bookings"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the booking creation page by selecting 'Create New Booking' from the main menu or dashboard",
+            "expectedResult": "Booking creation form is displayed with all required fields visible: customer name, service type, date, time, duration, and booking category"
+          },
+          {
+            "step": 2,
+            "action": "Enter booking details that cause a double booking: select the same customer (Customer A), same service (Service X), same date, and overlapping time (e.g., 1:30 PM) with existing booking at 1:00 PM",
+            "expectedResult": "Alert is displayed immediately upon entering the conflicting details with message: 'Double Booking Detected: Customer A already has a booking for Service X at 1:00 PM on this date'"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to save the booking by clicking the 'Save Booking' or 'Submit' button without resolving the alert or modifying the booking details",
+            "expectedResult": "System blocks the save operation and displays confirmation dialog: 'Warning: This creates a double booking. Are you sure you want to proceed?' with 'Cancel' and 'Confirm Override' buttons"
+          }
+        ],
+        "postconditions": [
+          "Double booking is not saved unless user explicitly confirms override",
+          "Alert remains visible until user takes corrective action",
+          "Existing booking data remains intact and unchanged",
+          "User is kept on the booking creation page to make adjustments"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify alert latency is under 1 second",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Booking database contains existing bookings to test against",
+          "Browser developer tools or performance monitoring tool is available",
+          "System is operating under normal load",
+          "Network latency is within acceptable range"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open browser developer tools, navigate to Network tab, and prepare to monitor API response times for the double booking check endpoint (POST /bookings/check-double-booking)",
+            "expectedResult": "Developer tools are active and network monitoring is enabled, showing timestamp information for all requests"
+          },
+          {
+            "step": 2,
+            "action": "Input conflicting booking details that will trigger double booking detection: enter customer name, service, date, and time that matches an existing booking, then record the timestamp when the final field loses focus or is completed",
+            "expectedResult": "Alert appears on screen within 1 second of completing the input, displaying double booking warning message. Network tab shows API call completed with response time under 1000ms"
+          }
+        ],
+        "postconditions": [
+          "Alert latency is confirmed to be under 1 second",
+          "Performance requirement is validated and documented",
+          "System demonstrates acceptable responsiveness",
+          "API response time metrics are recorded for future reference"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure detection supports all booking categories",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Booking database contains existing bookings across multiple categories",
+          "Multiple booking categories are configured (e.g., Consultation, Treatment, Follow-up, Emergency)",
+          "At least one existing booking exists for each category to test against",
+          "Booking creation interface supports category selection"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to booking creation page and select first booking category 'Consultation' from the category dropdown menu",
+            "expectedResult": "Category is set to 'Consultation' and form displays relevant fields for this booking type"
+          },
+          {
+            "step": 2,
+            "action": "Create a booking with details that conflict with an existing 'Consultation' booking: enter customer name, date, and time that overlaps with existing consultation booking",
+            "expectedResult": "Alert is generated immediately displaying: 'Double Booking Detected: Consultation booking already exists for this customer at this time' with conflict details"
+          },
+          {
+            "step": 3,
+            "action": "Clear the form or create a new booking, then select second booking category 'Treatment' from the category dropdown",
+            "expectedResult": "Category is changed to 'Treatment', form updates to show treatment-specific fields, and previous alert is cleared"
+          },
+          {
+            "step": 4,
+            "action": "Create a booking with details that conflict with an existing 'Treatment' booking: enter customer name, date, and time that overlaps with existing treatment booking",
+            "expectedResult": "Alert is generated immediately displaying: 'Double Booking Detected: Treatment booking already exists for this customer at this time' with conflict details"
+          },
+          {
+            "step": 5,
+            "action": "Repeat the process for remaining booking categories (Follow-up, Emergency) by selecting each category and entering conflicting booking details",
+            "expectedResult": "Alerts are generated for each booking category conflict, confirming that double booking detection works across all configured booking categories"
+          }
+        ],
+        "postconditions": [
+          "Double booking detection is confirmed functional for all booking categories",
+          "No double bookings are saved to the system",
+          "System demonstrates comprehensive category support",
+          "All booking categories maintain data integrity"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-6",
+    "storyTitle": "As Scheduler, I want the system to detect resource unavailability conflicts in real-time to prevent scheduling errors",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate detection of resource unavailability conflicts",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one resource is marked as unavailable in the system",
+          "Resource availability database is accessible",
+          "Scheduling page is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the scheduling page",
+            "expectedResult": "Scheduling form is displayed with all required fields including resource selection dropdown"
+          },
+          {
+            "step": 2,
+            "action": "Fill in appointment date and time fields",
+            "expectedResult": "Date and time fields are populated successfully"
+          },
+          {
+            "step": 3,
+            "action": "Select a resource that is marked as unavailable from the resource dropdown",
+            "expectedResult": "Real-time alert is displayed indicating the resource is unavailable with specific unavailability details (reason, duration)"
+          },
+          {
+            "step": 4,
+            "action": "Verify the alert message contains resource name, unavailability reason, and time period",
+            "expectedResult": "Alert displays complete resource unavailability information including resource name, reason (maintenance/leave), and unavailability period"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to save the appointment with the unavailable resource without override",
+            "expectedResult": "System blocks the save operation and displays a validation message preventing appointment creation"
+          },
+          {
+            "step": 6,
+            "action": "Click on override option (if available) and confirm the override action",
+            "expectedResult": "System prompts for override confirmation with warning message"
+          },
+          {
+            "step": 7,
+            "action": "Confirm the override and save the appointment",
+            "expectedResult": "Appointment is saved successfully with override flag and confirmation message is displayed"
+          }
+        ],
+        "postconditions": [
+          "Alert for resource unavailability was displayed correctly",
+          "System prevented save without override",
+          "Appointment is saved only after override confirmation",
+          "Audit log records the override action"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify alert latency under 1 second",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one resource is marked as unavailable",
+          "Scheduling page is loaded",
+          "Timer or performance monitoring tool is available",
+          "Network connection is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the scheduling page and prepare to measure response time",
+            "expectedResult": "Scheduling form is displayed and ready for input"
+          },
+          {
+            "step": 2,
+            "action": "Start timer and input appointment date and time",
+            "expectedResult": "Date and time fields are populated"
+          },
+          {
+            "step": 3,
+            "action": "Select a resource marked as unavailable and stop timer when alert appears",
+            "expectedResult": "Alert appears within 1 second of resource selection, displaying resource unavailability conflict message"
+          },
+          {
+            "step": 4,
+            "action": "Record the exact time taken for alert to appear",
+            "expectedResult": "Measured latency is less than or equal to 1000 milliseconds"
+          },
+          {
+            "step": 5,
+            "action": "Repeat the test with different unavailable resources (minimum 3 iterations)",
+            "expectedResult": "All iterations show alert latency under 1 second consistently"
+          },
+          {
+            "step": 6,
+            "action": "Verify alert content is complete and not truncated due to speed optimization",
+            "expectedResult": "Alert contains all required information: resource name, unavailability reason, and time period"
+          }
+        ],
+        "postconditions": [
+          "Alert latency is verified to be under 1 second",
+          "Performance metrics are documented",
+          "System maintains data integrity while meeting performance requirements"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure detection supports all resource types",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Multiple resource categories exist in the system (e.g., rooms, equipment, personnel, vehicles)",
+          "At least one resource from each category is marked as unavailable",
+          "Scheduling page is accessible",
+          "Resource availability database contains all resource types"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the scheduling page",
+            "expectedResult": "Scheduling form is displayed with resource category selection options"
+          },
+          {
+            "step": 2,
+            "action": "Select 'Room' as resource category and choose a room marked as unavailable",
+            "expectedResult": "Real-time alert is generated displaying room unavailability conflict with specific details"
+          },
+          {
+            "step": 3,
+            "action": "Clear the selection and select 'Equipment' as resource category, then choose equipment marked as unavailable",
+            "expectedResult": "Real-time alert is generated displaying equipment unavailability conflict with maintenance or usage details"
+          },
+          {
+            "step": 4,
+            "action": "Clear the selection and select 'Personnel' as resource category, then choose personnel marked as unavailable",
+            "expectedResult": "Real-time alert is generated displaying personnel unavailability conflict with leave or absence details"
+          },
+          {
+            "step": 5,
+            "action": "Clear the selection and select 'Vehicle' as resource category, then choose a vehicle marked as unavailable",
+            "expectedResult": "Real-time alert is generated displaying vehicle unavailability conflict with maintenance or assignment details"
+          },
+          {
+            "step": 6,
+            "action": "Verify each alert contains category-specific unavailability information",
+            "expectedResult": "All alerts display appropriate details relevant to their resource category (maintenance schedules, leave dates, etc.)"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to save appointments with each unavailable resource type",
+            "expectedResult": "System consistently blocks save operation for all resource categories unless override is confirmed"
+          },
+          {
+            "step": 8,
+            "action": "Test with available resources from each category",
+            "expectedResult": "No alerts are generated and appointments can be saved successfully for available resources"
+          }
+        ],
+        "postconditions": [
+          "All resource categories show proper conflict detection",
+          "Alerts are generated consistently across all resource types",
+          "System prevents scheduling conflicts for all resource categories",
+          "Available resources can be scheduled without restrictions"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  }
+]
