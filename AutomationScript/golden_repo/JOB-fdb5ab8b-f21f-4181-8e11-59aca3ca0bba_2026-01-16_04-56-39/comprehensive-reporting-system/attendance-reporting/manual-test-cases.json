@@ -1,0 +1,500 @@
+[
+  {
+    "storyId": "story-2",
+    "storyTitle": "As HR Specialist, I want to generate attendance reports to track employee presence and absences",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate attendance report generation with valid filters",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with HR Specialist role credentials",
+          "Attendance tracking system database contains test data for multiple employees",
+          "Test data includes attendance records for at least the last 30 days",
+          "User has active network connection to the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance reporting module from the main dashboard",
+            "expectedResult": "Attendance report UI is displayed with filter options including date range, employee selector, and department selector visible"
+          },
+          {
+            "step": 2,
+            "action": "Select a valid date range (e.g., last 7 days) using the date picker",
+            "expectedResult": "Date range is accepted and displayed in the filter field without validation errors"
+          },
+          {
+            "step": 3,
+            "action": "Select a specific department from the department dropdown filter",
+            "expectedResult": "Department filter is applied and displayed correctly in the filter section"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Generate Report' button to request report generation",
+            "expectedResult": "System processes the request and displays a loading indicator while generating the report"
+          },
+          {
+            "step": 5,
+            "action": "Wait for report generation to complete",
+            "expectedResult": "Attendance report is generated within 15 seconds and displayed on screen with correct data including employee names, dates, presence status, absences, and late arrivals matching the selected filters"
+          },
+          {
+            "step": 6,
+            "action": "Verify the report data matches the applied filters",
+            "expectedResult": "All displayed records fall within the selected date range and department, with accurate attendance data for each employee"
+          }
+        ],
+        "postconditions": [
+          "Attendance report remains displayed on screen for review",
+          "Filter selections remain active for subsequent report generations",
+          "System logs the report generation activity"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify export functionality for attendance reports",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with HR Specialist role credentials",
+          "Attendance reporting module is accessible",
+          "Test data exists in the attendance database",
+          "Browser download settings allow automatic file downloads",
+          "User has write permissions to the default download folder"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance reporting module",
+            "expectedResult": "Attendance report UI is displayed with filter options"
+          },
+          {
+            "step": 2,
+            "action": "Select a date range of last 30 days and a specific department filter",
+            "expectedResult": "Filters are applied successfully without errors"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Generate Report' button to generate attendance report with the applied filters",
+            "expectedResult": "Report is generated and displayed on screen with attendance data including employee names, dates, presence, absences, and tardiness information"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Export to CSV' button",
+            "expectedResult": "CSV file is downloaded to the default download folder with a filename containing timestamp and report type"
+          },
+          {
+            "step": 5,
+            "action": "Open the downloaded CSV file using a spreadsheet application",
+            "expectedResult": "CSV file opens successfully and contains all report data with correct column headers, employee information, dates, and attendance status matching the on-screen report"
+          },
+          {
+            "step": 6,
+            "action": "Return to the attendance report screen and click the 'Export to PDF' button",
+            "expectedResult": "PDF file is downloaded to the default download folder with a filename containing timestamp and report type"
+          },
+          {
+            "step": 7,
+            "action": "Open the downloaded PDF file using a PDF reader",
+            "expectedResult": "PDF file opens successfully with correct formatting including company header, report title, filter parameters, table structure, and all attendance data matching the on-screen report"
+          }
+        ],
+        "postconditions": [
+          "Two files (CSV and PDF) are saved in the download folder",
+          "Original report remains displayed on screen",
+          "Export activity is logged in the system audit trail"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure unauthorized users cannot access attendance reports",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Test user account exists with non-HR role (e.g., Employee or Manager role)",
+          "Attendance reporting module exists in the system",
+          "API endpoint /api/reports/attendance is configured with role-based access control",
+          "User is not currently logged in"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the login page and enter credentials for a non-HR user (e.g., regular employee account)",
+            "expectedResult": "User is successfully authenticated and logged into the system with non-HR role"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to the attendance reporting module via the main menu or navigation",
+            "expectedResult": "Attendance reporting module option is not visible in the navigation menu, or access is denied with an appropriate error message stating insufficient permissions"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to access the attendance reporting module directly by entering the URL in the browser",
+            "expectedResult": "System redirects to an access denied page or displays an error message indicating the user does not have permission to access this resource"
+          },
+          {
+            "step": 4,
+            "action": "Open browser developer tools and attempt to access the API endpoint directly by sending a GET request to /api/reports/attendance",
+            "expectedResult": "API returns HTTP 403 Forbidden status code with an error message indicating access is restricted to authorized HR specialist roles only"
+          },
+          {
+            "step": 5,
+            "action": "Verify the response body contains appropriate security error message",
+            "expectedResult": "Response body contains error message such as 'Access denied: Insufficient permissions' or 'Unauthorized access to attendance reports'"
+          }
+        ],
+        "postconditions": [
+          "Non-HR user remains logged in but cannot access attendance reports",
+          "Security violation attempt is logged in the system audit trail",
+          "No attendance data is exposed to the unauthorized user"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-6",
+    "storyTitle": "As HR Specialist, I want attendance reports to highlight tardiness for compliance monitoring",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate tardiness detection in attendance reports",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with HR Specialist role credentials",
+          "Attendance database contains test records with tardiness data (employees who arrived late)",
+          "Tardiness threshold is configured in the system (e.g., 15 minutes after scheduled start time)",
+          "Test data includes at least 5 employees with tardiness occurrences in the last 30 days",
+          "Attendance reporting module is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance reporting module from the main dashboard",
+            "expectedResult": "Attendance report UI is displayed with filter options and report generation controls"
+          },
+          {
+            "step": 2,
+            "action": "Select a date range that includes known tardiness occurrences (e.g., last 30 days)",
+            "expectedResult": "Date range filter is applied successfully without validation errors"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Generate Report' button to generate attendance report with tardiness data",
+            "expectedResult": "System processes the request and generates the attendance report within 15 seconds"
+          },
+          {
+            "step": 4,
+            "action": "Review the generated report for tardiness highlights",
+            "expectedResult": "Report is displayed with tardiness occurrences clearly highlighted using visual indicators such as color coding (e.g., yellow or orange), icons, or bold text for late arrivals"
+          },
+          {
+            "step": 5,
+            "action": "Verify the accuracy of tardiness detection by comparing highlighted entries with actual arrival timestamps",
+            "expectedResult": "All employees who arrived after the tardiness threshold are correctly flagged and highlighted, and employees who arrived on time are not flagged"
+          },
+          {
+            "step": 6,
+            "action": "Select a specific employee from the employee filter dropdown who has known tardiness records",
+            "expectedResult": "Employee filter is applied successfully"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Generate Report' to filter the report by the selected employee with tardiness",
+            "expectedResult": "Filtered report is generated showing only attendance records for the selected employee"
+          },
+          {
+            "step": 8,
+            "action": "Verify the filtered report displays tardiness information for the selected employee",
+            "expectedResult": "Filtered report shows all tardiness occurrences for the selected employee with correct dates, arrival times, and tardiness highlights matching the employee's actual attendance records"
+          }
+        ],
+        "postconditions": [
+          "Attendance report with tardiness highlights remains displayed on screen",
+          "Filter selections remain active for subsequent operations",
+          "Report generation activity is logged in the system"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify export of attendance reports with tardiness highlights",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with HR Specialist role credentials",
+          "Attendance database contains records with tardiness occurrences",
+          "Attendance reporting module is accessible",
+          "Browser download settings allow automatic file downloads",
+          "PDF reader application is installed on the test machine"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance reporting module",
+            "expectedResult": "Attendance report UI is displayed with available filter options"
+          },
+          {
+            "step": 2,
+            "action": "Select a date range that includes employees with tardiness records (e.g., last 14 days)",
+            "expectedResult": "Date range filter is applied successfully"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Generate Report' button to generate attendance report with tardiness highlights",
+            "expectedResult": "Report is generated and displayed on screen with tardiness occurrences visually highlighted using color coding or special formatting"
+          },
+          {
+            "step": 4,
+            "action": "Review the on-screen report to identify tardiness highlights and note specific examples",
+            "expectedResult": "Report displays with clear visual indicators for tardiness including highlighted rows or cells for late arrivals"
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Export to PDF' button to export the report",
+            "expectedResult": "PDF file is generated and downloaded to the default download folder with a descriptive filename including timestamp"
+          },
+          {
+            "step": 6,
+            "action": "Open the downloaded PDF file using a PDF reader application",
+            "expectedResult": "PDF file opens successfully displaying the attendance report with professional formatting"
+          },
+          {
+            "step": 7,
+            "action": "Verify that tardiness highlights are preserved in the PDF export",
+            "expectedResult": "PDF includes tardiness highlights using visual indicators such as colored text, highlighted cells, or special symbols/icons that clearly distinguish late arrivals from on-time attendance"
+          },
+          {
+            "step": 8,
+            "action": "Compare the PDF content with the on-screen report to ensure data accuracy",
+            "expectedResult": "All tardiness occurrences shown in the on-screen report are accurately represented in the PDF with consistent highlighting, and all employee names, dates, and attendance data match exactly"
+          }
+        ],
+        "postconditions": [
+          "PDF file with tardiness highlights is saved in the download folder",
+          "Original report remains displayed on screen",
+          "Export activity is logged in the system audit trail",
+          "PDF file is ready for compliance monitoring and archival purposes"
+        ],
+        "estimatedTime": "5 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-10",
+    "storyTitle": "As HR Specialist, I want to export attendance reports in multiple formats to support diverse analysis needs",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate export of attendance reports in CSV format",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Specialist with valid credentials",
+          "User has permission to access attendance reports",
+          "Attendance data exists in the system for the selected period",
+          "Browser allows file downloads",
+          "Network connection is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance reports section from the main dashboard",
+            "expectedResult": "Attendance reports page loads successfully with report generation options visible"
+          },
+          {
+            "step": 2,
+            "action": "Select date range for the attendance report (e.g., last 30 days)",
+            "expectedResult": "Date range is selected and displayed in the date picker fields"
+          },
+          {
+            "step": 3,
+            "action": "Select department or employee filters if applicable",
+            "expectedResult": "Filters are applied and displayed in the filter section"
+          },
+          {
+            "step": 4,
+            "action": "Click on 'Generate Report' button",
+            "expectedResult": "Attendance report is generated and displayed on screen with employee names, dates, attendance status, and other relevant columns"
+          },
+          {
+            "step": 5,
+            "action": "Locate and click on the 'Export' button or dropdown menu",
+            "expectedResult": "Export options menu appears showing CSV, PDF, and Excel format options"
+          },
+          {
+            "step": 6,
+            "action": "Select 'CSV' format from the export options",
+            "expectedResult": "CSV export process initiates and file download begins within 10 seconds"
+          },
+          {
+            "step": 7,
+            "action": "Open the downloaded CSV file using a spreadsheet application or text editor",
+            "expectedResult": "CSV file opens successfully with all attendance data correctly formatted, including headers, employee information, dates, and attendance status matching the displayed report"
+          },
+          {
+            "step": 8,
+            "action": "Verify data integrity by comparing sample records from the CSV with the on-screen report",
+            "expectedResult": "All data points match exactly between the CSV file and the displayed report with no missing or corrupted data"
+          }
+        ],
+        "postconditions": [
+          "CSV file is successfully downloaded to the user's default download location",
+          "File contains complete and accurate attendance data",
+          "Original report remains displayed on screen",
+          "System logs the export activity",
+          "User can perform additional exports if needed"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Validate export of attendance reports in PDF format",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Specialist with valid credentials",
+          "User has permission to access and export attendance reports",
+          "Attendance data exists in the system for the selected period",
+          "Browser allows file downloads and has PDF viewing capability",
+          "Network connection is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance reports section from the main dashboard",
+            "expectedResult": "Attendance reports page loads successfully with report generation options visible"
+          },
+          {
+            "step": 2,
+            "action": "Select date range for the attendance report (e.g., current month)",
+            "expectedResult": "Date range is selected and displayed in the date picker fields"
+          },
+          {
+            "step": 3,
+            "action": "Apply any necessary filters such as department, team, or specific employees",
+            "expectedResult": "Filters are applied and reflected in the filter summary section"
+          },
+          {
+            "step": 4,
+            "action": "Click on 'Generate Report' button",
+            "expectedResult": "Attendance report is generated and displayed on screen with proper formatting, including tables with employee data, attendance records, and summary statistics"
+          },
+          {
+            "step": 5,
+            "action": "Locate and click on the 'Export' button or dropdown menu",
+            "expectedResult": "Export options menu appears displaying CSV, PDF, and Excel format options"
+          },
+          {
+            "step": 6,
+            "action": "Select 'PDF' format from the export options",
+            "expectedResult": "PDF export process initiates and file download begins within 10 seconds"
+          },
+          {
+            "step": 7,
+            "action": "Open the downloaded PDF file using a PDF reader application",
+            "expectedResult": "PDF file opens successfully with professional formatting, proper page layout, headers, footers, and company branding if applicable"
+          },
+          {
+            "step": 8,
+            "action": "Verify the PDF contains all report data including tables, charts, and summary information",
+            "expectedResult": "All attendance data is present with correct formatting, readable fonts, proper alignment, and no truncated text or overlapping elements"
+          },
+          {
+            "step": 9,
+            "action": "Check that the PDF maintains data integrity by comparing sample records with the on-screen report",
+            "expectedResult": "All data points match exactly between the PDF file and the displayed report with consistent formatting"
+          }
+        ],
+        "postconditions": [
+          "PDF file is successfully downloaded to the user's default download location",
+          "File is properly formatted and readable",
+          "All data is accurately represented in the PDF",
+          "Original report remains displayed on screen",
+          "System logs the export activity with timestamp and user information"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Validate export of attendance reports in Excel format",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Specialist with valid credentials",
+          "User has permission to access and export attendance reports",
+          "Attendance data exists in the system for the selected period",
+          "Browser allows file downloads",
+          "Microsoft Excel or compatible spreadsheet application is available to open the file",
+          "Network connection is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance reports section from the main dashboard",
+            "expectedResult": "Attendance reports page loads successfully with all report generation controls visible"
+          },
+          {
+            "step": 2,
+            "action": "Select date range for the attendance report (e.g., quarterly report)",
+            "expectedResult": "Date range is selected and displayed correctly in the date picker fields"
+          },
+          {
+            "step": 3,
+            "action": "Configure any additional filters such as department, location, or employee status",
+            "expectedResult": "Filters are applied and displayed in the active filters section"
+          },
+          {
+            "step": 4,
+            "action": "Click on 'Generate Report' button",
+            "expectedResult": "Attendance report is generated and displayed on screen with complete data including employee details, attendance records, leave information, and summary statistics"
+          },
+          {
+            "step": 5,
+            "action": "Locate and click on the 'Export' button or dropdown menu",
+            "expectedResult": "Export options menu appears showing CSV, PDF, and Excel format options clearly labeled"
+          },
+          {
+            "step": 6,
+            "action": "Select 'Excel' format from the export options",
+            "expectedResult": "Excel export process initiates and file download begins within 10 seconds"
+          },
+          {
+            "step": 7,
+            "action": "Open the downloaded Excel file using Microsoft Excel or compatible application",
+            "expectedResult": "Excel file opens successfully without errors or corruption warnings"
+          },
+          {
+            "step": 8,
+            "action": "Verify the Excel file structure including worksheets, headers, and data organization",
+            "expectedResult": "Excel file contains properly formatted worksheets with clear headers, appropriate column widths, and organized data structure"
+          },
+          {
+            "step": 9,
+            "action": "Check data accuracy by comparing sample records from the Excel file with the on-screen report",
+            "expectedResult": "All data points including employee names, dates, attendance status, hours worked, and leave records match exactly between the Excel file and the displayed report"
+          },
+          {
+            "step": 10,
+            "action": "Verify that Excel-specific features are functional such as sortable columns, filterable data, and formula compatibility",
+            "expectedResult": "Excel file supports standard spreadsheet operations including sorting, filtering, and calculations without errors"
+          }
+        ],
+        "postconditions": [
+          "Excel file is successfully downloaded to the user's default download location",
+          "File contains complete and accurate attendance data in proper Excel format",
+          "Data is structured for easy analysis and manipulation",
+          "Original report remains displayed on screen",
+          "System logs the export activity with user details and timestamp",
+          "File can be opened and edited in Excel or compatible applications"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  }
+]
