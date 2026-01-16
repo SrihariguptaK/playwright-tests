@@ -1,0 +1,421 @@
+[
+  {
+    "storyId": "story-1",
+    "storyTitle": "As Manager, I want to generate schedule reports to monitor team shift adherence",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful schedule report generation with valid filters",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Manager role credentials",
+          "Scheduling database contains test data with employee shifts for the selected date range",
+          "Schedule reporting module is accessible and operational",
+          "At least one employee, team, and department exists in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule reporting module from the main dashboard or menu",
+            "expectedResult": "Schedule report UI is displayed with date range selector, filter options (employee, team, department), and generate report button visible"
+          },
+          {
+            "step": 2,
+            "action": "Select a valid date range (e.g., current week) using the date picker",
+            "expectedResult": "Date range is populated in the date fields without validation errors"
+          },
+          {
+            "step": 3,
+            "action": "Select specific filters: choose an employee from the employee dropdown, select a team from the team dropdown, and select a department from the department dropdown",
+            "expectedResult": "All selected filters are displayed in the filter section without errors, and filter values are properly highlighted or shown as selected"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Generate Report' button to request report generation",
+            "expectedResult": "System displays a loading indicator and processes the request within 10 seconds"
+          },
+          {
+            "step": 5,
+            "action": "Review the generated schedule report displayed on screen",
+            "expectedResult": "Schedule report is generated and displayed with correct data including: employee names, shift times, dates within selected range, team assignments, department information, and all data matches the applied filters. Report shows accurate shift details for the selected criteria"
+          }
+        ],
+        "postconditions": [
+          "Schedule report is displayed on screen with filtered data",
+          "Report data matches the selected filters and date range",
+          "System logs the report generation activity",
+          "User remains on the schedule reporting page"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify export functionality for schedule reports",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Manager role credentials",
+          "Schedule reporting module is accessible",
+          "Test data exists in the scheduling database",
+          "Browser allows file downloads",
+          "User has necessary permissions to export reports"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule reporting module",
+            "expectedResult": "Schedule report UI is displayed with all filter options and export buttons visible"
+          },
+          {
+            "step": 2,
+            "action": "Select a valid date range and apply filters (employee, team, or department)",
+            "expectedResult": "Filters are accepted and displayed without errors"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Generate Report' button to generate the schedule report",
+            "expectedResult": "Report is generated and displayed on screen with filtered data matching the selected criteria, including all shift details, employee names, and schedule information"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Export to PDF' button",
+            "expectedResult": "PDF file is downloaded to the default download location with filename format 'ScheduleReport_[DateRange].pdf'. File opens successfully and displays correct formatting including headers, columns, shift data, and applied filters. All data from the screen report is present in the PDF"
+          },
+          {
+            "step": 5,
+            "action": "Return to the displayed report and click the 'Export to Excel' button",
+            "expectedResult": "Excel file is downloaded to the default download location with filename format 'ScheduleReport_[DateRange].xlsx'. File opens successfully in Excel or compatible application. All data is accurate and matches the screen report including employee names, shift times, dates, teams, and departments. Data is properly formatted in columns with headers"
+          }
+        ],
+        "postconditions": [
+          "PDF file is saved in the download folder with correct data",
+          "Excel file is saved in the download folder with accurate data",
+          "Both exported files contain the same data as displayed in the screen report",
+          "User remains on the schedule reporting page",
+          "Export activity is logged in the system"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure unauthorized users cannot access schedule reports",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Test user account exists with non-manager role (e.g., Employee, Viewer, or Guest role)",
+          "Schedule reporting module exists and is protected by role-based access control",
+          "API endpoint /api/reports/schedules is secured with authentication and authorization",
+          "User is not logged in or logged in with non-manager credentials"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Login to the application using non-manager user credentials (e.g., Employee role)",
+            "expectedResult": "User successfully logs in and is redirected to the appropriate dashboard for their role"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to the schedule reporting module by clicking on the menu or entering the URL directly",
+            "expectedResult": "Access to schedule reporting module is denied. User sees an error message such as 'Access Denied' or 'You do not have permission to view this page'. User is either redirected to their home page or shown an authorization error page. Schedule reporting module is not visible in the navigation menu"
+          },
+          {
+            "step": 3,
+            "action": "Open browser developer tools and attempt to access the API endpoint directly by sending a GET request to /api/reports/schedules with authentication token",
+            "expectedResult": "API returns HTTP 403 Forbidden response with error message indicating insufficient permissions. No schedule data is returned in the response body"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to access the API endpoint without authentication token",
+            "expectedResult": "API returns HTTP 401 Unauthorized response indicating authentication is required"
+          }
+        ],
+        "postconditions": [
+          "Non-manager user remains unable to access schedule reports",
+          "No schedule data is exposed to unauthorized user",
+          "Security logs record the unauthorized access attempts",
+          "User session remains active but restricted to authorized features only"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-5",
+    "storyTitle": "As Manager, I want to filter schedule reports by department to analyze scheduling patterns",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate department filter in schedule reports",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Manager role credentials",
+          "Schedule reporting module is accessible and operational",
+          "Multiple departments exist in the system with associated employee schedules",
+          "Test data includes employees assigned to different departments with scheduled shifts",
+          "At least one department has scheduled shifts within the test date range"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule reporting module from the main dashboard or menu",
+            "expectedResult": "Schedule report UI is displayed with date range selector and all filter options including the department filter dropdown visible and enabled"
+          },
+          {
+            "step": 2,
+            "action": "Select a valid date range (e.g., current month) using the date picker",
+            "expectedResult": "Date range is populated in the date fields without validation errors"
+          },
+          {
+            "step": 3,
+            "action": "Click on the department filter dropdown and select a specific department (e.g., 'Sales Department')",
+            "expectedResult": "Selected department is displayed in the filter section and highlighted as active. No validation errors are shown"
+          },
+          {
+            "step": 4,
+            "action": "Optionally select additional filters such as team or employee if needed for the test scenario",
+            "expectedResult": "All selected filters are accepted and displayed without errors"
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Generate Report' button to generate the schedule report",
+            "expectedResult": "System processes the request within 10 seconds and displays a loading indicator during processing"
+          },
+          {
+            "step": 6,
+            "action": "Review the generated schedule report displayed on screen",
+            "expectedResult": "Report displays data only for the selected department. All employees shown in the report belong to the selected department. No employees from other departments are included. Report includes accurate shift details, dates, times, and employee information. Department name is clearly indicated in the report header or filter summary"
+          },
+          {
+            "step": 7,
+            "action": "Verify each employee record in the report to confirm department association",
+            "expectedResult": "All employee records in the report are confirmed to belong to the selected department only"
+          }
+        ],
+        "postconditions": [
+          "Schedule report displays only data for the selected department",
+          "No data from other departments is visible in the report",
+          "Report generation is completed within the 10-second SLA",
+          "System logs the filtered report generation activity",
+          "User remains on the schedule reporting page with the report displayed"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify export of department filtered schedule reports",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Manager role credentials",
+          "Schedule reporting module is accessible",
+          "Multiple departments exist with scheduled shifts in the system",
+          "Test data includes employees from different departments",
+          "Browser allows file downloads",
+          "User has permissions to export reports"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule reporting module",
+            "expectedResult": "Schedule report UI is displayed with all filter options including department filter visible"
+          },
+          {
+            "step": 2,
+            "action": "Select a valid date range using the date picker",
+            "expectedResult": "Date range is populated without errors"
+          },
+          {
+            "step": 3,
+            "action": "Select a specific department from the department filter dropdown (e.g., 'Engineering Department')",
+            "expectedResult": "Department filter is applied and displayed as selected"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Generate Report' button to generate the schedule report with department filter applied",
+            "expectedResult": "Filtered report is generated within 10 seconds and displayed on screen showing only employees and shifts from the selected department. Report data is accurate and complete for the selected department"
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Export to PDF' button to export the filtered report",
+            "expectedResult": "PDF file is downloaded to the default download location with filename indicating the report type and date range (e.g., 'ScheduleReport_Engineering_[DateRange].pdf')"
+          },
+          {
+            "step": 6,
+            "action": "Open the downloaded PDF file",
+            "expectedResult": "PDF opens successfully and contains data filtered by the selected department only. All employees and shifts shown belong to the selected department. No data from other departments is present. PDF includes proper formatting with headers, columns, department name clearly indicated, and all shift details are accurate and readable. Applied department filter is visible in the report header or summary section"
+          },
+          {
+            "step": 7,
+            "action": "Verify the PDF content matches the on-screen report data",
+            "expectedResult": "PDF content exactly matches the filtered data displayed on screen with no discrepancies in employee names, shift times, dates, or department information"
+          }
+        ],
+        "postconditions": [
+          "PDF file is saved in the download folder containing department-filtered data only",
+          "Exported PDF maintains the applied department filter",
+          "PDF formatting is correct and data is readable",
+          "No data from other departments is included in the export",
+          "Export activity is logged in the system",
+          "User remains on the schedule reporting page"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-9",
+    "storyTitle": "As Manager, I want schedule reports to update automatically after schedule changes to ensure data freshness",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate automatic schedule report refresh after schedule changes",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Manager role credentials",
+          "User has access to schedule reports module",
+          "Scheduling database is operational and accessible",
+          "At least one schedule report exists with current data",
+          "System change tracking mechanism is enabled",
+          "Network connectivity is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule reports section from the main dashboard",
+            "expectedResult": "Schedule reports page loads successfully and displays available reports"
+          },
+          {
+            "step": 2,
+            "action": "Select and open a specific schedule report to view",
+            "expectedResult": "Report is displayed with current schedule data including timestamps, employee assignments, and shift details"
+          },
+          {
+            "step": 3,
+            "action": "Note the current data values in the report (e.g., specific employee shift assignments, dates, times)",
+            "expectedResult": "Current report data is clearly visible and documented for comparison"
+          },
+          {
+            "step": 4,
+            "action": "Navigate to the scheduling module while keeping the report accessible",
+            "expectedResult": "Scheduling module opens successfully without closing the report view"
+          },
+          {
+            "step": 5,
+            "action": "Make a schedule change (e.g., reassign an employee to a different shift, modify shift time, or add new schedule entry)",
+            "expectedResult": "Schedule change is accepted by the system and confirmation message is displayed"
+          },
+          {
+            "step": 6,
+            "action": "Save the schedule changes in the system",
+            "expectedResult": "Changes are saved successfully with a success confirmation message and timestamp"
+          },
+          {
+            "step": 7,
+            "action": "Return to the schedule report view immediately after saving changes",
+            "expectedResult": "Report view is still accessible and displays the previous data state"
+          },
+          {
+            "step": 8,
+            "action": "Monitor the report for automatic refresh, waiting up to 5 minutes and noting the exact refresh time",
+            "expectedResult": "Report automatically refreshes within 5 minutes showing a loading indicator or refresh notification"
+          },
+          {
+            "step": 9,
+            "action": "Verify the report now displays the updated schedule data that was just changed",
+            "expectedResult": "Report accurately reflects all schedule changes made in step 5, including updated employee assignments, times, and dates"
+          },
+          {
+            "step": 10,
+            "action": "Check the report timestamp or last updated indicator",
+            "expectedResult": "Report timestamp shows the current date and time, confirming the refresh occurred within the 5-minute window"
+          }
+        ],
+        "postconditions": [
+          "Schedule report displays the most current data",
+          "Report timestamp reflects the recent refresh time",
+          "Schedule changes are permanently saved in the database",
+          "System remains stable and responsive",
+          "No data inconsistencies exist between scheduling module and reports"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify user notification of report refresh completion",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Manager role credentials",
+          "User has access to schedule reports and scheduling modules",
+          "Notification system is enabled and configured for the user",
+          "User notification preferences are set to receive report refresh alerts",
+          "At least one schedule report is available in the system",
+          "Scheduling database is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule reports section and open a specific schedule report",
+            "expectedResult": "Schedule report opens and displays current schedule data"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the scheduling module to make changes",
+            "expectedResult": "Scheduling module loads successfully with editable schedule interface"
+          },
+          {
+            "step": 3,
+            "action": "Trigger a schedule change by modifying an existing schedule entry (e.g., change employee shift assignment or modify shift timing)",
+            "expectedResult": "Schedule modification interface accepts the changes and displays them in the edit view"
+          },
+          {
+            "step": 4,
+            "action": "Save the schedule changes to trigger the report refresh process",
+            "expectedResult": "System saves changes successfully and displays a confirmation message with timestamp"
+          },
+          {
+            "step": 5,
+            "action": "Monitor the notification area (notification bell, banner, or notification center) for refresh status updates",
+            "expectedResult": "System displays an initial notification indicating that report refresh has been initiated"
+          },
+          {
+            "step": 6,
+            "action": "Wait for the automatic report refresh process to complete (up to 5 minutes)",
+            "expectedResult": "System processes the schedule changes and refreshes the associated reports"
+          },
+          {
+            "step": 7,
+            "action": "Check for a completion notification in the notification area",
+            "expectedResult": "User receives a clear notification message indicating report refresh completion with details such as report name and completion timestamp"
+          },
+          {
+            "step": 8,
+            "action": "Click on the notification to verify it links back to the refreshed report",
+            "expectedResult": "Notification is clickable and navigates user directly to the updated schedule report"
+          },
+          {
+            "step": 9,
+            "action": "Verify the refreshed report contains the schedule changes made in step 3",
+            "expectedResult": "Report displays accurate updated data matching the schedule changes, confirming successful refresh"
+          },
+          {
+            "step": 10,
+            "action": "Check notification history or log to confirm the notification was recorded",
+            "expectedResult": "Notification appears in the user's notification history with correct timestamp and status"
+          }
+        ],
+        "postconditions": [
+          "User has received and acknowledged the report refresh completion notification",
+          "Schedule report contains the latest updated data",
+          "Notification is logged in the user's notification history",
+          "System is ready for subsequent schedule changes and refreshes",
+          "No pending refresh processes remain in the queue"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  }
+]
