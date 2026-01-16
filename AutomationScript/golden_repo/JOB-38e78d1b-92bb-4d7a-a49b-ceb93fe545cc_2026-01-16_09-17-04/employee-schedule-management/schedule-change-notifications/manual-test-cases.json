@@ -1,0 +1,191 @@
+[
+  {
+    "storyId": "story-15",
+    "storyTitle": "As Employee, I want to receive notifications of schedule changes to stay informed and avoid conflicts",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate display of schedule change notifications on login",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee account exists and is active in the system",
+          "Employee has valid login credentials",
+          "At least one schedule change exists for the employee in ScheduleChangeEvents table",
+          "Schedule changes have not been dismissed by the employee",
+          "Web portal is accessible and functional",
+          "API endpoint GET /api/notifications/scheduleChanges is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the web portal login page",
+            "expectedResult": "Login page is displayed with username and password fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid employee credentials (username and password)",
+            "expectedResult": "Credentials are accepted and login button is enabled"
+          },
+          {
+            "step": 3,
+            "action": "Click the login button to authenticate",
+            "expectedResult": "Employee is successfully authenticated and redirected to the dashboard"
+          },
+          {
+            "step": 4,
+            "action": "Observe the dashboard page immediately after login",
+            "expectedResult": "Notification banner appears prominently at the top of the page indicating schedule changes exist"
+          },
+          {
+            "step": 5,
+            "action": "Review the notification banner content",
+            "expectedResult": "Banner displays summary information including number of schedule changes and a prompt to view details"
+          },
+          {
+            "step": 6,
+            "action": "Click on the notification banner or 'View Details' link",
+            "expectedResult": "Notification details panel expands or opens showing comprehensive information"
+          },
+          {
+            "step": 7,
+            "action": "Review the detailed notification information",
+            "expectedResult": "Detailed information is displayed including: type of change (shift added/removed/modified), date and time of affected shift, previous shift details (if modified), new shift details, and timestamp of when change was made"
+          }
+        ],
+        "postconditions": [
+          "Employee remains logged into the system",
+          "Notification remains visible and undismissed",
+          "Notification details are accessible for further review",
+          "Employee session is active"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify notification dismissal functionality",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the web portal",
+          "At least one schedule change notification is visible to the employee",
+          "Notification has not been previously dismissed",
+          "Employee has access to dismiss notifications functionality",
+          "Database connection is active for updating notification status"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Locate the visible schedule change notification on the dashboard",
+            "expectedResult": "Notification banner is displayed with schedule change information"
+          },
+          {
+            "step": 2,
+            "action": "Identify the dismiss button or close icon on the notification",
+            "expectedResult": "Dismiss button (X icon or 'Dismiss' button) is visible and clickable on the notification"
+          },
+          {
+            "step": 3,
+            "action": "Click the dismiss button on the notification",
+            "expectedResult": "Notification immediately disappears from the view with a smooth animation or transition"
+          },
+          {
+            "step": 4,
+            "action": "Verify the notification is no longer visible on the current page",
+            "expectedResult": "Notification banner is completely removed from the dashboard and no longer displayed"
+          },
+          {
+            "step": 5,
+            "action": "Refresh the browser page (F5 or refresh button)",
+            "expectedResult": "Page reloads successfully and dismissed notification does not reappear"
+          },
+          {
+            "step": 6,
+            "action": "Log out of the web portal",
+            "expectedResult": "Employee is successfully logged out and redirected to login page"
+          },
+          {
+            "step": 7,
+            "action": "Log back into the web portal with the same employee credentials",
+            "expectedResult": "Employee successfully logs in and is redirected to dashboard"
+          },
+          {
+            "step": 8,
+            "action": "Check the dashboard for the previously dismissed notification",
+            "expectedResult": "Previously dismissed notification does not reappear on the dashboard"
+          }
+        ],
+        "postconditions": [
+          "Notification status is updated to 'dismissed' in the database",
+          "Dismissed notification is moved to notification history",
+          "Employee remains logged into the system",
+          "No active notifications are displayed for the dismissed change"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Test notification visibility restricted to affected employee",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Two or more employee accounts exist in the system (Employee A and Employee B)",
+          "Employee A has schedule changes with pending notifications",
+          "Employee B has no schedule changes or different schedule changes than Employee A",
+          "Both employees have valid login credentials",
+          "Web portal is accessible",
+          "Security and authentication mechanisms are properly configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as Employee A who has pending schedule change notifications",
+            "expectedResult": "Employee A successfully logs in and notification banner appears showing their schedule changes"
+          },
+          {
+            "step": 2,
+            "action": "Note the specific details of Employee A's schedule change notifications (date, time, shift details)",
+            "expectedResult": "Specific notification details are visible and documented for Employee A"
+          },
+          {
+            "step": 3,
+            "action": "Log out of Employee A's account",
+            "expectedResult": "Employee A is successfully logged out and redirected to login page"
+          },
+          {
+            "step": 4,
+            "action": "Log in as Employee B using their valid credentials",
+            "expectedResult": "Employee B successfully logs in and is redirected to their dashboard"
+          },
+          {
+            "step": 5,
+            "action": "Check the dashboard for any schedule change notifications",
+            "expectedResult": "No notifications related to Employee A's schedule changes are displayed"
+          },
+          {
+            "step": 6,
+            "action": "Verify that only Employee B's own notifications (if any exist) are visible",
+            "expectedResult": "Only notifications specific to Employee B's schedule changes are shown, or no notifications appear if Employee B has no changes"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to access notification history or notification details",
+            "expectedResult": "Employee B can only see their own notification history and cannot access Employee A's notifications"
+          },
+          {
+            "step": 8,
+            "action": "Verify API response by checking network traffic (if applicable)",
+            "expectedResult": "API GET /api/notifications/scheduleChanges returns only notifications where employeeId matches Employee B's ID"
+          }
+        ],
+        "postconditions": [
+          "Employee B remains logged in with access only to their own data",
+          "Employee A's notifications remain private and inaccessible to Employee B",
+          "Security and data isolation is maintained",
+          "No unauthorized data exposure has occurred"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  }
+]
