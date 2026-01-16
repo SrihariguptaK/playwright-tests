@@ -1,0 +1,823 @@
+[
+  {
+    "storyId": "story-7",
+    "storyTitle": "As Employee, I want to view my daily schedule to plan my workday effectively",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate daily schedule display for logged-in employee",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee has valid login credentials",
+          "Employee has at least one shift scheduled for today and previous day",
+          "Schedule portal is accessible and operational",
+          "Employee is not already logged into the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule portal login page",
+            "expectedResult": "Login page is displayed with username and password fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid employee credentials and click 'Login' button",
+            "expectedResult": "Employee is successfully authenticated and dashboard is displayed with navigation options"
+          },
+          {
+            "step": 3,
+            "action": "Click on 'Daily View' option from the navigation menu",
+            "expectedResult": "System navigates to daily schedule view and displays today's date as the default selected date"
+          },
+          {
+            "step": 4,
+            "action": "Review the displayed schedule information for today",
+            "expectedResult": "System displays today's schedule with correct shift details including shift start time, shift end time, location, and role assignment. Current day is highlighted"
+          },
+          {
+            "step": 5,
+            "action": "Click on the 'Previous Day' navigation button",
+            "expectedResult": "System displays the schedule for the previous day without errors or delays (response time under 2 seconds). Date indicator updates to show previous day's date"
+          },
+          {
+            "step": 6,
+            "action": "Verify the previous day's schedule details",
+            "expectedResult": "Schedule displays correct shift information for the previous day including start/end times, location, and role"
+          }
+        ],
+        "postconditions": [
+          "Employee remains logged into the system",
+          "Daily schedule view remains active",
+          "Previous day's schedule is displayed",
+          "No errors are logged in the system"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify access restriction to other employees' schedules",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the schedule portal",
+          "Employee knows or can construct the URL pattern for accessing schedules",
+          "Another employee's ID is known for testing purposes",
+          "OAuth 2.0 authentication is properly configured",
+          "Role-based access control is enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to daily schedule view for own employee account",
+            "expectedResult": "System displays the employee's own daily schedule successfully"
+          },
+          {
+            "step": 2,
+            "action": "Note the current URL structure in the browser address bar",
+            "expectedResult": "URL contains the logged-in employee's ID parameter (e.g., /api/schedules/daily?employeeId={currentEmployeeId}&date={date})"
+          },
+          {
+            "step": 3,
+            "action": "Manually modify the URL by changing the employeeId parameter to another employee's ID and press Enter",
+            "expectedResult": "System denies access and displays an authorization error message (e.g., '403 Forbidden - You are not authorized to view this schedule')"
+          },
+          {
+            "step": 4,
+            "action": "Verify that no schedule data for the other employee is visible on the page",
+            "expectedResult": "No schedule information is displayed, only the authorization error message is shown"
+          },
+          {
+            "step": 5,
+            "action": "Navigate back to the daily schedule view using the navigation menu",
+            "expectedResult": "System displays the logged-in employee's own schedule without errors"
+          },
+          {
+            "step": 6,
+            "action": "Verify all schedule details are correctly displayed",
+            "expectedResult": "Own schedule is displayed with accurate shift times, location, and role information"
+          }
+        ],
+        "postconditions": [
+          "Employee can only access their own schedule",
+          "Security logs record the unauthorized access attempt",
+          "Employee remains logged into the system",
+          "No data breach has occurred"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Test responsive layout on mobile devices",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee has valid login credentials",
+          "Mobile device (smartphone or tablet) is available for testing",
+          "Mobile device has internet connectivity",
+          "Mobile browser is installed and updated",
+          "Employee has shifts scheduled for today and tomorrow",
+          "Screen resolution is typical for mobile devices (e.g., 375x667 or similar)"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open the mobile browser on the device and navigate to the schedule portal login page",
+            "expectedResult": "Login page loads and displays correctly on mobile screen with properly sized input fields and buttons"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid employee credentials and tap 'Login' button",
+            "expectedResult": "Employee is authenticated and dashboard is displayed with mobile-optimized layout"
+          },
+          {
+            "step": 3,
+            "action": "Tap on 'Daily View' option from the navigation menu",
+            "expectedResult": "Daily schedule view loads and displays today's schedule"
+          },
+          {
+            "step": 4,
+            "action": "Review the schedule layout on the mobile screen",
+            "expectedResult": "Schedule layout adjusts correctly for mobile viewport with readable text size (minimum 14px), properly aligned shift details, and all information visible without horizontal scrolling. Touch targets are appropriately sized (minimum 44x44px)"
+          },
+          {
+            "step": 5,
+            "action": "Verify all schedule details are clearly visible",
+            "expectedResult": "Shift start time, end time, location, and role are all displayed clearly and are easily readable on the mobile screen"
+          },
+          {
+            "step": 6,
+            "action": "Tap on the 'Next Day' navigation button",
+            "expectedResult": "System navigates to the next day's schedule smoothly without layout issues or delays"
+          },
+          {
+            "step": 7,
+            "action": "Tap on the 'Previous Day' navigation button",
+            "expectedResult": "System navigates back to the previous day's schedule. Navigation controls function correctly with proper touch responsiveness"
+          },
+          {
+            "step": 8,
+            "action": "Rotate the device to landscape orientation",
+            "expectedResult": "Layout adjusts appropriately to landscape mode while maintaining readability and usability"
+          }
+        ],
+        "postconditions": [
+          "Mobile layout remains responsive and functional",
+          "Employee remains logged in",
+          "All navigation controls are accessible and functional",
+          "No layout breaking or rendering issues occur"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-8",
+    "storyTitle": "As Employee, I want to view my weekly schedule to plan my workweek efficiently",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate weekly schedule display for logged-in employee",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee has valid login credentials",
+          "Employee has multiple shifts scheduled across the current week and next week",
+          "Schedule portal is accessible and operational",
+          "Current week has at least 2-3 shifts scheduled",
+          "Employee is not already logged into the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule portal login page",
+            "expectedResult": "Login page is displayed with username and password fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid employee credentials and click 'Login' button",
+            "expectedResult": "Employee is successfully authenticated and dashboard is displayed with available navigation options"
+          },
+          {
+            "step": 3,
+            "action": "Click on 'Weekly View' option from the navigation menu",
+            "expectedResult": "System navigates to weekly schedule view and displays the current week as the default view with week start and end dates clearly indicated"
+          },
+          {
+            "step": 4,
+            "action": "Review all shifts displayed for the current week",
+            "expectedResult": "System displays all scheduled shifts for the current week accurately. Each shift shows complete details including start time, end time, location, and role. Shifts are organized by day of the week (Monday through Sunday)"
+          },
+          {
+            "step": 5,
+            "action": "Verify the current week is highlighted or indicated",
+            "expectedResult": "Current week is visually distinguished (highlighted, bordered, or marked) to indicate it is the active week being viewed"
+          },
+          {
+            "step": 6,
+            "action": "Count the total number of shifts displayed and verify against expected schedule",
+            "expectedResult": "All shifts for the week are displayed with no missing entries. Count matches the expected number of scheduled shifts"
+          },
+          {
+            "step": 7,
+            "action": "Click on the 'Next Week' navigation button",
+            "expectedResult": "System displays shifts for the next week without errors or delays (response time under 2 seconds). Week date range updates to show next week's start and end dates"
+          },
+          {
+            "step": 8,
+            "action": "Verify the next week's schedule details",
+            "expectedResult": "All shifts for next week are displayed accurately with correct start/end times, locations, and roles. Layout remains consistent with current week view"
+          }
+        ],
+        "postconditions": [
+          "Employee remains logged into the system",
+          "Weekly schedule view remains active",
+          "Next week's schedule is displayed",
+          "No errors are logged in the system",
+          "Page load time was under 2 seconds"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify access control for weekly schedules",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the schedule portal",
+          "Employee is currently viewing weekly schedule",
+          "Another employee's ID is available for testing",
+          "OAuth 2.0 authentication is active",
+          "Role-based access control is properly configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to weekly schedule view for own employee account",
+            "expectedResult": "System displays the employee's own weekly schedule successfully with all shifts visible"
+          },
+          {
+            "step": 2,
+            "action": "Note the current URL structure displayed in the browser address bar",
+            "expectedResult": "URL contains the logged-in employee's ID and week start date parameters (e.g., /api/schedules/weekly?employeeId={currentEmployeeId}&weekStart={date})"
+          },
+          {
+            "step": 3,
+            "action": "Manually modify the URL by changing the employeeId parameter to another employee's ID and press Enter",
+            "expectedResult": "System immediately denies access and displays an authorization error message (e.g., '403 Forbidden - Access denied. You can only view your own schedule')"
+          },
+          {
+            "step": 4,
+            "action": "Verify that no schedule data for the other employee is visible",
+            "expectedResult": "No weekly schedule information for the other employee is displayed. Only the authorization error message is shown on the page"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to use browser back button to return to own schedule",
+            "expectedResult": "Browser navigates back to the previous valid page"
+          },
+          {
+            "step": 6,
+            "action": "Click on 'Weekly View' from the navigation menu",
+            "expectedResult": "System displays the logged-in employee's own weekly schedule without errors"
+          },
+          {
+            "step": 7,
+            "action": "Verify all weekly schedule details are correctly displayed",
+            "expectedResult": "Own weekly schedule is displayed correctly with accurate shift information including times, locations, and roles for all days of the week"
+          }
+        ],
+        "postconditions": [
+          "Employee can only access their own weekly schedule",
+          "Security logs contain record of the unauthorized access attempt",
+          "Employee remains logged into the system",
+          "No unauthorized data was exposed",
+          "System security controls functioned as expected"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Test weekly view responsiveness on mobile",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee has valid login credentials",
+          "Mobile device (smartphone or tablet) is available for testing",
+          "Mobile device has stable internet connectivity",
+          "Mobile browser is installed and up to date",
+          "Employee has shifts scheduled across current week and next week",
+          "Screen resolution is typical for mobile devices"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open the mobile browser and navigate to the schedule portal login page",
+            "expectedResult": "Login page loads correctly on mobile device with properly sized and accessible input fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid employee credentials and tap 'Login' button",
+            "expectedResult": "Employee is authenticated successfully and dashboard is displayed with mobile-optimized layout"
+          },
+          {
+            "step": 3,
+            "action": "Tap on 'Weekly View' option from the navigation menu",
+            "expectedResult": "Weekly schedule view loads and displays the current week's schedule"
+          },
+          {
+            "step": 4,
+            "action": "Review the weekly schedule layout on the mobile screen",
+            "expectedResult": "Layout adjusts correctly for mobile viewport with readable text (minimum 14px font size), properly formatted weekly calendar or list view, and all shift information visible without requiring horizontal scrolling"
+          },
+          {
+            "step": 5,
+            "action": "Scroll vertically through the weekly schedule",
+            "expectedResult": "Scrolling is smooth and all days of the week with their respective shifts are accessible. Headers remain visible or appropriately positioned"
+          },
+          {
+            "step": 6,
+            "action": "Verify all shift details are clearly visible for each day",
+            "expectedResult": "For each scheduled shift, start time, end time, location, and role are displayed clearly and are easily readable on the mobile screen. Information is not truncated or overlapping"
+          },
+          {
+            "step": 7,
+            "action": "Tap on the 'Next Week' navigation button",
+            "expectedResult": "System navigates to next week's schedule smoothly without layout issues, delays, or rendering problems. Week date range updates correctly"
+          },
+          {
+            "step": 8,
+            "action": "Tap on the 'Previous Week' navigation button",
+            "expectedResult": "System navigates back to the previous week's schedule. Navigation controls function correctly with proper touch responsiveness and visual feedback"
+          },
+          {
+            "step": 9,
+            "action": "Rotate the device to landscape orientation",
+            "expectedResult": "Layout adjusts appropriately to landscape mode. Weekly schedule remains readable and usable with proper spacing and formatting"
+          },
+          {
+            "step": 10,
+            "action": "Rotate the device back to portrait orientation",
+            "expectedResult": "Layout adjusts back to portrait mode smoothly without any display issues or data loss"
+          }
+        ],
+        "postconditions": [
+          "Mobile layout remains responsive across orientations",
+          "Employee remains logged in",
+          "All navigation controls are functional on mobile",
+          "Weekly schedule data is accurately displayed",
+          "No layout breaking or rendering issues occurred"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-12",
+    "storyTitle": "As Employee, I want to view my monthly schedule to plan long-term commitments",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate monthly schedule display",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee account exists in the system with valid credentials",
+          "Employee has scheduled shifts for the current month and next month",
+          "Employee is logged out initially",
+          "Application is accessible and running",
+          "Test data includes at least 3 shifts in current month with complete details"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the application login page",
+            "expectedResult": "Login page is displayed with username and password fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid employee credentials and click 'Login' button",
+            "expectedResult": "Employee is successfully authenticated and redirected to the dashboard"
+          },
+          {
+            "step": 3,
+            "action": "Locate and click on 'Monthly View' option in the navigation menu",
+            "expectedResult": "Current month's schedule is displayed in calendar grid format showing all days of the month with scheduled shifts highlighted"
+          },
+          {
+            "step": 4,
+            "action": "Verify that all scheduled shifts for the current month are visible on the calendar",
+            "expectedResult": "All shifts are displayed on their respective dates with basic information (time, shift type) visible on the calendar grid"
+          },
+          {
+            "step": 5,
+            "action": "Click on a date that has a scheduled shift",
+            "expectedResult": "Shift details are displayed in a popup or side panel showing complete information including shift time, duration, location, and any additional notes"
+          },
+          {
+            "step": 6,
+            "action": "Close the shift details popup/panel by clicking the close button or clicking outside the panel",
+            "expectedResult": "Popup/panel closes and monthly calendar view remains displayed"
+          },
+          {
+            "step": 7,
+            "action": "Locate and click the 'Next Month' navigation button or arrow",
+            "expectedResult": "Calendar transitions to display the next month's schedule without errors, showing the correct month name and year in the header"
+          },
+          {
+            "step": 8,
+            "action": "Verify that shifts scheduled for the next month are displayed correctly",
+            "expectedResult": "All shifts for the next month are visible on their respective dates with accurate information"
+          }
+        ],
+        "postconditions": [
+          "Employee remains logged in",
+          "Monthly view displays the next month's schedule",
+          "No errors are logged in the system",
+          "Session remains active"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify access control for monthly schedules",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Two employee accounts exist in the system (Employee A and Employee B)",
+          "Employee A is logged in to the application",
+          "Employee B has scheduled shifts in the current month",
+          "Access control and authorization mechanisms are configured",
+          "Employee A knows Employee B's employee ID"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "While logged in as Employee A, navigate to the monthly schedule view",
+            "expectedResult": "Employee A's monthly schedule is displayed correctly"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to modify the URL or use API endpoint to access Employee B's monthly schedule by changing the employeeId parameter (e.g., /api/schedules/monthly?employeeId={EmployeeB_ID}&month={current_month})",
+            "expectedResult": "Access denied error message is displayed indicating 'You do not have permission to view this schedule' or similar authorization error"
+          },
+          {
+            "step": 3,
+            "action": "Verify that no schedule data for Employee B is visible or accessible",
+            "expectedResult": "No shift information for Employee B is displayed, and the calendar remains empty or shows an error message"
+          },
+          {
+            "step": 4,
+            "action": "Check that Employee A is redirected back to their own schedule or an error page",
+            "expectedResult": "System either redirects to Employee A's schedule or displays an appropriate error page with HTTP 403 Forbidden status"
+          }
+        ],
+        "postconditions": [
+          "Employee A remains logged in with access only to their own schedule",
+          "Employee B's schedule data remains secure and inaccessible to Employee A",
+          "Security event is logged in the system audit trail",
+          "No unauthorized data exposure occurred"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Test responsiveness of monthly view on mobile",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee account exists with valid credentials",
+          "Employee has scheduled shifts for the current month",
+          "Mobile device (smartphone or tablet) is available for testing",
+          "Mobile device has internet connectivity",
+          "Application is mobile-responsive and accessible via mobile browser",
+          "Screen resolution is set to typical mobile dimensions (e.g., 375x667 for iPhone, 360x640 for Android)"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open the application URL in a mobile device browser (Chrome, Safari, or Firefox)",
+            "expectedResult": "Application login page loads and displays correctly on mobile screen without horizontal scrolling"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid employee credentials using the mobile keyboard and tap 'Login' button",
+            "expectedResult": "Employee is successfully authenticated and redirected to the mobile-optimized dashboard"
+          },
+          {
+            "step": 3,
+            "action": "Tap on 'Monthly View' option in the navigation menu (may be in a hamburger menu)",
+            "expectedResult": "Monthly calendar view loads and displays in a mobile-optimized layout with calendar grid adjusted for smaller screen"
+          },
+          {
+            "step": 4,
+            "action": "Verify that the calendar grid is readable with dates and shift information visible without zooming",
+            "expectedResult": "Calendar displays with appropriately sized text and touch-friendly elements, all content is legible, and no text or elements are cut off"
+          },
+          {
+            "step": 5,
+            "action": "Tap on a date with a scheduled shift",
+            "expectedResult": "Shift details appear in a mobile-optimized popup or panel that fits the screen, with all information readable and properly formatted"
+          },
+          {
+            "step": 6,
+            "action": "Scroll through the shift details if necessary",
+            "expectedResult": "Content scrolls smoothly within the popup/panel without affecting the background calendar"
+          },
+          {
+            "step": 7,
+            "action": "Close the shift details by tapping the close button or tapping outside the panel",
+            "expectedResult": "Popup/panel closes smoothly and calendar view remains displayed"
+          },
+          {
+            "step": 8,
+            "action": "Use swipe gesture or tap navigation arrows to move to the next month",
+            "expectedResult": "Calendar transitions smoothly to next month with responsive layout maintained"
+          },
+          {
+            "step": 9,
+            "action": "Rotate the mobile device to landscape orientation",
+            "expectedResult": "Calendar layout adjusts automatically to landscape mode, maintaining readability and usability"
+          },
+          {
+            "step": 10,
+            "action": "Rotate back to portrait orientation",
+            "expectedResult": "Calendar layout adjusts back to portrait mode without errors or layout issues"
+          }
+        ],
+        "postconditions": [
+          "Employee remains logged in on mobile device",
+          "Monthly view maintains responsive layout in both orientations",
+          "All interactive elements remain functional and touch-friendly",
+          "No layout breaks or rendering issues are present"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-13",
+    "storyTitle": "As Employee, I want to navigate between different schedule views to choose the most useful format",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate switching between schedule views",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee account exists with valid credentials",
+          "Employee has scheduled shifts for current day, current week, and current month",
+          "Employee is logged in to the application",
+          "All three view types (daily, weekly, monthly) are implemented and accessible",
+          "A specific date (e.g., 15th of current month) is selected for context preservation testing"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "From the dashboard, navigate to the schedule section and select 'Daily View' option",
+            "expectedResult": "Daily schedule is displayed showing shifts for the current day in a detailed list or timeline format with all shift information visible"
+          },
+          {
+            "step": 2,
+            "action": "Verify that the current date is highlighted and displayed in the view header",
+            "expectedResult": "Current date is clearly indicated with proper formatting (e.g., 'Monday, January 15, 2024') and any shifts for today are listed"
+          },
+          {
+            "step": 3,
+            "action": "Navigate to a specific date (e.g., 15th of the month) using date picker or navigation controls in daily view",
+            "expectedResult": "Daily view updates to show the selected date (15th) with corresponding shifts displayed"
+          },
+          {
+            "step": 4,
+            "action": "Click on 'Weekly View' button or tab in the view switcher controls",
+            "expectedResult": "View transitions smoothly to weekly schedule without full page reload, displaying the week containing the 15th (previously selected date) with all days of that week visible in a grid or column format"
+          },
+          {
+            "step": 5,
+            "action": "Verify that the date context (15th) is preserved and highlighted in the weekly view",
+            "expectedResult": "The 15th is highlighted or marked as the selected date within the weekly calendar, and the week containing this date is displayed"
+          },
+          {
+            "step": 6,
+            "action": "Verify that the transition occurred without full page reload by checking that the page header and navigation remain unchanged",
+            "expectedResult": "Only the schedule content area updates; no browser refresh occurs, URL may update but page doesn't reload, transition time is under 1 second"
+          },
+          {
+            "step": 7,
+            "action": "Review the weekly schedule to ensure all shifts for the week are displayed correctly",
+            "expectedResult": "All shifts for the entire week are visible with appropriate details, organized by day in a clear layout"
+          },
+          {
+            "step": 8,
+            "action": "Click on 'Monthly View' button or tab in the view switcher controls",
+            "expectedResult": "View transitions smoothly to monthly schedule without full page reload, displaying the month containing the 15th (previously selected date) in a calendar grid format"
+          },
+          {
+            "step": 9,
+            "action": "Verify that the date context (15th) is preserved and highlighted in the monthly view",
+            "expectedResult": "The 15th is highlighted or marked as the selected date within the monthly calendar, and all shifts for the month are displayed on their respective dates"
+          },
+          {
+            "step": 10,
+            "action": "Verify that the transition occurred without full page reload",
+            "expectedResult": "Only the schedule content area updates; no browser refresh occurs, transition is smooth and completes in under 1 second"
+          },
+          {
+            "step": 11,
+            "action": "Switch back to daily view by clicking the 'Daily View' button",
+            "expectedResult": "View transitions back to daily schedule showing the 15th (preserved date context) without page reload"
+          }
+        ],
+        "postconditions": [
+          "Employee remains logged in",
+          "Selected date context (15th) is preserved across all view switches",
+          "Daily view is currently displayed showing the 15th",
+          "No errors are present in browser console",
+          "All view transitions completed in under 1 second each"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify access control consistency across views",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Two employee accounts exist (Employee A and Employee B)",
+          "Employee A is logged in to the application",
+          "Employee B has scheduled shifts in daily, weekly, and monthly views",
+          "Access control is configured to restrict employees to their own schedules",
+          "Employee A knows Employee B's employee ID"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "While logged in as Employee A, navigate to the daily schedule view",
+            "expectedResult": "Employee A's daily schedule is displayed correctly with their own shifts"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to access Employee B's daily schedule by modifying the URL or API endpoint to include Employee B's ID (e.g., /api/schedules/daily?employeeId={EmployeeB_ID})",
+            "expectedResult": "Access denied error is displayed with message such as 'Unauthorized access' or 'You do not have permission to view this schedule', and no schedule data for Employee B is shown"
+          },
+          {
+            "step": 3,
+            "action": "Navigate to the weekly schedule view using the view switcher",
+            "expectedResult": "Employee A's weekly schedule is displayed correctly"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to access Employee B's weekly schedule by modifying the URL or API endpoint to include Employee B's ID (e.g., /api/schedules/weekly?employeeId={EmployeeB_ID})",
+            "expectedResult": "Access denied error is displayed consistently with the same error message format as in daily view, and no schedule data for Employee B is shown"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to the monthly schedule view using the view switcher",
+            "expectedResult": "Employee A's monthly schedule is displayed correctly"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to access Employee B's monthly schedule by modifying the URL or API endpoint to include Employee B's ID (e.g., /api/schedules/monthly?employeeId={EmployeeB_ID})",
+            "expectedResult": "Access denied error is displayed consistently with the same error message format as in previous views, and no schedule data for Employee B is shown"
+          },
+          {
+            "step": 7,
+            "action": "Verify that in all three views, the error handling is consistent and appropriate",
+            "expectedResult": "All three views display the same type of access denied error with consistent messaging, HTTP 403 status code, and no data leakage"
+          },
+          {
+            "step": 8,
+            "action": "Verify that Employee A is automatically redirected back to their own schedule or an error page in each view",
+            "expectedResult": "System handles unauthorized access consistently across all views by either redirecting to Employee A's schedule or displaying a proper error page"
+          }
+        ],
+        "postconditions": [
+          "Employee A remains logged in with access only to their own schedules",
+          "Employee B's schedule data remains secure across all views",
+          "Security events are logged in the system audit trail for all three unauthorized access attempts",
+          "Access control is confirmed to be consistent across daily, weekly, and monthly views",
+          "No unauthorized data exposure occurred in any view"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-16",
+    "storyTitle": "As Employee, I want to receive clear error messages when schedule data is unavailable to understand system status",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate error message on data unavailability",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the system with valid credentials",
+          "Employee has permission to access schedule page",
+          "Test environment is configured to simulate API failures",
+          "Network connectivity is available between client and server"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule page URL",
+            "expectedResult": "Schedule page begins loading"
+          },
+          {
+            "step": 2,
+            "action": "Simulate schedule data API failure by disabling the schedule API endpoint or configuring mock failure response",
+            "expectedResult": "API returns error status code (500, 503, or similar)"
+          },
+          {
+            "step": 3,
+            "action": "Observe the schedule page display after API failure",
+            "expectedResult": "User-friendly error message is displayed on the page instead of schedule data. Message should be clear, non-technical, and explain that schedule data is currently unavailable"
+          },
+          {
+            "step": 4,
+            "action": "Review the error message content for clarity and helpfulness",
+            "expectedResult": "Error message uses plain language (e.g., 'We're sorry, schedule information is temporarily unavailable') and provides guidance on next steps"
+          },
+          {
+            "step": 5,
+            "action": "Verify error message includes contact information for assistance",
+            "expectedResult": "Contact information is visible and clear, including support phone number, email address, or help desk link"
+          },
+          {
+            "step": 6,
+            "action": "Check that the contact information is clickable/actionable (if email or phone)",
+            "expectedResult": "Email links open default mail client and phone numbers are formatted as clickable links on mobile devices"
+          },
+          {
+            "step": 7,
+            "action": "Verify error is logged in the system error logs",
+            "expectedResult": "Error entry appears in application logs with timestamp, error type, and relevant details for support team"
+          }
+        ],
+        "postconditions": [
+          "Error message remains displayed until API is restored or page is refreshed",
+          "Error is logged in monitoring system for support team review",
+          "Employee has clear path to get assistance",
+          "No application crash or unhandled exceptions occur"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify no sensitive info in error messages",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the system with valid credentials",
+          "Test environment is configured to trigger API errors with backend details",
+          "Access to backend logs to verify actual error details",
+          "Security testing tools or configuration available to simulate detailed error responses"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Configure the schedule API to return an error response that includes sensitive system details (e.g., database connection strings, internal server paths, stack traces, API keys)",
+            "expectedResult": "Backend API error contains sensitive technical information"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the schedule page as an employee user",
+            "expectedResult": "Schedule page attempts to load and encounters the configured API error"
+          },
+          {
+            "step": 3,
+            "action": "Observe the error message displayed to the employee on the frontend",
+            "expectedResult": "Error message shown to user is generic and safe, containing no technical details, database information, server paths, or stack traces"
+          },
+          {
+            "step": 4,
+            "action": "Inspect the browser console for any exposed sensitive information",
+            "expectedResult": "Console logs do not contain sensitive system details visible to end users"
+          },
+          {
+            "step": 5,
+            "action": "Check the network response in browser developer tools",
+            "expectedResult": "API response to client contains sanitized error message without exposing internal system architecture or credentials"
+          },
+          {
+            "step": 6,
+            "action": "Verify that detailed error information is logged server-side only",
+            "expectedResult": "Backend logs contain full error details including stack trace and system information for debugging purposes"
+          },
+          {
+            "step": 7,
+            "action": "Confirm the user-facing error message provides appropriate level of information",
+            "expectedResult": "Message is helpful but generic (e.g., 'An error occurred while retrieving your schedule. Please try again later or contact support.') without revealing system vulnerabilities"
+          }
+        ],
+        "postconditions": [
+          "No sensitive information is exposed to the employee user interface",
+          "Detailed error information is securely logged for authorized support personnel only",
+          "Application security posture is maintained",
+          "User receives actionable guidance without technical details"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  }
+]
