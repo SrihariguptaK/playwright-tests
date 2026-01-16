@@ -1,0 +1,402 @@
+[
+  {
+    "storyId": "story-6",
+    "storyTitle": "As Scheduler, I want to reschedule conflicting appointments to resolve scheduling conflicts efficiently",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Reschedule conflicting appointment successfully",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as a Scheduler with rescheduling permissions",
+          "At least one appointment conflict exists in the system",
+          "Conflict alert is visible and accessible to the user",
+          "Available time slots exist in the calendar for rescheduling",
+          "Appointment database is accessible and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the conflict alert dashboard and locate a conflicting appointment",
+            "expectedResult": "Conflict alert is displayed with appointment details and available action options"
+          },
+          {
+            "step": 2,
+            "action": "Click on the 'Reschedule' option from the conflict alert",
+            "expectedResult": "Calendar view opens displaying available time slots without conflicts, current appointment details are visible"
+          },
+          {
+            "step": 3,
+            "action": "Review the available time slots in the calendar view",
+            "expectedResult": "Calendar shows available slots clearly marked, conflicting slots are disabled or marked as unavailable"
+          },
+          {
+            "step": 4,
+            "action": "Select a new time slot that does not have any conflicts",
+            "expectedResult": "Selected time slot is highlighted, system begins validation process"
+          },
+          {
+            "step": 5,
+            "action": "Wait for system to validate the selected time slot",
+            "expectedResult": "System validates the new time slot successfully, displays confirmation message that the slot is available, validation completes within 3 seconds"
+          },
+          {
+            "step": 6,
+            "action": "Click the 'Confirm Reschedule' button to finalize the change",
+            "expectedResult": "Confirmation dialog appears asking user to verify the rescheduling action"
+          },
+          {
+            "step": 7,
+            "action": "Confirm the rescheduling action in the confirmation dialog",
+            "expectedResult": "Appointment is successfully updated with new time, success message is displayed, operation completes within 3 seconds"
+          },
+          {
+            "step": 8,
+            "action": "Verify the conflict status in the conflict alert dashboard",
+            "expectedResult": "Conflict is automatically cleared from the alert list, appointment shows updated time, conflict status is marked as resolved"
+          }
+        ],
+        "postconditions": [
+          "Appointment is rescheduled to the new time slot",
+          "Conflict alert is removed from the dashboard",
+          "Conflict status is updated to 'Resolved' in the database",
+          "Appointment database reflects the updated time",
+          "No new conflicts are created by the rescheduling"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Prevent rescheduling to conflicting time",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as a Scheduler with rescheduling permissions",
+          "At least one appointment conflict exists in the system",
+          "Conflict alert is visible and accessible to the user",
+          "Multiple appointments exist creating potential conflicts",
+          "Calendar view is accessible with both available and conflicting time slots"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the conflict alert dashboard and select a conflicting appointment",
+            "expectedResult": "Conflict alert details are displayed with reschedule option available"
+          },
+          {
+            "step": 2,
+            "action": "Click on the 'Reschedule' option from the conflict alert",
+            "expectedResult": "Calendar view opens showing available and unavailable time slots"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to select a time slot that already has a conflicting appointment scheduled",
+            "expectedResult": "Time slot is selected and highlighted, system initiates validation"
+          },
+          {
+            "step": 4,
+            "action": "Wait for system validation of the selected conflicting time slot",
+            "expectedResult": "System detects the conflict and displays a validation error message indicating the selected time conflicts with another appointment"
+          },
+          {
+            "step": 5,
+            "action": "Review the error message details",
+            "expectedResult": "Error message clearly states the conflict reason, shows conflicting appointment details, and prevents the reschedule action from proceeding"
+          },
+          {
+            "step": 6,
+            "action": "Verify that the 'Confirm Reschedule' button is disabled or unavailable",
+            "expectedResult": "Confirm button is disabled or not clickable, preventing user from completing the invalid reschedule"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to click the disabled 'Confirm Reschedule' button",
+            "expectedResult": "No action occurs, button remains disabled, error message persists"
+          },
+          {
+            "step": 8,
+            "action": "Verify the original appointment remains unchanged",
+            "expectedResult": "Original appointment time is unchanged, conflict status remains active, no updates are made to the database"
+          }
+        ],
+        "postconditions": [
+          "Original appointment time remains unchanged",
+          "Conflict alert remains active in the dashboard",
+          "No database updates are performed",
+          "Error message is displayed to guide user to select valid time slot",
+          "System maintains data integrity by preventing invalid reschedule"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-7",
+    "storyTitle": "As Scheduler, I want to override scheduling conflicts with permission to handle exceptional cases",
+    "testCases": [
+      {
+        "id": "tc-003",
+        "title": "Authorized user overrides conflict successfully",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with authorized role that has override permissions",
+          "User role is configured in the system with override access rights",
+          "At least one scheduling conflict exists in the system",
+          "Conflict alert is visible and accessible",
+          "Audit logging system is operational and accessible",
+          "Conflict database is accessible for updates"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the conflict alert dashboard and locate a conflict that requires override",
+            "expectedResult": "Conflict alert is displayed with conflict details and available action options including 'Override' button"
+          },
+          {
+            "step": 2,
+            "action": "Click on the 'Override' option on the conflict alert",
+            "expectedResult": "System initiates permission check, validates user has override authorization"
+          },
+          {
+            "step": 3,
+            "action": "Wait for system to complete permission validation",
+            "expectedResult": "System confirms user has required permissions, displays confirmation dialog prompting user to confirm the override action"
+          },
+          {
+            "step": 4,
+            "action": "Review the confirmation dialog details including conflict information and override implications",
+            "expectedResult": "Confirmation dialog displays conflict details, warning about override action, and options to 'Confirm' or 'Cancel'"
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Confirm' button in the override confirmation dialog",
+            "expectedResult": "System processes the override request, operation completes within 2 seconds, success message is displayed"
+          },
+          {
+            "step": 6,
+            "action": "Verify the conflict status has been updated in the conflict alert dashboard",
+            "expectedResult": "Conflict is marked as 'Overridden', conflict alert is removed or status updated, appointments remain scheduled despite conflict"
+          },
+          {
+            "step": 7,
+            "action": "Navigate to the audit log section or access audit log records",
+            "expectedResult": "Audit log interface is accessible and displays recent entries"
+          },
+          {
+            "step": 8,
+            "action": "Search for the override action entry in the audit log using conflict ID or timestamp",
+            "expectedResult": "Audit log entry is found with complete details"
+          },
+          {
+            "step": 9,
+            "action": "Verify the audit log entry contains all required information",
+            "expectedResult": "Log entry includes user ID/name who performed override, timestamp of action, conflict ID, appointment details, and override reason if applicable"
+          }
+        ],
+        "postconditions": [
+          "Conflict is successfully overridden in the system",
+          "Conflict status is updated to 'Overridden'",
+          "Both conflicting appointments remain scheduled",
+          "Audit log contains complete record of override action with user details and timestamp",
+          "Override action is traceable for compliance purposes",
+          "System maintains audit trail for future reference"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-004",
+        "title": "Unauthorized user cannot override conflict",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with a role that does NOT have override permissions",
+          "User role is configured without override access rights in the system",
+          "At least one scheduling conflict exists in the system",
+          "Conflict alert is visible and accessible to the user",
+          "Role-based access control is properly configured and enforced",
+          "Security permissions are active and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the conflict alert dashboard as an unauthorized user",
+            "expectedResult": "Conflict alert dashboard is displayed with existing conflicts"
+          },
+          {
+            "step": 2,
+            "action": "Locate a conflict alert and check for available action options",
+            "expectedResult": "Conflict details are visible, override option may be hidden or disabled based on permissions"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to click on the 'Override' option if visible, or attempt to access override functionality through any available means",
+            "expectedResult": "System initiates permission check for the user attempting the override action"
+          },
+          {
+            "step": 4,
+            "action": "Wait for system to validate user permissions",
+            "expectedResult": "System detects user lacks required override permissions, denies the override request"
+          },
+          {
+            "step": 5,
+            "action": "Observe the system response to the unauthorized override attempt",
+            "expectedResult": "System displays clear error message stating 'You do not have permission to override conflicts' or similar authorization error, operation is blocked"
+          },
+          {
+            "step": 6,
+            "action": "Verify that no confirmation dialog appears for the override action",
+            "expectedResult": "No confirmation dialog is displayed, user cannot proceed with override"
+          },
+          {
+            "step": 7,
+            "action": "Check the conflict status in the dashboard",
+            "expectedResult": "Conflict status remains unchanged, no override is recorded, conflict remains active"
+          },
+          {
+            "step": 8,
+            "action": "Verify no audit log entry is created for the failed override attempt",
+            "expectedResult": "No override action is logged since the action was denied at permission check, or a failed attempt may be logged for security purposes"
+          }
+        ],
+        "postconditions": [
+          "Conflict remains in its original state",
+          "No override action is performed",
+          "Conflict status is unchanged",
+          "User receives clear error message about insufficient permissions",
+          "System security is maintained by preventing unauthorized overrides",
+          "No unauthorized changes are made to the database",
+          "Role-based access control is enforced successfully"
+        ],
+        "estimatedTime": "5 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-8",
+    "storyTitle": "As Scheduler, I want to track conflict resolution status to monitor scheduling health",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Track and update conflict resolution status",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Conflict database is accessible and operational",
+          "At least one scheduling conflict exists in the system",
+          "User has permissions to view and resolve conflicts",
+          "Dashboard is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the scheduling system and trigger a conflict detection by attempting to schedule overlapping resources or time slots",
+            "expectedResult": "System detects the conflict and automatically sets the conflict status to 'pending' in the conflict database"
+          },
+          {
+            "step": 2,
+            "action": "Verify the conflict status is recorded by querying GET /conflicts/status API endpoint or checking the conflict record in the database",
+            "expectedResult": "Conflict record exists with status='pending', timestamp of detection, and conflict details are accurately recorded"
+          },
+          {
+            "step": 3,
+            "action": "Access the conflict resolution interface and select the pending conflict from the list",
+            "expectedResult": "Conflict details are displayed with current status showing as 'pending' and resolution options are available"
+          },
+          {
+            "step": 4,
+            "action": "Apply a resolution action by either rescheduling one of the conflicting items or selecting an override option, then submit the resolution",
+            "expectedResult": "System processes the resolution action and updates the conflict status to 'resolved' via PUT /conflicts/{id}/status API endpoint"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to the conflict dashboard by clicking on the dashboard menu or accessing the dashboard URL",
+            "expectedResult": "Dashboard loads within 3 seconds and displays all conflicts including the recently resolved conflict"
+          },
+          {
+            "step": 6,
+            "action": "Locate the previously resolved conflict in the dashboard view and verify its status display",
+            "expectedResult": "The conflict is displayed with status='resolved', shows resolution timestamp, resolution method applied, and user who resolved it"
+          }
+        ],
+        "postconditions": [
+          "Conflict status is updated to 'resolved' in the database",
+          "Conflict resolution is recorded in historical data",
+          "Dashboard reflects the updated conflict status",
+          "Audit trail of status change is logged"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Filter and sort conflicts on dashboard",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Conflict dashboard is accessible",
+          "Multiple conflicts exist with different statuses (pending, resolved, overridden)",
+          "Conflicts have different creation dates",
+          "User has permissions to view conflict data",
+          "Dashboard has loaded successfully"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the conflict dashboard and wait for the initial load to complete",
+            "expectedResult": "Dashboard loads within 3 seconds displaying all conflicts with various statuses and dates"
+          },
+          {
+            "step": 2,
+            "action": "Locate the status filter dropdown or filter panel on the dashboard interface",
+            "expectedResult": "Filter options are visible and include all available status values: 'pending', 'resolved', and 'overridden'"
+          },
+          {
+            "step": 3,
+            "action": "Select 'pending' from the status filter dropdown and apply the filter",
+            "expectedResult": "Dashboard refreshes and displays only conflicts with status='pending', all other status conflicts are hidden from view"
+          },
+          {
+            "step": 4,
+            "action": "Verify the filtered results by checking each displayed conflict's status field",
+            "expectedResult": "All displayed conflicts show status='pending', count of displayed conflicts matches the number of pending conflicts, no resolved or overridden conflicts are visible"
+          },
+          {
+            "step": 5,
+            "action": "Clear the status filter or select 'All' to display all conflicts again",
+            "expectedResult": "Dashboard displays all conflicts regardless of status"
+          },
+          {
+            "step": 6,
+            "action": "Locate the sort options and click on the 'Date' column header or select 'Sort by Date' from the sort dropdown",
+            "expectedResult": "Sort control is activated and sort direction indicator (ascending/descending arrow) is displayed"
+          },
+          {
+            "step": 7,
+            "action": "Apply ascending date sort and verify the order of conflicts displayed",
+            "expectedResult": "Conflicts are sorted by date in ascending order (oldest first), with dates progressing chronologically from top to bottom of the list"
+          },
+          {
+            "step": 8,
+            "action": "Click the date sort control again to reverse the sort order to descending",
+            "expectedResult": "Conflicts are re-sorted by date in descending order (newest first), with most recent conflicts appearing at the top of the list"
+          },
+          {
+            "step": 9,
+            "action": "Combine filters by applying status filter 'pending' while maintaining the date sort",
+            "expectedResult": "Dashboard displays only pending conflicts sorted by date in the selected order, both filter and sort are applied simultaneously"
+          }
+        ],
+        "postconditions": [
+          "Dashboard maintains the applied filters and sort preferences",
+          "Filter and sort selections are preserved during the session",
+          "No data integrity issues occur from filtering and sorting operations",
+          "Dashboard performance remains within 3 seconds for filter/sort operations"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  }
+]
