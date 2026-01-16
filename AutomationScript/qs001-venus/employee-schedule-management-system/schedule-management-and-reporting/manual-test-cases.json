@@ -1,0 +1,963 @@
+[
+  {
+    "storyId": "story-3",
+    "storyTitle": "As Manager, I want to modify employee schedules to achieve flexible workforce management",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Modify an assigned shift without conflicts",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Manager is logged into the system with valid credentials",
+          "Manager has role-based access permissions for schedule management",
+          "At least one employee has an assigned shift in the system",
+          "The target shift to be modified exists and is not in the past",
+          "No conflicting shifts exist for the selected time slot"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the employee schedule management page from the main dashboard",
+            "expectedResult": "Employee schedule management page loads successfully and displays a list of all scheduled shifts with employee names, dates, and shift times"
+          },
+          {
+            "step": 2,
+            "action": "Locate and select a specific shift from the schedule list by clicking on it",
+            "expectedResult": "Shift details are displayed and an edit option/button becomes available"
+          },
+          {
+            "step": 3,
+            "action": "Click the edit button to open the shift modification form",
+            "expectedResult": "Edit shift form opens displaying current shift details including date, time, shift template, and employee assignment"
+          },
+          {
+            "step": 4,
+            "action": "Modify the shift details by changing the date and/or shift template to a non-conflicting time slot",
+            "expectedResult": "Form accepts the changes without displaying any validation errors or conflict warnings"
+          },
+          {
+            "step": 5,
+            "action": "Click the submit/save button to apply the modification",
+            "expectedResult": "System processes the modification, shift is updated successfully in the database, and a confirmation message is displayed stating 'Shift updated successfully'"
+          },
+          {
+            "step": 6,
+            "action": "Verify the updated shift appears in the schedule list with the new details",
+            "expectedResult": "Schedule list refreshes and displays the modified shift with updated date and time information"
+          },
+          {
+            "step": 7,
+            "action": "Check that notifications have been sent to the affected employee and relevant managers",
+            "expectedResult": "System confirms notifications were sent via email and in-app alerts to all affected parties"
+          }
+        ],
+        "postconditions": [
+          "Shift is updated in the EmployeeSchedules database with new details",
+          "Audit log entry is created with manager ID, timestamp, and modification details",
+          "Notifications are sent to the affected employee and managers",
+          "Schedule list reflects the updated shift information",
+          "No scheduling conflicts exist in the system"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Cancel an assigned shift with reason",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Manager is logged into the system with valid credentials",
+          "Manager has role-based access permissions for schedule management",
+          "At least one employee has an assigned shift that can be cancelled",
+          "The shift to be cancelled is not already cancelled",
+          "Email and in-app notification systems are operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the employee schedule management page",
+            "expectedResult": "Schedule management page loads and displays all scheduled shifts"
+          },
+          {
+            "step": 2,
+            "action": "Select a scheduled shift to cancel by clicking on it",
+            "expectedResult": "Shift details are displayed with available actions including a cancel option"
+          },
+          {
+            "step": 3,
+            "action": "Click the cancel shift button",
+            "expectedResult": "Cancellation form is displayed with a mandatory reason input field and confirmation/cancel buttons"
+          },
+          {
+            "step": 4,
+            "action": "Enter a valid cancellation reason in the reason input field (e.g., 'Employee requested time off')",
+            "expectedResult": "Text is accepted in the reason field without errors, and the field shows the entered text"
+          },
+          {
+            "step": 5,
+            "action": "Click the confirm cancellation button",
+            "expectedResult": "System processes the cancellation, shift status is updated to cancelled, and a confirmation message is displayed stating 'Shift cancelled successfully'"
+          },
+          {
+            "step": 6,
+            "action": "Verify the cancelled shift is marked as cancelled in the schedule list",
+            "expectedResult": "Schedule list updates and the shift is displayed with a cancelled status indicator and the cancellation reason is visible"
+          },
+          {
+            "step": 7,
+            "action": "Check email inbox for the affected employee",
+            "expectedResult": "Email notification is received by the employee containing shift cancellation details and reason"
+          },
+          {
+            "step": 8,
+            "action": "Check in-app notifications for the affected employee",
+            "expectedResult": "In-app notification is present in the employee's notification center with cancellation details"
+          },
+          {
+            "step": 9,
+            "action": "Verify notification sent to manager",
+            "expectedResult": "Manager receives confirmation notification via email and in-app alert confirming the shift cancellation"
+          }
+        ],
+        "postconditions": [
+          "Shift status is updated to cancelled in the EmployeeSchedules database",
+          "Cancellation reason is stored with the shift record",
+          "Audit log entry is created with manager ID, timestamp, cancellation reason, and change details",
+          "Email notifications are delivered to employee and manager",
+          "In-app notifications are delivered to employee and manager",
+          "Cancelled shift is visible in schedule with cancelled status"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Verify audit logging of schedule modifications",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Manager is logged into the system with valid credentials",
+          "Manager has role-based access permissions for schedule management and audit log access",
+          "At least one scheduled shift exists that can be modified or cancelled",
+          "Audit logging system is enabled and operational",
+          "Manager's user ID and timestamp information are available in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the employee schedule management page",
+            "expectedResult": "Schedule management page loads successfully displaying all scheduled shifts"
+          },
+          {
+            "step": 2,
+            "action": "Select a scheduled shift and modify its details (change date or time) or cancel it with a reason",
+            "expectedResult": "Modification or cancellation is processed successfully and confirmation message is displayed"
+          },
+          {
+            "step": 3,
+            "action": "Note the specific details of the modification including the shift ID, old values, new values, and the exact time of modification",
+            "expectedResult": "Modification details are visible in the confirmation message or schedule view"
+          },
+          {
+            "step": 4,
+            "action": "Navigate to the audit log section or access audit logs for the specific schedule",
+            "expectedResult": "Audit log interface loads successfully showing a list of recent schedule modifications"
+          },
+          {
+            "step": 5,
+            "action": "Search or filter the audit log for the recently modified shift using shift ID or employee name",
+            "expectedResult": "Audit log displays the relevant entry for the modified shift"
+          },
+          {
+            "step": 6,
+            "action": "Verify the audit log entry contains the manager's user ID who performed the modification",
+            "expectedResult": "Log entry displays the correct manager user ID matching the logged-in manager"
+          },
+          {
+            "step": 7,
+            "action": "Verify the audit log entry contains an accurate timestamp of when the modification occurred",
+            "expectedResult": "Timestamp in the log entry matches the time when the modification was performed (within acceptable system time variance)"
+          },
+          {
+            "step": 8,
+            "action": "Verify the audit log entry contains complete change details including old values and new values",
+            "expectedResult": "Log entry shows before and after values for all modified fields (e.g., old date/time vs new date/time, or cancellation reason)"
+          },
+          {
+            "step": 9,
+            "action": "Confirm the log entry includes the action type (modification or cancellation)",
+            "expectedResult": "Log entry clearly indicates whether the action was an edit/modification or a cancellation"
+          },
+          {
+            "step": 10,
+            "action": "Verify log accuracy by comparing all logged details with the actual modification performed",
+            "expectedResult": "All log details (user ID, timestamp, old values, new values, action type) accurately match the performed modification with 100% accuracy"
+          }
+        ],
+        "postconditions": [
+          "Audit log entry exists in the AuditLogs database",
+          "Log entry contains complete and accurate information about the schedule modification",
+          "Log entry includes manager user ID, timestamp, action type, and change details",
+          "Audit trail maintains 100% coverage for the schedule change",
+          "Log entry is immutable and cannot be altered",
+          "Audit log is accessible for future compliance and reporting purposes"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-4",
+    "storyTitle": "As Employee, I want to view my assigned schedule to achieve awareness of my work shifts",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "View assigned schedule for logged-in employee",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee has valid login credentials in the system",
+          "Employee has at least one assigned shift in the EmployeeSchedules database",
+          "System authentication and authorization services are operational",
+          "Employee's schedule data is up-to-date and accurate",
+          "Schedule viewing page loads within 2 seconds performance requirement"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the system login page and enter valid employee credentials (username and password)",
+            "expectedResult": "Login is successful and employee is authenticated"
+          },
+          {
+            "step": 2,
+            "action": "Verify the employee dashboard is displayed after successful login",
+            "expectedResult": "Dashboard loads successfully showing employee-specific menu options and navigation elements"
+          },
+          {
+            "step": 3,
+            "action": "Locate and click on the 'My Schedule' navigation link or menu item",
+            "expectedResult": "'My Schedule' page loads within 2 seconds displaying the employee's personal schedule interface"
+          },
+          {
+            "step": 4,
+            "action": "Verify the schedule page displays assigned shifts for the current date range (default view)",
+            "expectedResult": "Schedule page shows all assigned shifts for the employee with dates, times, and shift information clearly visible in list or calendar view"
+          },
+          {
+            "step": 5,
+            "action": "Select or click on a specific shift to view detailed information",
+            "expectedResult": "Shift details panel or modal opens displaying comprehensive information"
+          },
+          {
+            "step": 6,
+            "action": "Verify shift details include start time information",
+            "expectedResult": "Start time is displayed accurately in the correct time format (e.g., 9:00 AM)"
+          },
+          {
+            "step": 7,
+            "action": "Verify shift details include end time information",
+            "expectedResult": "End time is displayed accurately in the correct time format (e.g., 5:00 PM)"
+          },
+          {
+            "step": 8,
+            "action": "Verify shift details include break time information",
+            "expectedResult": "Break times and duration are displayed correctly (e.g., 12:00 PM - 1:00 PM, 1 hour lunch break)"
+          },
+          {
+            "step": 9,
+            "action": "Verify all displayed shift information matches the actual assigned schedule in the database",
+            "expectedResult": "All shift times, dates, and break information are 100% accurate and match the EmployeeSchedules data source"
+          },
+          {
+            "step": 10,
+            "action": "Test date range selection by choosing a different date range (e.g., next week or next month)",
+            "expectedResult": "Schedule updates to display shifts for the selected date range accurately"
+          }
+        ],
+        "postconditions": [
+          "Employee remains logged into the system",
+          "Schedule data is displayed accurately without modifications",
+          "No unauthorized access to other employees' schedules occurred",
+          "System performance met the 2-second load time requirement",
+          "Employee can continue to navigate to other sections of the application"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Receive notification on schedule change",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee has valid login credentials and is registered in the system",
+          "Employee has at least one assigned shift that can be modified",
+          "Manager has permissions to modify employee schedules",
+          "Email notification system is configured and operational",
+          "In-app notification system is enabled",
+          "Employee's email address is registered and valid in the system",
+          "Employee has access to their email inbox and the application"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Manager logs into the system and navigates to employee schedule management page",
+            "expectedResult": "Manager successfully accesses the schedule management interface"
+          },
+          {
+            "step": 2,
+            "action": "Manager selects the employee's assigned shift and modifies it (changes date, time, or shift template)",
+            "expectedResult": "Schedule modification is processed successfully and saved to the EmployeeSchedules database"
+          },
+          {
+            "step": 3,
+            "action": "System triggers notification process for the schedule change",
+            "expectedResult": "Notification system initiates sending notifications to the affected employee"
+          },
+          {
+            "step": 4,
+            "action": "Check the employee's email inbox for schedule change notification",
+            "expectedResult": "Email notification is received containing the schedule change details including old shift information, new shift information, date of change, and who made the change"
+          },
+          {
+            "step": 5,
+            "action": "Verify the email notification content is accurate and complete",
+            "expectedResult": "Email contains all relevant details: employee name, old schedule, new schedule, modification date/time, and manager who made the change"
+          },
+          {
+            "step": 6,
+            "action": "Employee logs into the system",
+            "expectedResult": "Employee successfully logs in and dashboard is displayed"
+          },
+          {
+            "step": 7,
+            "action": "Check the in-app notification center or notification icon",
+            "expectedResult": "In-app notification is present indicating a schedule change with a notification badge or indicator"
+          },
+          {
+            "step": 8,
+            "action": "Click on the in-app notification to view details",
+            "expectedResult": "Notification details are displayed showing the schedule change information including old and new shift details"
+          },
+          {
+            "step": 9,
+            "action": "Navigate to 'My Schedule' page from the notification or main menu",
+            "expectedResult": "'My Schedule' page loads successfully"
+          },
+          {
+            "step": 10,
+            "action": "Verify the schedule displays the updated shift information",
+            "expectedResult": "Schedule reflects the latest changes made by the manager with accurate new date, time, and shift details"
+          },
+          {
+            "step": 11,
+            "action": "Confirm the old shift is no longer displayed or is marked as modified",
+            "expectedResult": "Old shift information is replaced with new shift details, and schedule shows current accurate information"
+          }
+        ],
+        "postconditions": [
+          "Employee's schedule is updated in the system with the latest changes",
+          "Email notification is delivered and stored in employee's email inbox",
+          "In-app notification is marked as delivered in the notification system",
+          "Employee is aware of the schedule change through multiple notification channels",
+          "Notification delivery meets the 95% timely delivery success metric",
+          "Audit log contains record of the notification being sent"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Export schedule to calendar format",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "Employee is logged into the system with valid credentials",
+          "Employee has at least one assigned shift in their schedule",
+          "Employee has navigated to the 'My Schedule' page",
+          "Export functionality is enabled and operational",
+          "Employee's browser allows file downloads",
+          "Employee has a personal calendar application available (e.g., Google Calendar, Outlook, Apple Calendar)"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "On the 'My Schedule' page, locate and click the export schedule button or option",
+            "expectedResult": "Export options menu or dialog is displayed showing available calendar format options"
+          },
+          {
+            "step": 2,
+            "action": "Review the available export format options (e.g., iCal/ICS, CSV, Google Calendar)",
+            "expectedResult": "Multiple common calendar format options are displayed and selectable"
+          },
+          {
+            "step": 3,
+            "action": "Select a preferred calendar format (e.g., iCal/ICS format) from the available options",
+            "expectedResult": "Selected format is highlighted or marked as chosen"
+          },
+          {
+            "step": 4,
+            "action": "Click the confirm export or download button",
+            "expectedResult": "System processes the export request and initiates file download"
+          },
+          {
+            "step": 5,
+            "action": "Verify the schedule file is downloaded to the local device",
+            "expectedResult": "File is successfully downloaded with appropriate filename (e.g., 'my_schedule.ics') and appears in the browser's download location"
+          },
+          {
+            "step": 6,
+            "action": "Check the downloaded file size and format",
+            "expectedResult": "File has a valid size (greater than 0 bytes) and correct file extension matching the selected format"
+          },
+          {
+            "step": 7,
+            "action": "Open the personal calendar application (e.g., Google Calendar, Outlook)",
+            "expectedResult": "Calendar application launches successfully"
+          },
+          {
+            "step": 8,
+            "action": "Use the calendar application's import function to import the downloaded schedule file",
+            "expectedResult": "Calendar application recognizes the file format and initiates the import process without errors"
+          },
+          {
+            "step": 9,
+            "action": "Complete the import process in the calendar application",
+            "expectedResult": "Import completes successfully and confirmation message is displayed in the calendar application"
+          },
+          {
+            "step": 10,
+            "action": "Navigate to the date range where shifts were scheduled in the calendar application",
+            "expectedResult": "Calendar displays the imported shifts on the correct dates"
+          },
+          {
+            "step": 11,
+            "action": "Verify each imported shift shows correct start time, end time, and shift details",
+            "expectedResult": "All shift information is correctly imported and displayed including accurate start times, end times, break information, and any additional shift details"
+          },
+          {
+            "step": 12,
+            "action": "Compare the imported calendar entries with the original schedule in the system",
+            "expectedResult": "All shifts from the employee's schedule are present in the calendar with 100% accuracy and no missing or incorrect entries"
+          }
+        ],
+        "postconditions": [
+          "Schedule file is successfully downloaded to employee's device",
+          "Schedule is imported into employee's personal calendar application",
+          "All shift information is accurately reflected in the personal calendar",
+          "Employee can view their work schedule in their personal calendar alongside personal appointments",
+          "Original schedule in the system remains unchanged",
+          "Export action may be logged in system audit trail"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-6",
+    "storyTitle": "As Manager, I want to generate reports on shift coverage to achieve optimized workforce planning",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Generate shift coverage report for a date range",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Manager role",
+          "At least one department exists in the system",
+          "Employee schedules exist for the selected date range",
+          "User has permission to access reporting section"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the reporting section from the main dashboard",
+            "expectedResult": "Reporting page loads successfully and displays available report options including shift coverage, employee hours, and scheduling conflicts"
+          },
+          {
+            "step": 2,
+            "action": "Select 'Shift Coverage Report' from the report type dropdown",
+            "expectedResult": "Shift coverage report form is displayed with date range and department filter options"
+          },
+          {
+            "step": 3,
+            "action": "Enter start date in the 'From Date' field (e.g., 01/01/2024)",
+            "expectedResult": "Start date is accepted and displayed in the correct format"
+          },
+          {
+            "step": 4,
+            "action": "Enter end date in the 'To Date' field (e.g., 01/31/2024)",
+            "expectedResult": "End date is accepted and displayed in the correct format"
+          },
+          {
+            "step": 5,
+            "action": "Select a department from the department filter dropdown",
+            "expectedResult": "Department is selected and displayed in the filter field"
+          },
+          {
+            "step": 6,
+            "action": "Click the 'Generate Report' button",
+            "expectedResult": "Report generation begins and a loading indicator is displayed"
+          },
+          {
+            "step": 7,
+            "action": "Wait for report to complete generation",
+            "expectedResult": "Report is generated within 5 seconds and displays shift coverage data including employee names, shift dates, shift times, total hours, and coverage status for the specified date range and department"
+          },
+          {
+            "step": 8,
+            "action": "Verify the accuracy of displayed data by cross-referencing with known schedule entries",
+            "expectedResult": "All data in the report matches the actual employee schedules in the system with 100% accuracy"
+          }
+        ],
+        "postconditions": [
+          "Shift coverage report is displayed on screen",
+          "Report data is accurate and matches database records",
+          "Report generation is logged in the system",
+          "User remains on the reporting page"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Export report to PDF and Excel",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Manager role",
+          "A shift coverage report has been successfully generated and is displayed on screen",
+          "User has appropriate file download permissions",
+          "Browser allows file downloads"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Verify that a shift coverage report is currently displayed on the screen",
+            "expectedResult": "Report is visible with complete data including shift coverage information, employee hours, and any identified conflicts"
+          },
+          {
+            "step": 2,
+            "action": "Locate and click the 'Export to PDF' button in the report toolbar",
+            "expectedResult": "PDF export process initiates and a download dialog appears or file automatically downloads to the default download location"
+          },
+          {
+            "step": 3,
+            "action": "Navigate to the download location and open the downloaded PDF file",
+            "expectedResult": "PDF file opens successfully and contains all report data with proper formatting, headers, and footers. Data matches the on-screen report exactly"
+          },
+          {
+            "step": 4,
+            "action": "Return to the report page and locate the 'Export to Excel' button in the report toolbar",
+            "expectedResult": "Export to Excel button is visible and clickable"
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Export to Excel' button",
+            "expectedResult": "Excel export process initiates and a download dialog appears or file automatically downloads to the default download location"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to the download location and open the downloaded Excel file",
+            "expectedResult": "Excel file opens successfully in spreadsheet application and contains all report data in a structured format with proper columns and rows. Data matches the on-screen report exactly and is editable"
+          },
+          {
+            "step": 7,
+            "action": "Verify that both exported files contain the same data as displayed in the on-screen report",
+            "expectedResult": "PDF and Excel files both contain identical data matching the original report with no data loss or corruption"
+          }
+        ],
+        "postconditions": [
+          "PDF file is successfully downloaded and contains accurate report data",
+          "Excel file is successfully downloaded and contains accurate report data",
+          "Both files are accessible in the download location",
+          "Original report remains displayed on screen",
+          "Export actions are logged in the system"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Verify report highlights uncovered shifts",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Manager role",
+          "Test data includes at least one uncovered shift in the system",
+          "Test data includes at least one scheduling conflict",
+          "Date range for testing encompasses the uncovered shifts and conflicts"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the reporting section from the main dashboard",
+            "expectedResult": "Reporting page loads successfully and displays available report options"
+          },
+          {
+            "step": 2,
+            "action": "Select 'Shift Coverage Report' and specify a date range that includes known uncovered shifts",
+            "expectedResult": "Report parameters are accepted and date range is set correctly"
+          },
+          {
+            "step": 3,
+            "action": "Select the department that contains uncovered shifts",
+            "expectedResult": "Department filter is applied successfully"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Generate Report' button",
+            "expectedResult": "Report is generated within 5 seconds and displays on screen"
+          },
+          {
+            "step": 5,
+            "action": "Scan the report for visual indicators of uncovered shifts (e.g., highlighted rows, warning icons, or color coding)",
+            "expectedResult": "Uncovered shifts are clearly highlighted using distinct visual indicators such as red highlighting, warning icons, or bold text that differentiate them from covered shifts"
+          },
+          {
+            "step": 6,
+            "action": "Review the details of each highlighted uncovered shift",
+            "expectedResult": "Each uncovered shift displays complete information including shift date, shift time, required position, and clear indication that no employee is assigned"
+          },
+          {
+            "step": 7,
+            "action": "Locate the scheduling conflicts section or indicators in the report",
+            "expectedResult": "Scheduling conflicts are clearly identified with visual indicators such as yellow highlighting, conflict icons, or specific conflict markers"
+          },
+          {
+            "step": 8,
+            "action": "Review the details of identified scheduling conflicts",
+            "expectedResult": "Each conflict displays detailed information including the conflicting shifts, affected employees, dates, times, and the nature of the conflict (e.g., double-booking, overlapping shifts)"
+          },
+          {
+            "step": 9,
+            "action": "Verify the count of uncovered shifts and conflicts matches the actual data in the system",
+            "expectedResult": "The number of uncovered shifts and conflicts displayed in the report matches the actual count in the database with 100% accuracy"
+          }
+        ],
+        "postconditions": [
+          "Report accurately displays all uncovered shifts with clear highlighting",
+          "All scheduling conflicts are identified and highlighted",
+          "Report data is accurate and verifiable",
+          "User can easily distinguish between covered shifts, uncovered shifts, and conflicts",
+          "Report remains available for export or further review"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-8",
+    "storyTitle": "As Scheduler, I want to receive notifications on schedule changes to achieve timely awareness",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Receive notification on schedule modification",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one employee exists in the system with an assigned schedule",
+          "Email notification service is configured and operational",
+          "In-app notification service is enabled",
+          "Employee has valid email address in their profile",
+          "Employee has email and in-app notifications enabled in preferences"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the employee scheduling page",
+            "expectedResult": "Scheduling page loads successfully and displays list of employees and their current schedules"
+          },
+          {
+            "step": 2,
+            "action": "Select an employee from the schedule list",
+            "expectedResult": "Employee's current schedule details are displayed including shift dates, times, and assigned positions"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Edit Schedule' button for the selected employee",
+            "expectedResult": "Schedule editing form opens with current schedule information pre-populated"
+          },
+          {
+            "step": 4,
+            "action": "Modify the schedule by changing the shift time from the original time to a new time (e.g., from 9:00 AM - 5:00 PM to 10:00 AM - 6:00 PM)",
+            "expectedResult": "New shift time is entered successfully in the form fields"
+          },
+          {
+            "step": 5,
+            "action": "Click 'Save' or 'Update Schedule' button to confirm the modification",
+            "expectedResult": "Schedule is updated successfully in the system and a confirmation message is displayed. Notification trigger event is initiated"
+          },
+          {
+            "step": 6,
+            "action": "Log in to the affected employee's email account and check the inbox",
+            "expectedResult": "Email notification about the schedule change is received within 2 minutes. Email subject line clearly indicates a schedule modification"
+          },
+          {
+            "step": 7,
+            "action": "Open and review the email notification content",
+            "expectedResult": "Email contains accurate schedule details including employee name, previous shift time (9:00 AM - 5:00 PM), new shift time (10:00 AM - 6:00 PM), shift date, department, and the name of the scheduler who made the change"
+          },
+          {
+            "step": 8,
+            "action": "Log in to the application as the affected employee and navigate to the notifications section or check the notification bell icon",
+            "expectedResult": "In-app notification indicator shows at least one unread notification"
+          },
+          {
+            "step": 9,
+            "action": "Click on the notification bell icon or open the notifications panel",
+            "expectedResult": "In-app notification about the schedule change is displayed in the notification list with a timestamp"
+          },
+          {
+            "step": 10,
+            "action": "Click on the schedule change notification to view full details",
+            "expectedResult": "Notification expands or opens to show complete schedule change information including employee name, previous shift time, new shift time, shift date, department, and scheduler name. All details match the email notification and actual schedule change"
+          },
+          {
+            "step": 11,
+            "action": "Verify the accuracy of all notification content against the actual schedule modification made",
+            "expectedResult": "All information in both email and in-app notifications is 100% accurate and matches the schedule change made in step 4-5"
+          }
+        ],
+        "postconditions": [
+          "Employee schedule is successfully updated in the system",
+          "Email notification is delivered to employee's email address",
+          "In-app notification is visible in employee's notification center",
+          "Notification delivery status is logged in the system",
+          "Both notifications contain accurate and complete schedule change information",
+          "Notification is marked as unread until employee views it"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Configure notification preferences",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "User is logged in to the system",
+          "User has access to account settings or preferences section",
+          "Notification preferences feature is enabled in the system",
+          "User currently has default notification settings applied"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the user profile or account settings page",
+            "expectedResult": "Account settings page loads successfully and displays navigation menu or tabs for various settings options"
+          },
+          {
+            "step": 2,
+            "action": "Locate and click on 'Notification Settings' or 'Notification Preferences' menu item",
+            "expectedResult": "Notification settings page is displayed showing all available notification options including email notifications toggle, in-app notifications toggle, and notification types (schedule creation, modification, cancellation)"
+          },
+          {
+            "step": 3,
+            "action": "Review the current state of email notification toggle (note whether it is enabled or disabled)",
+            "expectedResult": "Current email notification preference is clearly displayed with an ON/OFF toggle or checkbox"
+          },
+          {
+            "step": 4,
+            "action": "Click the email notification toggle to change its state (if enabled, disable it; if disabled, enable it)",
+            "expectedResult": "Toggle switches to the opposite state with visual feedback (e.g., color change, position change)"
+          },
+          {
+            "step": 5,
+            "action": "Review the current state of in-app notification toggle",
+            "expectedResult": "Current in-app notification preference is clearly displayed with an ON/OFF toggle or checkbox"
+          },
+          {
+            "step": 6,
+            "action": "Click the in-app notification toggle to change its state",
+            "expectedResult": "Toggle switches to the opposite state with visual feedback"
+          },
+          {
+            "step": 7,
+            "action": "Click the 'Save' or 'Update Preferences' button to save the changes",
+            "expectedResult": "Preferences are saved successfully and a confirmation message is displayed (e.g., 'Notification preferences updated successfully')"
+          },
+          {
+            "step": 8,
+            "action": "Refresh the page or navigate away and return to the notification settings page",
+            "expectedResult": "Previously saved notification preferences are retained and displayed correctly, confirming that changes were persisted to the database"
+          },
+          {
+            "step": 9,
+            "action": "As a Scheduler user, modify the current user's schedule to trigger a schedule change event",
+            "expectedResult": "Schedule is modified successfully in the system and notification trigger event is initiated"
+          },
+          {
+            "step": 10,
+            "action": "If email notifications were ENABLED in step 4, check the user's email inbox. If DISABLED, verify no email is received",
+            "expectedResult": "Email notification is received only if email notifications were enabled in preferences. No email is received if disabled. Delivery matches the saved preference setting"
+          },
+          {
+            "step": 11,
+            "action": "If in-app notifications were ENABLED in step 6, check the notification center in the application. If DISABLED, verify no in-app notification appears",
+            "expectedResult": "In-app notification appears only if in-app notifications were enabled in preferences. No in-app notification appears if disabled. Delivery matches the saved preference setting"
+          },
+          {
+            "step": 12,
+            "action": "Verify that notifications are sent strictly according to the configured preferences",
+            "expectedResult": "Notification delivery behavior is 100% consistent with the saved preferences. Only enabled notification channels receive notifications, and disabled channels receive none"
+          }
+        ],
+        "postconditions": [
+          "User notification preferences are saved in the database",
+          "Email notification setting reflects user's choice",
+          "In-app notification setting reflects user's choice",
+          "Future notifications are sent only according to saved preferences",
+          "Preference changes are logged in the system",
+          "User remains on the notification settings page or is redirected to a confirmation page"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-10",
+    "storyTitle": "As Employee, I want to receive notifications about my schedule changes to achieve timely updates",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Receive notification on schedule creation",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee account is active and registered in the system",
+          "Employee has a valid email address configured in their profile",
+          "Employee is logged into the application or has access to their email",
+          "Manager has appropriate permissions to create schedules",
+          "Notification service is operational and configured correctly"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Manager logs into the system and navigates to the schedule management section",
+            "expectedResult": "Schedule management interface is displayed with options to create new shifts"
+          },
+          {
+            "step": 2,
+            "action": "Manager selects the employee from the employee list and assigns a new shift with specific date, time, and location details",
+            "expectedResult": "Shift assignment form is completed with all required fields populated"
+          },
+          {
+            "step": 3,
+            "action": "Manager saves the newly created shift assignment",
+            "expectedResult": "Schedule is successfully created and saved in the system with confirmation message displayed"
+          },
+          {
+            "step": 4,
+            "action": "System triggers notification service to send notifications to the employee",
+            "expectedResult": "Notification service processes the request and queues email and in-app notifications"
+          },
+          {
+            "step": 5,
+            "action": "Employee checks their registered email inbox",
+            "expectedResult": "Email notification is received containing the shift details including date, time, location, and shift type"
+          },
+          {
+            "step": 6,
+            "action": "Employee logs into the application and checks the in-app notification center",
+            "expectedResult": "In-app notification is displayed with the same shift details as the email, marked as unread"
+          },
+          {
+            "step": 7,
+            "action": "Employee clicks on the in-app notification to view full details",
+            "expectedResult": "Notification expands to show complete shift information with accurate details matching the created schedule"
+          },
+          {
+            "step": 8,
+            "action": "Employee navigates to the notification history section in their profile",
+            "expectedResult": "Notification history page is displayed showing all past notifications"
+          },
+          {
+            "step": 9,
+            "action": "Employee locates the schedule creation notification in the history list",
+            "expectedResult": "The notification is listed with accurate timestamp, shift details, and notification type clearly indicated as 'Schedule Created'"
+          }
+        ],
+        "postconditions": [
+          "Schedule is created and visible in the employee's schedule view",
+          "Notification is marked as delivered in the system logs",
+          "Notification appears in employee's notification history",
+          "Email notification is stored in employee's email inbox",
+          "Notification delivery is logged for monitoring purposes"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Receive notification on schedule cancellation",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee has an existing shift assigned in the system",
+          "Employee account is active with valid email address configured",
+          "Employee has access to the application and email",
+          "Manager has appropriate permissions to cancel schedules",
+          "Notification service is operational and configured correctly",
+          "The assigned shift is in future date and not yet completed"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Manager logs into the system and navigates to the schedule management section",
+            "expectedResult": "Schedule management interface is displayed with list of existing schedules"
+          },
+          {
+            "step": 2,
+            "action": "Manager locates the employee's assigned shift that needs to be cancelled",
+            "expectedResult": "The specific shift is displayed with all details including employee name, date, time, and location"
+          },
+          {
+            "step": 3,
+            "action": "Manager selects the cancel option for the assigned shift and confirms the cancellation action",
+            "expectedResult": "Cancellation confirmation dialog appears requesting final confirmation"
+          },
+          {
+            "step": 4,
+            "action": "Manager confirms the cancellation by clicking the confirm button",
+            "expectedResult": "Schedule is successfully cancelled in the system with status updated to 'Cancelled' and confirmation message displayed"
+          },
+          {
+            "step": 5,
+            "action": "System triggers notification service to send cancellation notifications to the employee",
+            "expectedResult": "Notification service processes the cancellation event and queues email and in-app notifications"
+          },
+          {
+            "step": 6,
+            "action": "Employee checks their registered email inbox",
+            "expectedResult": "Email notification is received with subject line clearly indicating schedule cancellation"
+          },
+          {
+            "step": 7,
+            "action": "Employee opens the cancellation email notification",
+            "expectedResult": "Email content clearly states that the shift has been cancelled, includes original shift details (date, time, location), and provides cancellation timestamp"
+          },
+          {
+            "step": 8,
+            "action": "Employee logs into the application and checks the in-app notification center",
+            "expectedResult": "In-app notification is displayed with cancellation alert, marked with appropriate icon or color indicating cancellation"
+          },
+          {
+            "step": 9,
+            "action": "Employee clicks on the in-app cancellation notification",
+            "expectedResult": "Notification expands showing complete cancellation details with clear indication that the shift is no longer active and has been removed from the schedule"
+          },
+          {
+            "step": 10,
+            "action": "Employee verifies the cancelled shift in their schedule view",
+            "expectedResult": "The shift either shows as cancelled with strikethrough or is removed from the active schedule, confirming the cancellation"
+          }
+        ],
+        "postconditions": [
+          "Schedule is cancelled and marked as inactive in the system",
+          "Cancellation notification is delivered via both email and in-app channels",
+          "Notification is logged in the employee's notification history",
+          "Cancelled shift is removed or marked as cancelled in employee's schedule view",
+          "Notification delivery is logged and monitored for audit purposes",
+          "Employee is aware of the schedule cancellation"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  }
+]
