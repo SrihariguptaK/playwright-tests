@@ -1,0 +1,930 @@
+[
+  {
+    "storyId": "story-11",
+    "storyTitle": "As Scheduler, I want to detect overlapping appointments to avoid double bookings",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate detection of overlapping appointments",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Scheduling system is accessible and operational",
+          "At least one resource is available in the system",
+          "User has permissions to create and modify appointments",
+          "Database is in a clean state with no existing conflicts"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the appointment scheduling interface",
+            "expectedResult": "Appointment scheduling page loads successfully with all fields visible"
+          },
+          {
+            "step": 2,
+            "action": "Select a resource from the available resources dropdown",
+            "expectedResult": "Resource is selected and displayed in the resource field"
+          },
+          {
+            "step": 3,
+            "action": "Enter appointment details: Date (today's date), Start time (10:00 AM), End time (11:00 AM), and other required fields",
+            "expectedResult": "All appointment details are entered and displayed correctly in the form"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Save' or 'Create Appointment' button",
+            "expectedResult": "Appointment is saved successfully, confirmation message is displayed, and appointment appears in the schedule"
+          },
+          {
+            "step": 5,
+            "action": "Navigate back to the appointment scheduling interface to create a new appointment",
+            "expectedResult": "New appointment form is displayed and ready for input"
+          },
+          {
+            "step": 6,
+            "action": "Select the same resource used in the first appointment",
+            "expectedResult": "Same resource is selected and displayed in the resource field"
+          },
+          {
+            "step": 7,
+            "action": "Enter overlapping appointment details: Same date, Start time (10:30 AM), End time (11:30 AM), and other required fields",
+            "expectedResult": "Overlapping appointment details are entered in the form"
+          },
+          {
+            "step": 8,
+            "action": "Click the 'Save' or 'Create Appointment' button",
+            "expectedResult": "System detects the conflict and displays an alert/warning message indicating an overlapping appointment exists"
+          },
+          {
+            "step": 9,
+            "action": "Review the conflict alert details displayed on screen",
+            "expectedResult": "Alert displays accurate conflicting appointment details including resource name, original appointment time (10:00 AM - 11:00 AM), conflicting time period (10:30 AM - 11:00 AM), and appointment ID or reference"
+          },
+          {
+            "step": 10,
+            "action": "Verify that the overlapping appointment was not saved to the schedule",
+            "expectedResult": "Only the first appointment is visible in the schedule; the overlapping appointment was not created"
+          }
+        ],
+        "postconditions": [
+          "Only one appointment exists for the resource in the specified time slot",
+          "Conflict alert has been displayed and acknowledged",
+          "System remains in a consistent state with no double bookings",
+          "Original appointment remains unchanged"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify conflict detection latency under 2 seconds",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Scheduling system is accessible and operational",
+          "At least one resource with an existing appointment is available",
+          "Performance monitoring tool or browser developer tools are available to measure response time",
+          "System is under normal load conditions"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open browser developer tools and navigate to the Network tab to monitor request timing",
+            "expectedResult": "Developer tools are open and Network tab is active and recording"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the appointment scheduling interface",
+            "expectedResult": "Appointment scheduling page loads successfully"
+          },
+          {
+            "step": 3,
+            "action": "Create a baseline appointment: Select a resource, enter Date (today), Start time (2:00 PM), End time (3:00 PM), and save",
+            "expectedResult": "Baseline appointment is created successfully and visible in the schedule"
+          },
+          {
+            "step": 4,
+            "action": "Clear the Network tab in developer tools to start fresh timing measurement",
+            "expectedResult": "Network tab is cleared and ready to record new requests"
+          },
+          {
+            "step": 5,
+            "action": "Start a timer and create an overlapping appointment: Select the same resource, enter Date (today), Start time (2:30 PM), End time (3:30 PM)",
+            "expectedResult": "Overlapping appointment details are entered in the form"
+          },
+          {
+            "step": 6,
+            "action": "Click 'Save' button and immediately note the timestamp",
+            "expectedResult": "System processes the request and conflict detection begins"
+          },
+          {
+            "step": 7,
+            "action": "Observe when the conflict alert appears on screen and note the timestamp",
+            "expectedResult": "Conflict alert is displayed on screen"
+          },
+          {
+            "step": 8,
+            "action": "Calculate the time difference between clicking 'Save' and the conflict alert appearing",
+            "expectedResult": "Time difference is calculated successfully"
+          },
+          {
+            "step": 9,
+            "action": "Verify the calculated time in the Network tab by checking the response time of the conflict detection API call",
+            "expectedResult": "Network tab shows the API response time for conflict detection is under 2 seconds (≤ 2000ms)"
+          },
+          {
+            "step": 10,
+            "action": "Repeat steps 4-9 for modifying an existing appointment to create a conflict",
+            "expectedResult": "Modification conflict detection also completes within 2 seconds"
+          }
+        ],
+        "postconditions": [
+          "Conflict detection latency is documented and verified to be under 2 seconds",
+          "System performance meets the specified requirement",
+          "No appointments were saved that caused conflicts",
+          "System remains responsive and operational"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure logging of detected conflicts",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role and has access to conflict logs",
+          "Scheduling system is accessible and operational",
+          "Logging functionality is enabled in the system",
+          "At least one resource is available for scheduling",
+          "User has permissions to view system logs or audit trails"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the appointment scheduling interface",
+            "expectedResult": "Appointment scheduling page loads successfully"
+          },
+          {
+            "step": 2,
+            "action": "Create a first appointment: Select Resource 'Conference Room A', Date (today), Start time (9:00 AM), End time (10:00 AM), and save",
+            "expectedResult": "First appointment is created successfully and saved to the schedule"
+          },
+          {
+            "step": 3,
+            "action": "Note the current system time before creating the conflicting appointment",
+            "expectedResult": "Current timestamp is recorded for later verification"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to create an overlapping appointment: Select same Resource 'Conference Room A', Date (today), Start time (9:30 AM), End time (10:30 AM), and click Save",
+            "expectedResult": "System detects the conflict and displays an alert without saving the appointment"
+          },
+          {
+            "step": 5,
+            "action": "Acknowledge or close the conflict alert",
+            "expectedResult": "Alert is dismissed and user returns to the scheduling interface"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to the conflict logs section (may be under Admin, Reports, or Audit Logs menu)",
+            "expectedResult": "Conflict logs page or section loads successfully"
+          },
+          {
+            "step": 7,
+            "action": "Search or filter logs for conflicts that occurred around the noted timestamp",
+            "expectedResult": "Log entries are filtered and displayed for the relevant time period"
+          },
+          {
+            "step": 8,
+            "action": "Locate the log entry for the conflict just triggered",
+            "expectedResult": "A log entry exists for the detected conflict with a timestamp matching the conflict occurrence time"
+          },
+          {
+            "step": 9,
+            "action": "Review the log entry details for completeness",
+            "expectedResult": "Log contains: Timestamp of conflict detection, Resource name (Conference Room A), Original appointment time (9:00 AM - 10:00 AM), Conflicting appointment time (9:30 AM - 10:30 AM), User who attempted the booking, Appointment IDs or references, Conflict status"
+          },
+          {
+            "step": 10,
+            "action": "Verify the timestamp format and accuracy in the log entry",
+            "expectedResult": "Timestamp is in correct format (ISO 8601 or system standard) and matches the time when conflict was detected"
+          },
+          {
+            "step": 11,
+            "action": "Verify all resource details are accurately logged",
+            "expectedResult": "Resource ID, resource name, and resource type are all correctly recorded in the log entry"
+          }
+        ],
+        "postconditions": [
+          "Conflict is logged in the system with complete metadata",
+          "Log entry is persistent and retrievable",
+          "No conflicting appointment was saved to the schedule",
+          "Audit trail is maintained for compliance and review purposes"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-12",
+    "storyTitle": "As Resource Manager, I want to detect double bookings of resources to optimize utilization",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate detection of double bookings for resources",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Resource Manager role",
+          "Resource management system is accessible and operational",
+          "Multiple resource types (rooms, equipment) are configured in the system",
+          "User has permissions to create and modify resource bookings",
+          "Database is in a clean state with no existing booking conflicts"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the resource booking interface",
+            "expectedResult": "Resource booking page loads successfully with all booking fields and resource list visible"
+          },
+          {
+            "step": 2,
+            "action": "Select a resource type 'Equipment' from the resource type dropdown",
+            "expectedResult": "Equipment resource type is selected and available equipment list is displayed"
+          },
+          {
+            "step": 3,
+            "action": "Select a specific resource 'Projector-001' from the equipment list",
+            "expectedResult": "Projector-001 is selected and displayed in the resource field"
+          },
+          {
+            "step": 4,
+            "action": "Enter booking details: Date (tomorrow's date), Start time (1:00 PM), End time (3:00 PM), Purpose 'Team Presentation', and other required fields",
+            "expectedResult": "All booking details are entered correctly and displayed in the form"
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Save' or 'Book Resource' button",
+            "expectedResult": "Booking is saved successfully, confirmation message appears, and booking is visible in the resource schedule"
+          },
+          {
+            "step": 6,
+            "action": "Navigate back to the resource booking interface to create a new booking",
+            "expectedResult": "New resource booking form is displayed and ready for input"
+          },
+          {
+            "step": 7,
+            "action": "Select the same resource type 'Equipment' and the same resource 'Projector-001'",
+            "expectedResult": "Projector-001 is selected again in the new booking form"
+          },
+          {
+            "step": 8,
+            "action": "Enter overlapping booking details: Same date (tomorrow), Start time (2:00 PM), End time (4:00 PM), Purpose 'Client Meeting', and other required fields",
+            "expectedResult": "Overlapping booking details are entered in the form"
+          },
+          {
+            "step": 9,
+            "action": "Click the 'Save' or 'Book Resource' button",
+            "expectedResult": "System detects the double booking conflict and displays an alert/warning message to the Resource Manager"
+          },
+          {
+            "step": 10,
+            "action": "Review the conflict alert details displayed on screen",
+            "expectedResult": "Alert shows accurate conflicting booking information including: Resource name (Projector-001), Resource type (Equipment), Original booking time (1:00 PM - 3:00 PM), Conflicting time period (2:00 PM - 3:00 PM), Original booking purpose, Booking reference numbers"
+          },
+          {
+            "step": 11,
+            "action": "Verify that the overlapping booking was not saved to the schedule",
+            "expectedResult": "Only the first booking for Projector-001 is visible in the schedule; the double booking was prevented"
+          },
+          {
+            "step": 12,
+            "action": "Check the resource availability calendar for Projector-001",
+            "expectedResult": "Calendar shows Projector-001 as booked only from 1:00 PM - 3:00 PM tomorrow, with no double booking"
+          }
+        ],
+        "postconditions": [
+          "Only one booking exists for Projector-001 in the specified time slot",
+          "Double booking alert has been displayed and acknowledged",
+          "System maintains data integrity with no conflicting bookings",
+          "Resource utilization data remains accurate",
+          "Original booking remains unchanged and valid"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify real-time detection latency under 2 seconds",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Resource Manager role",
+          "Resource management system is accessible and operational",
+          "At least one resource with an existing booking is available in the system",
+          "Performance monitoring tool or browser developer tools are available",
+          "System is under normal operational load",
+          "Network connection is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open browser developer tools and navigate to the Network tab",
+            "expectedResult": "Developer tools are open with Network tab active and recording network activity"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the resource booking interface",
+            "expectedResult": "Resource booking page loads successfully"
+          },
+          {
+            "step": 3,
+            "action": "Create a baseline booking: Select resource 'Meeting Room B', Date (next Monday), Start time (10:00 AM), End time (11:30 AM), and save",
+            "expectedResult": "Baseline booking is created successfully and appears in the resource schedule"
+          },
+          {
+            "step": 4,
+            "action": "Clear the Network tab in developer tools to prepare for timing measurement",
+            "expectedResult": "Network tab is cleared and ready to record new requests"
+          },
+          {
+            "step": 5,
+            "action": "Prepare a stopwatch or timer application to measure response time",
+            "expectedResult": "Timer is ready to start measurement"
+          },
+          {
+            "step": 6,
+            "action": "Create a conflicting booking: Select same resource 'Meeting Room B', Date (next Monday), Start time (11:00 AM), End time (12:00 PM), and fill all required fields",
+            "expectedResult": "Conflicting booking details are entered in the form"
+          },
+          {
+            "step": 7,
+            "action": "Start the timer and immediately click the 'Save' or 'Book Resource' button, noting the exact timestamp",
+            "expectedResult": "System processes the booking request and timer is running"
+          },
+          {
+            "step": 8,
+            "action": "Observe when the double booking conflict alert appears on screen and stop the timer",
+            "expectedResult": "Conflict alert is displayed and timer is stopped"
+          },
+          {
+            "step": 9,
+            "action": "Record the elapsed time from clicking 'Save' to alert appearance",
+            "expectedResult": "Elapsed time is recorded (should be ≤ 2 seconds)"
+          },
+          {
+            "step": 10,
+            "action": "Verify the timing in the Network tab by locating the conflict detection API call (e.g., POST /resources/bookings or GET /resources/conflicts)",
+            "expectedResult": "API call is visible in Network tab with response time displayed"
+          },
+          {
+            "step": 11,
+            "action": "Check the response time of the conflict detection API call",
+            "expectedResult": "API response time is under 2000ms (2 seconds)"
+          },
+          {
+            "step": 12,
+            "action": "Repeat the test by modifying an existing booking to create a conflict: Edit the baseline booking to extend end time to 12:00 PM, measure detection time",
+            "expectedResult": "Modification conflict detection also completes within 2 seconds"
+          },
+          {
+            "step": 13,
+            "action": "Document all timing measurements for both creation and modification scenarios",
+            "expectedResult": "All measurements are documented and show latency under 2 seconds"
+          }
+        ],
+        "postconditions": [
+          "Conflict detection latency is verified to be under 2 seconds for both scenarios",
+          "Performance requirement is met and documented",
+          "No conflicting bookings were saved to the system",
+          "System remains responsive and operational",
+          "Performance metrics are recorded for future reference"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure logging of resource booking conflicts",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Resource Manager role",
+          "User has permissions to access conflict logs and audit trails",
+          "Resource management system is accessible and operational",
+          "Logging functionality is enabled and configured correctly",
+          "At least one resource is available for booking",
+          "Log viewing interface is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the resource booking interface",
+            "expectedResult": "Resource booking page loads successfully"
+          },
+          {
+            "step": 2,
+            "action": "Create a first booking: Select Resource Type 'Room', Resource 'Training Room 3', Date (next Friday), Start time (2:00 PM), End time (4:00 PM), Purpose 'Training Session', and save",
+            "expectedResult": "First booking is created successfully and saved to the system"
+          },
+          {
+            "step": 3,
+            "action": "Note the current system timestamp before triggering the conflict",
+            "expectedResult": "Current timestamp is recorded (e.g., 2024-01-15 14:23:45) for later log verification"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to create a double booking: Select Resource Type 'Room', Resource 'Training Room 3', Date (next Friday), Start time (3:00 PM), End time (5:00 PM), Purpose 'Workshop', and click Save",
+            "expectedResult": "System detects the double booking conflict and displays an alert without saving the booking"
+          },
+          {
+            "step": 5,
+            "action": "Read and acknowledge the conflict alert message",
+            "expectedResult": "Alert is acknowledged and dismissed, user returns to booking interface"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to the conflict logs section (typically under Reports, Audit Logs, or System Logs menu)",
+            "expectedResult": "Conflict logs page loads successfully with search and filter options visible"
+          },
+          {
+            "step": 7,
+            "action": "Apply filters: Set date/time range around the noted timestamp, Resource Type 'Room', and Conflict Type 'Double Booking'",
+            "expectedResult": "Filters are applied and log entries are filtered accordingly"
+          },
+          {
+            "step": 8,
+            "action": "Search for the log entry corresponding to the triggered double booking conflict",
+            "expectedResult": "Log entry for the conflict is found and displayed in the results"
+          },
+          {
+            "step": 9,
+            "action": "Click on or expand the log entry to view full details",
+            "expectedResult": "Complete log entry details are displayed"
+          },
+          {
+            "step": 10,
+            "action": "Verify the log entry contains the conflict timestamp",
+            "expectedResult": "Timestamp is present and matches the time when conflict was detected (within seconds of noted time)"
+          },
+          {
+            "step": 11,
+            "action": "Verify the log entry contains resource information",
+            "expectedResult": "Log shows: Resource ID, Resource Name (Training Room 3), Resource Type (Room)"
+          },
+          {
+            "step": 12,
+            "action": "Verify the log entry contains original booking details",
+            "expectedResult": "Log shows: Original booking time (2:00 PM - 4:00 PM), Original booking purpose (Training Session), Original booking ID/reference"
+          },
+          {
+            "step": 13,
+            "action": "Verify the log entry contains conflicting booking attempt details",
+            "expectedResult": "Log shows: Attempted booking time (3:00 PM - 5:00 PM), Attempted booking purpose (Workshop), Overlapping time period (3:00 PM - 4:00 PM)"
+          },
+          {
+            "step": 14,
+            "action": "Verify the log entry contains user information",
+            "expectedResult": "Log shows: Username or User ID of the person who attempted the double booking, User role (Resource Manager)"
+          },
+          {
+            "step": 15,
+            "action": "Verify the log entry contains conflict resolution status",
+            "expectedResult": "Log shows: Conflict Status (Detected/Prevented), Action Taken (Booking Rejected), Override Status (Not Overridden)"
+          },
+          {
+            "step": 16,
+            "action": "Export or print the log entry for documentation",
+            "expectedResult": "Log entry is successfully exported in the required format (PDF, CSV, or print)"
+          }
+        ],
+        "postconditions": [
+          "Double booking conflict is fully logged with complete metadata",
+          "Log entry is persistent and retrievable for audit purposes",
+          "No conflicting booking was saved to the system",
+          "Resource schedule remains accurate with only the original booking",
+          "Audit trail is maintained for compliance and reporting",
+          "Log data can be used for analysis and reporting"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-20",
+    "storyTitle": "As Scheduler, I want the system to support conflict detection for recurring events to prevent repeated scheduling errors",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate detection of conflicts in recurring events",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has Scheduler role with permissions to create events",
+          "Scheduling database is accessible and operational",
+          "Conflict detection engine is enabled",
+          "User is authenticated and logged into the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the event creation interface",
+            "expectedResult": "Event creation form is displayed with all required fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter event details: Title='Weekly Team Meeting', Start Time='10:00 AM', End Time='11:00 AM', Recurrence Pattern='Weekly', Days='Monday', Start Date='Current Date', End Date='3 months from current date'",
+            "expectedResult": "All event details are populated correctly in the form"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Save' or 'Create Event' button",
+            "expectedResult": "System validates the recurring event, processes the recurrence pattern, and displays success message 'Recurring event created successfully'. Event is saved to the scheduling database"
+          },
+          {
+            "step": 4,
+            "action": "Navigate to create a new event that conflicts with the recurring event",
+            "expectedResult": "New event creation form is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Enter conflicting event details: Title='Training Session', Start Time='10:30 AM', End Time='11:30 AM', Date='Next Monday' (overlaps with recurring event instance)",
+            "expectedResult": "Event details are entered into the form"
+          },
+          {
+            "step": 6,
+            "action": "Click 'Save' or 'Create Event' button",
+            "expectedResult": "System detects the conflict with the recurring event instance and displays a conflict alert message containing: conflicting event name ('Weekly Team Meeting'), date and time of conflict, and details about the recurring pattern"
+          },
+          {
+            "step": 7,
+            "action": "Review the conflict alert details",
+            "expectedResult": "Alert clearly identifies the specific instance(s) of the recurring event that conflict, shows the overlapping time period, and provides options to modify or cancel the new event"
+          }
+        ],
+        "postconditions": [
+          "Recurring event remains saved in the system",
+          "Conflicting event is not saved until conflict is resolved",
+          "Conflict alert is displayed to the user",
+          "System maintains data integrity with no duplicate or overlapping events"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify detection latency for recurring event conflicts",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has Scheduler role with permissions to create and modify events",
+          "Scheduling database contains existing events",
+          "Conflict detection engine is operational",
+          "Performance monitoring tools are available to measure response time",
+          "User is authenticated and logged into the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the event creation interface",
+            "expectedResult": "Event creation form is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Enter recurring event details: Title='Daily Standup', Start Time='9:00 AM', End Time='9:30 AM', Recurrence Pattern='Daily', Start Date='Current Date', End Date='1 month from current date'",
+            "expectedResult": "Recurring event details are populated in the form"
+          },
+          {
+            "step": 3,
+            "action": "Start timer/performance monitoring tool and click 'Save' or 'Create Event' button",
+            "expectedResult": "Timer starts and system begins processing the recurring event"
+          },
+          {
+            "step": 4,
+            "action": "Observe system processing and wait for response",
+            "expectedResult": "System analyzes the recurrence pattern, checks all instances against existing events for conflicts, and completes processing"
+          },
+          {
+            "step": 5,
+            "action": "Stop timer when conflict detection completes and system displays result (success message or conflict alert)",
+            "expectedResult": "Timer stops and elapsed time is recorded. System displays appropriate message indicating completion of conflict detection"
+          },
+          {
+            "step": 6,
+            "action": "Review the measured conflict detection time",
+            "expectedResult": "Total time from clicking 'Save' to receiving conflict detection result is 3 seconds or less, meeting the performance requirement"
+          },
+          {
+            "step": 7,
+            "action": "Repeat test with a recurring event that has conflicts: Create event 'Morning Review' with Start Time='9:15 AM', End Time='9:45 AM', Date='Tomorrow' (conflicts with Daily Standup)",
+            "expectedResult": "System processes the event and detects conflict"
+          },
+          {
+            "step": 8,
+            "action": "Measure the time from submission to conflict alert display",
+            "expectedResult": "Conflict detection and alert generation completes within 3 seconds"
+          }
+        ],
+        "postconditions": [
+          "Recurring event is saved if no conflicts exist",
+          "Conflict detection latency is documented and meets performance criteria (under 3 seconds)",
+          "System performance metrics are recorded for reporting",
+          "User receives timely feedback on event creation status"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-21",
+    "storyTitle": "As Scheduler, I want the system to log all detected scheduling conflicts for audit and reporting purposes",
+    "testCases": [
+      {
+        "id": "tc-003",
+        "title": "Verify logging of detected conflicts",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has Scheduler role with permissions to create events",
+          "Conflict detection engine is operational",
+          "Logging system is enabled and configured",
+          "User has access to retrieve conflict logs via API or reporting interface",
+          "Scheduling database contains at least one existing event",
+          "User is authenticated and logged into the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the event creation interface",
+            "expectedResult": "Event creation form is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Create a base event: Title='Project Review', Start Time='2:00 PM', End Time='3:00 PM', Date='Tomorrow'",
+            "expectedResult": "Event is created successfully and saved to the system"
+          },
+          {
+            "step": 3,
+            "action": "Create a conflicting event: Title='Client Meeting', Start Time='2:30 PM', End Time='3:30 PM', Date='Tomorrow' (overlaps with Project Review)",
+            "expectedResult": "System detects the scheduling conflict and displays conflict alert to the user"
+          },
+          {
+            "step": 4,
+            "action": "Note the timestamp when the conflict was detected",
+            "expectedResult": "Current timestamp is recorded for verification against log entry"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to the conflict logs interface or access the GET /conflict-logs API endpoint",
+            "expectedResult": "Conflict logs retrieval interface or API is accessible"
+          },
+          {
+            "step": 6,
+            "action": "Retrieve conflict logs for the current date/time period",
+            "expectedResult": "System returns conflict log entries successfully"
+          },
+          {
+            "step": 7,
+            "action": "Search for the log entry corresponding to the triggered conflict between 'Project Review' and 'Client Meeting'",
+            "expectedResult": "Log entry exists for the detected conflict"
+          },
+          {
+            "step": 8,
+            "action": "Verify log entry contains complete metadata: timestamp, involved resources (Project Review and Client Meeting), conflict type, user who triggered the conflict, event details (dates, times), and conflict resolution status",
+            "expectedResult": "Log entry contains all required metadata fields with accurate information matching the conflict that was triggered. Timestamp is within 1 second of when conflict was detected"
+          }
+        ],
+        "postconditions": [
+          "Conflict is logged in the system with complete metadata",
+          "Log entry is stored securely in the logging database",
+          "Log entry is retrievable for audit and reporting purposes",
+          "System maintains complete audit trail of conflict detection events"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-004",
+        "title": "Validate secure access to conflict logs",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Logging system contains existing conflict log entries",
+          "Role-based access control is configured and enabled",
+          "Two user accounts are available: one unauthorized user without log access permissions and one authorized user with log access permissions",
+          "Conflict logs API endpoint (GET /conflict-logs) is operational",
+          "Security and authentication mechanisms are active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log into the system using credentials of an unauthorized user (user without permissions to view conflict logs)",
+            "expectedResult": "User is successfully authenticated and logged into the system"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to the conflict logs interface or reporting tool",
+            "expectedResult": "System denies access and displays an error message such as 'Access Denied' or 'You do not have permission to view conflict logs'"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to directly access the GET /conflict-logs API endpoint using the unauthorized user's authentication token",
+            "expectedResult": "API returns HTTP 403 Forbidden status code with error message indicating insufficient permissions. No log data is returned"
+          },
+          {
+            "step": 4,
+            "action": "Verify that no conflict log data is displayed or accessible to the unauthorized user",
+            "expectedResult": "Unauthorized user cannot view, retrieve, or access any conflict log entries. Security controls prevent unauthorized access"
+          },
+          {
+            "step": 5,
+            "action": "Log out from the unauthorized user account",
+            "expectedResult": "User is successfully logged out from the system"
+          },
+          {
+            "step": 6,
+            "action": "Log into the system using credentials of an authorized user (user with permissions to view conflict logs)",
+            "expectedResult": "Authorized user is successfully authenticated and logged into the system"
+          },
+          {
+            "step": 7,
+            "action": "Navigate to the conflict logs interface or reporting tool",
+            "expectedResult": "System grants access and displays the conflict logs interface"
+          },
+          {
+            "step": 8,
+            "action": "Access the GET /conflict-logs API endpoint using the authorized user's authentication token",
+            "expectedResult": "API returns HTTP 200 OK status code with conflict log data. Logs are retrieved successfully within 2 seconds"
+          },
+          {
+            "step": 9,
+            "action": "Verify that conflict log entries are displayed with complete information including filtering options by date, resource, and conflict type",
+            "expectedResult": "Authorized user can view all conflict logs with complete metadata. Filtering options are available and functional. Log retrieval response time is under 2 seconds"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized users remain unable to access conflict logs",
+          "Authorized users can successfully access and retrieve conflict logs",
+          "Security controls are validated and functioning correctly",
+          "Access attempts are logged for security audit purposes",
+          "Role-based access control is enforced properly"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-22",
+    "storyTitle": "As Scheduler, I want the system to handle concurrent scheduling operations without missing conflicts",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate conflict detection under concurrent scheduling",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Scheduling system is operational and accessible",
+          "Database has concurrency controls enabled",
+          "100 test user accounts are created and authenticated",
+          "Test environment can support 100 concurrent connections",
+          "Baseline appointments exist in the system for conflict scenarios",
+          "Performance monitoring tools are configured",
+          "API endpoints POST /appointments and PUT /appointments/{id} are available"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Prepare 100 concurrent scheduling requests with a mix of new appointments and modifications, ensuring at least 20% have intentional time/resource conflicts",
+            "expectedResult": "Test data set is prepared with appointments scheduled for overlapping time slots and resources"
+          },
+          {
+            "step": 2,
+            "action": "Initiate 100 concurrent users to simultaneously create and modify appointments using POST /appointments and PUT /appointments/{id} endpoints",
+            "expectedResult": "All 100 requests are submitted to the system within a 2-second window"
+          },
+          {
+            "step": 3,
+            "action": "Monitor system processing of all 100 concurrent operations",
+            "expectedResult": "System accepts and processes all 100 operations without crashes, timeouts, or rejected requests"
+          },
+          {
+            "step": 4,
+            "action": "Verify that the system detects all intentional conflicts in the concurrent operations",
+            "expectedResult": "All conflicting appointments (minimum 20 conflicts) are identified by the conflict detection mechanism"
+          },
+          {
+            "step": 5,
+            "action": "Check that conflict alerts are generated for each detected conflict",
+            "expectedResult": "Conflict alerts are generated for all detected conflicts with accurate details about the conflicting appointments"
+          },
+          {
+            "step": 6,
+            "action": "Verify the timing of conflict detection and alert generation",
+            "expectedResult": "All conflict alerts are generated within 2 seconds of operation submission"
+          },
+          {
+            "step": 7,
+            "action": "Review system logs and database records to confirm all operations were logged",
+            "expectedResult": "All 100 operations are recorded in system logs with appropriate status (success or conflict)"
+          },
+          {
+            "step": 8,
+            "action": "Validate that no false positives exist - non-conflicting appointments are successfully created/modified",
+            "expectedResult": "All non-conflicting appointments (approximately 80) are successfully saved without conflict alerts"
+          },
+          {
+            "step": 9,
+            "action": "Calculate conflict detection accuracy rate",
+            "expectedResult": "Conflict detection accuracy is 100% with zero missed conflicts and zero false positives"
+          }
+        ],
+        "postconditions": [
+          "All non-conflicting appointments are successfully saved in the database",
+          "All conflicting appointments are rejected or flagged with alerts",
+          "System remains stable and responsive",
+          "No data corruption or inconsistencies exist",
+          "Audit logs contain complete records of all operations",
+          "System performance metrics are within acceptable thresholds"
+        ],
+        "estimatedTime": "30 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Ensure data consistency during concurrent operations",
+        "type": "edge-case",
+        "priority": "High",
+        "preconditions": [
+          "Scheduling system is operational with database concurrency controls active",
+          "Multiple test user accounts are authenticated",
+          "Baseline appointments exist that can be targeted for concurrent updates",
+          "Database transaction isolation level is properly configured",
+          "Database supports ACID properties",
+          "Monitoring tools are in place to detect lost updates or inconsistencies"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Identify 10 existing appointments in the system that will be targets for concurrent updates",
+            "expectedResult": "10 appointments are selected with their current state documented (time, resource, attendees, status)"
+          },
+          {
+            "step": 2,
+            "action": "Create test scenarios where multiple users will attempt to modify the same appointments simultaneously with overlapping time slots",
+            "expectedResult": "Test data prepared with 5-10 concurrent update requests per target appointment, each attempting to change time slots that would create conflicts"
+          },
+          {
+            "step": 3,
+            "action": "Execute concurrent PUT /appointments/{id} requests from multiple users targeting the same appointments",
+            "expectedResult": "All concurrent update requests are submitted simultaneously to the system"
+          },
+          {
+            "step": 4,
+            "action": "Monitor database transaction processing and locking mechanisms",
+            "expectedResult": "Database applies appropriate locks and ensures serialization of conflicting updates"
+          },
+          {
+            "step": 5,
+            "action": "Verify that only one update per appointment is successfully committed when updates conflict",
+            "expectedResult": "Each appointment reflects exactly one successful update, with other conflicting updates properly rejected or queued"
+          },
+          {
+            "step": 6,
+            "action": "Check for lost updates by comparing the final state of each appointment against all submitted update requests",
+            "expectedResult": "No updates are lost - each update request either succeeded, was rejected with conflict alert, or failed with appropriate error message"
+          },
+          {
+            "step": 7,
+            "action": "Query the database to verify data integrity of all modified appointments",
+            "expectedResult": "All appointment records have valid, consistent data with no corrupted fields, orphaned records, or invalid references"
+          },
+          {
+            "step": 8,
+            "action": "Verify that appointment timestamps, version numbers, or other concurrency control fields are correctly updated",
+            "expectedResult": "All concurrency control mechanisms show proper incrementation and no version conflicts exist"
+          },
+          {
+            "step": 9,
+            "action": "Check for any phantom reads, dirty reads, or non-repeatable reads in the transaction logs",
+            "expectedResult": "No data anomalies detected - all transactions maintained proper isolation"
+          },
+          {
+            "step": 10,
+            "action": "Validate that all users received appropriate responses indicating success or conflict for their update attempts",
+            "expectedResult": "Each user received accurate response status (200 for success, 409 for conflict, etc.) matching the actual outcome of their request"
+          },
+          {
+            "step": 11,
+            "action": "Perform a comprehensive data consistency check across all related tables and relationships",
+            "expectedResult": "All foreign key relationships are intact, no orphaned records exist, and referential integrity is maintained"
+          }
+        ],
+        "postconditions": [
+          "All appointments in the database have consistent, valid data",
+          "No lost updates occurred during concurrent operations",
+          "Database integrity constraints are satisfied",
+          "All users received accurate feedback about their operations",
+          "Transaction logs show proper isolation and atomicity",
+          "System remains in a stable state ready for subsequent operations"
+        ],
+        "estimatedTime": "25 mins"
+      }
+    ]
+  }
+]
