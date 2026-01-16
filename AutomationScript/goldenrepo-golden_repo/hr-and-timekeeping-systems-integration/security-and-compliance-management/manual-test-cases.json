@@ -1,0 +1,811 @@
+[
+  {
+    "storyId": "story-15",
+    "storyTitle": "As Security Officer, I want to enforce OAuth 2.0 authentication for API integrations to achieve secure access control",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate OAuth 2.0 token issuance and validation",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Security Officer has admin access to the system",
+          "OAuth 2.0 configuration is completed in admin console",
+          "API endpoints /oauth/token and /oauth/authorize are accessible",
+          "Test client credentials are configured",
+          "TLS encryption is enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to OAuth authorization endpoint and initiate authorization flow with valid client credentials",
+            "expectedResult": "Authorization request is accepted and redirected to authorization page"
+          },
+          {
+            "step": 2,
+            "action": "Complete authorization and request access token via /oauth/token endpoint",
+            "expectedResult": "Access token is issued successfully with token type, expiry time, and refresh token in response"
+          },
+          {
+            "step": 3,
+            "action": "Make API call to a protected endpoint with the valid access token in Authorization header",
+            "expectedResult": "API call is authorized and processed successfully with HTTP 200 status code and expected response data"
+          },
+          {
+            "step": 4,
+            "action": "Wait for token to expire or manually set system time beyond token expiry",
+            "expectedResult": "Token expiry time is reached"
+          },
+          {
+            "step": 5,
+            "action": "Make API call to the same protected endpoint with the expired token",
+            "expectedResult": "API call is rejected with HTTP 401 Unauthorized error and message indicating token expiration"
+          },
+          {
+            "step": 6,
+            "action": "Verify token validation response time is under 100ms",
+            "expectedResult": "Token validation completes within 100ms performance threshold"
+          }
+        ],
+        "postconditions": [
+          "Valid tokens remain active until expiry",
+          "Expired tokens are invalidated in token store",
+          "All authentication attempts are logged",
+          "System maintains secure token storage"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify logging of authentication events",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "OAuth 2.0 authentication is configured and enabled",
+          "Logging system is operational",
+          "Security Officer has access to authentication logs",
+          "Test user credentials are available",
+          "Log storage has sufficient capacity"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Perform OAuth authentication flow with valid credentials and obtain access token",
+            "expectedResult": "Authentication completes successfully and access token is issued"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to authentication logs dashboard and search for the recent authentication event",
+            "expectedResult": "Authentication success event is logged with timestamp, user identity, token ID, and success status"
+          },
+          {
+            "step": 3,
+            "action": "Attempt authentication with an invalid or malformed token",
+            "expectedResult": "Authentication fails with appropriate error message"
+          },
+          {
+            "step": 4,
+            "action": "Check authentication logs for the failed attempt",
+            "expectedResult": "Authentication failure event is logged with timestamp, attempted user identity, failure reason, and error code"
+          },
+          {
+            "step": 5,
+            "action": "Review authentication logs for completeness and accuracy",
+            "expectedResult": "Logs contain accurate timestamps in correct timezone, complete event details including IP address, user agent, and authentication method"
+          },
+          {
+            "step": 6,
+            "action": "Verify log entries are immutable and cannot be modified",
+            "expectedResult": "Log entries are read-only and protected from tampering"
+          }
+        ],
+        "postconditions": [
+          "All authentication events are permanently logged",
+          "Logs are available for audit and review",
+          "Log integrity is maintained",
+          "No sensitive credentials are stored in logs"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Test integration with external identity provider",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "External identity provider is available and configured",
+          "Security Officer has admin access to configure identity provider settings",
+          "Network connectivity to external provider is established",
+          "Provider client ID and secret are obtained",
+          "TLS certificates are valid"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to admin console and access identity provider configuration section",
+            "expectedResult": "Identity provider configuration page is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Enter external identity provider settings including provider URL, client ID, client secret, and scopes",
+            "expectedResult": "Settings are validated and accepted by the system"
+          },
+          {
+            "step": 3,
+            "action": "Save the identity provider configuration",
+            "expectedResult": "Settings are saved successfully and confirmation message is displayed"
+          },
+          {
+            "step": 4,
+            "action": "Initiate OAuth authorization flow using the external identity provider",
+            "expectedResult": "User is redirected to external provider login page"
+          },
+          {
+            "step": 5,
+            "action": "Complete authentication on external provider and authorize the application",
+            "expectedResult": "Token is issued by external provider and returned to the system"
+          },
+          {
+            "step": 6,
+            "action": "Verify the external token is accepted and stored by the system",
+            "expectedResult": "Token is validated, accepted, and securely stored in token store"
+          },
+          {
+            "step": 7,
+            "action": "Make API call to a protected endpoint using the external provider token",
+            "expectedResult": "API call is authorized successfully with HTTP 200 status and expected response data"
+          },
+          {
+            "step": 8,
+            "action": "Verify authentication event is logged with external provider details",
+            "expectedResult": "Log entry shows successful authentication via external provider with provider name and user identity"
+          }
+        ],
+        "postconditions": [
+          "External identity provider integration is active",
+          "Tokens from external provider are accepted for API access",
+          "Provider settings are persisted in system configuration",
+          "Authentication events reference external provider"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-16",
+    "storyTitle": "As Compliance Manager, I want to audit API data access and modifications to achieve regulatory compliance",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Verify logging of API data access events",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Compliance Manager has access to audit dashboard",
+          "API gateway logging is enabled and operational",
+          "Test user has API access credentials",
+          "Sample data exists in the system for read/write operations",
+          "Audit log storage is available"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Authenticate as test user and perform API data read operation (GET request) on employee records",
+            "expectedResult": "API request completes successfully and returns employee data"
+          },
+          {
+            "step": 2,
+            "action": "Perform API data write operation (POST/PUT request) to create or update employee timesheet data",
+            "expectedResult": "API request completes successfully and data is modified in the system"
+          },
+          {
+            "step": 3,
+            "action": "Navigate to audit dashboard and access audit logs section",
+            "expectedResult": "Audit logs dashboard is displayed with search and filter options"
+          },
+          {
+            "step": 4,
+            "action": "Search for the recent API operations performed in previous steps",
+            "expectedResult": "All operations are logged with complete details including user identity, timestamp, operation type (READ/WRITE), endpoint accessed, and request/response status"
+          },
+          {
+            "step": 5,
+            "action": "Apply filters to view logs by date range, user identity, and event type",
+            "expectedResult": "Logs are filtered correctly showing only matching entries with accurate details"
+          },
+          {
+            "step": 6,
+            "action": "Select option to export audit report in PDF format",
+            "expectedResult": "PDF report generation is initiated"
+          },
+          {
+            "step": 7,
+            "action": "Download and open the generated PDF report",
+            "expectedResult": "Report is generated within 5 seconds, downloadable, and contains all filtered log entries with proper formatting and headers"
+          },
+          {
+            "step": 8,
+            "action": "Verify log retrieval performance is under 3 seconds",
+            "expectedResult": "Audit logs are retrieved and displayed within 3 seconds performance threshold"
+          }
+        ],
+        "postconditions": [
+          "All API operations are permanently logged in audit system",
+          "Audit reports are available for download",
+          "Log data integrity is maintained",
+          "Filters and search functionality remain operational"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Test secure storage and access control of audit logs",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Audit logging system is operational",
+          "Multiple user accounts exist with different permission levels",
+          "Unauthorized test user account is created without audit log access",
+          "Authorized Compliance Manager account has audit log access",
+          "Encryption is enabled for log storage"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as unauthorized user without audit log access permissions",
+            "expectedResult": "User is authenticated successfully but has limited permissions"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to access audit logs dashboard via direct URL or navigation",
+            "expectedResult": "Access is denied with HTTP 403 Forbidden error or redirect to unauthorized page"
+          },
+          {
+            "step": 3,
+            "action": "Verify the unauthorized access attempt is logged in security logs",
+            "expectedResult": "Unauthorized access attempt is logged with user identity, timestamp, and denied action"
+          },
+          {
+            "step": 4,
+            "action": "Log out and log in as authorized Compliance Manager with proper permissions",
+            "expectedResult": "Compliance Manager is authenticated successfully"
+          },
+          {
+            "step": 5,
+            "action": "Access audit logs dashboard",
+            "expectedResult": "Access is granted and full audit log visibility is provided with all filtering and export options"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to log storage location and verify encryption status",
+            "expectedResult": "Audit logs are stored in encrypted format using approved encryption algorithm"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to directly access or modify log files at storage level",
+            "expectedResult": "Logs are protected with access controls and cannot be modified or deleted, maintaining immutability"
+          },
+          {
+            "step": 8,
+            "action": "Verify encryption keys are securely managed and not exposed",
+            "expectedResult": "Encryption keys are stored securely in key management system and not accessible via application"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized access attempts are logged",
+          "Audit logs remain encrypted and protected",
+          "Access controls are enforced consistently",
+          "Log integrity is verified and maintained"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Validate alerting on suspicious API activities",
+        "type": "edge-case",
+        "priority": "High",
+        "preconditions": [
+          "Alert system is configured and operational",
+          "Compliance team email addresses are configured for alerts",
+          "Suspicious activity detection rules are defined",
+          "Test API endpoints are available",
+          "Baseline normal activity patterns are established"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Simulate suspicious API access pattern such as rapid repeated requests to sensitive endpoints within short time window",
+            "expectedResult": "Multiple API requests are executed in rapid succession"
+          },
+          {
+            "step": 2,
+            "action": "Monitor system detection mechanisms for anomaly identification",
+            "expectedResult": "System detects suspicious activity pattern and logs it as potential security incident"
+          },
+          {
+            "step": 3,
+            "action": "Verify suspicious activity is logged in audit logs with appropriate severity level",
+            "expectedResult": "Suspicious activity is logged with high severity, detailed pattern information, affected endpoints, and user identity"
+          },
+          {
+            "step": 4,
+            "action": "Check email inbox of compliance team members for alert notifications",
+            "expectedResult": "Alert notifications are received promptly (within 1 minute) containing summary of suspicious activity"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to audit dashboard and locate alerts section",
+            "expectedResult": "Alerts section displays the recent suspicious activity alert"
+          },
+          {
+            "step": 6,
+            "action": "Review alert details in the dashboard",
+            "expectedResult": "Alert contains sufficient information for investigation including timestamp, user identity, IP address, affected endpoints, request patterns, and recommended actions"
+          },
+          {
+            "step": 7,
+            "action": "Verify alert includes context such as deviation from normal behavior patterns",
+            "expectedResult": "Alert shows comparison with baseline activity and highlights anomalous behavior metrics"
+          },
+          {
+            "step": 8,
+            "action": "Test alert acknowledgment and resolution workflow",
+            "expectedResult": "Compliance Manager can acknowledge alert, add investigation notes, and mark as resolved"
+          }
+        ],
+        "postconditions": [
+          "Suspicious activities are detected and logged",
+          "Compliance team is notified of security incidents",
+          "Alert history is maintained for audit trail",
+          "Detection rules continue monitoring for future incidents"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-19",
+    "storyTitle": "As Security Officer, I want to encrypt all API data transmissions to achieve data confidentiality",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate enforcement of TLS 1.2+ encryption",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "API endpoints are deployed and accessible",
+          "Test environment has TLS 1.1, 1.2, and 1.3 capabilities configured",
+          "Security Officer has configured encryption policies to enforce TLS 1.2+",
+          "Network monitoring tools are available to verify encryption protocols",
+          "Test user has valid API credentials"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Configure API client to use TLS 1.0 protocol and attempt to make an API call to any integration endpoint",
+            "expectedResult": "API call is rejected immediately with HTTP 400 or 403 error and message indicating 'Encryption protocol not supported' or 'TLS version too low'"
+          },
+          {
+            "step": 2,
+            "action": "Configure API client to use TLS 1.1 protocol and attempt to make an API call to the same endpoint",
+            "expectedResult": "API call is rejected with encryption error message stating minimum TLS 1.2 required"
+          },
+          {
+            "step": 3,
+            "action": "Configure API client to use TLS 1.2 protocol and make an API call with valid credentials and payload",
+            "expectedResult": "API call is accepted, returns HTTP 200 status, and processes the request successfully with encrypted response"
+          },
+          {
+            "step": 4,
+            "action": "Configure API client to use TLS 1.3 protocol and make an API call with valid credentials",
+            "expectedResult": "API call is accepted and processed successfully, confirming TLS 1.3 support"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to system logs and filter for encryption status entries for the test API calls made in previous steps",
+            "expectedResult": "Logs display all API call attempts with encryption protocol used, success/failure status, and accurate timestamps for each event"
+          },
+          {
+            "step": 6,
+            "action": "Verify log entry for successful TLS 1.2 connection shows encryption cipher suite used",
+            "expectedResult": "Log entry contains encryption success status, TLS version (1.2 or 1.3), cipher suite details, and timestamp in ISO format"
+          }
+        ],
+        "postconditions": [
+          "All API calls using TLS 1.0 or 1.1 were rejected and logged",
+          "All API calls using TLS 1.2+ were accepted and processed",
+          "Encryption status for all attempts is recorded in system logs",
+          "No unencrypted data was transmitted during test execution"
+        ],
+        "estimatedTime": "15 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Test rejection of API calls with invalid certificates",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "API endpoints are configured with valid SSL/TLS certificates",
+          "Test environment has access to expired, self-signed, and valid certificates",
+          "Certificate validation is enabled in system configuration",
+          "Test user has API access credentials",
+          "System logging is enabled for certificate validation events"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Configure API client to use an expired SSL certificate and attempt to make an API call to any integration endpoint",
+            "expectedResult": "API call is rejected with HTTP 403 or 495 error and message 'Certificate expired' or 'Invalid certificate'"
+          },
+          {
+            "step": 2,
+            "action": "Configure API client to use a self-signed certificate that is not in the trusted certificate store and attempt API call",
+            "expectedResult": "API call is rejected with certificate validation error indicating 'Certificate not trusted' or 'Unknown certificate authority'"
+          },
+          {
+            "step": 3,
+            "action": "Configure API client to use a certificate with mismatched domain name and attempt API call",
+            "expectedResult": "API call is rejected with error message 'Certificate hostname mismatch' or similar validation error"
+          },
+          {
+            "step": 4,
+            "action": "Configure API client to use a valid, non-expired certificate from trusted CA and make API call with proper credentials",
+            "expectedResult": "API call is accepted, certificate validation passes, and request is processed successfully with HTTP 200 response"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to system security logs and search for certificate validation events during the test period",
+            "expectedResult": "Logs display all certificate validation attempts with certificate details (issuer, expiry, subject), validation result (pass/fail), and timestamp"
+          },
+          {
+            "step": 6,
+            "action": "Review log entries for rejected certificate attempts and verify error details are captured",
+            "expectedResult": "Each rejected certificate attempt has detailed log entry showing certificate serial number, rejection reason, timestamp, and source IP address"
+          },
+          {
+            "step": 7,
+            "action": "Verify log entry for successful certificate validation contains complete certificate chain information",
+            "expectedResult": "Log shows valid certificate details, CA chain verification success, and timestamp matching the successful API call"
+          }
+        ],
+        "postconditions": [
+          "All API calls with invalid, expired, or untrusted certificates were rejected",
+          "API call with valid certificate was accepted and processed",
+          "All certificate validation events are logged with complete details",
+          "No unauthorized access was granted due to certificate issues"
+        ],
+        "estimatedTime": "20 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Measure encryption overhead on API latency",
+        "type": "boundary",
+        "priority": "Medium",
+        "preconditions": [
+          "API endpoints are accessible in both test and production-like environments",
+          "Performance monitoring tools are configured and calibrated",
+          "Baseline API performance metrics are available",
+          "Test environment can simulate both encrypted and unencrypted connections for comparison",
+          "Network conditions are stable with minimal external interference",
+          "Test dataset represents typical API payload sizes"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Configure test environment to allow unencrypted HTTP connection for baseline measurement (test environment only)",
+            "expectedResult": "Test environment accepts unencrypted connection configuration for performance baseline testing"
+          },
+          {
+            "step": 2,
+            "action": "Execute 100 API calls using unencrypted HTTP protocol and measure average response time using performance monitoring tool",
+            "expectedResult": "Baseline average response time is recorded (e.g., 150ms) with standard deviation and min/max values captured"
+          },
+          {
+            "step": 3,
+            "action": "Document baseline metrics including average latency, p50, p95, and p99 percentiles for unencrypted calls",
+            "expectedResult": "Complete baseline performance profile is documented showing latency distribution across all percentiles"
+          },
+          {
+            "step": 4,
+            "action": "Configure API client to use TLS 1.2 encryption and execute 100 API calls with identical payloads to baseline test",
+            "expectedResult": "All 100 API calls complete successfully with TLS 1.2 encryption enabled"
+          },
+          {
+            "step": 5,
+            "action": "Measure and record average response time for TLS 1.2 encrypted API calls including p50, p95, and p99 percentiles",
+            "expectedResult": "Encrypted API call metrics are captured showing average latency and percentile distribution"
+          },
+          {
+            "step": 6,
+            "action": "Calculate percentage increase in latency by comparing encrypted vs unencrypted average response times using formula: ((Encrypted - Baseline) / Baseline) * 100",
+            "expectedResult": "Latency increase percentage is calculated and is less than 5% (e.g., if baseline is 150ms, encrypted should be under 157.5ms)"
+          },
+          {
+            "step": 7,
+            "action": "Repeat test with TLS 1.3 encryption and measure response times for comparison",
+            "expectedResult": "TLS 1.3 metrics show similar or better performance than TLS 1.2, with latency increase still under 5% threshold"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to performance logs and analyze detailed timing breakdowns for SSL handshake, encryption, and data transfer phases",
+            "expectedResult": "Performance logs show granular timing data with SSL handshake overhead clearly identified and within acceptable limits"
+          },
+          {
+            "step": 9,
+            "action": "Review system resource utilization (CPU, memory) during encrypted API calls compared to baseline",
+            "expectedResult": "Resource utilization shows minimal increase (under 10% CPU overhead) and no memory leaks or performance degradation over time"
+          },
+          {
+            "step": 10,
+            "action": "Generate performance comparison report showing baseline vs encrypted metrics with visual graphs",
+            "expectedResult": "Report clearly demonstrates encryption overhead is under 5% with supporting data tables and charts"
+          }
+        ],
+        "postconditions": [
+          "Baseline and encrypted performance metrics are documented",
+          "Encryption overhead is confirmed to be under 5% latency increase",
+          "Performance logs contain detailed timing analysis",
+          "Test environment is restored to secure encrypted-only configuration",
+          "Performance report is available for compliance documentation"
+        ],
+        "estimatedTime": "30 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-22",
+    "storyTitle": "As Compliance Manager, I want to ensure API integrations comply with GDPR and HIPAA regulations to achieve legal compliance",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate enforcement of data minimization and access controls",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "API endpoints are configured with role-based access control policies",
+          "Test users with different authorization levels are created (unauthorized, authorized, admin)",
+          "Data minimization policies are configured in the system",
+          "Audit logging is enabled for all API access attempts",
+          "Test dataset contains sensitive employee and timekeeping data",
+          "Compliance Manager has access to audit logs and compliance dashboard"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Using unauthorized user credentials (no data access role), attempt to access sensitive employee data via API endpoint /api/employees/{id}",
+            "expectedResult": "API returns HTTP 403 Forbidden error with message 'Access denied: Insufficient permissions' and no data is returned"
+          },
+          {
+            "step": 2,
+            "action": "Using same unauthorized credentials, attempt to access timekeeping data via API endpoint /api/timekeeping/records",
+            "expectedResult": "API returns HTTP 403 Forbidden error and access attempt is blocked without exposing any data"
+          },
+          {
+            "step": 3,
+            "action": "Navigate to audit logs and search for the unauthorized access attempts made in steps 1-2",
+            "expectedResult": "Audit logs show both access attempts with timestamp, user ID, attempted endpoint, denied status, and reason for denial"
+          },
+          {
+            "step": 4,
+            "action": "Using authorized user credentials with read-only employee data access, make API call to /api/employees/{id} requesting employee record",
+            "expectedResult": "API returns HTTP 200 with employee data containing only fields permitted by data minimization policy (excludes sensitive fields like SSN, medical info)"
+          },
+          {
+            "step": 5,
+            "action": "Verify the response payload contains only necessary data fields as per data minimization principle",
+            "expectedResult": "Response includes only name, employee ID, department, and job title; excludes SSN, salary, medical records, and other sensitive PII"
+          },
+          {
+            "step": 6,
+            "action": "Using same authorized credentials, attempt to access fields beyond granted permissions by requesting /api/employees/{id}?fields=ssn,salary",
+            "expectedResult": "API returns data but excludes restricted fields (ssn, salary) or returns HTTP 403 for unauthorized field access with appropriate error message"
+          },
+          {
+            "step": 7,
+            "action": "Using admin credentials with full access, make API call to retrieve complete employee record including sensitive fields",
+            "expectedResult": "API returns HTTP 200 with complete employee record including all fields as admin has full data access permissions"
+          },
+          {
+            "step": 8,
+            "action": "Review audit logs for all access attempts from steps 4-7 and verify compliance logging",
+            "expectedResult": "Audit logs accurately capture all access events showing user ID, role, accessed endpoints, data fields retrieved, timestamp, and access result (granted/denied)"
+          },
+          {
+            "step": 9,
+            "action": "Generate access control compliance report from the compliance dashboard for the test period",
+            "expectedResult": "Report displays summary of access attempts, authorization decisions, policy violations (if any), and confirms data minimization enforcement"
+          }
+        ],
+        "postconditions": [
+          "All unauthorized access attempts were denied and logged",
+          "Authorized access granted only minimum necessary data per policy",
+          "All access events are recorded in audit logs with complete details",
+          "Data minimization policies are confirmed to be enforced",
+          "Compliance report documents proper access control enforcement"
+        ],
+        "estimatedTime": "20 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Test encryption of sensitive data in transit and storage",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "API endpoints are configured with TLS encryption",
+          "Database encryption at rest is enabled",
+          "Network packet capture tools (e.g., Wireshark) are available",
+          "Database access tools are available for storage verification",
+          "Test user has valid API credentials",
+          "Sensitive test data (employee PII, health information) exists in the system",
+          "Encryption keys are properly configured and secured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Start network packet capture tool (Wireshark) on the test machine to monitor API traffic",
+            "expectedResult": "Packet capture tool is running and capturing network traffic on the appropriate network interface"
+          },
+          {
+            "step": 2,
+            "action": "Make API call to /api/employees/{id} to retrieve employee record containing sensitive PII (SSN, address, health data)",
+            "expectedResult": "API returns HTTP 200 with employee data successfully"
+          },
+          {
+            "step": 3,
+            "action": "Stop packet capture and analyze captured packets for the API request and response",
+            "expectedResult": "All captured packets show TLS/SSL encryption (protocol TLSv1.2 or TLSv1.3), and payload data is encrypted and unreadable in packet inspection"
+          },
+          {
+            "step": 4,
+            "action": "Search packet capture for any plaintext sensitive data patterns (SSN format, email addresses, names)",
+            "expectedResult": "No sensitive data is found in plaintext; all application data is encrypted within TLS tunnel"
+          },
+          {
+            "step": 5,
+            "action": "Make API POST call to /api/employees to create new employee record with sensitive information",
+            "expectedResult": "API returns HTTP 201 Created and employee record is successfully created"
+          },
+          {
+            "step": 6,
+            "action": "Capture and inspect network traffic for the POST request containing sensitive data",
+            "expectedResult": "POST request payload is fully encrypted in transit; no plaintext sensitive data visible in packet capture"
+          },
+          {
+            "step": 7,
+            "action": "Connect to the database using database client tool and query the employees table for the newly created record",
+            "expectedResult": "Database connection is established successfully"
+          },
+          {
+            "step": 8,
+            "action": "Examine the stored employee record in the database, specifically sensitive fields (SSN, health_data, salary)",
+            "expectedResult": "Sensitive fields are stored in encrypted format (appears as encrypted binary or hashed strings, not readable plaintext)"
+          },
+          {
+            "step": 9,
+            "action": "Verify database-level encryption by checking table encryption status using database system commands (e.g., SHOW TABLE STATUS or encryption metadata queries)",
+            "expectedResult": "Database confirms that tables containing sensitive data have encryption enabled at rest with appropriate encryption algorithm (AES-256 or equivalent)"
+          },
+          {
+            "step": 10,
+            "action": "Attempt to query encrypted data directly from database without proper decryption keys using read-only database user",
+            "expectedResult": "Query returns encrypted data that is unreadable, or access is denied with error message 'Insufficient privileges to decrypt data'"
+          },
+          {
+            "step": 11,
+            "action": "Using application API with proper credentials, retrieve the same employee record to verify data can be properly decrypted by authorized application",
+            "expectedResult": "API successfully retrieves and decrypts data, returning readable employee information in response, confirming encryption/decryption process works correctly"
+          },
+          {
+            "step": 12,
+            "action": "Review encryption audit logs for data access and encryption operations performed during the test",
+            "expectedResult": "Audit logs show encryption status for data in transit (TLS version) and confirmation of encrypted storage, with timestamps for all operations"
+          }
+        ],
+        "postconditions": [
+          "All API traffic is confirmed encrypted in transit using TLS 1.2+",
+          "Sensitive data is confirmed encrypted at rest in database",
+          "No plaintext sensitive data was exposed during transmission or storage",
+          "Encryption and decryption operations are logged",
+          "Unauthorized access to encrypted data without keys was prevented"
+        ],
+        "estimatedTime": "25 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Verify support for data subject rights",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "API endpoint /api/data/requests is available and configured",
+          "Test employee data exists in the system with known employee ID",
+          "Data subject rights workflow is implemented (GDPR Article 17 - Right to erasure)",
+          "Audit logging is enabled for data deletion operations",
+          "Compliance Manager has access to compliance dashboard and reporting tools",
+          "Database backup and recovery procedures are in place",
+          "Test user has permissions to submit and process data subject requests"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Verify test employee data exists by making API call to /api/employees/{test_employee_id}",
+            "expectedResult": "API returns HTTP 200 with complete employee record including personal data, timekeeping records, and associated data"
+          },
+          {
+            "step": 2,
+            "action": "Document all data locations for the test employee (employee table, timekeeping records, audit logs, related tables)",
+            "expectedResult": "Complete inventory of test employee data across all system tables and storage locations is documented"
+          },
+          {
+            "step": 3,
+            "action": "Submit data deletion request via API POST to /api/data/requests with payload: {\"requestType\": \"deletion\", \"subjectId\": \"test_employee_id\", \"reason\": \"GDPR Article 17 request\"}",
+            "expectedResult": "API returns HTTP 202 Accepted with request ID and message 'Data deletion request received and queued for processing'"
+          },
+          {
+            "step": 4,
+            "action": "Query the data request status using GET /api/data/requests/{request_id}",
+            "expectedResult": "API returns request status showing 'in_progress' or 'pending' with timestamp of submission and estimated completion time"
+          },
+          {
+            "step": 5,
+            "action": "Wait for data deletion process to complete (check status every 30 seconds or monitor for completion notification)",
+            "expectedResult": "Request status changes to 'completed' within expected timeframe (under 5 minutes for test data volume)"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to retrieve deleted employee data by making API call to /api/employees/{test_employee_id}",
+            "expectedResult": "API returns HTTP 404 Not Found with message 'Employee record not found' or 'Data has been deleted per data subject request'"
+          },
+          {
+            "step": 7,
+            "action": "Verify deletion across all data locations by querying timekeeping records API /api/timekeeping/records?employeeId={test_employee_id}",
+            "expectedResult": "API returns empty result set or HTTP 404, confirming associated timekeeping data has been deleted"
+          },
+          {
+            "step": 8,
+            "action": "Check database directly to confirm data deletion from all tables (employees, timekeeping, related tables)",
+            "expectedResult": "Database queries return no records for test_employee_id in any table, or records are anonymized/pseudonymized per retention policy"
+          },
+          {
+            "step": 9,
+            "action": "Navigate to audit logs and search for deletion events related to the data subject request",
+            "expectedResult": "Audit log contains detailed entry showing: request ID, subject ID, deletion timestamp, user who initiated request, data types deleted, and completion status"
+          },
+          {
+            "step": 10,
+            "action": "Verify audit log entry includes compliance metadata: legal basis (GDPR Article 17), retention policy applied, and confirmation of complete deletion",
+            "expectedResult": "Audit log shows complete compliance trail with all required metadata, timestamps in ISO format, and digital signature or hash for audit integrity"
+          },
+          {
+            "step": 11,
+            "action": "Access compliance dashboard and navigate to data subject requests section",
+            "expectedResult": "Dashboard displays the completed deletion request with status, timeline, and audit trail summary"
+          },
+          {
+            "step": 12,
+            "action": "Generate compliance report for data subject rights by clicking 'Generate Report' button and selecting date range covering the test period",
+            "expectedResult": "System generates compliance report within 5 seconds showing all data subject requests, processing times, completion status, and audit details"
+          },
+          {
+            "step": 13,
+            "action": "Export the compliance report in PDF and CSV formats",
+            "expectedResult": "Report exports successfully in both formats containing complete data subject request information including the test deletion request with all timestamps and outcomes"
+          },
+          {
+            "step": 14,
+            "action": "Review exported report for completeness and verify it includes: request type, submission date, completion date, data deleted, legal basis, and audit trail reference",
+            "expectedResult": "Exported report contains all required compliance information in readable format suitable for regulatory audit purposes"
+          }
+        ],
+        "postconditions": [
+          "Test employee data is completely deleted from all system locations",
+          "Data deletion request is fully processed and marked complete",
+          "Audit logs contain complete trail of deletion operation with timestamps",
+          "Compliance report accurately reflects data subject request handling",
+          "System demonstrates GDPR Article 17 compliance for right to erasure",
+          "No orphaned data remains in any related tables or backups (per retention policy)"
+        ],
+        "estimatedTime": "25 mins"
+      }
+    ]
+  }
+]
