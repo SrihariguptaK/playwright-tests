@@ -1,0 +1,692 @@
+[
+  {
+    "storyId": "story-11",
+    "storyTitle": "As Integration Engineer, I want to establish secure API connections to the policy rating engine to achieve reliable real-time data exchange",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful API connection with valid credentials",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Policy rating engine API is accessible and running",
+          "Valid OAuth 2.0 credentials are available (client ID and client secret)",
+          "System has network connectivity to rating engine endpoint",
+          "HTTPS endpoint is properly configured with valid SSL/TLS certificates",
+          "Integration Engineer has administrative access to configure API credentials"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to API configuration settings in the system administration panel",
+            "expectedResult": "API configuration page loads successfully with credential input fields visible"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid OAuth 2.0 client ID in the designated field",
+            "expectedResult": "Client ID is accepted and displayed in the input field without validation errors"
+          },
+          {
+            "step": 3,
+            "action": "Enter valid OAuth 2.0 client secret in the designated field",
+            "expectedResult": "Client secret is accepted and masked for security, no validation errors displayed"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Save' or 'Apply' button to store the credentials",
+            "expectedResult": "Credentials are saved successfully with confirmation message displayed, no errors occur"
+          },
+          {
+            "step": 5,
+            "action": "Initiate API connection to rating engine by clicking 'Test Connection' or triggering automatic connection",
+            "expectedResult": "System initiates OAuth 2.0 authentication flow and requests access token from authorization server"
+          },
+          {
+            "step": 6,
+            "action": "Monitor the connection establishment process",
+            "expectedResult": "Connection is established securely over HTTPS (TLS 1.2 or higher) within 1 second, success message displayed"
+          },
+          {
+            "step": 7,
+            "action": "Verify SSL/TLS certificate validation during connection",
+            "expectedResult": "Certificate is validated successfully with no warnings or errors, secure connection indicator shown"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to connection logs or system logs section",
+            "expectedResult": "Connection logs are accessible and display recent connection attempts"
+          },
+          {
+            "step": 9,
+            "action": "Locate the most recent connection attempt entry in the logs",
+            "expectedResult": "Connection attempt is logged with timestamp, status 'SUCCESS', endpoint URL, and authentication method (OAuth 2.0)"
+          },
+          {
+            "step": 10,
+            "action": "Verify connection health monitoring is active",
+            "expectedResult": "Connection health status shows 'Active' or 'Connected' with uptime metrics displayed"
+          }
+        ],
+        "postconditions": [
+          "API connection to rating engine is established and active",
+          "OAuth 2.0 credentials are securely stored in system configuration",
+          "Connection attempt is logged with success status and timestamp",
+          "System is ready to send rating requests to the policy rating engine",
+          "Connection health monitoring is active and tracking uptime"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify connection retry on failure",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "API connection configuration is completed with valid credentials",
+          "System has retry mechanism configured (maximum 3 retries)",
+          "Network simulation tools or ability to disable network connectivity is available",
+          "Connection logging is enabled and accessible",
+          "Rating engine endpoint is known and configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Ensure API connection is initially disconnected or idle",
+            "expectedResult": "System shows no active connection to rating engine API"
+          },
+          {
+            "step": 2,
+            "action": "Simulate network failure by disabling network connectivity or blocking the rating engine endpoint using firewall rules",
+            "expectedResult": "Network path to rating engine API is blocked, endpoint is unreachable"
+          },
+          {
+            "step": 3,
+            "action": "Initiate API connection attempt from the system",
+            "expectedResult": "System attempts to connect to rating engine API endpoint"
+          },
+          {
+            "step": 4,
+            "action": "Observe the initial connection attempt",
+            "expectedResult": "Connection attempt fails due to network unavailability, timeout error or connection refused error is generated"
+          },
+          {
+            "step": 5,
+            "action": "Monitor system behavior immediately after first failure",
+            "expectedResult": "System automatically initiates first retry attempt after configured delay (e.g., 2-5 seconds)"
+          },
+          {
+            "step": 6,
+            "action": "Observe the first retry attempt",
+            "expectedResult": "First retry fails, system waits for configured delay before second retry"
+          },
+          {
+            "step": 7,
+            "action": "Observe the second retry attempt",
+            "expectedResult": "Second retry fails, system waits for configured delay before third retry"
+          },
+          {
+            "step": 8,
+            "action": "Observe the third and final retry attempt",
+            "expectedResult": "Third retry fails, system stops retry attempts after reaching maximum retry count of 3"
+          },
+          {
+            "step": 9,
+            "action": "Verify delay between retry attempts is consistent",
+            "expectedResult": "Each retry is separated by appropriate delay interval (exponential backoff or fixed delay as configured)"
+          },
+          {
+            "step": 10,
+            "action": "Navigate to error logs or connection logs",
+            "expectedResult": "Error logs are accessible and contain recent connection failure entries"
+          },
+          {
+            "step": 11,
+            "action": "Check error log entries for the failed connection attempts",
+            "expectedResult": "Failure is logged with timestamp, error message, retry count (3 retries), and final failure status"
+          },
+          {
+            "step": 12,
+            "action": "Verify error notification or alert is generated",
+            "expectedResult": "System generates error notification indicating connection failure after maximum retries exhausted"
+          }
+        ],
+        "postconditions": [
+          "Connection to rating engine remains disconnected",
+          "All retry attempts (3 total) are logged with timestamps and failure reasons",
+          "Error notification is generated for monitoring and alerting",
+          "System is in error state awaiting manual intervention or network restoration",
+          "No further automatic retry attempts are made after maximum retries reached"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure unauthorized access is rejected",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Policy rating engine API is accessible and running",
+          "Invalid or expired OAuth 2.0 credentials are available for testing",
+          "Security monitoring and alerting system is configured and active",
+          "Connection logging is enabled",
+          "System has network connectivity to rating engine endpoint"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to API configuration settings in the system administration panel",
+            "expectedResult": "API configuration page loads successfully"
+          },
+          {
+            "step": 2,
+            "action": "Enter invalid OAuth 2.0 client ID (e.g., incorrect or non-existent client ID)",
+            "expectedResult": "Invalid client ID is entered in the configuration field"
+          },
+          {
+            "step": 3,
+            "action": "Enter invalid OAuth 2.0 client secret (e.g., incorrect secret or random string)",
+            "expectedResult": "Invalid client secret is entered and masked in the configuration field"
+          },
+          {
+            "step": 4,
+            "action": "Save the invalid credentials configuration",
+            "expectedResult": "Credentials are saved to configuration (validation occurs during connection attempt)"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to initiate API connection to rating engine using the invalid credentials",
+            "expectedResult": "System initiates OAuth 2.0 authentication flow with invalid credentials"
+          },
+          {
+            "step": 6,
+            "action": "Observe the authentication response from the authorization server",
+            "expectedResult": "Authentication fails with HTTP 401 Unauthorized or 403 Forbidden error response, error message indicates invalid credentials"
+          },
+          {
+            "step": 7,
+            "action": "Verify error message displayed to the user",
+            "expectedResult": "Clear error message is displayed indicating authentication failure (e.g., 'Authentication failed: Invalid credentials')"
+          },
+          {
+            "step": 8,
+            "action": "Attempt to send a test request to the rating engine API",
+            "expectedResult": "No connection is established, request is blocked at authentication layer"
+          },
+          {
+            "step": 9,
+            "action": "Verify that no API access is granted",
+            "expectedResult": "Connection is denied, no access token is issued, system remains disconnected from rating engine"
+          },
+          {
+            "step": 10,
+            "action": "Navigate to connection logs or security logs",
+            "expectedResult": "Logs are accessible and contain recent authentication attempt entries"
+          },
+          {
+            "step": 11,
+            "action": "Locate the failed authentication attempt in the logs",
+            "expectedResult": "Failed authentication attempt is logged with timestamp, status 'FAILED', error code (401/403), and reason 'Invalid credentials'"
+          },
+          {
+            "step": 12,
+            "action": "Check system security alerts or monitoring dashboard",
+            "expectedResult": "Security alert is generated for unauthorized access attempt with details including timestamp, source, and failure reason"
+          },
+          {
+            "step": 13,
+            "action": "Verify alert is routed to security monitoring system",
+            "expectedResult": "Alert is visible in security monitoring dashboard for investigation and tracking of unauthorized access attempts"
+          },
+          {
+            "step": 14,
+            "action": "Confirm no sensitive data or API access was granted during failed attempt",
+            "expectedResult": "Zero unauthorized access incidents recorded, no data breach or unauthorized API calls logged"
+          }
+        ],
+        "postconditions": [
+          "API connection remains disconnected and unauthorized",
+          "Failed authentication attempt is logged with complete details",
+          "Security alert is generated and visible in monitoring system",
+          "No access token is issued or stored",
+          "System maintains security posture with zero unauthorized access incidents",
+          "Invalid credentials remain in configuration for correction by Integration Engineer"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-12",
+    "storyTitle": "As Backend Developer, I want to implement request and response handling for rating engine API to achieve reliable data exchange",
+    "type": "happy-path",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate correct serialization of rating request",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Quoting module database is accessible and contains valid quote data",
+          "API connection to rating engine is established and active",
+          "Rating engine API schema documentation is available for validation",
+          "JSON serialization library is configured in the system",
+          "Sample rating request data is prepared in the quoting module",
+          "API endpoint POST /api/rate is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to quoting module and create or select an existing quote requiring rating",
+            "expectedResult": "Quote data is loaded successfully with all required fields populated (e.g., coverage type, limits, applicant details)"
+          },
+          {
+            "step": 2,
+            "action": "Verify all required rating request fields are present in the quote data",
+            "expectedResult": "All mandatory fields for rating request are present and contain valid data matching expected input format"
+          },
+          {
+            "step": 3,
+            "action": "Review the data structure against rating engine API schema requirements",
+            "expectedResult": "Data structure matches expected input format with correct field names, data types, and required attributes"
+          },
+          {
+            "step": 4,
+            "action": "Trigger the rating request process from the quoting module",
+            "expectedResult": "System initiates request preparation and serialization process"
+          },
+          {
+            "step": 5,
+            "action": "Monitor the data serialization process",
+            "expectedResult": "System serializes quote data into JSON format according to rating engine API schema"
+          },
+          {
+            "step": 6,
+            "action": "Capture or log the serialized JSON payload before transmission",
+            "expectedResult": "JSON payload is generated and logged, contains all required fields in correct format"
+          },
+          {
+            "step": 7,
+            "action": "Validate the JSON payload against the API schema specification",
+            "expectedResult": "JSON payload matches API schema exactly with correct structure, field names, data types, and no missing required fields"
+          },
+          {
+            "step": 8,
+            "action": "Verify JSON syntax is valid and properly formatted",
+            "expectedResult": "JSON is syntactically correct with proper brackets, quotes, commas, and no formatting errors"
+          },
+          {
+            "step": 9,
+            "action": "Send the serialized JSON payload to the rating engine API via POST request to /api/rate endpoint",
+            "expectedResult": "POST request is transmitted successfully over HTTPS with JSON payload in request body"
+          },
+          {
+            "step": 10,
+            "action": "Monitor the API response to the request",
+            "expectedResult": "Rating engine API receives the request and processes it without errors"
+          },
+          {
+            "step": 11,
+            "action": "Verify API accepts the request without validation errors",
+            "expectedResult": "API returns HTTP 200 OK or 201 Created status, no schema validation errors or bad request errors (400) are returned"
+          },
+          {
+            "step": 12,
+            "action": "Check transaction logs for request details",
+            "expectedResult": "Request is logged with timestamp, payload summary, endpoint, and success status"
+          }
+        ],
+        "postconditions": [
+          "Rating request is successfully serialized to valid JSON format",
+          "JSON payload matches rating engine API schema specification",
+          "Request is accepted by rating engine API without errors",
+          "Transaction is logged with complete request details and timestamp",
+          "System is ready to receive and process API response"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify response validation and error handling",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "API connection to rating engine is established and active",
+          "Rating request has been sent to the API",
+          "Response schema validation rules are configured in the system",
+          "Error handling and retry policies are configured",
+          "Transaction logging is enabled",
+          "Test scenarios for both valid and error responses are prepared"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Send a rating request to the API that will return a valid successful response",
+            "expectedResult": "Request is transmitted successfully to rating engine API"
+          },
+          {
+            "step": 2,
+            "action": "Receive response JSON from the rating engine API with valid data",
+            "expectedResult": "System receives HTTP 200 OK response with JSON payload containing rating results"
+          },
+          {
+            "step": 3,
+            "action": "Capture the response JSON payload",
+            "expectedResult": "Response payload is captured and available for validation"
+          },
+          {
+            "step": 4,
+            "action": "Trigger automatic schema validation against expected response schema",
+            "expectedResult": "System validates response JSON structure, field names, data types, and required fields against schema"
+          },
+          {
+            "step": 5,
+            "action": "Verify validation results for valid response",
+            "expectedResult": "Response passes schema validation successfully with no errors, all required fields present with correct data types"
+          },
+          {
+            "step": 6,
+            "action": "Verify response data is parsed and extracted correctly",
+            "expectedResult": "Rating results are extracted from JSON and available for processing (e.g., premium amount, rating factors)"
+          },
+          {
+            "step": 7,
+            "action": "Check transaction logs for successful response processing",
+            "expectedResult": "Response is logged with timestamp, status 'SUCCESS', and payload summary"
+          },
+          {
+            "step": 8,
+            "action": "Send a rating request that will trigger an API error response (e.g., invalid input data or business rule violation)",
+            "expectedResult": "Request is transmitted to rating engine API"
+          },
+          {
+            "step": 9,
+            "action": "Receive response JSON from API with error code (e.g., HTTP 400 Bad Request, 422 Unprocessable Entity, or 500 Internal Server Error)",
+            "expectedResult": "System receives error response with appropriate HTTP status code and error details in JSON payload"
+          },
+          {
+            "step": 10,
+            "action": "Verify system detects the error code in the response",
+            "expectedResult": "System identifies error status code and extracts error message and details from response payload"
+          },
+          {
+            "step": 11,
+            "action": "Monitor error handling mechanism activation",
+            "expectedResult": "System triggers error handling workflow based on error type and configured policies"
+          },
+          {
+            "step": 12,
+            "action": "Verify error is logged with complete details",
+            "expectedResult": "Error is logged with timestamp, error code, error message, request details, and response payload"
+          },
+          {
+            "step": 13,
+            "action": "Check if retry mechanism is activated for retryable errors",
+            "expectedResult": "For transient errors (e.g., 500, 503), system initiates retry attempt according to retry policy; for non-retryable errors (e.g., 400), no retry is attempted"
+          },
+          {
+            "step": 14,
+            "action": "Verify error notification is generated",
+            "expectedResult": "Error notification is created and routed to appropriate monitoring system or user notification queue"
+          },
+          {
+            "step": 15,
+            "action": "Confirm response processing time for both scenarios",
+            "expectedResult": "Both valid and error responses are processed within 1 second under normal load conditions"
+          }
+        ],
+        "postconditions": [
+          "Valid API responses pass schema validation and are processed successfully",
+          "Error responses are detected and trigger appropriate error handling",
+          "All responses (success and error) are logged with timestamps and complete details",
+          "Retry mechanism is activated appropriately based on error type",
+          "Error notifications are generated for monitoring and alerting",
+          "Response processing completes within performance requirements (under 1 second)"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-17",
+    "storyTitle": "As Security Analyst, I want to ensure secure data transmission between quoting module and rating engine to achieve compliance and data protection",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify encrypted API communication",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Quoting module and rating engine are deployed and operational",
+          "TLS 1.2 or higher is configured on both systems",
+          "Network traffic monitoring tool (e.g., Wireshark) is installed and configured",
+          "Test user has access to system logs",
+          "API endpoints are accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Initiate API request from quoting module to rating engine",
+            "expectedResult": "Connection is established using TLS 1.2 or higher protocol"
+          },
+          {
+            "step": 2,
+            "action": "Use network monitoring tool to intercept and capture network traffic between quoting module and rating engine",
+            "expectedResult": "Captured traffic shows encrypted data packets that are unreadable in plain text format"
+          },
+          {
+            "step": 3,
+            "action": "Verify the TLS version in the captured handshake packets",
+            "expectedResult": "TLS version is 1.2 or higher (1.3)"
+          },
+          {
+            "step": 4,
+            "action": "Access system logs and search for encryption status entries related to the API communication",
+            "expectedResult": "Logs contain entries confirming TLS encryption is active with protocol version and cipher suite details"
+          },
+          {
+            "step": 5,
+            "action": "Review the API response to confirm successful data transmission",
+            "expectedResult": "API response is received successfully with expected data payload"
+          }
+        ],
+        "postconditions": [
+          "API communication completed successfully",
+          "All transmitted data was encrypted",
+          "Security logs contain encryption confirmation entries",
+          "No security warnings or alerts generated"
+        ],
+        "estimatedTime": "15 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Test input sanitization against injection attacks",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Quoting module and rating engine are deployed and operational",
+          "Input validation and sanitization mechanisms are configured",
+          "Security event logging is enabled",
+          "Test user has access to security logs",
+          "OAuth 2.0 authentication is active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Prepare API request with malicious SQL injection payload in input parameters (e.g., ' OR '1'='1)",
+            "expectedResult": "Malicious payload is prepared for testing"
+          },
+          {
+            "step": 2,
+            "action": "Send the API request containing the malicious SQL injection payload to the rating engine",
+            "expectedResult": "System rejects the request with appropriate error response (e.g., 400 Bad Request)"
+          },
+          {
+            "step": 3,
+            "action": "Access security event logs and search for entries related to the rejected request",
+            "expectedResult": "Security log contains entry documenting the injection attempt with timestamp, source, and payload details"
+          },
+          {
+            "step": 4,
+            "action": "Prepare and send API request with XSS (Cross-Site Scripting) payload (e.g., <script>alert('XSS')</script>)",
+            "expectedResult": "System rejects the request and logs the security event"
+          },
+          {
+            "step": 5,
+            "action": "Verify database and system integrity by checking for any unauthorized data access or modifications",
+            "expectedResult": "No unauthorized data access occurred, database remains unchanged, system security is intact"
+          },
+          {
+            "step": 6,
+            "action": "Confirm that no data breach indicators are present in system monitoring tools",
+            "expectedResult": "No breach indicators detected, all security metrics remain normal"
+          }
+        ],
+        "postconditions": [
+          "All malicious inputs were successfully blocked",
+          "Security events are logged with complete details",
+          "System remains secure with no data breaches",
+          "No unauthorized access to sensitive data occurred",
+          "System continues to operate normally"
+        ],
+        "estimatedTime": "20 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-18",
+    "storyTitle": "As DevOps Engineer, I want to deploy and monitor the rating engine integration components to achieve high availability and performance",
+    "testCases": [
+      {
+        "id": "tc-003",
+        "title": "Validate automated deployment pipeline",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "CI/CD pipeline is configured and accessible",
+          "Rating engine integration components source code is committed to repository",
+          "Deployment environment (staging/production) is available and ready",
+          "DevOps engineer has necessary permissions to trigger deployment",
+          "All deployment dependencies and configurations are in place"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Access the CI/CD pipeline interface and trigger the deployment pipeline for rating integration components",
+            "expectedResult": "Pipeline execution starts successfully and shows 'In Progress' status"
+          },
+          {
+            "step": 2,
+            "action": "Monitor the pipeline execution stages (build, test, deploy) in real-time",
+            "expectedResult": "All pipeline stages complete successfully without errors, showing green/success status"
+          },
+          {
+            "step": 3,
+            "action": "Verify that integration components are deployed to the target environment",
+            "expectedResult": "Components are deployed successfully with correct version numbers and configurations"
+          },
+          {
+            "step": 4,
+            "action": "Test system functionality by sending a test API request from quoting module to rating engine",
+            "expectedResult": "API request is processed successfully and returns expected response"
+          },
+          {
+            "step": 5,
+            "action": "Verify all integration services are operational by checking service status endpoints",
+            "expectedResult": "All services report 'healthy' or 'running' status"
+          },
+          {
+            "step": 6,
+            "action": "Access deployment logs from the CI/CD pipeline",
+            "expectedResult": "Deployment logs show all steps executed successfully with timestamps, no error messages present"
+          },
+          {
+            "step": 7,
+            "action": "Verify deployment artifacts and configurations are correctly placed in target directories",
+            "expectedResult": "All files and configurations are in correct locations with proper permissions"
+          }
+        ],
+        "postconditions": [
+          "Rating integration components are successfully deployed",
+          "All services are operational and responding to requests",
+          "Deployment logs are complete and accessible",
+          "System uptime is maintained",
+          "No errors or warnings in deployment process"
+        ],
+        "estimatedTime": "25 mins"
+      },
+      {
+        "id": "tc-004",
+        "title": "Test monitoring alert on API failure",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Monitoring system is configured and operational",
+          "Health checks are configured for API endpoints",
+          "Alert notifications are configured to DevOps team",
+          "API endpoints are currently healthy and operational",
+          "DevOps engineer has access to monitoring dashboard and alert channels"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Document the current healthy status of the API endpoint in monitoring dashboard",
+            "expectedResult": "API endpoint shows 'healthy' status with normal response times"
+          },
+          {
+            "step": 2,
+            "action": "Simulate API endpoint failure by stopping the rating engine service or blocking the endpoint",
+            "expectedResult": "API endpoint becomes unavailable and stops responding to requests"
+          },
+          {
+            "step": 3,
+            "action": "Wait for the health check monitoring cycle to execute (typically 1-2 minutes)",
+            "expectedResult": "Health check detects the API endpoint failure and marks it as 'unhealthy' or 'down'"
+          },
+          {
+            "step": 4,
+            "action": "Monitor the monitoring dashboard for status change",
+            "expectedResult": "Dashboard displays API endpoint status as 'failed' or 'critical' with red indicator"
+          },
+          {
+            "step": 5,
+            "action": "Check alert notification channels (email, Slack, PagerDuty, etc.) for alert delivery",
+            "expectedResult": "Alert notification is received by DevOps team within 5 minutes of failure detection"
+          },
+          {
+            "step": 6,
+            "action": "Verify alert contains necessary details (endpoint name, failure time, error description)",
+            "expectedResult": "Alert includes complete information needed for troubleshooting"
+          },
+          {
+            "step": 7,
+            "action": "Restore the API endpoint by restarting the service or unblocking the endpoint",
+            "expectedResult": "API endpoint becomes available and starts responding to requests"
+          },
+          {
+            "step": 8,
+            "action": "Wait for the next health check cycle to execute",
+            "expectedResult": "Health check detects the restored API endpoint"
+          },
+          {
+            "step": 9,
+            "action": "Verify monitoring dashboard shows healthy status",
+            "expectedResult": "Dashboard displays API endpoint status as 'healthy' with green indicator, response times return to normal"
+          },
+          {
+            "step": 10,
+            "action": "Check for recovery notification or alert resolution message",
+            "expectedResult": "Recovery notification is sent confirming the endpoint is back to healthy status"
+          }
+        ],
+        "postconditions": [
+          "API endpoint is restored to healthy status",
+          "Alert was successfully triggered and received within SLA",
+          "Monitoring system correctly detected both failure and recovery",
+          "All events are logged in monitoring system",
+          "System returns to normal operational state"
+        ],
+        "estimatedTime": "20 mins"
+      }
+    ]
+  }
+]
