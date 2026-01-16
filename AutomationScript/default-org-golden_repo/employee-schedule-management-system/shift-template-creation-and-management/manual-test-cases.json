@@ -1,0 +1,663 @@
+[
+  {
+    "storyId": "story-1",
+    "storyTitle": "As HR Manager, I want to create shift templates to achieve standardized scheduling",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful shift template creation with valid input",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Manager with valid credentials",
+          "User has role-based access permissions to create shift templates",
+          "Shift template management module is accessible",
+          "Database connection to ShiftTemplates table is active",
+          "No existing template with the same name exists in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to shift template creation page from the main dashboard or menu",
+            "expectedResult": "Shift template form is displayed with all required fields: template name, category, start time, end time, breaks section, and roles assignment section"
+          },
+          {
+            "step": 2,
+            "action": "Enter template name as 'Morning Shift - Weekday'",
+            "expectedResult": "Template name field accepts the input and displays the entered text"
+          },
+          {
+            "step": 3,
+            "action": "Select category as 'Standard Shifts' from the dropdown",
+            "expectedResult": "Category dropdown displays selected value 'Standard Shifts'"
+          },
+          {
+            "step": 4,
+            "action": "Enter valid start time as '09:00 AM'",
+            "expectedResult": "Start time field accepts the input without validation errors"
+          },
+          {
+            "step": 5,
+            "action": "Enter valid end time as '05:00 PM'",
+            "expectedResult": "End time field accepts the input and validates that end time is after start time"
+          },
+          {
+            "step": 6,
+            "action": "Add first break period: Start time '12:00 PM', End time '12:30 PM', Break type 'Lunch'",
+            "expectedResult": "Break is added to the breaks list with no validation errors"
+          },
+          {
+            "step": 7,
+            "action": "Add second break period: Start time '03:00 PM', End time '03:15 PM', Break type 'Rest'",
+            "expectedResult": "Second break is added to the breaks list with no overlap validation errors"
+          },
+          {
+            "step": 8,
+            "action": "Assign roles 'Customer Service Representative' and 'Team Lead' from the roles dropdown",
+            "expectedResult": "Selected roles are displayed in the assigned roles section"
+          },
+          {
+            "step": 9,
+            "action": "Click the 'Save Template' button",
+            "expectedResult": "System validates all inputs, processes the request within 2 seconds, and displays success confirmation message 'Shift template created successfully'"
+          },
+          {
+            "step": 10,
+            "action": "Verify the newly created template appears in the shift templates list",
+            "expectedResult": "Template 'Morning Shift - Weekday' is visible in the templates list with all entered details"
+          }
+        ],
+        "postconditions": [
+          "Shift template is saved in ShiftTemplates table with unique ID",
+          "Template is available for future retrieval and use",
+          "Audit trail entry is created with HR Manager username and timestamp",
+          "User remains on the shift template management page or is redirected to templates list",
+          "System is ready to accept new template creation requests"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Reject shift template creation with overlapping breaks",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Manager with valid credentials",
+          "User has role-based access permissions to create shift templates",
+          "Shift template creation page is accessible",
+          "Validation rules for overlapping breaks are configured in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to shift template creation page from the main dashboard",
+            "expectedResult": "Shift template form is displayed with all required input fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter template name as 'Test Overlapping Breaks'",
+            "expectedResult": "Template name field accepts the input"
+          },
+          {
+            "step": 3,
+            "action": "Enter valid start time as '08:00 AM' and end time as '04:00 PM'",
+            "expectedResult": "Time fields accept the input without errors"
+          },
+          {
+            "step": 4,
+            "action": "Add first break period: Start time '11:00 AM', End time '11:30 AM'",
+            "expectedResult": "First break is added successfully to the breaks list"
+          },
+          {
+            "step": 5,
+            "action": "Add second break period with overlapping time: Start time '11:15 AM', End time '11:45 AM'",
+            "expectedResult": "Validation error message is displayed: 'Break periods cannot overlap. Please adjust the break times.' The overlapping break is highlighted in red"
+          },
+          {
+            "step": 6,
+            "action": "Add third break period with complete overlap: Start time '11:00 AM', End time '11:30 AM'",
+            "expectedResult": "Validation error message is displayed: 'This break period overlaps with an existing break.' Error indicator appears next to the break field"
+          },
+          {
+            "step": 7,
+            "action": "Assign role 'Supervisor' from the roles dropdown",
+            "expectedResult": "Role is assigned successfully despite break validation errors"
+          },
+          {
+            "step": 8,
+            "action": "Attempt to submit the form by clicking 'Save Template' button",
+            "expectedResult": "Form submission is blocked. Error summary is displayed at the top: 'Cannot save template. Please correct the following errors: Overlapping break periods detected.' Save button remains disabled or shows error state"
+          },
+          {
+            "step": 9,
+            "action": "Verify that no API call is made to POST /api/shifttemplates",
+            "expectedResult": "No network request is sent to the backend. Client-side validation prevents submission"
+          }
+        ],
+        "postconditions": [
+          "No shift template is created in the database",
+          "User remains on the shift template creation page with error messages visible",
+          "All entered data (except invalid breaks) is retained in the form",
+          "No audit trail entry is created",
+          "System is ready to accept corrected input"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure audit trail records template creation",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Manager with username 'hr.manager@company.com'",
+          "User has permissions to create shift templates",
+          "Audit logging system is enabled and functioning",
+          "User has access to query audit trail logs or audit trail viewing interface",
+          "System timestamp is synchronized and accurate"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to shift template creation page",
+            "expectedResult": "Shift template creation form is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Enter template name as 'Evening Shift - Audit Test'",
+            "expectedResult": "Template name is accepted"
+          },
+          {
+            "step": 3,
+            "action": "Enter start time '02:00 PM' and end time '10:00 PM'",
+            "expectedResult": "Time fields accept valid input"
+          },
+          {
+            "step": 4,
+            "action": "Add break period: Start time '05:00 PM', End time '05:30 PM'",
+            "expectedResult": "Break is added without validation errors"
+          },
+          {
+            "step": 5,
+            "action": "Assign role 'Sales Associate'",
+            "expectedResult": "Role is assigned successfully"
+          },
+          {
+            "step": 6,
+            "action": "Select category as 'Evening Shifts'",
+            "expectedResult": "Category is selected"
+          },
+          {
+            "step": 7,
+            "action": "Note the current system timestamp before submission",
+            "expectedResult": "Current timestamp is recorded for verification (e.g., 2024-01-15 14:30:00)"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Save Template' button",
+            "expectedResult": "Template is saved successfully and confirmation message 'Shift template created successfully' is displayed. Note the template ID from the confirmation or URL"
+          },
+          {
+            "step": 9,
+            "action": "Navigate to audit trail logs interface or query the audit database for recent entries",
+            "expectedResult": "Audit trail interface is accessible and displays recent audit entries"
+          },
+          {
+            "step": 10,
+            "action": "Filter audit logs by action type 'Template Creation' or entity type 'ShiftTemplate' for the noted timestamp range",
+            "expectedResult": "Audit log entries are filtered and displayed"
+          },
+          {
+            "step": 11,
+            "action": "Locate the audit entry for template 'Evening Shift - Audit Test'",
+            "expectedResult": "Audit entry exists with the following details: Action: 'CREATE', Entity: 'ShiftTemplate', Entity ID: [template ID], User: 'hr.manager@company.com', Timestamp: [within 1 second of noted time], Details: Template name and key attributes"
+          },
+          {
+            "step": 12,
+            "action": "Verify audit entry contains complete information including user identity and accurate timestamp",
+            "expectedResult": "Audit entry shows complete trail with username 'hr.manager@company.com', accurate timestamp matching creation time, and all relevant template details"
+          }
+        ],
+        "postconditions": [
+          "Shift template 'Evening Shift - Audit Test' exists in the database",
+          "Audit trail entry is permanently recorded in audit logs",
+          "Audit entry is retrievable for compliance and tracking purposes",
+          "System maintains data integrity between template and audit records",
+          "User can view audit history for the created template"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-2",
+    "storyTitle": "As Scheduler, I want to edit existing shift templates to maintain accurate scheduling standards",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate successful shift template editing with versioning",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Scheduler with valid credentials",
+          "User has role-based permissions to edit shift templates",
+          "At least one existing shift template 'Morning Shift - Standard' exists in the system with version 1.0",
+          "Existing template has: Start time '08:00 AM', End time '04:00 PM', Break '12:00 PM - 12:30 PM', Role 'Agent'",
+          "Version control system is enabled for shift templates",
+          "Database connection to ShiftTemplates table with versioning is active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to shift template list page from the main menu",
+            "expectedResult": "List of existing shift templates is displayed in a table or grid format showing template names, categories, current version, and last modified date"
+          },
+          {
+            "step": 2,
+            "action": "Locate the template 'Morning Shift - Standard' in the list",
+            "expectedResult": "Template 'Morning Shift - Standard' is visible with current version displayed as 'v1.0'"
+          },
+          {
+            "step": 3,
+            "action": "Click on the 'Edit' button or icon next to the template",
+            "expectedResult": "Template edit form opens with all current values pre-populated: Start time '08:00 AM', End time '04:00 PM', Break '12:00 PM - 12:30 PM', Role 'Agent'"
+          },
+          {
+            "step": 4,
+            "action": "Modify the start time from '08:00 AM' to '09:00 AM'",
+            "expectedResult": "Start time field updates to show '09:00 AM' without validation errors"
+          },
+          {
+            "step": 5,
+            "action": "Modify the end time from '04:00 PM' to '05:00 PM'",
+            "expectedResult": "End time field updates to show '05:00 PM' and validates that end time is after start time"
+          },
+          {
+            "step": 6,
+            "action": "Edit the existing break period from '12:00 PM - 12:30 PM' to '12:30 PM - 01:00 PM'",
+            "expectedResult": "Break period is updated successfully with no overlap validation errors"
+          },
+          {
+            "step": 7,
+            "action": "Add an additional role 'Senior Agent' to the existing role assignment",
+            "expectedResult": "Role 'Senior Agent' is added to the roles list alongside existing 'Agent' role"
+          },
+          {
+            "step": 8,
+            "action": "Enter version notes or change description as 'Updated shift timing and added senior agent role'",
+            "expectedResult": "Version notes field accepts the input"
+          },
+          {
+            "step": 9,
+            "action": "Click 'Save Changes' button",
+            "expectedResult": "System validates all inputs, processes the update request, and displays confirmation message 'Shift template updated successfully. New version v2.0 created.'"
+          },
+          {
+            "step": 10,
+            "action": "Navigate back to the shift template list",
+            "expectedResult": "Template 'Morning Shift - Standard' now shows version 'v2.0' with updated last modified date"
+          },
+          {
+            "step": 11,
+            "action": "Click on 'View Version History' or similar option for the template",
+            "expectedResult": "Version history displays both v1.0 and v2.0 with timestamps, user who made changes, and change descriptions. v1.0 shows original values and v2.0 shows updated values"
+          },
+          {
+            "step": 12,
+            "action": "Verify that previous version v1.0 is still accessible and preserved",
+            "expectedResult": "Version v1.0 can be viewed with all original values intact: Start '08:00 AM', End '04:00 PM', Break '12:00 PM - 12:30 PM', Role 'Agent'"
+          }
+        ],
+        "postconditions": [
+          "New version v2.0 of the shift template is saved in the database",
+          "Previous version v1.0 is preserved and accessible in version history",
+          "Template list displays the latest version v2.0 as the active version",
+          "Audit trail entry is created for the edit action with Scheduler username and timestamp",
+          "Updated template is available for scheduling operations",
+          "Version history is complete and accurate for compliance tracking"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Reject edits with invalid break overlaps",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Scheduler with edit permissions",
+          "Existing shift template 'Afternoon Shift' exists with: Start '01:00 PM', End '09:00 PM', Break '04:00 PM - 04:30 PM'",
+          "Template is at version v1.0",
+          "Validation rules for overlapping breaks are active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to shift template list page",
+            "expectedResult": "List of shift templates is displayed including 'Afternoon Shift'"
+          },
+          {
+            "step": 2,
+            "action": "Select template 'Afternoon Shift' and click 'Edit'",
+            "expectedResult": "Edit form opens with pre-populated values: Start '01:00 PM', End '09:00 PM', existing break '04:00 PM - 04:30 PM'"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Add Break' to add a second break period",
+            "expectedResult": "New break input fields are displayed for start and end time"
+          },
+          {
+            "step": 4,
+            "action": "Enter second break with overlapping time: Start '04:15 PM', End '04:45 PM'",
+            "expectedResult": "Validation error message appears: 'Break periods cannot overlap. The new break overlaps with existing break (04:00 PM - 04:30 PM).' Error is highlighted in red next to the break field"
+          },
+          {
+            "step": 5,
+            "action": "Verify that error indicator shows which breaks are conflicting",
+            "expectedResult": "Both the existing break '04:00 PM - 04:30 PM' and new break '04:15 PM - 04:45 PM' are highlighted or marked with error indicators showing the overlap conflict"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to add another break with complete overlap: Start '04:00 PM', End '04:30 PM'",
+            "expectedResult": "Validation error displays: 'This break period exactly matches an existing break. Please use different times.' Duplicate break is marked with error"
+          },
+          {
+            "step": 7,
+            "action": "Modify shift end time to '10:00 PM' while overlapping breaks still exist",
+            "expectedResult": "End time is updated but break overlap errors remain visible"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Save Changes' button while validation errors are present",
+            "expectedResult": "Form submission is blocked. Error summary appears at top of form: 'Cannot save changes. Please resolve the following errors: Break periods overlap detected.' Save button is disabled or shows error state"
+          },
+          {
+            "step": 9,
+            "action": "Verify no API call is made to PUT /api/shifttemplates/{id}",
+            "expectedResult": "No network request is sent to backend. Client-side validation prevents submission"
+          },
+          {
+            "step": 10,
+            "action": "Correct the overlapping break by changing second break to '05:00 PM - 05:30 PM'",
+            "expectedResult": "Validation error clears. Break fields show no error indicators. Save button becomes enabled"
+          },
+          {
+            "step": 11,
+            "action": "Click 'Save Changes' after correcting errors",
+            "expectedResult": "Template is saved successfully with new version created. Confirmation message displays: 'Shift template updated successfully'"
+          }
+        ],
+        "postconditions": [
+          "No invalid template version is created during error state",
+          "After correction, new valid version is saved with non-overlapping breaks",
+          "Original version remains unchanged until valid edits are saved",
+          "Audit trail shows only the successful save operation, not the blocked attempts",
+          "User remains on edit page during error state, redirected to list after successful save"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Verify audit trail records template edits",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Scheduler with username 'scheduler@company.com'",
+          "User has permissions to edit shift templates and view audit logs",
+          "Existing shift template 'Night Shift - Audit Test' exists at version v1.0",
+          "Existing template details: Start '10:00 PM', End '06:00 AM', Break '02:00 AM - 02:30 AM', Role 'Night Supervisor'",
+          "Audit logging system is enabled and functioning",
+          "System timestamp is accurate and synchronized"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to shift template list page",
+            "expectedResult": "Shift templates list is displayed showing 'Night Shift - Audit Test' at version v1.0"
+          },
+          {
+            "step": 2,
+            "action": "Note the current system timestamp before making edits",
+            "expectedResult": "Current timestamp is recorded for audit verification (e.g., 2024-01-15 16:45:00)"
+          },
+          {
+            "step": 3,
+            "action": "Select 'Night Shift - Audit Test' and click 'Edit'",
+            "expectedResult": "Edit form opens with current values pre-populated"
+          },
+          {
+            "step": 4,
+            "action": "Change the break period from '02:00 AM - 02:30 AM' to '01:30 AM - 02:00 AM'",
+            "expectedResult": "Break time is updated without validation errors"
+          },
+          {
+            "step": 5,
+            "action": "Add additional role 'Security Officer' to the template",
+            "expectedResult": "Role 'Security Officer' is added alongside 'Night Supervisor'"
+          },
+          {
+            "step": 6,
+            "action": "Enter version notes as 'Adjusted break time and added security officer role'",
+            "expectedResult": "Version notes are accepted"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Save Changes' button",
+            "expectedResult": "Edit is saved successfully. Confirmation message displays: 'Shift template updated successfully. New version v2.0 created.' Note the template ID and new version number"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to audit trail logs interface or access audit log query tool",
+            "expectedResult": "Audit trail interface is accessible and displays recent audit entries"
+          },
+          {
+            "step": 9,
+            "action": "Filter audit logs by action type 'Template Edit' or 'UPDATE' for entity type 'ShiftTemplate' within the timestamp range",
+            "expectedResult": "Filtered audit entries are displayed for template modifications"
+          },
+          {
+            "step": 10,
+            "action": "Locate the audit entry for 'Night Shift - Audit Test' edit operation",
+            "expectedResult": "Audit entry exists with following details: Action: 'UPDATE', Entity: 'ShiftTemplate', Entity ID: [template ID], User: 'scheduler@company.com', Timestamp: [within 1 second of save time], Previous Version: 'v1.0', New Version: 'v2.0'"
+          },
+          {
+            "step": 11,
+            "action": "Verify audit entry contains detailed change information",
+            "expectedResult": "Audit entry shows: Changed fields: 'break_period' (from '02:00 AM - 02:30 AM' to '01:30 AM - 02:00 AM'), 'roles' (added 'Security Officer'), Version notes: 'Adjusted break time and added security officer role'"
+          },
+          {
+            "step": 12,
+            "action": "Verify audit entry includes complete user identification and timestamp accuracy",
+            "expectedResult": "Audit record displays: User: 'scheduler@company.com', User role: 'Scheduler', Timestamp matches save operation time, IP address or session ID is logged for security tracking"
+          },
+          {
+            "step": 13,
+            "action": "Check that audit entry is immutable and permanently stored",
+            "expectedResult": "Audit entry cannot be edited or deleted. Entry is marked as permanent record for compliance purposes"
+          }
+        ],
+        "postconditions": [
+          "Shift template 'Night Shift - Audit Test' exists at version v2.0 with updated values",
+          "Version v1.0 is preserved in version history",
+          "Audit trail entry is permanently recorded with complete edit details",
+          "Audit log is retrievable for compliance, security, and tracking purposes",
+          "System maintains referential integrity between template versions and audit records",
+          "Complete change history is available for the template showing who changed what and when"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-6",
+    "storyTitle": "As HR Manager, I want to categorize shift templates by department to improve template organization",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Create and assign categories to shift templates",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Manager with appropriate permissions",
+          "Shift template management interface is accessible",
+          "At least one shift template exists in the system",
+          "Categories table is accessible and functional"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to shift template management section",
+            "expectedResult": "Shift template management page loads successfully with list of existing templates"
+          },
+          {
+            "step": 2,
+            "action": "Click on 'Manage Categories' or 'Create Category' button",
+            "expectedResult": "Category creation form or modal opens"
+          },
+          {
+            "step": 3,
+            "action": "Enter a unique category name (e.g., 'Sales Department') in the category name field",
+            "expectedResult": "Category name is accepted and displayed in the input field"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Save' or 'Create' button to save the new category",
+            "expectedResult": "Category is saved successfully, success message is displayed, and category appears in the categories list"
+          },
+          {
+            "step": 5,
+            "action": "Select an existing shift template from the template list",
+            "expectedResult": "Template details page or edit form opens"
+          },
+          {
+            "step": 6,
+            "action": "Locate the category assignment section in the template form",
+            "expectedResult": "Category selection dropdown or multi-select field is visible with available categories including the newly created 'Sales Department'"
+          },
+          {
+            "step": 7,
+            "action": "Select 'Sales Department' category from the available options",
+            "expectedResult": "Category is selected and displayed as assigned to the template"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Save' button to save the template with assigned category",
+            "expectedResult": "Template is saved successfully with the assigned category, confirmation message is displayed, and category is visible in template details"
+          }
+        ],
+        "postconditions": [
+          "New category 'Sales Department' exists in the system",
+          "Selected shift template has 'Sales Department' category assigned",
+          "Category is visible in template list view",
+          "Changes are persisted in the database"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Filter shift templates by category",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Manager with appropriate permissions",
+          "Multiple shift templates exist in the system",
+          "At least two different categories exist (e.g., 'Sales Department', 'IT Department')",
+          "Templates are assigned to different categories",
+          "At least 2 templates are assigned to 'Sales Department' category"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to shift template management page",
+            "expectedResult": "Template management page loads with all available templates displayed in the list"
+          },
+          {
+            "step": 2,
+            "action": "Locate the category filter dropdown or filter section in the UI",
+            "expectedResult": "Category filter control is visible and displays all available categories"
+          },
+          {
+            "step": 3,
+            "action": "Click on the category filter dropdown",
+            "expectedResult": "Dropdown expands showing list of all categories including 'Sales Department' and 'IT Department'"
+          },
+          {
+            "step": 4,
+            "action": "Select 'Sales Department' from the category filter options",
+            "expectedResult": "Filter is applied immediately, template list updates to show only templates assigned to 'Sales Department' category, templates from other categories are hidden"
+          },
+          {
+            "step": 5,
+            "action": "Verify the filtered results by checking each displayed template",
+            "expectedResult": "All displayed templates show 'Sales Department' as their assigned category, template count reflects only filtered results"
+          },
+          {
+            "step": 6,
+            "action": "Clear the filter or select 'All Categories' option",
+            "expectedResult": "Filter is removed and all templates are displayed again in the list"
+          }
+        ],
+        "postconditions": [
+          "Template list can be filtered and unfiltered without errors",
+          "Filter state can be cleared to show all templates",
+          "No data is modified during filtering operation"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Prevent duplicate category names",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as HR Manager with appropriate permissions",
+          "Category management interface is accessible",
+          "A category named 'Sales Department' already exists in the system",
+          "Category validation rules are active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to shift template management section",
+            "expectedResult": "Shift template management page loads successfully"
+          },
+          {
+            "step": 2,
+            "action": "Click on 'Manage Categories' or 'Create Category' button",
+            "expectedResult": "Category creation form or modal opens"
+          },
+          {
+            "step": 3,
+            "action": "Enter an existing category name 'Sales Department' in the category name field",
+            "expectedResult": "Category name is entered in the input field"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Save' or 'Create' button to attempt saving the duplicate category",
+            "expectedResult": "Validation error message is displayed indicating 'Category name already exists' or similar message, category is not saved, form remains open with entered data"
+          },
+          {
+            "step": 5,
+            "action": "Verify that the duplicate category was not created by checking the categories list",
+            "expectedResult": "Only one instance of 'Sales Department' exists in the categories list, no duplicate entry is present"
+          },
+          {
+            "step": 6,
+            "action": "Modify the category name to a unique value (e.g., 'Sales Department - East Region')",
+            "expectedResult": "New unique category name is accepted in the input field"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Save' or 'Create' button",
+            "expectedResult": "Category is saved successfully with the unique name, success message is displayed"
+          }
+        ],
+        "postconditions": [
+          "No duplicate category names exist in the system",
+          "Original 'Sales Department' category remains unchanged",
+          "New unique category 'Sales Department - East Region' is created successfully",
+          "Data integrity is maintained"
+        ],
+        "estimatedTime": "4 mins"
+      }
+    ]
+  }
+]
