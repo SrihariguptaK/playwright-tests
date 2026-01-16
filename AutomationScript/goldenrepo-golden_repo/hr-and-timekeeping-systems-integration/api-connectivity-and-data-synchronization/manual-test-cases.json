@@ -1,0 +1,427 @@
+[
+  {
+    "storyId": "story-13",
+    "storyTitle": "As Integration Engineer, I want to establish secure API connections to HR systems to achieve reliable data exchange",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful API connection and data retrieval",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Integration console is accessible and operational",
+          "Valid API credentials for HR system are available",
+          "HR system API is online and responding",
+          "Network connectivity is stable",
+          "User has Integration Engineer role and permissions",
+          "HR system contains employee data to be synchronized"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the integration console and locate the HR system API configuration section",
+            "expectedResult": "Integration console loads successfully and API configuration section is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid API credentials (API key/OAuth token) in the designated fields",
+            "expectedResult": "Credentials are accepted and input fields display masked values for security"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Test Connection' or 'Authenticate' button",
+            "expectedResult": "System validates credentials, establishes secure connection with HR system, and displays 'Connection Successful' message"
+          },
+          {
+            "step": 4,
+            "action": "Save the API configuration settings",
+            "expectedResult": "Configuration is saved successfully and confirmation message is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to the data synchronization section and click 'Trigger Sync' or 'Start Synchronization' button",
+            "expectedResult": "Synchronization process initiates and progress indicator is displayed"
+          },
+          {
+            "step": 6,
+            "action": "Monitor the synchronization process until completion",
+            "expectedResult": "Employee data is retrieved from HR system via API, data mapping is applied correctly, and synchronization completes successfully with status 'Sync Complete'"
+          },
+          {
+            "step": 7,
+            "action": "Verify the synchronized employee data in the platform database",
+            "expectedResult": "Employee records are present, all fields are mapped correctly, and data integrity is maintained without corruption"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to the logs section and filter for connection and data transfer events",
+            "expectedResult": "Logs display successful connection establishment with timestamp, authentication success, data retrieval events, and successful data sync completion with timestamps"
+          }
+        ],
+        "postconditions": [
+          "API connection to HR system is established and active",
+          "Employee data is synchronized in platform database",
+          "Connection and sync events are logged with timestamps",
+          "System is ready for subsequent synchronization operations"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify retry mechanism on transient API failure",
+        "type": "edge-case",
+        "priority": "High",
+        "preconditions": [
+          "API connection to HR system is configured with valid credentials",
+          "Integration console is operational",
+          "Network simulation tools are available to simulate transient failures",
+          "Retry mechanism is configured to attempt up to 3 retries",
+          "User has Integration Engineer role and permissions"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Configure network simulation tool to introduce transient network failure during API call",
+            "expectedResult": "Network simulation tool is configured and ready to interrupt connection"
+          },
+          {
+            "step": 2,
+            "action": "Initiate data synchronization from the integration console",
+            "expectedResult": "Synchronization process starts and attempts to connect to HR system API"
+          },
+          {
+            "step": 3,
+            "action": "Trigger the simulated transient network failure during the API call",
+            "expectedResult": "API call fails due to network interruption and system detects the failure"
+          },
+          {
+            "step": 4,
+            "action": "Observe system behavior after initial failure",
+            "expectedResult": "System automatically initiates first retry attempt without manual intervention"
+          },
+          {
+            "step": 5,
+            "action": "Allow retry attempts to continue while network failure persists (up to 2 more retries)",
+            "expectedResult": "System performs second and third retry attempts as configured, with appropriate wait intervals between retries"
+          },
+          {
+            "step": 6,
+            "action": "Restore network connectivity before retry limit is exhausted",
+            "expectedResult": "Network connection is restored and becomes stable"
+          },
+          {
+            "step": 7,
+            "action": "Observe the next retry attempt after network restoration",
+            "expectedResult": "System successfully establishes connection to HR system API and completes data synchronization successfully"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to logs section and review connection attempt records",
+            "expectedResult": "Logs show initial connection failure with timestamp, all retry attempts (1st, 2nd, 3rd) with timestamps, and final successful connection and data sync completion"
+          },
+          {
+            "step": 9,
+            "action": "Verify synchronized data integrity in platform database",
+            "expectedResult": "Employee data is complete and accurate despite transient failures during sync process"
+          }
+        ],
+        "postconditions": [
+          "Data synchronization completed successfully after retry",
+          "All retry attempts are logged with timestamps",
+          "Employee data is synchronized without data loss",
+          "System demonstrates resilience to transient failures"
+        ],
+        "estimatedTime": "15 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Test handling of invalid API credentials",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Integration console is accessible and operational",
+          "Invalid API credentials are prepared for testing (incorrect API key or expired OAuth token)",
+          "User has Integration Engineer role and permissions",
+          "Logging system is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the integration console and locate the HR system API configuration section",
+            "expectedResult": "Integration console loads successfully and API configuration section is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Enter invalid API credentials (incorrect API key or malformed OAuth token) in the credential fields",
+            "expectedResult": "Invalid credentials are entered and displayed in masked format"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Test Connection' or 'Authenticate' button",
+            "expectedResult": "System attempts to validate credentials with HR system API"
+          },
+          {
+            "step": 4,
+            "action": "Observe the authentication response",
+            "expectedResult": "System rejects the invalid credentials and displays clear error message such as 'Authentication Failed: Invalid API credentials' or 'Invalid API key provided'"
+          },
+          {
+            "step": 5,
+            "action": "Verify that no connection is established to the HR system",
+            "expectedResult": "Connection status shows 'Not Connected' or 'Authentication Failed', and no active connection exists"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to save the configuration with invalid credentials",
+            "expectedResult": "System prevents saving invalid configuration or saves with 'Inactive' status"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to trigger data synchronization with invalid credentials",
+            "expectedResult": "System blocks synchronization attempt and displays error message indicating authentication is required"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to the error logs section and search for authentication failure events",
+            "expectedResult": "Error log entry is present showing authentication failure, invalid credentials error, timestamp of the attempt, and relevant error details"
+          },
+          {
+            "step": 9,
+            "action": "Verify error log contains sufficient detail for troubleshooting",
+            "expectedResult": "Log entry includes timestamp, error type (Authentication Error), error message, attempted credential identifier (without exposing sensitive data), and HR system endpoint attempted"
+          }
+        ],
+        "postconditions": [
+          "No API connection is established to HR system",
+          "Invalid credentials are not saved or marked as inactive",
+          "Authentication failure is logged with timestamp and error details",
+          "System security is maintained by rejecting invalid credentials",
+          "No data synchronization occurred"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-14",
+    "storyTitle": "As Integration Engineer, I want to establish secure API connections to timekeeping systems to achieve reliable time log synchronization",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate successful connection and time log retrieval",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Integration console is accessible and operational",
+          "Valid API credentials for timekeeping system are available",
+          "Timekeeping system API is online and responding",
+          "Network connectivity is stable",
+          "User has Integration Engineer role and permissions",
+          "Timekeeping system contains time log data to be synchronized"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the integration console and locate the timekeeping system API configuration section",
+            "expectedResult": "Integration console loads successfully and timekeeping API configuration section is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid timekeeping API credentials (API token/OAuth credentials) in the designated fields",
+            "expectedResult": "Credentials are accepted and input fields display masked values for security"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Test Connection' or 'Authenticate' button",
+            "expectedResult": "System validates credentials, establishes secure connection with timekeeping system using OAuth 2.0 and TLS encryption, and displays 'Connection Successful' message"
+          },
+          {
+            "step": 4,
+            "action": "Save the timekeeping API configuration settings",
+            "expectedResult": "Configuration is saved successfully and confirmation message is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to the time log synchronization section and click 'Trigger Sync' or 'Start Time Log Synchronization' button",
+            "expectedResult": "Time log synchronization process initiates and progress indicator is displayed"
+          },
+          {
+            "step": 6,
+            "action": "Monitor the synchronization process until completion",
+            "expectedResult": "Time log data is retrieved from timekeeping system via API, data transformation is applied correctly, and synchronization completes successfully with status 'Sync Complete'"
+          },
+          {
+            "step": 7,
+            "action": "Verify the synchronized time log data in the platform database",
+            "expectedResult": "Time log records are present, all fields (employee ID, clock in/out times, dates) are mapped correctly, no duplicate entries exist, and data integrity is maintained"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to the synchronization logs section and filter for time log sync events",
+            "expectedResult": "Logs display successful connection establishment with timestamp, authentication success, time log retrieval events, data transformation activities, and successful sync completion with timestamps"
+          },
+          {
+            "step": 9,
+            "action": "Verify sync status display in the integration console",
+            "expectedResult": "Sync status shows 'Last Sync: Successful', timestamp of last sync, number of records synchronized, and next scheduled sync time if applicable"
+          }
+        ],
+        "postconditions": [
+          "API connection to timekeeping system is established and active",
+          "Time log data is synchronized in platform database",
+          "No duplicate time entries exist",
+          "Synchronization events are logged with timestamps",
+          "System is ready for subsequent synchronization operations"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Test conflict resolution during time log synchronization",
+        "type": "edge-case",
+        "priority": "High",
+        "preconditions": [
+          "API connection to timekeeping system is configured with valid credentials",
+          "Integration console is operational",
+          "Conflicting time log entries exist in source timekeeping system (e.g., overlapping time entries, duplicate clock-ins)",
+          "Predefined conflict resolution rules are configured in the system",
+          "User has Integration Engineer role and permissions",
+          "Platform database contains existing time log data that may conflict with source data"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Verify that conflicting time log entries exist in the source timekeeping system (e.g., same employee with overlapping time periods or duplicate entries)",
+            "expectedResult": "Conflicting time log entries are confirmed in source system"
+          },
+          {
+            "step": 2,
+            "action": "Review the predefined conflict resolution rules configured in the system (e.g., 'latest timestamp wins', 'source system priority', 'manual review required')",
+            "expectedResult": "Conflict resolution rules are displayed and confirmed as active"
+          },
+          {
+            "step": 3,
+            "action": "Initiate time log synchronization from the integration console",
+            "expectedResult": "Synchronization process starts and begins retrieving time log data from timekeeping system"
+          },
+          {
+            "step": 4,
+            "action": "Monitor synchronization process as it encounters conflicting entries",
+            "expectedResult": "System detects conflicts during sync process and displays notification or warning indicating 'Conflicts Detected' with count of conflicting records"
+          },
+          {
+            "step": 5,
+            "action": "Observe the automatic application of predefined conflict resolution rules",
+            "expectedResult": "System automatically applies configured resolution rules to conflicting entries without manual intervention"
+          },
+          {
+            "step": 6,
+            "action": "Wait for synchronization process to complete",
+            "expectedResult": "Synchronization completes successfully with status 'Sync Complete with Conflicts Resolved' and summary of resolved conflicts"
+          },
+          {
+            "step": 7,
+            "action": "Verify the final synchronized time log data in the platform database",
+            "expectedResult": "Time log data reflects accurately resolved conflicts according to predefined rules, no data loss occurred, duplicate entries are eliminated, and data integrity is maintained"
+          },
+          {
+            "step": 8,
+            "action": "Review specific conflicting records to confirm correct resolution",
+            "expectedResult": "Each previously conflicting record shows the correct resolution (e.g., latest entry retained, older entry archived or merged) as per configured rules"
+          },
+          {
+            "step": 9,
+            "action": "Navigate to synchronization logs and review conflict resolution events",
+            "expectedResult": "Logs show conflict detection events with timestamps, details of conflicting entries, applied resolution rules, and final resolution outcomes"
+          },
+          {
+            "step": 10,
+            "action": "Verify no time log data was lost during conflict resolution",
+            "expectedResult": "All original data is either retained, merged, or archived according to rules; no unintended data deletion occurred"
+          }
+        ],
+        "postconditions": [
+          "Time log synchronization completed successfully",
+          "All conflicts resolved according to predefined rules",
+          "No data loss occurred during conflict resolution",
+          "Conflict resolution events are logged with details",
+          "Platform database contains accurate, deduplicated time log data"
+        ],
+        "estimatedTime": "18 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Verify handling of invalid API credentials",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Integration console is accessible and operational",
+          "Invalid API credentials for timekeeping system are prepared for testing (incorrect token or expired credentials)",
+          "User has Integration Engineer role and permissions",
+          "Logging system is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the integration console and locate the timekeeping system API configuration section",
+            "expectedResult": "Integration console loads successfully and timekeeping API configuration section is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Enter invalid timekeeping API credentials (incorrect API token, expired OAuth token, or malformed credentials) in the credential fields",
+            "expectedResult": "Invalid credentials are entered and displayed in masked format"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Test Connection' or 'Authenticate' button",
+            "expectedResult": "System attempts to validate credentials with timekeeping system API"
+          },
+          {
+            "step": 4,
+            "action": "Observe the authentication response",
+            "expectedResult": "System rejects the invalid credentials and displays clear error message such as 'Authentication Failed: Invalid API credentials', 'Token expired', or 'Invalid token provided'"
+          },
+          {
+            "step": 5,
+            "action": "Verify that no connection is established to the timekeeping system",
+            "expectedResult": "Connection status shows 'Not Connected' or 'Authentication Failed', and no active connection exists to timekeeping system"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to save the configuration with invalid credentials",
+            "expectedResult": "System prevents saving invalid configuration or saves with 'Inactive' or 'Error' status"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to trigger time log synchronization with invalid credentials",
+            "expectedResult": "System blocks synchronization attempt and displays error message indicating 'Authentication required' or 'Invalid credentials - synchronization cannot proceed'"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to the error logs section and search for authentication failure events",
+            "expectedResult": "Error log entry is present showing authentication failure for timekeeping system"
+          },
+          {
+            "step": 9,
+            "action": "Verify error log contains complete details with timestamp",
+            "expectedResult": "Log entry includes precise timestamp, error type (Authentication Error), detailed error message, attempted credential identifier (without exposing sensitive data), timekeeping system endpoint attempted, and error code if applicable"
+          },
+          {
+            "step": 10,
+            "action": "Confirm no time log data was accessed or synchronized",
+            "expectedResult": "Platform database shows no new time log entries, and no synchronization activity occurred"
+          }
+        ],
+        "postconditions": [
+          "No API connection is established to timekeeping system",
+          "Invalid credentials are not saved or marked as inactive",
+          "Authentication failure is logged with timestamp and comprehensive error details",
+          "System security is maintained by rejecting invalid credentials",
+          "No time log synchronization occurred",
+          "No unauthorized access to timekeeping data"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  }
+]
