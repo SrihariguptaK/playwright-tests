@@ -1,0 +1,453 @@
+[
+  {
+    "storyId": "story-15",
+    "storyTitle": "As Scheduler, I want to view detailed conflict history to analyze and prevent recurring scheduling issues",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify conflict logging and retrieval",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has scheduler role with conflict history access permissions",
+          "User is logged into the scheduling system",
+          "Conflict logs database is accessible and operational",
+          "At least one scheduling conflict exists in the system",
+          "Test data includes conflicts with various types and date ranges"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Create a scheduling conflict by attempting to book two appointments for the same resource at overlapping times",
+            "expectedResult": "System detects the conflict and prevents the double booking"
+          },
+          {
+            "step": 2,
+            "action": "Verify the conflict is logged by checking the conflict logs database",
+            "expectedResult": "Conflict is logged with complete details including timestamp, resource ID, conflicting appointment IDs, conflict type, and involved parties"
+          },
+          {
+            "step": 3,
+            "action": "Navigate to the conflict history section from the main menu",
+            "expectedResult": "Conflict history UI loads successfully and displays the conflict history dashboard"
+          },
+          {
+            "step": 4,
+            "action": "Apply date range filter to show conflicts from the last 7 days",
+            "expectedResult": "System displays only conflicts that occurred within the specified date range"
+          },
+          {
+            "step": 5,
+            "action": "Apply resource filter to show conflicts for a specific resource",
+            "expectedResult": "System displays only conflicts involving the selected resource"
+          },
+          {
+            "step": 6,
+            "action": "Apply conflict type filter to show specific conflict types",
+            "expectedResult": "System displays only conflicts matching the selected conflict type"
+          },
+          {
+            "step": 7,
+            "action": "Verify the filtered conflict records display all required information including involved appointments and resolution status",
+            "expectedResult": "Each conflict record shows complete details: timestamp, resource, conflicting appointments, conflict type, resolution status, and involved parties"
+          },
+          {
+            "step": 8,
+            "action": "Select export option and choose CSV format",
+            "expectedResult": "Export dialog appears with format options including CSV, PDF, and Excel"
+          },
+          {
+            "step": 9,
+            "action": "Confirm export and download the conflict history report",
+            "expectedResult": "Report is generated successfully and downloaded in CSV format containing all filtered conflict records with complete details"
+          },
+          {
+            "step": 10,
+            "action": "Open the downloaded CSV file and verify data integrity",
+            "expectedResult": "CSV file contains accurate conflict data matching the filtered results displayed in the UI"
+          }
+        ],
+        "postconditions": [
+          "All conflicts remain logged in the database",
+          "Exported report is saved to the user's download folder",
+          "Audit log records the export action with user ID and timestamp",
+          "System state remains unchanged"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Validate access control for conflict history",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Two user accounts exist: one without conflict history permissions and one with valid permissions",
+          "Both users are registered in the system",
+          "Conflict history data exists in the database",
+          "Access control rules are properly configured",
+          "Authentication system is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log into the system using credentials of a user without conflict history access permissions",
+            "expectedResult": "User successfully logs in and reaches the main dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to the conflict history section via the menu or direct URL",
+            "expectedResult": "Access is denied and system displays an appropriate error message such as 'You do not have permission to access conflict history' or 'Access Denied - Insufficient Permissions'"
+          },
+          {
+            "step": 3,
+            "action": "Verify that the conflict history menu option is either hidden or disabled for this user",
+            "expectedResult": "Conflict history option is not visible in the navigation menu or is displayed as disabled/grayed out"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to access conflict history via API endpoint GET /conflicts/history using the unauthorized user's token",
+            "expectedResult": "API returns 403 Forbidden status code with error message indicating insufficient permissions"
+          },
+          {
+            "step": 5,
+            "action": "Log out from the unauthorized user account",
+            "expectedResult": "User is successfully logged out and redirected to the login page"
+          },
+          {
+            "step": 6,
+            "action": "Log into the system using credentials of a user with valid conflict history access permissions",
+            "expectedResult": "User successfully logs in and reaches the main dashboard"
+          },
+          {
+            "step": 7,
+            "action": "Navigate to the conflict history section from the menu",
+            "expectedResult": "Access is granted and the conflict history UI loads successfully displaying the conflict history dashboard"
+          },
+          {
+            "step": 8,
+            "action": "Verify that conflict data is displayed with all details visible",
+            "expectedResult": "System displays conflict records with complete information including timestamps, resources, appointments, and resolution status"
+          },
+          {
+            "step": 9,
+            "action": "Verify that the access attempt is logged in the audit log",
+            "expectedResult": "Audit log contains entries for both the denied access attempt and the successful access with user IDs, timestamps, and action details"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized user remains blocked from conflict history access",
+          "Authorized user retains access to conflict history",
+          "All access attempts are logged in the audit trail",
+          "No data is modified or compromised",
+          "System security remains intact"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-17",
+    "storyTitle": "As Scheduler, I want to override scheduling conflicts with appropriate permissions to handle exceptional cases",
+    "testCases": [
+      {
+        "id": "tc-003",
+        "title": "Allow override with valid permissions",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has scheduler role with override permissions enabled",
+          "User is logged into the scheduling system",
+          "A resource is already booked for a specific time slot",
+          "Scheduling database is accessible and operational",
+          "Audit logging system is active and functional",
+          "Override permission validation is configured correctly"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the appointment scheduling interface",
+            "expectedResult": "Appointment scheduling page loads successfully with all booking options available"
+          },
+          {
+            "step": 2,
+            "action": "Select a resource that already has an appointment scheduled",
+            "expectedResult": "Resource is selected and calendar view shows existing appointment"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to create a new appointment for the same resource at an overlapping time slot",
+            "expectedResult": "System detects the scheduling conflict"
+          },
+          {
+            "step": 4,
+            "action": "Click Save or Submit to attempt saving the conflicting appointment",
+            "expectedResult": "System displays a conflict warning dialog showing details of the conflict including existing appointment information and the option to override"
+          },
+          {
+            "step": 5,
+            "action": "Review the conflict details displayed in the warning dialog",
+            "expectedResult": "Conflict warning shows complete information: conflicting time slots, resource name, existing appointment details, and an 'Override' button is visible"
+          },
+          {
+            "step": 6,
+            "action": "Click the 'Override' button to proceed with saving the conflicting appointment",
+            "expectedResult": "System validates user's override permissions and processes the override request"
+          },
+          {
+            "step": 7,
+            "action": "Wait for system to complete the override processing",
+            "expectedResult": "System saves the conflicting appointment successfully within 2 seconds and displays a confirmation message such as 'Appointment saved successfully with conflict override'"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to the audit log or override log section",
+            "expectedResult": "Override log interface loads successfully"
+          },
+          {
+            "step": 9,
+            "action": "Search for the most recent override entry using timestamp or appointment ID",
+            "expectedResult": "Override log entry is found and displayed"
+          },
+          {
+            "step": 10,
+            "action": "Verify the override log entry contains all required details",
+            "expectedResult": "Log entry includes user ID of the scheduler who performed the override, exact timestamp of the override action, conflict details including both appointment IDs, resource information, and override reason if provided"
+          },
+          {
+            "step": 11,
+            "action": "Verify both appointments are now visible in the schedule for the same resource",
+            "expectedResult": "Calendar view shows both the original and the newly created appointment for the same resource at overlapping times, marked with conflict indicator"
+          }
+        ],
+        "postconditions": [
+          "Conflicting appointment is saved in the database",
+          "Override action is logged in audit trail with complete details",
+          "Both appointments remain active in the system",
+          "Resource shows double-booking in the schedule",
+          "System performance metrics show override completed within 2 seconds SLA"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-004",
+        "title": "Prevent override without permissions",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User has scheduler role but does NOT have override permissions",
+          "User is logged into the scheduling system",
+          "A resource is already booked for a specific time slot",
+          "Permission validation system is properly configured",
+          "Scheduling database is accessible and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log into the system using credentials of a user without override permissions",
+            "expectedResult": "User successfully logs in and reaches the scheduling dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the appointment scheduling interface",
+            "expectedResult": "Appointment scheduling page loads successfully"
+          },
+          {
+            "step": 3,
+            "action": "Select a resource that already has an appointment scheduled",
+            "expectedResult": "Resource is selected and calendar view displays the existing appointment"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to create a new appointment for the same resource at an overlapping time slot",
+            "expectedResult": "System detects the scheduling conflict"
+          },
+          {
+            "step": 5,
+            "action": "Fill in all required appointment details and click Save or Submit",
+            "expectedResult": "System displays a conflict warning dialog showing details of the conflict"
+          },
+          {
+            "step": 6,
+            "action": "Verify the conflict warning dialog does not show an override option",
+            "expectedResult": "Override button is either not visible or is disabled/grayed out due to insufficient permissions"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to save the appointment by clicking any available save or confirm button",
+            "expectedResult": "System blocks the save operation and displays an error message such as 'Cannot save conflicting appointment - Override permission required' or 'Access Denied - Insufficient permissions to override conflicts'"
+          },
+          {
+            "step": 8,
+            "action": "Verify the appointment was not saved by checking the schedule",
+            "expectedResult": "Only the original appointment is visible in the schedule; the conflicting appointment was not created"
+          },
+          {
+            "step": 9,
+            "action": "Check the database to confirm no new appointment record was created",
+            "expectedResult": "Database query confirms no new appointment exists for the attempted time slot"
+          },
+          {
+            "step": 10,
+            "action": "Verify the failed override attempt is logged in the audit trail",
+            "expectedResult": "Audit log contains an entry showing the denied override attempt with user ID, timestamp, and reason for denial (insufficient permissions)"
+          }
+        ],
+        "postconditions": [
+          "Conflicting appointment is NOT saved in the database",
+          "Original appointment remains unchanged",
+          "Failed override attempt is logged in audit trail",
+          "User receives clear error message about insufficient permissions",
+          "System security and access controls remain enforced",
+          "No unauthorized data modifications occurred"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-18",
+    "storyTitle": "As Scheduler, I want to view resource availability in real-time to make informed scheduling decisions",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Display real-time resource availability",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role and valid permissions",
+          "Resource availability dashboard is accessible",
+          "At least one resource exists in the system with known availability status",
+          "System is connected to scheduling databases and APIs",
+          "Real-time update mechanism is functioning"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the resource availability dashboard from the main menu",
+            "expectedResult": "Resource availability dashboard loads successfully and displays all available resources with their current status (Available, Booked, Unavailable)"
+          },
+          {
+            "step": 2,
+            "action": "Verify that the displayed availability data matches the current state of resources in the system",
+            "expectedResult": "All resource availability statuses are accurate and reflect the current state, including upcoming bookings and time slots"
+          },
+          {
+            "step": 3,
+            "action": "Select a specific resource from the availability dashboard",
+            "expectedResult": "Detailed availability view for the selected resource is displayed, showing time slots, bookings, and availability status"
+          },
+          {
+            "step": 4,
+            "action": "Create a new appointment for the selected resource in a previously available time slot",
+            "expectedResult": "Appointment is created successfully and saved to the system"
+          },
+          {
+            "step": 5,
+            "action": "Observe the resource availability dashboard and note the timestamp",
+            "expectedResult": "The availability status for the resource updates to reflect the new booking within 5 seconds, showing the time slot as now booked"
+          },
+          {
+            "step": 6,
+            "action": "Modify an existing appointment by changing its time or duration to affect resource availability",
+            "expectedResult": "Appointment modification is saved successfully"
+          },
+          {
+            "step": 7,
+            "action": "Monitor the resource availability dashboard for real-time updates",
+            "expectedResult": "The availability view updates within 5 seconds to reflect the modified appointment, showing updated available and booked time slots"
+          },
+          {
+            "step": 8,
+            "action": "Attempt to schedule another appointment in a time slot that would create a conflict with existing bookings",
+            "expectedResult": "System displays conflict indicators clearly on the availability view, highlighting the overlapping time slots with visual markers (e.g., red highlighting, warning icons)"
+          },
+          {
+            "step": 9,
+            "action": "Verify that conflict indicators are visible and accurately represent the scheduling conflict",
+            "expectedResult": "Conflicts are clearly marked with appropriate visual indicators, tooltips or messages explaining the nature of the conflict, and the conflicting appointments are identifiable"
+          }
+        ],
+        "postconditions": [
+          "Resource availability data reflects all changes made during the test",
+          "All created and modified appointments are saved in the system",
+          "Conflict indicators are displayed where applicable",
+          "Dashboard remains in a stable state for further use",
+          "Real-time update mechanism continues to function properly"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Ensure secure access to resource availability data",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "System has role-based access control configured",
+          "Test user accounts exist with different permission levels (with and without resource availability access)",
+          "Resource availability data exists in the system",
+          "Authentication and authorization mechanisms are active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log out from any existing session to ensure a clean test state",
+            "expectedResult": "User is successfully logged out and redirected to the login page"
+          },
+          {
+            "step": 2,
+            "action": "Log in with a user account that does not have permissions to access resource availability data (e.g., a user with 'Guest' or 'Limited User' role)",
+            "expectedResult": "User is successfully authenticated and logged into the system"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to navigate to the resource availability dashboard through the application menu",
+            "expectedResult": "Resource availability dashboard option is either not visible in the menu or is disabled/grayed out"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to directly access the resource availability dashboard using the direct URL or endpoint (e.g., /resources/availability)",
+            "expectedResult": "Access is denied with an appropriate error message (e.g., '403 Forbidden' or 'You do not have permission to access this resource'), and user is redirected to an error page or their home dashboard"
+          },
+          {
+            "step": 5,
+            "action": "Verify that no resource availability data is displayed or accessible through any alternative navigation paths",
+            "expectedResult": "No resource availability information is visible or accessible to the unauthorized user"
+          },
+          {
+            "step": 6,
+            "action": "Log out from the unauthorized user account",
+            "expectedResult": "User is successfully logged out"
+          },
+          {
+            "step": 7,
+            "action": "Log in with a user account that has valid permissions to access resource availability data (e.g., 'Scheduler' role)",
+            "expectedResult": "User is successfully authenticated and logged into the system with Scheduler privileges"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to the resource availability dashboard from the main menu",
+            "expectedResult": "Resource availability dashboard option is visible and accessible in the menu"
+          },
+          {
+            "step": 9,
+            "action": "Access the resource availability dashboard",
+            "expectedResult": "Dashboard loads successfully and displays complete resource availability data including all resources, their statuses, bookings, and availability time slots"
+          },
+          {
+            "step": 10,
+            "action": "Verify that all expected features and data are accessible (calendar view, timeline view, resource details, conflict indicators)",
+            "expectedResult": "All resource availability features and data are fully accessible and displayed correctly with no restrictions"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized access attempts are logged in the system audit trail",
+          "Authorized user has full access to resource availability data",
+          "Security controls remain intact and functional",
+          "No unauthorized data exposure occurred during the test",
+          "User sessions are properly managed and secured"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  }
+]
