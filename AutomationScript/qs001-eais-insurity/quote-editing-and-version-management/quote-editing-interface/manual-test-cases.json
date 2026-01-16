@@ -1,0 +1,337 @@
+[
+  {
+    "storyId": "story-11",
+    "storyTitle": "As Quote Manager, I want to open existing quotes for editing to update quote details accurately",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful loading and editing of existing quote",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has valid Quote Manager credentials",
+          "At least one existing quote is available in the system",
+          "User has edit permissions for quotes",
+          "System is accessible and operational",
+          "Browser is supported and up to date"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the quoting system login page and enter valid Quote Manager credentials",
+            "expectedResult": "User is successfully authenticated and redirected to the dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the quote search page from the dashboard menu",
+            "expectedResult": "Quote search page is displayed with search fields and filters available"
+          },
+          {
+            "step": 3,
+            "action": "Enter a valid quote ID or customer name in the search field and click Search button",
+            "expectedResult": "Search results are displayed showing matching quotes with relevant details"
+          },
+          {
+            "step": 4,
+            "action": "Select an existing quote from the search results by clicking on it",
+            "expectedResult": "Quote details load into editable form within 2 seconds with all fields pre-populated with existing data"
+          },
+          {
+            "step": 5,
+            "action": "Verify all quote fields are displayed correctly including customer information, line items, pricing, and terms",
+            "expectedResult": "All quote data is accurately displayed in editable form fields"
+          },
+          {
+            "step": 6,
+            "action": "Modify one or more quote fields with valid data (e.g., update pricing, change quantity, modify terms)",
+            "expectedResult": "Modified fields accept the new values and display real-time validation feedback"
+          },
+          {
+            "step": 7,
+            "action": "Click the Submit or Save button to save the changes",
+            "expectedResult": "System displays a change summary showing all modifications made to the quote"
+          },
+          {
+            "step": 8,
+            "action": "Review the change summary and confirm the changes",
+            "expectedResult": "Changes are saved successfully, a new version is created with incremented version number, and a confirmation message is displayed"
+          },
+          {
+            "step": 9,
+            "action": "Verify the new version number is displayed on the quote",
+            "expectedResult": "Quote shows updated version number and timestamp of the modification"
+          }
+        ],
+        "postconditions": [
+          "Quote is updated with new data",
+          "New version of the quote is created in the database",
+          "Original quote version is preserved",
+          "User remains logged in",
+          "Confirmation message is visible to the user"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify validation prevents saving with missing mandatory fields",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Quote Manager with edit permissions",
+          "An existing quote is available for editing",
+          "User has navigated to the quote editing interface",
+          "Quote form contains mandatory fields"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Search for and select an existing quote to open for editing",
+            "expectedResult": "Quote details load successfully into the editable form with all fields populated"
+          },
+          {
+            "step": 2,
+            "action": "Verify the editable form is displayed with all quote fields accessible",
+            "expectedResult": "Editable form is displayed with all fields including mandatory field indicators (e.g., asterisks or labels)"
+          },
+          {
+            "step": 3,
+            "action": "Identify a mandatory field (e.g., Customer Name, Quote Amount, or Expiration Date) and clear its content",
+            "expectedResult": "Field content is cleared and field is now empty"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to save the quote by clicking the Save or Submit button",
+            "expectedResult": "Validation error message is displayed indicating the mandatory field is required, and save operation is prevented"
+          },
+          {
+            "step": 5,
+            "action": "Verify the error message clearly identifies which mandatory field is missing",
+            "expectedResult": "Error message specifically names the missing mandatory field and provides guidance on how to correct it"
+          },
+          {
+            "step": 6,
+            "action": "Fill the mandatory field with valid data that meets all validation requirements",
+            "expectedResult": "Field accepts the valid data and validation error message disappears or changes to success indicator"
+          },
+          {
+            "step": 7,
+            "action": "Click the Save or Submit button again to save the quote",
+            "expectedResult": "Save operation succeeds, new version is created, and confirmation message is displayed"
+          }
+        ],
+        "postconditions": [
+          "Quote is saved with all mandatory fields populated",
+          "New version of the quote exists in the system",
+          "Validation rules are enforced",
+          "User receives confirmation of successful save"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure unauthorized users cannot access quote editing",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User account exists without quote edit permissions",
+          "User has valid login credentials for a non-Quote Manager role",
+          "At least one quote exists in the system",
+          "Role-based access control is configured and active",
+          "Direct URL to quote editing interface is known"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the login page and enter credentials for a user without edit permissions (e.g., Viewer role)",
+            "expectedResult": "User is successfully authenticated and logged into the system with limited permissions"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the quotes section or dashboard",
+            "expectedResult": "User can view the quotes section but edit options are not visible or are disabled"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to access the quote editing interface through the normal user interface",
+            "expectedResult": "Access to quote editing interface is denied, edit buttons are disabled or not displayed"
+          },
+          {
+            "step": 4,
+            "action": "Copy or manually enter the direct URL to the quote editing interface (e.g., /quotes/edit/12345) in the browser address bar",
+            "expectedResult": "System detects unauthorized access attempt"
+          },
+          {
+            "step": 5,
+            "action": "Press Enter to navigate to the direct URL",
+            "expectedResult": "Access denied error page is displayed with message indicating insufficient permissions"
+          },
+          {
+            "step": 6,
+            "action": "Verify the error message provides appropriate feedback without exposing sensitive system information",
+            "expectedResult": "Error message clearly states access is denied due to insufficient permissions without revealing system architecture details"
+          },
+          {
+            "step": 7,
+            "action": "Verify user is not able to view or modify any quote data through the denied interface",
+            "expectedResult": "No quote data is displayed and no editing functionality is accessible"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized user remains unable to edit quotes",
+          "Security logs record the unauthorized access attempt",
+          "User session remains active but with restricted permissions",
+          "No quote data is modified or exposed"
+        ],
+        "estimatedTime": "5 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-15",
+    "storyTitle": "As Quote Manager, I want to receive notifications when a quote is successfully updated to confirm changes",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate success notification after quote update",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Quote Manager with edit permissions",
+          "An existing quote is loaded in the editing interface",
+          "User has made valid changes to the quote",
+          "Notification component is functional",
+          "Browser supports notification display"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Make valid edits to the quote fields (e.g., update pricing, modify terms, change quantities)",
+            "expectedResult": "Modified fields display the updated values and pass real-time validation"
+          },
+          {
+            "step": 2,
+            "action": "Click the Save or Submit button to save the quote edits",
+            "expectedResult": "System processes the changes and saves the updated quote to the database"
+          },
+          {
+            "step": 3,
+            "action": "Observe the screen immediately after the save operation completes",
+            "expectedResult": "A clear success notification is displayed prominently on the screen within 1-2 seconds"
+          },
+          {
+            "step": 4,
+            "action": "Verify the notification contains a success indicator (e.g., green checkmark, success icon, or positive color scheme)",
+            "expectedResult": "Notification displays visual success indicators that clearly communicate successful completion"
+          },
+          {
+            "step": 5,
+            "action": "Read the notification content to verify it includes a summary of the changes made",
+            "expectedResult": "Notification displays a summary listing the specific fields that were modified (e.g., 'Quote updated successfully: Price changed from $1000 to $1200, Quantity changed from 5 to 10')"
+          },
+          {
+            "step": 6,
+            "action": "Verify that no sensitive information such as internal IDs, system paths, or confidential data is exposed in the notification",
+            "expectedResult": "Notification contains only appropriate user-facing information without exposing sensitive system details"
+          },
+          {
+            "step": 7,
+            "action": "Locate and click the dismiss button (X icon, Close button, or similar) on the notification",
+            "expectedResult": "Notification smoothly disappears from the screen without causing any errors or page refresh"
+          },
+          {
+            "step": 8,
+            "action": "Verify the page remains functional after dismissing the notification",
+            "expectedResult": "Page continues to function normally, quote data remains displayed, and no JavaScript errors occur"
+          }
+        ],
+        "postconditions": [
+          "Quote is successfully saved with new version",
+          "Notification has been displayed and dismissed",
+          "User has confirmation of successful update",
+          "Notification event is logged for audit purposes",
+          "User interface remains in stable state"
+        ],
+        "estimatedTime": "4 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-17",
+    "storyTitle": "As Quote Manager, I want the system to prevent concurrent edits on the same quote to avoid conflicts",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify quote locking prevents concurrent edits",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Two users (User A and User B) are logged into the system with Quote Manager permissions",
+          "A valid quote exists in the system and is available for editing",
+          "Quote is currently unlocked and not being edited by any user",
+          "Both users have network connectivity and active sessions",
+          "Locking mechanism is enabled and functioning in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "User A navigates to the quote list and selects a specific quote to edit",
+            "expectedResult": "Quote details page loads successfully for User A"
+          },
+          {
+            "step": 2,
+            "action": "User A clicks the 'Edit' button on the quote",
+            "expectedResult": "Quote enters edit mode for User A, edit form is displayed with all quote fields editable, and system locks the quote record immediately (within 1 second)"
+          },
+          {
+            "step": 3,
+            "action": "Verify lock status in the system database or admin panel",
+            "expectedResult": "Quote record shows as locked with User A as the lock owner and timestamp of lock acquisition"
+          },
+          {
+            "step": 4,
+            "action": "User B navigates to the same quote and attempts to click the 'Edit' button",
+            "expectedResult": "System prevents User B from entering edit mode and displays a notification message indicating the quote is currently locked by User A with information about who is editing and when the lock was acquired"
+          },
+          {
+            "step": 5,
+            "action": "User B verifies the quote remains in read-only mode",
+            "expectedResult": "All quote fields are displayed but not editable for User B, edit button is disabled or shows locked status"
+          },
+          {
+            "step": 6,
+            "action": "User A makes changes to the quote fields (e.g., updates pricing, terms, or line items)",
+            "expectedResult": "Changes are reflected in the edit form for User A, no errors occur during editing"
+          },
+          {
+            "step": 7,
+            "action": "User A clicks the 'Save' button to save the changes",
+            "expectedResult": "Changes are saved successfully, confirmation message is displayed, and lock is released automatically within 1 second"
+          },
+          {
+            "step": 8,
+            "action": "Verify lock status in the system after User A saves",
+            "expectedResult": "Quote record shows as unlocked, no lock owner is assigned, lock release timestamp is recorded"
+          },
+          {
+            "step": 9,
+            "action": "User B refreshes the quote page or attempts to edit the quote again",
+            "expectedResult": "User B can now successfully click the 'Edit' button and enter edit mode without any lock notification"
+          },
+          {
+            "step": 10,
+            "action": "User B enters edit mode and verifies the quote is locked for their session",
+            "expectedResult": "Quote is locked for User B, edit form is displayed, and system shows User B as the current lock owner"
+          }
+        ],
+        "postconditions": [
+          "Quote is unlocked and available for editing by other users",
+          "All changes made by User A are saved and persisted in the database",
+          "User B has successfully acquired the lock and is in edit mode",
+          "Lock history is recorded in the system audit logs",
+          "No data conflicts or integrity issues exist"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  }
+]
