@@ -1,0 +1,833 @@
+[
+  {
+    "storyId": "story-11",
+    "storyTitle": "As Scheduler, I want to detect overlapping appointments to prevent double-booking resources",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Detect overlapping appointments for the same resource",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Scheduling system is accessible and operational",
+          "Resource A exists in the system and is available",
+          "No existing appointments for Resource A in the test time window",
+          "User has permissions to create appointments"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the appointment creation page",
+            "expectedResult": "Appointment creation form is displayed with all required fields"
+          },
+          {
+            "step": 2,
+            "action": "Select Resource A from the resource dropdown",
+            "expectedResult": "Resource A is selected and displayed in the resource field"
+          },
+          {
+            "step": 3,
+            "action": "Set appointment start time to 10:00 and end time to 11:00",
+            "expectedResult": "Time fields are populated with 10:00 to 11:00"
+          },
+          {
+            "step": 4,
+            "action": "Fill in all other required appointment details and click Save",
+            "expectedResult": "Appointment is saved successfully and confirmation message is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Navigate back to appointment creation page to create a second appointment",
+            "expectedResult": "New appointment creation form is displayed"
+          },
+          {
+            "step": 6,
+            "action": "Select Resource A from the resource dropdown",
+            "expectedResult": "Resource A is selected and displayed in the resource field"
+          },
+          {
+            "step": 7,
+            "action": "Set appointment start time to 10:30 and end time to 11:30",
+            "expectedResult": "Time fields are populated with 10:30 to 11:30"
+          },
+          {
+            "step": 8,
+            "action": "Fill in all other required appointment details and click Save",
+            "expectedResult": "System detects overlap and flags conflict immediately with a conflict warning message"
+          },
+          {
+            "step": 9,
+            "action": "Review conflict details displayed in the UI",
+            "expectedResult": "Conflict information shows both appointment times (10:00-11:00 and 10:30-11:30), appointment IDs, and Resource A identifier"
+          }
+        ],
+        "postconditions": [
+          "First appointment remains saved in the system",
+          "Second appointment is not saved due to conflict",
+          "Conflict details are logged in the system",
+          "Scheduler is aware of the conflict and can take corrective action"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Ensure conflict detection latency is under 2 seconds",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Scheduling system is operational",
+          "At least one existing appointment is present in the system",
+          "Timer or performance monitoring tool is available",
+          "System is under normal load conditions"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Start timer and navigate to appointment creation or update page",
+            "expectedResult": "Page loads successfully and timer is running"
+          },
+          {
+            "step": 2,
+            "action": "Create or update an appointment that overlaps with an existing appointment",
+            "expectedResult": "Appointment details are entered successfully"
+          },
+          {
+            "step": 3,
+            "action": "Click Save and measure time until conflict detection completes",
+            "expectedResult": "System processes conflict detection and displays result within 2 seconds"
+          },
+          {
+            "step": 4,
+            "action": "Verify conflict flag appears in UI immediately after detection",
+            "expectedResult": "Conflict flag is visible without noticeable delay, clearly indicating the overlap"
+          },
+          {
+            "step": 5,
+            "action": "Simulate concurrent operations by having multiple users create appointments simultaneously",
+            "expectedResult": "System handles concurrent requests without errors"
+          },
+          {
+            "step": 6,
+            "action": "Measure conflict detection latency during concurrent operations",
+            "expectedResult": "System maintains latency under 2 seconds SLA during concurrent operations with no performance degradation"
+          }
+        ],
+        "postconditions": [
+          "Conflict detection performance meets SLA requirements",
+          "System remains responsive under load",
+          "All conflict detections are logged with timestamps",
+          "No appointments are saved with undetected conflicts"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Support conflict detection across time zones",
+        "type": "edge-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "System supports multiple time zones",
+          "Resource is available for scheduling",
+          "User's time zone is configured in their profile",
+          "System can handle time zone conversions"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to appointment creation page",
+            "expectedResult": "Appointment creation form is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Select a resource and set time zone to 'America/New_York' (Time Zone A)",
+            "expectedResult": "Time zone A is selected and displayed"
+          },
+          {
+            "step": 3,
+            "action": "Create an appointment from 14:00 to 15:00 EST and save",
+            "expectedResult": "Appointment is saved successfully with correct time zone metadata (EST) displayed in confirmation"
+          },
+          {
+            "step": 4,
+            "action": "Navigate to create a new appointment for the same resource",
+            "expectedResult": "New appointment creation form is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Select the same resource and set time zone to 'Europe/London' (Time Zone B)",
+            "expectedResult": "Time zone B is selected and displayed"
+          },
+          {
+            "step": 6,
+            "action": "Create an overlapping appointment from 19:00 to 20:00 GMT (equivalent to 14:00-15:00 EST) and attempt to save",
+            "expectedResult": "System detects conflict considering time zone differences and displays conflict warning"
+          },
+          {
+            "step": 7,
+            "action": "Review the conflict alert details",
+            "expectedResult": "Conflict alert shows appointment times adjusted to user's time zone with both original time zones indicated (14:00-15:00 EST and 19:00-20:00 GMT shown as equivalent)"
+          },
+          {
+            "step": 8,
+            "action": "Verify that both appointments display correct local times in the conflict details",
+            "expectedResult": "System correctly converts and displays times, clearly showing the overlap despite different time zone representations"
+          }
+        ],
+        "postconditions": [
+          "First appointment remains saved with Time Zone A metadata",
+          "Second appointment is blocked due to detected conflict",
+          "Time zone conversion is accurate and logged",
+          "Conflict alert displays times in user's preferred time zone"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-12",
+    "storyTitle": "As Scheduler, I want to detect double-booking of resources across multiple schedules to avoid resource conflicts",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Detect double-booking of resource across multiple schedules",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Multiple schedules (Schedule 1 and Schedule 2) exist in the system",
+          "Resource B exists and is shared across both schedules",
+          "User has access to both Schedule 1 and Schedule 2",
+          "No existing appointments for Resource B in the test time window",
+          "System can aggregate data from multiple calendars"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to Schedule 1 appointment creation page",
+            "expectedResult": "Schedule 1 appointment creation form is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Select Resource B from the resource dropdown",
+            "expectedResult": "Resource B is selected and displayed"
+          },
+          {
+            "step": 3,
+            "action": "Set appointment start time to 14:00 and end time to 15:00",
+            "expectedResult": "Time fields show 14:00 to 15:00"
+          },
+          {
+            "step": 4,
+            "action": "Fill in all required appointment details and click Save",
+            "expectedResult": "Appointment is saved successfully in Schedule 1 with confirmation message displayed"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to Schedule 2 appointment creation page",
+            "expectedResult": "Schedule 2 appointment creation form is displayed"
+          },
+          {
+            "step": 6,
+            "action": "Select Resource B from the resource dropdown",
+            "expectedResult": "Resource B is selected and displayed"
+          },
+          {
+            "step": 7,
+            "action": "Set appointment start time to 14:30 and end time to 15:30",
+            "expectedResult": "Time fields show 14:30 to 15:30"
+          },
+          {
+            "step": 8,
+            "action": "Fill in all required appointment details and click Save",
+            "expectedResult": "System detects double-booking across schedules and flags conflict immediately with warning message"
+          },
+          {
+            "step": 9,
+            "action": "Review conflict details displayed in the UI",
+            "expectedResult": "Conflict information shows both appointments (14:00-15:00 from Schedule 1 and 14:30-15:30 from Schedule 2), appointment IDs, Resource B identifier, and both schedule names"
+          }
+        ],
+        "postconditions": [
+          "Appointment in Schedule 1 remains saved",
+          "Appointment in Schedule 2 is blocked due to conflict",
+          "Conflict is logged with details of both schedules",
+          "Resource B availability status is accurate across both schedules"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Ensure conflict detection latency under 3 seconds",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Multiple schedules are configured in the system",
+          "At least one existing appointment exists that can cause a double-booking",
+          "Timer or performance monitoring tool is available",
+          "System is operational under normal load"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Start timer and navigate to appointment creation page in any schedule",
+            "expectedResult": "Appointment creation form loads and timer is running"
+          },
+          {
+            "step": 2,
+            "action": "Create or update an appointment that causes a double-booking with an existing appointment in another schedule",
+            "expectedResult": "All appointment details are entered successfully"
+          },
+          {
+            "step": 3,
+            "action": "Click Save and measure time until conflict detection completes",
+            "expectedResult": "System detects conflict and displays result within 3 seconds"
+          },
+          {
+            "step": 4,
+            "action": "Stop timer and record the latency",
+            "expectedResult": "Recorded latency is under 3 seconds"
+          },
+          {
+            "step": 5,
+            "action": "Verify conflict alert is visible in the UI",
+            "expectedResult": "Alert is displayed promptly in UI with clear conflict details and no noticeable delay"
+          }
+        ],
+        "postconditions": [
+          "Conflict detection latency meets the 3-second SLA",
+          "Conflict alert is visible to the user",
+          "Performance metrics are logged",
+          "Double-booked appointment is not saved"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Prevent saving double-booked appointments without override",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Two user accounts exist: one with override permission and one without",
+          "User without override permission is logged in",
+          "Multiple schedules exist in the system",
+          "An existing appointment creates potential for double-booking",
+          "System has role-based access control configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "As user without override permission, navigate to appointment creation page",
+            "expectedResult": "Appointment creation form is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Create an appointment that double-books a resource already scheduled in another schedule",
+            "expectedResult": "Appointment details are entered"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to save the double-booked appointment",
+            "expectedResult": "System blocks save operation and displays error message indicating double-booking conflict and insufficient permissions to override"
+          },
+          {
+            "step": 4,
+            "action": "Verify that the appointment was not saved to the system",
+            "expectedResult": "Appointment does not appear in any schedule and database shows no new record"
+          },
+          {
+            "step": 5,
+            "action": "Log out and log in as user with override permission",
+            "expectedResult": "User with override permission is successfully logged in"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to appointment creation page and create the same double-booked appointment",
+            "expectedResult": "Appointment details are entered and conflict is detected"
+          },
+          {
+            "step": 7,
+            "action": "Acknowledge the conflict warning and select the override option",
+            "expectedResult": "Override option is available and can be selected"
+          },
+          {
+            "step": 8,
+            "action": "Attempt to save with override permission enabled",
+            "expectedResult": "System allows save operation, displays confirmation message, and shows override warning acknowledgment"
+          },
+          {
+            "step": 9,
+            "action": "Verify the override action is logged in the system",
+            "expectedResult": "System logs override action with user ID, timestamp, appointment details, and reason for override"
+          }
+        ],
+        "postconditions": [
+          "Users without override permission cannot save double-booked appointments",
+          "Users with override permission can save double-booked appointments",
+          "All override actions are logged with complete audit trail",
+          "System maintains data integrity and access control"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-19",
+    "storyTitle": "As Scheduler, I want the system to handle concurrent scheduling updates without conflicts to maintain data integrity",
+    "testCases": [
+      {
+        "id": "tc-019-001",
+        "title": "Handle concurrent scheduling updates without data corruption",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Scheduling system is operational and accessible",
+          "At least 2 scheduler user accounts are active and authenticated",
+          "Test appointment exists in the system with ID and version number",
+          "Database concurrency controls are enabled",
+          "Network connectivity is stable for all test users"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "User 1 opens the existing appointment for editing and loads appointment details",
+            "expectedResult": "Appointment details are displayed with current version number and all fields are editable"
+          },
+          {
+            "step": 2,
+            "action": "User 2 simultaneously opens the same appointment for editing",
+            "expectedResult": "Appointment details are displayed to User 2 with the same version number as User 1"
+          },
+          {
+            "step": 3,
+            "action": "User 1 modifies the appointment time from 2:00 PM to 3:00 PM and clicks Save",
+            "expectedResult": "System successfully saves User 1's changes, increments version number, and displays success confirmation"
+          },
+          {
+            "step": 4,
+            "action": "User 2 modifies the appointment location and clicks Save without refreshing",
+            "expectedResult": "System detects version mismatch and prevents save operation, displaying conflict error message"
+          },
+          {
+            "step": 5,
+            "action": "Verify conflict notification is displayed to User 2",
+            "expectedResult": "Conflict notification appears within 2 seconds stating 'This appointment has been modified by another user. Please refresh and try again.'"
+          },
+          {
+            "step": 6,
+            "action": "User 2 clicks Refresh button to reload the appointment",
+            "expectedResult": "Updated appointment data with User 1's changes is displayed with new version number"
+          },
+          {
+            "step": 7,
+            "action": "User 2 reapplies their location change and clicks Save",
+            "expectedResult": "System successfully saves User 2's changes with correct version number and displays success confirmation"
+          },
+          {
+            "step": 8,
+            "action": "Verify final appointment data in database",
+            "expectedResult": "Appointment contains both User 1's time change (3:00 PM) and User 2's location change with no data corruption or loss"
+          }
+        ],
+        "postconditions": [
+          "Appointment data is consistent and contains all valid changes",
+          "No data corruption occurred during concurrent updates",
+          "Version number is correctly incremented",
+          "All users can view the final updated appointment",
+          "System audit log records both update attempts and conflict resolution"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-019-002",
+        "title": "Maintain performance under high concurrency",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "Scheduling system is operational with full resources allocated",
+          "100 scheduler user accounts are created and authenticated",
+          "Test dataset contains at least 500 appointments",
+          "Performance monitoring tools are configured and running",
+          "Load testing environment is set up with concurrent user simulation capability",
+          "Baseline performance metrics are documented (response time SLA is defined)"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Configure load testing tool to simulate 100 concurrent scheduler users",
+            "expectedResult": "Load testing tool is configured with 100 virtual users ready to execute scheduling operations"
+          },
+          {
+            "step": 2,
+            "action": "Start performance monitoring and capture baseline metrics (CPU, memory, database connections)",
+            "expectedResult": "Performance monitoring dashboard shows current system metrics and is recording data"
+          },
+          {
+            "step": 3,
+            "action": "Initiate concurrent load test with all 100 users performing read operations (viewing appointments)",
+            "expectedResult": "All 100 users successfully retrieve appointment data with response times within SLA (< 2 seconds)"
+          },
+          {
+            "step": 4,
+            "action": "Execute concurrent write operations with 100 users creating new appointments simultaneously",
+            "expectedResult": "System processes all create requests with response times within SLA, no timeouts or errors occur"
+          },
+          {
+            "step": 5,
+            "action": "Execute concurrent update operations with 100 users modifying different appointments simultaneously",
+            "expectedResult": "All update operations complete successfully within SLA, no deadlocks or transaction failures occur"
+          },
+          {
+            "step": 6,
+            "action": "Execute mixed operations with 50 users reading, 30 users updating, and 20 users creating appointments simultaneously",
+            "expectedResult": "System handles mixed workload with all operations completing within SLA thresholds"
+          },
+          {
+            "step": 7,
+            "action": "Monitor system resource utilization during peak concurrent load",
+            "expectedResult": "CPU utilization remains below 80%, memory usage is stable, database connection pool has available connections"
+          },
+          {
+            "step": 8,
+            "action": "Review performance metrics and calculate average response times across all operations",
+            "expectedResult": "Average response time is within SLA, 95th percentile response time does not exceed 3 seconds, zero failed transactions"
+          },
+          {
+            "step": 9,
+            "action": "Verify data integrity by checking random sample of 50 appointments created/updated during test",
+            "expectedResult": "All sampled appointments contain correct data with no corruption, duplicates, or missing information"
+          }
+        ],
+        "postconditions": [
+          "System maintains stable performance under 100 concurrent users",
+          "No performance degradation observed during sustained load",
+          "All transactions completed successfully without data loss",
+          "System resources return to normal levels after load test completion",
+          "Performance test results are documented and meet SLA requirements"
+        ],
+        "estimatedTime": "25 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-20",
+    "storyTitle": "As Scheduler, I want the system to support multiple calendar formats for conflict detection to ensure compatibility",
+    "testCases": [
+      {
+        "id": "tc-020-001",
+        "title": "Parse and detect conflicts from iCal format",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Scheduling system is operational and accessible",
+          "Scheduler user account is authenticated",
+          "Valid iCal (.ics) test file is prepared with multiple calendar events",
+          "System has iCal parser module enabled",
+          "At least one existing appointment in the system to create potential conflicts"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to calendar import section and select 'Import Calendar' option",
+            "expectedResult": "Import dialog opens with file upload interface and format selection options"
+          },
+          {
+            "step": 2,
+            "action": "Select iCal format option and browse to upload the prepared .ics test file",
+            "expectedResult": "File is selected and filename is displayed in the upload field"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Import' button to upload and process the iCal file",
+            "expectedResult": "System displays processing indicator and begins parsing the iCal data"
+          },
+          {
+            "step": 4,
+            "action": "Verify parsing completion and review import summary",
+            "expectedResult": "System displays success message showing number of events parsed (e.g., '15 events successfully imported'), data is normalized and stored in system format"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to calendar view and verify imported iCal events are displayed",
+            "expectedResult": "All imported events from iCal file are visible with correct dates, times, titles, and descriptions"
+          },
+          {
+            "step": 6,
+            "action": "Create a new appointment that conflicts with an imported iCal event (same date/time)",
+            "expectedResult": "System allows appointment creation form to be filled with conflicting time slot"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to save the conflicting appointment",
+            "expectedResult": "System detects the conflict with the iCal imported event and displays conflict warning message: 'Conflict detected with existing event: [Event Name] at [Time]'"
+          },
+          {
+            "step": 8,
+            "action": "Review conflict details showing both the new appointment and the conflicting iCal event",
+            "expectedResult": "Conflict details panel displays both appointments side-by-side with overlapping time highlighted, iCal source is indicated"
+          },
+          {
+            "step": 9,
+            "action": "Verify format-specific metadata is preserved by viewing iCal event properties",
+            "expectedResult": "iCal-specific fields (UID, SEQUENCE, DTSTAMP) are preserved and displayed in event metadata"
+          }
+        ],
+        "postconditions": [
+          "iCal calendar data is successfully imported and stored",
+          "All iCal events are normalized and accessible in the system",
+          "Conflict detection accurately identifies overlaps with iCal events",
+          "Format-specific metadata is preserved for audit purposes",
+          "No data loss or corruption occurred during import"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-020-002",
+        "title": "Parse and detect conflicts from Google Calendar format",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Scheduling system is operational and accessible",
+          "Scheduler user account is authenticated",
+          "Google Calendar API integration is configured and enabled",
+          "Test Google Calendar account exists with OAuth credentials configured",
+          "Test Google Calendar contains at least 5 events",
+          "System has valid OAuth tokens for Google Calendar access"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to calendar sync section and select 'Connect Google Calendar' option",
+            "expectedResult": "System displays Google Calendar integration interface with 'Authorize' button"
+          },
+          {
+            "step": 2,
+            "action": "Click 'Authorize' button to initiate OAuth authentication flow",
+            "expectedResult": "Google OAuth consent screen opens in new window requesting calendar access permissions"
+          },
+          {
+            "step": 3,
+            "action": "Grant calendar read permissions and complete OAuth authorization",
+            "expectedResult": "Authorization completes successfully, system receives OAuth token, and user is redirected back to scheduling system"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Sync Now' button to retrieve Google Calendar events via API",
+            "expectedResult": "System initiates API call to Google Calendar, displays sync progress indicator"
+          },
+          {
+            "step": 5,
+            "action": "Monitor sync process and wait for completion",
+            "expectedResult": "Sync completes successfully with message 'Google Calendar synced: X events imported', data is parsed and normalized"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to calendar view and verify Google Calendar events are displayed",
+            "expectedResult": "All synced Google Calendar events appear with correct dates, times, attendees, and descriptions, Google Calendar icon indicates source"
+          },
+          {
+            "step": 7,
+            "action": "Verify Google Calendar-specific metadata is preserved by viewing event details",
+            "expectedResult": "Google Calendar event ID, organizer email, and attendee list are preserved and displayed in event properties"
+          },
+          {
+            "step": 8,
+            "action": "Create a new appointment with date/time that conflicts with a synced Google Calendar event",
+            "expectedResult": "Appointment creation form accepts the conflicting time slot details"
+          },
+          {
+            "step": 9,
+            "action": "Attempt to save the conflicting appointment",
+            "expectedResult": "System detects conflict with Google Calendar event and displays warning: 'Conflict detected with Google Calendar event: [Event Name] at [Time]'"
+          },
+          {
+            "step": 10,
+            "action": "Review conflict resolution options and verify accuracy of conflict detection",
+            "expectedResult": "Conflict panel shows both appointments with overlapping time range highlighted, Google Calendar source is clearly indicated, conflict detection is accurate to the minute"
+          },
+          {
+            "step": 11,
+            "action": "Verify no data loss by comparing event count before and after sync",
+            "expectedResult": "All Google Calendar events are accounted for, no events missing or duplicated, event data matches source calendar"
+          }
+        ],
+        "postconditions": [
+          "Google Calendar is successfully connected via OAuth",
+          "All Google Calendar events are synced and normalized in the system",
+          "Conflict detection accurately identifies overlaps with Google Calendar events",
+          "Google Calendar-specific metadata is preserved",
+          "No data loss or corruption occurred during sync",
+          "OAuth token is securely stored for future syncs"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-22",
+    "storyTitle": "As Scheduler, I want the system to support multi-time zone scheduling to accurately detect conflicts globally",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify appointment creation with time zone data",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as a Scheduler with appointment creation permissions",
+          "Scheduling system is accessible and operational",
+          "At least two different time zones are available in the system (e.g., EST and PST)",
+          "User profile has a default local time zone configured",
+          "Database is configured to store time zone metadata"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the appointment creation page",
+            "expectedResult": "Appointment creation form is displayed with all required fields including time zone selector"
+          },
+          {
+            "step": 2,
+            "action": "Enter appointment title as 'Global Team Meeting'",
+            "expectedResult": "Title field accepts and displays the entered text"
+          },
+          {
+            "step": 3,
+            "action": "Select date as current date + 7 days",
+            "expectedResult": "Date picker displays the selected date correctly"
+          },
+          {
+            "step": 4,
+            "action": "Set appointment start time to 10:00 AM",
+            "expectedResult": "Time field displays 10:00 AM"
+          },
+          {
+            "step": 5,
+            "action": "Set appointment end time to 11:00 AM",
+            "expectedResult": "Time field displays 11:00 AM"
+          },
+          {
+            "step": 6,
+            "action": "Select time zone A (e.g., America/New_York - EST) from the time zone dropdown",
+            "expectedResult": "Time zone dropdown displays 'America/New_York (EST)' as selected"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Save' or 'Create Appointment' button",
+            "expectedResult": "System processes the request and displays success confirmation message. Appointment is saved with correct time zone metadata including zone identifier, offset, and DST information"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to appointment details page to verify stored data",
+            "expectedResult": "Appointment details show: Title='Global Team Meeting', Date=selected date, Time=10:00 AM - 11:00 AM, Time Zone=America/New_York (EST)"
+          },
+          {
+            "step": 9,
+            "action": "Change user profile time zone to time zone B (e.g., America/Los_Angeles - PST)",
+            "expectedResult": "User profile successfully updated to PST time zone"
+          },
+          {
+            "step": 10,
+            "action": "View the same appointment in the calendar or appointment list",
+            "expectedResult": "Appointment time is automatically converted and displayed correctly in local time (PST): 7:00 AM - 8:00 AM with indication that original time zone is EST"
+          },
+          {
+            "step": 11,
+            "action": "Verify time zone conversion calculation manually (EST to PST = -3 hours)",
+            "expectedResult": "Displayed time matches expected conversion: 10:00 AM EST = 7:00 AM PST"
+          }
+        ],
+        "postconditions": [
+          "Appointment is successfully stored in database with complete time zone metadata",
+          "Appointment is visible in calendar views with correct time conversions",
+          "Time zone data integrity is maintained for future conflict detection",
+          "User can view appointment in any time zone with accurate conversions",
+          "System logs record the appointment creation with time zone information"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Detect conflicts across different time zones",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as a Scheduler with appointment creation permissions",
+          "Scheduling system is operational with conflict detection enabled",
+          "Multiple time zones are configured in the system (e.g., EST, PST, GMT)",
+          "Database supports time zone storage and conversion",
+          "No existing appointments in the test time window",
+          "Conflict detection algorithm is active and functioning"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to appointment creation page",
+            "expectedResult": "Appointment creation form is displayed with all fields including time zone selector"
+          },
+          {
+            "step": 2,
+            "action": "Create first appointment: Title='Meeting A', Date=current date + 5 days, Time=2:00 PM - 3:00 PM, Time Zone=America/New_York (EST)",
+            "expectedResult": "First appointment is successfully created and saved with EST time zone"
+          },
+          {
+            "step": 3,
+            "action": "Verify first appointment is displayed in calendar",
+            "expectedResult": "Meeting A appears in calendar at 2:00 PM - 3:00 PM EST"
+          },
+          {
+            "step": 4,
+            "action": "Navigate to create a second appointment",
+            "expectedResult": "New appointment creation form is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Create second appointment with overlapping time in different time zone: Title='Meeting B', Date=same date as Meeting A, Time=11:00 AM - 12:00 PM, Time Zone=America/Los_Angeles (PST)",
+            "expectedResult": "System begins processing the appointment creation request"
+          },
+          {
+            "step": 6,
+            "action": "Click 'Save' or 'Create Appointment' button",
+            "expectedResult": "System performs time zone conversion (11:00 AM PST = 2:00 PM EST) and detects conflict with Meeting A"
+          },
+          {
+            "step": 7,
+            "action": "Observe system response to conflict detection",
+            "expectedResult": "System displays conflict warning message indicating: 'Conflict detected: This appointment overlaps with Meeting A (2:00 PM - 3:00 PM EST / 11:00 AM - 12:00 PM PST)'"
+          },
+          {
+            "step": 8,
+            "action": "Review conflict details provided by the system",
+            "expectedResult": "Conflict message shows both appointments with their respective time zones and the converted overlapping time period"
+          },
+          {
+            "step": 9,
+            "action": "Attempt to create third appointment with partial overlap: Title='Meeting C', Date=same date, Time=11:30 AM - 12:30 PM, Time Zone=America/Los_Angeles (PST)",
+            "expectedResult": "System detects partial conflict (11:30 AM - 12:00 PM PST overlaps with 2:30 PM - 3:00 PM EST portion of Meeting A) and displays appropriate conflict warning"
+          },
+          {
+            "step": 10,
+            "action": "Create fourth appointment with no overlap: Title='Meeting D', Date=same date, Time=12:00 PM - 1:00 PM, Time Zone=America/Los_Angeles (PST)",
+            "expectedResult": "System converts time (12:00 PM PST = 3:00 PM EST), detects no conflict, and successfully creates the appointment"
+          },
+          {
+            "step": 11,
+            "action": "Verify all appointments in calendar view with user time zone set to GMT",
+            "expectedResult": "All appointments are displayed with correct time conversions to GMT: Meeting A at 7:00 PM - 8:00 PM GMT, Meeting D at 8:00 PM - 9:00 PM GMT"
+          }
+        ],
+        "postconditions": [
+          "System accurately detected conflicts across different time zones",
+          "Conflicting appointments were prevented or flagged appropriately",
+          "Non-conflicting appointments were created successfully",
+          "All appointments maintain correct time zone metadata",
+          "Conflict detection logs are recorded for audit purposes",
+          "Calendar displays all appointments with accurate time zone conversions"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  }
+]
