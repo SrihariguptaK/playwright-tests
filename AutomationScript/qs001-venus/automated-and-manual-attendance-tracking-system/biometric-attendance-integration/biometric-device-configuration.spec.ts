@@ -1,220 +1,169 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Biometric Device Configuration - Story 22', () => {
-  const baseURL = process.env.BASE_URL || 'http://localhost:3000';
-  const adminCredentials = {
-    username: 'admin@company.com',
-    password: 'Admin@123'
-  };
-  const nonAdminCredentials = {
-    username: 'employee@company.com',
-    password: 'Employee@123'
-  };
+test.describe('Biometric Device Configuration', () => {
+  const ADMIN_USERNAME = 'admin@company.com';
+  const ADMIN_PASSWORD = 'AdminPass123!';
+  const NON_ADMIN_USERNAME = 'employee@company.com';
+  const NON_ADMIN_PASSWORD = 'EmployeePass123!';
+  const BASE_URL = 'http://localhost:3000';
 
   test.beforeEach(async ({ page }) => {
-    await page.goto(baseURL);
+    await page.goto(BASE_URL);
   });
 
-  test('Validate successful device configuration addition (happy-path)', async ({ page }) => {
-    // Login as administrator
-    await page.fill('[data-testid="username-input"]', adminCredentials.username);
-    await page.fill('[data-testid="password-input"]', adminCredentials.password);
+  test('Validate successful biometric device configuration', async ({ page }) => {
+    // Login as admin
+    await page.fill('[data-testid="username-input"]', ADMIN_USERNAME);
+    await page.fill('[data-testid="password-input"]', ADMIN_PASSWORD);
     await page.click('[data-testid="login-button"]');
-    await expect(page).toHaveURL(/.*dashboard/);
+    await expect(page.locator('[data-testid="admin-dashboard"]')).toBeVisible();
 
-    // Navigate to biometric device configuration page from the main menu or dashboard
-    await page.click('[data-testid="settings-menu"]');
-    await page.click('[data-testid="biometric-devices-link"]');
+    // Navigate to biometric device configuration page
+    await page.click('[data-testid="admin-menu"]');
+    await page.click('[data-testid="biometric-config-link"]');
     
     // Expected Result: Configuration form is displayed
-    await expect(page.locator('[data-testid="device-configuration-form"]')).toBeVisible();
-    await expect(page.locator('[data-testid="device-ip-input"]')).toBeVisible();
-    await expect(page.locator('[data-testid="device-port-input"]')).toBeVisible();
-    await expect(page.locator('[data-testid="device-username-input"]')).toBeVisible();
-    await expect(page.locator('[data-testid="device-password-input"]')).toBeVisible();
+    await expect(page.locator('[data-testid="device-config-form"]')).toBeVisible();
+    await expect(page.locator('[data-testid="device-name-input"]')).toBeVisible();
 
-    // Enter valid device IP address (e.g., 192.168.1.100) in the IP field
+    // Enter valid device details
+    await page.fill('[data-testid="device-name-input"]', 'Main Entrance Device 01');
     await page.fill('[data-testid="device-ip-input"]', '192.168.1.100');
-    
-    // Enter valid port number (e.g., 4370) in the port field
-    await page.fill('[data-testid="device-port-input"]', '4370');
-    
-    // Enter valid device credentials (username and password) in the respective fields
-    await page.fill('[data-testid="device-username-input"]', 'deviceadmin');
-    await page.fill('[data-testid="device-password-input"]', 'DevicePass@123');
-    
-    // Expected Result: Inputs accepted without validation errors
-    await expect(page.locator('[data-testid="ip-validation-error"]')).not.toBeVisible();
-    await expect(page.locator('[data-testid="port-validation-error"]')).not.toBeVisible();
-    await expect(page.locator('[data-testid="credentials-validation-error"]')).not.toBeVisible();
+    await page.fill('[data-testid="device-port-input"]', '8080');
+    await page.fill('[data-testid="device-identifier-input"]', 'DEV-001');
+    await page.selectOption('[data-testid="device-type-select"]', 'Fingerprint Scanner');
+    await page.fill('[data-testid="api-username-input"]', 'device_api_user');
+    await page.fill('[data-testid="api-password-input"]', 'device_api_pass123');
 
-    // Click the Submit or Save button to save the configuration
-    await page.click('[data-testid="save-device-button"]');
+    // Test connection
+    await page.click('[data-testid="test-connection-button"]');
+    await expect(page.locator('[data-testid="connection-status"]')).toContainText('Connection successful', { timeout: 10000 });
+
+    // Submit configuration
+    await page.click('[data-testid="save-configuration-button"]');
     
-    // Wait for connectivity test to complete
-    await expect(page.locator('[data-testid="connectivity-test-status"]')).toBeVisible({ timeout: 10000 });
-    
-    // Expected Result: Configuration saved and connectivity test passes
+    // Expected Result: System validates and confirms successful device registration
+    await expect(page.locator('[data-testid="success-message"]')).toContainText('Device registered successfully');
     await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
-    await expect(page.locator('[data-testid="success-message"]')).toContainText('Configuration saved successfully');
-    await expect(page.locator('[data-testid="connectivity-test-status"]')).toContainText('Connected');
+
+    // Navigate to device status dashboard
+    await page.click('[data-testid="device-status-dashboard-link"]');
     
-    // Verify device appears in the device list
-    await expect(page.locator('[data-testid="device-list"]')).toContainText('192.168.1.100');
+    // Expected Result: Device status shows as connected and active
+    await expect(page.locator('[data-testid="device-dashboard"]')).toBeVisible();
+    const deviceRow = page.locator('[data-testid="device-row"]', { hasText: 'Main Entrance Device 01' });
+    await expect(deviceRow).toBeVisible();
+    await expect(deviceRow.locator('[data-testid="device-status"]')).toContainText('Connected');
+    await expect(deviceRow.locator('[data-testid="device-active-status"]')).toContainText('Active');
   });
 
-  test('Verify rejection of invalid device parameters (error-case)', async ({ page }) => {
-    // Login as administrator
-    await page.fill('[data-testid="username-input"]', adminCredentials.username);
-    await page.fill('[data-testid="password-input"]', adminCredentials.password);
+  test('Verify error handling for invalid device configuration', async ({ page }) => {
+    // Login as admin
+    await page.fill('[data-testid="username-input"]', ADMIN_USERNAME);
+    await page.fill('[data-testid="password-input"]', ADMIN_PASSWORD);
     await page.click('[data-testid="login-button"]');
-    await expect(page).toHaveURL(/.*dashboard/);
+    await expect(page.locator('[data-testid="admin-dashboard"]')).toBeVisible();
 
-    // Navigate to biometric device configuration page from the main menu or dashboard
-    await page.click('[data-testid="settings-menu"]');
-    await page.click('[data-testid="biometric-devices-link"]');
+    // Navigate to biometric device configuration page
+    await page.click('[data-testid="admin-menu"]');
+    await page.click('[data-testid="biometric-config-link"]');
     
     // Expected Result: Configuration form is displayed
-    await expect(page.locator('[data-testid="device-configuration-form"]')).toBeVisible();
+    await expect(page.locator('[data-testid="device-config-form"]')).toBeVisible();
 
-    // Enter invalid IP address format (e.g., '999.999.999.999' or 'invalid-ip') in the IP field
+    // Enter invalid device details
+    await page.fill('[data-testid="device-name-input"]', 'Invalid Device');
     await page.fill('[data-testid="device-ip-input"]', '999.999.999.999');
-    
-    // Enter invalid port number (e.g., '99999' or '-1' or 'abc') in the port field
     await page.fill('[data-testid="device-port-input"]', '99999');
-    
-    // Trigger validation by clicking outside or tabbing
-    await page.click('[data-testid="device-username-input"]');
-    
-    // Expected Result: Inline validation errors displayed
-    await expect(page.locator('[data-testid="ip-validation-error"]')).toBeVisible();
-    await expect(page.locator('[data-testid="ip-validation-error"]')).toContainText(/invalid.*ip/i);
-    await expect(page.locator('[data-testid="port-validation-error"]')).toBeVisible();
-    await expect(page.locator('[data-testid="port-validation-error"]')).toContainText(/port.*range/i);
+    await page.fill('[data-testid="device-identifier-input"]', 'DEV-INVALID');
+    await page.selectOption('[data-testid="device-type-select"]', 'Fingerprint Scanner');
+    await page.fill('[data-testid="api-username-input"]', 'wrong_user');
+    await page.fill('[data-testid="api-password-input"]', 'wrong_pass');
 
-    // Attempt to submit form
-    await page.click('[data-testid="save-device-button"]');
+    // Test connection with invalid details
+    await page.click('[data-testid="test-connection-button"]');
+    await expect(page.locator('[data-testid="connection-status"]')).toContainText('Connection failed', { timeout: 10000 });
+
+    // Attempt to submit without fixing errors
+    await page.click('[data-testid="save-configuration-button"]');
     
-    // Expected Result: Submission blocked with error messages
+    // Expected Result: System displays descriptive error message and prevents saving
     await expect(page.locator('[data-testid="error-message"]')).toBeVisible();
-    await expect(page.locator('[data-testid="error-message"]')).toContainText(/invalid.*parameters/i);
-    await expect(page.locator('[data-testid="device-configuration-form"]')).toBeVisible();
+    await expect(page.locator('[data-testid="error-message"]')).toContainText('Invalid IP address format');
+    await expect(page.locator('[data-testid="error-message"]')).toContainText('Port number must be between 1 and 65535');
+    await expect(page.locator('[data-testid="device-config-form"]')).toBeVisible();
 
-    // Correct the IP address to valid format (e.g., 192.168.1.100) but leave port as invalid
-    await page.fill('[data-testid="device-ip-input"]', '192.168.1.100');
-    await page.click('[data-testid="device-username-input"]');
+    // Navigate to device status dashboard
+    await page.click('[data-testid="device-status-dashboard-link"]');
     
-    // Verify IP validation error is cleared
-    await expect(page.locator('[data-testid="ip-validation-error"]')).not.toBeVisible();
+    // Attempt to capture attendance data from non-existent device
+    const invalidDevice = page.locator('[data-testid="device-row"]', { hasText: 'Invalid Device' });
     
-    // Port validation error should still be visible
-    await expect(page.locator('[data-testid="port-validation-error"]')).toBeVisible();
-
-    // Attempt to submit the form again
-    await page.click('[data-testid="save-device-button"]');
-    
-    // Expected Result: Submission still blocked due to invalid port
-    await expect(page.locator('[data-testid="error-message"]')).toBeVisible();
-    await expect(page.locator('[data-testid="port-validation-error"]')).toBeVisible();
-    
-    // Test with invalid IP format 'invalid-ip'
-    await page.fill('[data-testid="device-ip-input"]', 'invalid-ip');
-    await page.fill('[data-testid="device-port-input"]', '-1');
-    await page.click('[data-testid="device-username-input"]');
-    
-    await expect(page.locator('[data-testid="ip-validation-error"]')).toBeVisible();
-    await expect(page.locator('[data-testid="port-validation-error"]')).toBeVisible();
-    
-    // Test with alphabetic port
-    await page.fill('[data-testid="device-port-input"]', 'abc');
-    await page.click('[data-testid="device-username-input"]');
-    
-    await expect(page.locator('[data-testid="port-validation-error"]')).toBeVisible();
-    await expect(page.locator('[data-testid="port-validation-error"]')).toContainText(/numeric|number|invalid/i);
+    // Expected Result: No data captured from invalid device
+    await expect(invalidDevice).not.toBeVisible();
   });
 
-  test('Ensure access control restricts unauthorized users (error-case)', async ({ page }) => {
-    // Login to the system using non-administrator user credentials
-    await page.fill('[data-testid="username-input"]', nonAdminCredentials.username);
-    await page.fill('[data-testid="password-input"]', nonAdminCredentials.password);
+  test('Ensure only authorized admins can configure devices', async ({ page }) => {
+    // Login as non-admin user
+    await page.fill('[data-testid="username-input"]', NON_ADMIN_USERNAME);
+    await page.fill('[data-testid="password-input"]', NON_ADMIN_PASSWORD);
     await page.click('[data-testid="login-button"]');
-    await expect(page).toHaveURL(/.*dashboard/);
+    await expect(page.locator('[data-testid="employee-dashboard"]')).toBeVisible();
 
-    // Attempt to navigate to the biometric device configuration page via menu or direct URL
-    const configPageURL = `${baseURL}/settings/biometric-devices`;
-    await page.goto(configPageURL);
+    // Verify device configuration menu option is not visible
+    await page.click('[data-testid="main-menu"]');
+    await expect(page.locator('[data-testid="biometric-config-link"]')).not.toBeVisible();
+
+    // Attempt to navigate directly via URL
+    await page.goto(`${BASE_URL}/admin/biometric-config`);
     
-    // Expected Result: Access to device configuration page is denied
+    // Expected Result: Access denied message displayed
     await expect(page.locator('[data-testid="access-denied-message"]')).toBeVisible();
-    await expect(page.locator('[data-testid="access-denied-message"]')).toContainText(/unauthorized|access denied|permission/i);
-    await expect(page.locator('[data-testid="device-configuration-form"]')).not.toBeVisible();
+    await expect(page.locator('[data-testid="access-denied-message"]')).toContainText('Access denied');
+    await expect(page.locator('[data-testid="device-config-form"]')).not.toBeVisible();
 
-    // Attempt to directly access the configuration API endpoint POST /api/biometric/devices
-    const postResponse = await page.request.post(`${baseURL}/api/biometric/devices`, {
-      data: {
-        ip: '192.168.1.100',
-        port: 4370,
-        username: 'deviceadmin',
-        password: 'DevicePass@123'
-      }
-    });
-    
-    // Expected Result: API returns unauthorized error
-    expect(postResponse.status()).toBe(401);
-    const postResponseBody = await postResponse.json();
-    expect(postResponseBody).toHaveProperty('error');
-    expect(postResponseBody.error).toMatch(/unauthorized|forbidden|access denied/i);
-
-    // Attempt to access the device status API endpoint GET /api/biometric/devices/status
-    const getResponse = await page.request.get(`${baseURL}/api/biometric/devices/status`);
-    
-    // Expected Result: API returns unauthorized error
-    expect(getResponse.status()).toBe(401);
-    const getResponseBody = await getResponse.json();
-    expect(getResponseBody).toHaveProperty('error');
-    expect(getResponseBody.error).toMatch(/unauthorized|forbidden|access denied/i);
-
-    // Logout from the non-administrator account
+    // Logout from non-admin account
     await page.click('[data-testid="user-menu"]');
     await page.click('[data-testid="logout-button"]');
-    await expect(page).toHaveURL(/.*login/);
+    await expect(page.locator('[data-testid="login-button"]')).toBeVisible();
 
-    // Login to the system using administrator credentials
-    await page.fill('[data-testid="username-input"]', adminCredentials.username);
-    await page.fill('[data-testid="password-input"]', adminCredentials.password);
+    // Login as admin user
+    await page.fill('[data-testid="username-input"]', ADMIN_USERNAME);
+    await page.fill('[data-testid="password-input"]', ADMIN_PASSWORD);
     await page.click('[data-testid="login-button"]');
-    await expect(page).toHaveURL(/.*dashboard/);
+    await expect(page.locator('[data-testid="admin-dashboard"]')).toBeVisible();
 
-    // Navigate to the biometric device configuration page
-    await page.goto(configPageURL);
+    // Navigate to device configuration page
+    await page.click('[data-testid="admin-menu"]');
+    await page.click('[data-testid="biometric-config-link"]');
     
-    // Expected Result: Full access granted to configuration features
-    await expect(page.locator('[data-testid="device-configuration-form"]')).toBeVisible();
-    await expect(page.locator('[data-testid="access-denied-message"]')).not.toBeVisible();
-    await expect(page.locator('[data-testid="device-ip-input"]')).toBeVisible();
-    await expect(page.locator('[data-testid="device-port-input"]')).toBeVisible();
-    await expect(page.locator('[data-testid="save-device-button"]')).toBeVisible();
+    // Expected Result: Configuration page accessible
+    await expect(page.locator('[data-testid="device-config-form"]')).toBeVisible();
 
-    // Access the configuration API endpoints POST /api/biometric/devices
-    const adminPostResponse = await page.request.post(`${baseURL}/api/biometric/devices`, {
-      data: {
-        ip: '192.168.1.101',
-        port: 4370,
-        username: 'deviceadmin',
-        password: 'DevicePass@123'
-      }
-    });
-    
-    // Expected Result: API accepts request from administrator
-    expect([200, 201]).toContain(adminPostResponse.status());
+    // Enter valid device details
+    await page.fill('[data-testid="device-name-input"]', 'Reception Device 01');
+    await page.fill('[data-testid="device-ip-input"]', '192.168.1.101');
+    await page.fill('[data-testid="device-port-input"]', '8080');
+    await page.fill('[data-testid="device-identifier-input"]', 'DEV-002');
+    await page.selectOption('[data-testid="device-type-select"]', 'Fingerprint Scanner');
+    await page.fill('[data-testid="api-username-input"]', 'device_api_user');
+    await page.fill('[data-testid="api-password-input"]', 'device_api_pass123');
 
-    // Access GET /api/biometric/devices/status
-    const adminGetResponse = await page.request.get(`${baseURL}/api/biometric/devices/status`);
+    // Test connection
+    await page.click('[data-testid="test-connection-button"]');
+    await expect(page.locator('[data-testid="connection-status"]')).toContainText('Connection successful', { timeout: 10000 });
+
+    // Save configuration
+    await page.click('[data-testid="save-configuration-button"]');
     
-    // Expected Result: API returns data for administrator
-    expect(adminGetResponse.status()).toBe(200);
-    const adminGetResponseBody = await adminGetResponse.json();
-    expect(adminGetResponseBody).toBeDefined();
-    expect(Array.isArray(adminGetResponseBody) || typeof adminGetResponseBody === 'object').toBeTruthy();
+    // Expected Result: Device registered and active
+    await expect(page.locator('[data-testid="success-message"]')).toContainText('Device registered successfully');
+
+    // Verify device appears in status dashboard
+    await page.click('[data-testid="device-status-dashboard-link"]');
+    const deviceRow = page.locator('[data-testid="device-row"]', { hasText: 'Reception Device 01' });
+    await expect(deviceRow).toBeVisible();
+    await expect(deviceRow.locator('[data-testid="device-status"]')).toContainText('Connected');
+    await expect(deviceRow.locator('[data-testid="device-active-status"]')).toContainText('Active');
   });
 });
