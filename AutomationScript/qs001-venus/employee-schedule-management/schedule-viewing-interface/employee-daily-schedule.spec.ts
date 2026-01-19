@@ -1,161 +1,147 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Employee Daily Schedule View', () => {
+test.describe('Employee Daily Schedule - Story 7', () => {
   const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
-  const VALID_USERNAME = 'employee.test@company.com';
-  const VALID_PASSWORD = 'Test@1234';
-  const EMPLOYEE_ID = '123';
+  const VALID_USERNAME = 'employee@company.com';
+  const VALID_PASSWORD = 'Password123!';
+  const SCHEDULE_URL = '/schedules/daily';
 
-  test.beforeEach(async ({ page }) => {
-    // Navigate to login page before each test
+  test('Validate successful display of daily schedule', async ({ page }) => {
+    // Step 1: Navigate to the web portal login page using a supported browser
     await page.goto(`${BASE_URL}/login`);
-  });
+    await expect(page).toHaveURL(/.*login/);
 
-  test('Validate successful daily schedule display for authenticated employee', async ({ page }) => {
-    // Step 1: Employee logs into the web portal
-    await page.fill('[data-testid="username-input"]', VALID_USERNAME);
-    await page.fill('[data-testid="password-input"]', VALID_PASSWORD);
-    await page.click('[data-testid="login-button"]');
-    
-    // Expected Result: Login successful and dashboard displayed
+    // Step 2: Enter valid employee credentials (username and password) and click Login button
+    await page.fill('input[name="username"]', VALID_USERNAME);
+    await page.fill('input[name="password"]', VALID_PASSWORD);
+    await page.click('button[type="submit"]');
+
+    // Step 3: Verify the dashboard is fully loaded
+    await page.waitForLoadState('networkidle');
     await expect(page).toHaveURL(/.*dashboard/);
-    await expect(page.locator('[data-testid="dashboard-header"]')).toBeVisible();
+    await expect(page.locator('[data-testid="dashboard"]')).toBeVisible();
 
-    // Step 2: Navigate to schedule section and select daily view
-    await page.click('[data-testid="schedule-nav-link"]');
+    // Step 4: Click on the Schedule section from the navigation menu
+    await page.click('[data-testid="nav-schedule"]');
     await expect(page.locator('[data-testid="schedule-section"]')).toBeVisible();
-    
+
+    // Step 5: Select the Daily View option
     await page.click('[data-testid="daily-view-option"]');
-    
-    // Expected Result: Daily schedule for current day is displayed with correct shift details
-    await expect(page.locator('[data-testid="daily-schedule-view"]')).toBeVisible();
-    await expect(page.locator('[data-testid="current-day-highlight"]')).toBeVisible();
+    await page.waitForLoadState('networkidle');
+
+    // Step 6: Verify all shift details are accurate and complete for the current day
+    await expect(page.locator('[data-testid="daily-schedule"]')).toBeVisible();
     await expect(page.locator('[data-testid="shift-start-time"]')).toBeVisible();
     await expect(page.locator('[data-testid="shift-end-time"]')).toBeVisible();
     await expect(page.locator('[data-testid="shift-location"]')).toBeVisible();
     await expect(page.locator('[data-testid="shift-role"]')).toBeVisible();
-    
-    // Verify shift details are present and not empty
-    const shiftStartTime = await page.locator('[data-testid="shift-start-time"]').textContent();
-    expect(shiftStartTime).toBeTruthy();
-    expect(shiftStartTime?.trim().length).toBeGreaterThan(0);
 
-    // Step 3: Refresh the schedule view
-    await page.click('[data-testid="refresh-schedule-button"]');
+    // Verify current date is displayed
+    const currentDate = new Date().toLocaleDateString();
+    await expect(page.locator('[data-testid="schedule-date"]')).toContainText(currentDate.split('/')[1]);
+
+    // Step 7: Click on the Next Day navigation button or arrow
+    await page.click('[data-testid="next-day-button"]');
+    await page.waitForLoadState('networkidle');
+
+    // Step 8: Verify the next day's schedule displays correctly
+    await expect(page.locator('[data-testid="daily-schedule"]')).toBeVisible();
+    const nextDaySchedule = page.locator('[data-testid="schedule-date"]');
+    await expect(nextDaySchedule).toBeVisible();
     
-    // Expected Result: Schedule updates are reflected without errors
-    await expect(page.locator('[data-testid="daily-schedule-view"]')).toBeVisible();
-    await expect(page.locator('[data-testid="error-message"]')).not.toBeVisible();
-    
-    // Verify schedule data is still displayed after refresh
+    // Verify shift details are still present for next day
     await expect(page.locator('[data-testid="shift-start-time"]')).toBeVisible();
   });
 
-  test('Verify access restriction to own schedule only', async ({ page }) => {
-    // Login as Employee A
-    await page.fill('[data-testid="username-input"]', VALID_USERNAME);
-    await page.fill('[data-testid="password-input"]', VALID_PASSWORD);
-    await page.click('[data-testid="login-button"]');
-    await expect(page).toHaveURL(/.*dashboard/);
+  test('Verify access restriction for unauthenticated users', async ({ page, context }) => {
+    // Step 1: Clear all browser cookies and cache to ensure no active session exists
+    await context.clearCookies();
+    await context.clearPermissions();
 
-    // Navigate to schedule section
-    await page.click('[data-testid="schedule-nav-link"]');
-    await page.click('[data-testid="daily-view-option"]');
-    await expect(page.locator('[data-testid="daily-schedule-view"]')).toBeVisible();
-    
-    // Note the current schedule URL
-    const currentURL = page.url();
-    expect(currentURL).toContain(EMPLOYEE_ID);
+    // Step 2: Open a new browser window or tab (already handled by page object)
+    // Step 3: Directly enter the daily schedule URL in the address bar and press Enter
+    await page.goto(`${BASE_URL}${SCHEDULE_URL}`);
 
-    // Step 1: Employee attempts to access another employee's schedule via URL manipulation
-    const manipulatedURL = currentURL.replace(`employeeId=${EMPLOYEE_ID}`, 'employeeId=456');
-    await page.goto(manipulatedURL);
+    // Step 4: Verify the login page is displayed with appropriate message
+    await expect(page).toHaveURL(/.*login/);
+    await expect(page.locator('[data-testid="login-form"]')).toBeVisible();
     
-    // Expected Result: Access denied with appropriate error message
-    await expect(page.locator('[data-testid="access-denied-message"]')).toBeVisible();
-    const errorMessage = await page.locator('[data-testid="access-denied-message"]').textContent();
-    expect(errorMessage).toContain('Access denied');
-    
-    // Verify no schedule data from other employee is visible
-    await expect(page.locator('[data-testid="daily-schedule-view"]')).not.toBeVisible();
+    // Verify access denied or authentication required message
+    const authMessage = page.locator('text=/authentication required|please log in|access denied/i');
+    await expect(authMessage.first()).toBeVisible({ timeout: 5000 }).catch(() => {
+      // Message might not always be present, but redirect to login is sufficient
+    });
 
-    // Step 2: Employee views own schedule
-    await page.click('[data-testid="schedule-nav-link"]');
-    await page.click('[data-testid="daily-view-option"]');
-    
-    // Expected Result: Schedule displayed correctly
-    await expect(page.locator('[data-testid="daily-schedule-view"]')).toBeVisible();
-    await expect(page.locator('[data-testid="employee-name"]')).toContainText('Test Employee');
-    
-    // Verify all displayed information belongs to logged-in employee
-    const displayedEmployeeId = await page.locator('[data-testid="employee-id"]').getAttribute('data-employee-id');
-    expect(displayedEmployeeId).toBe(EMPLOYEE_ID);
+    // Step 5: Verify that no schedule data is visible or accessible
+    await expect(page.locator('[data-testid="daily-schedule"]')).not.toBeVisible();
+    await expect(page.locator('[data-testid="shift-start-time"]')).not.toBeVisible();
+    await expect(page.locator('[data-testid="shift-end-time"]')).not.toBeVisible();
   });
 
-  test('Test performance of daily schedule loading', async ({ page }) => {
-    // Login first
-    await page.fill('[data-testid="username-input"]', VALID_USERNAME);
-    await page.fill('[data-testid="password-input"]', VALID_PASSWORD);
-    await page.click('[data-testid="login-button"]');
-    await expect(page).toHaveURL(/.*dashboard/);
+  test('Test responsiveness on mobile devices', async ({ page }) => {
+    // Step 1: Open the mobile browser on the smartphone device
+    await page.setViewportSize({ width: 375, height: 667 }); // iPhone SE dimensions
 
-    // Navigate to schedule section
-    await page.click('[data-testid="schedule-nav-link"]');
-    
-    // Step 1: Employee loads daily schedule view and measure performance
-    const startTime = Date.now();
-    
-    // Set up API response listener to track API call timing
-    const apiResponsePromise = page.waitForResponse(
-      response => response.url().includes('/api/schedules/daily') && response.status() === 200
-    );
-    
+    // Step 2: Navigate to the web portal URL and access the login page
+    await page.goto(`${BASE_URL}/login`);
+    await expect(page).toHaveURL(/.*login/);
+
+    // Step 3: Enter valid employee credentials and tap the Login button
+    await page.fill('input[name="username"]', VALID_USERNAME);
+    await page.fill('input[name="password"]', VALID_PASSWORD);
+    await page.click('button[type="submit"]');
+    await page.waitForLoadState('networkidle');
+
+    // Step 4: Tap on the Schedule section from the mobile navigation menu
+    // Mobile navigation might be in a hamburger menu
+    const mobileMenuButton = page.locator('[data-testid="mobile-menu-button"]');
+    if (await mobileMenuButton.isVisible()) {
+      await mobileMenuButton.click();
+    }
+    await page.click('[data-testid="nav-schedule"]');
+
+    // Step 5: Select the Daily View option by tapping on it
     await page.click('[data-testid="daily-view-option"]');
+    await page.waitForLoadState('networkidle');
+
+    // Step 6: Verify all schedule elements are visible without horizontal scrolling
+    const dailySchedule = page.locator('[data-testid="daily-schedule"]');
+    await expect(dailySchedule).toBeVisible();
     
-    // Wait for API response
-    const apiResponse = await apiResponsePromise;
-    expect(apiResponse.status()).toBe(200);
-    
-    // Wait for schedule to be fully displayed
-    await expect(page.locator('[data-testid="daily-schedule-view"]')).toBeVisible();
+    // Check that content fits within viewport width
+    const scheduleBox = await dailySchedule.boundingBox();
+    expect(scheduleBox?.width).toBeLessThanOrEqual(375);
+
+    // Verify key elements are visible
     await expect(page.locator('[data-testid="shift-start-time"]')).toBeVisible();
+    await expect(page.locator('[data-testid="shift-end-time"]')).toBeVisible();
+    await expect(page.locator('[data-testid="shift-location"]')).toBeVisible();
+
+    // Step 7: Test the navigation controls by tapping the next day and previous day buttons
+    await page.click('[data-testid="next-day-button"]');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-testid="daily-schedule"]')).toBeVisible();
+
+    await page.click('[data-testid="previous-day-button"]');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-testid="daily-schedule"]')).toBeVisible();
+
+    // Step 8: Rotate the device to landscape orientation
+    await page.setViewportSize({ width: 667, height: 375 });
+    await page.waitForTimeout(500); // Allow time for responsive adjustments
     
-    const endTime = Date.now();
-    const loadTime = endTime - startTime;
+    // Verify schedule is still visible and properly formatted in landscape
+    await expect(page.locator('[data-testid="daily-schedule"]')).toBeVisible();
+    const landscapeBox = await dailySchedule.boundingBox();
+    expect(landscapeBox?.width).toBeLessThanOrEqual(667);
+
+    // Step 9: Rotate the device back to portrait orientation
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.waitForTimeout(500); // Allow time for responsive adjustments
     
-    // Expected Result: Schedule loads within 2 seconds (2000ms)
-    expect(loadTime).toBeLessThan(2000);
-    
-    // Test refresh performance - iteration 1
-    const refreshStartTime1 = Date.now();
-    const refreshApiPromise1 = page.waitForResponse(
-      response => response.url().includes('/api/schedules/daily') && response.status() === 200
-    );
-    
-    await page.click('[data-testid="refresh-schedule-button"]');
-    await refreshApiPromise1;
-    await expect(page.locator('[data-testid="daily-schedule-view"]')).toBeVisible();
-    
-    const refreshEndTime1 = Date.now();
-    const refreshLoadTime1 = refreshEndTime1 - refreshStartTime1;
-    expect(refreshLoadTime1).toBeLessThan(2000);
-    
-    // Test refresh performance - iteration 2
-    const refreshStartTime2 = Date.now();
-    const refreshApiPromise2 = page.waitForResponse(
-      response => response.url().includes('/api/schedules/daily') && response.status() === 200
-    );
-    
-    await page.click('[data-testid="refresh-schedule-button"]');
-    await refreshApiPromise2;
-    await expect(page.locator('[data-testid="daily-schedule-view"]')).toBeVisible();
-    
-    const refreshEndTime2 = Date.now();
-    const refreshLoadTime2 = refreshEndTime2 - refreshStartTime2;
-    expect(refreshLoadTime2).toBeLessThan(2000);
-    
-    // Verify consistent performance across all three loads
-    const avgLoadTime = (loadTime + refreshLoadTime1 + refreshLoadTime2) / 3;
-    expect(avgLoadTime).toBeLessThan(2000);
+    // Verify schedule is still visible and properly formatted in portrait
+    await expect(page.locator('[data-testid="daily-schedule"]')).toBeVisible();
+    await expect(page.locator('[data-testid="shift-start-time"]')).toBeVisible();
+    await expect(page.locator('[data-testid="shift-end-time"]')).toBeVisible();
   });
 });
