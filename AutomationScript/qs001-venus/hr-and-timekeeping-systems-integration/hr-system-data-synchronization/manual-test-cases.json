@@ -1,0 +1,278 @@
+[
+  {
+    "storyId": "story-16",
+    "storyTitle": "As HR Manager, I want to synchronize employee personal data daily to achieve up-to-date records",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful daily synchronization of employee data",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "HR system API is accessible and operational",
+          "API authentication credentials are configured correctly",
+          "Scheduled synchronization job is configured for daily execution",
+          "Test employee data exists in HR system with all mandatory fields populated",
+          "Network connectivity between systems is stable",
+          "Database has sufficient storage for employee records"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Trigger the scheduled synchronization job manually or wait for scheduled execution time",
+            "expectedResult": "Synchronization job starts successfully and initiates connection to HR system API /employees endpoint"
+          },
+          {
+            "step": 2,
+            "action": "Monitor the synchronization process as employee data is retrieved from HR system",
+            "expectedResult": "Employee data is successfully retrieved from HR API with HTTP 200 status code and data extraction completes without errors"
+          },
+          {
+            "step": 3,
+            "action": "Observe the data validation process for mandatory fields",
+            "expectedResult": "All mandatory fields are validated successfully and no validation errors are generated"
+          },
+          {
+            "step": 4,
+            "action": "Verify that employee records are updated or created in the new platform database",
+            "expectedResult": "All employee records are successfully inserted or updated in the database with correct data mapping"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to the employee records section in the new platform and verify updated records",
+            "expectedResult": "Employee records in the new platform reflect the latest data from HR system including all personal information fields"
+          },
+          {
+            "step": 6,
+            "action": "Access the synchronization logs via /api/hr/sync logs or admin dashboard",
+            "expectedResult": "Synchronization logs show successful completion status with no errors logged"
+          },
+          {
+            "step": 7,
+            "action": "Check the completion timestamp in the synchronization logs",
+            "expectedResult": "Synchronization completed within 30 minutes SLA from start time"
+          },
+          {
+            "step": 8,
+            "action": "Verify the total count of records processed matches the count in HR system",
+            "expectedResult": "Record count matches 100% with no data loss reported"
+          }
+        ],
+        "postconditions": [
+          "All employee records are synchronized and up-to-date in the new platform",
+          "Synchronization logs contain complete execution details with success status",
+          "No error notifications sent to HR team",
+          "System is ready for next scheduled synchronization",
+          "Database integrity is maintained"
+        ],
+        "estimatedTime": "35 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify handling of incomplete employee data",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "HR system API is accessible and operational",
+          "API authentication credentials are configured correctly",
+          "Test employee records with missing mandatory fields are prepared in HR system",
+          "Validation rules for mandatory fields are configured in the synchronization system",
+          "Error logging mechanism is functional",
+          "At least one complete employee record exists for processing verification"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Prepare test data in HR system with employee records missing mandatory fields (e.g., employee ID, first name, last name, or email)",
+            "expectedResult": "Test employee records with incomplete data are available in HR system API response"
+          },
+          {
+            "step": 2,
+            "action": "Trigger the synchronization job to process employee data including incomplete records",
+            "expectedResult": "Synchronization job starts and begins retrieving employee data from HR API"
+          },
+          {
+            "step": 3,
+            "action": "Monitor the validation process as incomplete employee records are processed",
+            "expectedResult": "System detects missing mandatory fields and generates validation errors for incomplete records"
+          },
+          {
+            "step": 4,
+            "action": "Access synchronization logs and search for error entries related to incomplete records",
+            "expectedResult": "Synchronization logs contain specific error messages identifying which records failed validation and which mandatory fields are missing"
+          },
+          {
+            "step": 5,
+            "action": "Verify that incomplete employee records are not created or updated in the new platform database",
+            "expectedResult": "Incomplete records are skipped and not inserted/updated in the database, maintaining data integrity"
+          },
+          {
+            "step": 6,
+            "action": "Check that synchronization continues processing remaining valid employee records after encountering incomplete data",
+            "expectedResult": "System continues processing and successfully synchronizes all complete employee records without stopping"
+          },
+          {
+            "step": 7,
+            "action": "Verify error notification is sent to HR team with details of incomplete records",
+            "expectedResult": "HR team receives error report listing all incomplete records with specific missing field information"
+          },
+          {
+            "step": 8,
+            "action": "Confirm the synchronization job completes with partial success status",
+            "expectedResult": "Synchronization completes with status indicating successful processing of valid records and errors for incomplete records"
+          }
+        ],
+        "postconditions": [
+          "Only complete employee records are synchronized to the new platform",
+          "Incomplete records remain unprocessed and are not stored in database",
+          "Error logs contain detailed information about validation failures",
+          "HR team is notified of incomplete records requiring correction",
+          "System maintains data quality and integrity",
+          "Synchronization process completed without system failure"
+        ],
+        "estimatedTime": "25 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-17",
+    "storyTitle": "As HR Analyst, I want to manually trigger employee data synchronization to achieve immediate updates",
+    "type": "happy-path",
+    "testCases": [
+      {
+        "id": "tc-003",
+        "title": "Verify authorized user can trigger manual sync",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "HR Analyst user account exists with proper role-based access control permissions",
+          "HR system API is accessible and operational",
+          "Manual synchronization endpoint /api/hr/sync/manual is deployed and functional",
+          "User has valid login credentials for HR Analyst role",
+          "Synchronization page UI is accessible in the application",
+          "Test employee data exists in HR system for synchronization",
+          "Logging system is operational to capture manual sync events"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the application login page and enter valid HR Analyst credentials",
+            "expectedResult": "Login is successful and user is authenticated as HR Analyst"
+          },
+          {
+            "step": 2,
+            "action": "Access the synchronization page from the main navigation menu or dashboard",
+            "expectedResult": "Synchronization page loads successfully and 'Sync Now' button is visible and enabled for HR Analyst"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Sync Now' button to trigger manual employee data synchronization",
+            "expectedResult": "Manual synchronization process initiates immediately and status indicator shows 'Synchronization in Progress'"
+          },
+          {
+            "step": 4,
+            "action": "Observe the real-time synchronization status displayed on the page",
+            "expectedResult": "Status updates are displayed showing progress such as 'Connecting to HR API', 'Retrieving data', 'Validating records', 'Updating database'"
+          },
+          {
+            "step": 5,
+            "action": "Wait for the synchronization process to complete",
+            "expectedResult": "Synchronization completes within 30 minutes and final status shows 'Synchronization Completed Successfully' with summary of records processed"
+          },
+          {
+            "step": 6,
+            "action": "Review the synchronization results displayed on the page",
+            "expectedResult": "Results show total records processed, successful updates, any errors encountered, and completion timestamp"
+          },
+          {
+            "step": 7,
+            "action": "Navigate to the synchronization logs section or access logs via admin panel",
+            "expectedResult": "Manual sync event is logged in the system logs"
+          },
+          {
+            "step": 8,
+            "action": "Verify the log entry contains user information and timestamp",
+            "expectedResult": "Log entry shows correct HR Analyst username, timestamp of manual sync trigger, and event type as 'Manual Synchronization'"
+          },
+          {
+            "step": 9,
+            "action": "Verify employee records in the new platform reflect the latest data from HR system",
+            "expectedResult": "Employee records are updated with the most recent data from HR system matching the manual sync timestamp"
+          }
+        ],
+        "postconditions": [
+          "Employee data is synchronized and up-to-date in the new platform",
+          "Manual sync event is logged with correct user and timestamp details",
+          "Synchronization status is displayed accurately to the HR Analyst",
+          "User remains logged in and can perform additional operations",
+          "System is ready for subsequent manual or scheduled synchronizations"
+        ],
+        "estimatedTime": "40 mins"
+      },
+      {
+        "id": "tc-004",
+        "title": "Verify unauthorized user cannot trigger manual sync",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Non-HR user account exists without HR Analyst role permissions",
+          "Role-based access control is properly configured in the system",
+          "Manual synchronization endpoint /api/hr/sync/manual has authorization checks enabled",
+          "User has valid login credentials for non-HR role (e.g., regular employee, viewer)",
+          "Security policies are enforced at both UI and API levels"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the application login page and enter valid credentials for a non-HR user account",
+            "expectedResult": "Login is successful and user is authenticated with non-HR role permissions"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to the synchronization page via direct URL or menu navigation",
+            "expectedResult": "Access is denied and user receives 'Access Denied' or '403 Forbidden' error message, or synchronization page is not visible in navigation menu"
+          },
+          {
+            "step": 3,
+            "action": "Verify that the synchronization page does not load and user is redirected to unauthorized access page or dashboard",
+            "expectedResult": "User cannot access the synchronization page and appropriate error message is displayed indicating insufficient permissions"
+          },
+          {
+            "step": 4,
+            "action": "Using API testing tool (e.g., Postman, cURL), attempt to directly call the manual sync API endpoint /api/hr/sync/manual with non-HR user authentication token",
+            "expectedResult": "API request is rejected with HTTP 401 Unauthorized or 403 Forbidden status code"
+          },
+          {
+            "step": 5,
+            "action": "Verify the API error response contains appropriate authorization error message",
+            "expectedResult": "Response body contains error message such as 'Unauthorized access' or 'Insufficient permissions to perform this operation'"
+          },
+          {
+            "step": 6,
+            "action": "Check security logs for unauthorized access attempts",
+            "expectedResult": "Security logs record the unauthorized access attempt with user details, timestamp, and denied action"
+          },
+          {
+            "step": 7,
+            "action": "Verify that no synchronization process was initiated by the unauthorized attempt",
+            "expectedResult": "Synchronization logs show no new manual sync events triggered by the non-HR user"
+          },
+          {
+            "step": 8,
+            "action": "Confirm employee data remains unchanged and no unintended synchronization occurred",
+            "expectedResult": "Employee records show no updates from unauthorized sync attempt and data integrity is maintained"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized user access is successfully blocked at both UI and API levels",
+          "No manual synchronization is triggered by unauthorized user",
+          "Security logs contain record of unauthorized access attempt",
+          "Employee data remains unchanged and secure",
+          "System security controls are validated as functional",
+          "User session remains active but restricted to authorized functions only"
+        ],
+        "estimatedTime": "20 mins"
+      }
+    ]
+  }
+]
