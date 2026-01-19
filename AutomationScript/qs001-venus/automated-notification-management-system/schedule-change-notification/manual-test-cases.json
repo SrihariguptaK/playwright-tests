@@ -1,0 +1,679 @@
+[
+  {
+    "storyId": "story-25",
+    "storyTitle": "As Scheduler, I want to receive notifications for schedule changes to stay informed and adjust plans accordingly",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate notification sent on schedule change",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Scheduling system is operational and accessible",
+          "Email, SMS, and in-app notification services are configured and active",
+          "Test scheduler has valid email address and phone number registered",
+          "At least one schedule entry exists in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the scheduling module and select an existing schedule entry",
+            "expectedResult": "Schedule entry details are displayed with edit options available"
+          },
+          {
+            "step": 2,
+            "action": "Update a schedule entry by modifying the date, time, or resource assignment",
+            "expectedResult": "System saves the changes successfully and displays confirmation message"
+          },
+          {
+            "step": 3,
+            "action": "Verify that the system detects the change and triggers notification process",
+            "expectedResult": "System detects the schedule change and initiates notification generation within seconds"
+          },
+          {
+            "step": 4,
+            "action": "Check the registered email inbox for notification",
+            "expectedResult": "Email notification is received containing accurate schedule change details including old values, new values, timestamp, and change initiator"
+          },
+          {
+            "step": 5,
+            "action": "Check the registered phone for SMS notification",
+            "expectedResult": "SMS notification is received with concise schedule change summary and reference number"
+          },
+          {
+            "step": 6,
+            "action": "Check the in-app notification center within the application",
+            "expectedResult": "In-app notification appears in the notification center with complete schedule change details and acknowledge option"
+          },
+          {
+            "step": 7,
+            "action": "Click on the acknowledge button in the in-app notification",
+            "expectedResult": "Notification is marked as acknowledged, acknowledgment timestamp is displayed, and notification status changes to 'Read'"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to notification logs or audit trail section",
+            "expectedResult": "Acknowledgment is recorded in the system logs with scheduler name, timestamp, and notification ID"
+          }
+        ],
+        "postconditions": [
+          "Schedule entry is updated with new values",
+          "Notifications are delivered via all three channels (email, SMS, in-app)",
+          "Acknowledgment is logged in the system",
+          "Notification status is marked as acknowledged",
+          "Audit trail contains complete notification delivery and acknowledgment records"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify retry mechanism on notification failure",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role and administrative access to notification settings",
+          "Scheduling system is operational",
+          "Test environment allows simulation of notification delivery failures",
+          "Access to notification logs and monitoring dashboard is available",
+          "At least one schedule entry exists for modification"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Configure the test environment to simulate notification delivery failure for email service",
+            "expectedResult": "Email service is set to reject or timeout notification requests"
+          },
+          {
+            "step": 2,
+            "action": "Update a schedule entry to trigger notification",
+            "expectedResult": "Schedule change is saved and notification process is initiated"
+          },
+          {
+            "step": 3,
+            "action": "Monitor the notification delivery process in real-time",
+            "expectedResult": "System attempts to send notification and encounters delivery failure"
+          },
+          {
+            "step": 4,
+            "action": "Observe the retry mechanism activation",
+            "expectedResult": "System automatically initiates first retry attempt after initial failure"
+          },
+          {
+            "step": 5,
+            "action": "Continue monitoring for subsequent retry attempts",
+            "expectedResult": "System performs second and third retry attempts with appropriate intervals between retries"
+          },
+          {
+            "step": 6,
+            "action": "Access notification logs from the system dashboard",
+            "expectedResult": "Notification logs display all retry attempts (initial attempt plus 3 retries) with individual timestamps and failure reasons"
+          },
+          {
+            "step": 7,
+            "action": "Restore email service to normal operation",
+            "expectedResult": "Email service is now accepting notification requests"
+          },
+          {
+            "step": 8,
+            "action": "Verify if notification is delivered after service restoration during retry window",
+            "expectedResult": "Notification is successfully delivered on one of the retry attempts, or final failure is logged if all retries exhausted"
+          },
+          {
+            "step": 9,
+            "action": "Review final notification status in logs",
+            "expectedResult": "System logs show either successful delivery with retry count or permanent failure status after 3 retry attempts"
+          }
+        ],
+        "postconditions": [
+          "All retry attempts are logged with timestamps and status",
+          "Notification is either successfully delivered or marked as permanently failed",
+          "System maintains data integrity despite delivery failures",
+          "Email service is restored to normal operation",
+          "Audit trail contains complete retry history"
+        ],
+        "estimatedTime": "15 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure notifications are sent within SLA",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Scheduling system is fully operational with normal load",
+          "All notification channels (email, SMS, in-app) are active and responsive",
+          "System clock is synchronized and accurate",
+          "Access to system logs and performance monitoring tools is available",
+          "Multiple schedule entries exist for testing"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Record the current system timestamp as test start time",
+            "expectedResult": "Baseline timestamp is captured for SLA measurement"
+          },
+          {
+            "step": 2,
+            "action": "Update the first schedule entry and record the exact modification timestamp",
+            "expectedResult": "First schedule change is saved with timestamp T1 recorded"
+          },
+          {
+            "step": 3,
+            "action": "Update the second schedule entry and record the exact modification timestamp",
+            "expectedResult": "Second schedule change is saved with timestamp T2 recorded"
+          },
+          {
+            "step": 4,
+            "action": "Update the third schedule entry and record the exact modification timestamp",
+            "expectedResult": "Third schedule change is saved with timestamp T3 recorded"
+          },
+          {
+            "step": 5,
+            "action": "Monitor notification delivery for the first schedule change",
+            "expectedResult": "Notification for first change is received within 5 minutes of T1"
+          },
+          {
+            "step": 6,
+            "action": "Monitor notification delivery for the second schedule change",
+            "expectedResult": "Notification for second change is received within 5 minutes of T2"
+          },
+          {
+            "step": 7,
+            "action": "Monitor notification delivery for the third schedule change",
+            "expectedResult": "Notification for third change is received within 5 minutes of T3"
+          },
+          {
+            "step": 8,
+            "action": "Calculate the delivery time for each notification by comparing modification timestamp with delivery timestamp",
+            "expectedResult": "All three notifications show delivery time of less than or equal to 5 minutes (300 seconds)"
+          },
+          {
+            "step": 9,
+            "action": "Access system logs and filter for the test period",
+            "expectedResult": "System logs display all notification events with timestamps"
+          },
+          {
+            "step": 10,
+            "action": "Review logs for any delays, errors, or warnings during the notification delivery process",
+            "expectedResult": "No delays beyond 5-minute SLA are recorded, no critical errors are logged, and all notifications show successful delivery status"
+          },
+          {
+            "step": 11,
+            "action": "Generate performance report for the notification delivery times",
+            "expectedResult": "Report confirms 100% compliance with 5-minute SLA for all tested notifications"
+          }
+        ],
+        "postconditions": [
+          "All schedule changes are successfully saved",
+          "All notifications are delivered within the 5-minute SLA",
+          "System logs contain complete delivery timeline for each notification",
+          "No performance degradation or errors are recorded",
+          "SLA compliance is documented and verified"
+        ],
+        "estimatedTime": "20 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-28",
+    "storyTitle": "As Scheduler, I want to customize notification channels for schedule changes to receive alerts via my preferred method",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate saving and updating notification preferences",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "User has existing notification preferences configured in the system",
+          "Notification preferences UI is accessible from user settings",
+          "User has valid email address and phone number registered",
+          "All notification channels (email, SMS, in-app) are operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to user settings or profile section",
+            "expectedResult": "User settings page is displayed with navigation options"
+          },
+          {
+            "step": 2,
+            "action": "Click on notification preferences or notification settings option",
+            "expectedResult": "Notification preferences UI is displayed showing current preferences with checkboxes or toggles for email, SMS, and in-app notifications"
+          },
+          {
+            "step": 3,
+            "action": "Review the currently selected notification channels",
+            "expectedResult": "Current preferences are clearly indicated with checked boxes or enabled toggles matching the saved preferences"
+          },
+          {
+            "step": 4,
+            "action": "Deselect one currently enabled channel (e.g., uncheck email notification)",
+            "expectedResult": "Checkbox or toggle changes state to indicate deselection"
+          },
+          {
+            "step": 5,
+            "action": "Select a previously disabled channel (e.g., enable SMS notification)",
+            "expectedResult": "Checkbox or toggle changes state to indicate selection"
+          },
+          {
+            "step": 6,
+            "action": "Click the Save or Update button to save the new preferences",
+            "expectedResult": "System displays success message confirming preferences have been saved, and UI reflects the updated selections"
+          },
+          {
+            "step": 7,
+            "action": "Navigate away from the preferences page and return to verify persistence",
+            "expectedResult": "Updated preferences are still displayed correctly, confirming they were saved to the database"
+          },
+          {
+            "step": 8,
+            "action": "Trigger a notification event by updating a schedule entry",
+            "expectedResult": "Schedule change is saved and notification process is initiated"
+          },
+          {
+            "step": 9,
+            "action": "Check only the selected notification channels for notification delivery",
+            "expectedResult": "Notification is received only via the newly selected channels (SMS and in-app), and NOT via the deselected channel (email)"
+          },
+          {
+            "step": 10,
+            "action": "Verify the deselected channel did not receive notification",
+            "expectedResult": "Email inbox shows no new notification for the schedule change, confirming preference is respected"
+          }
+        ],
+        "postconditions": [
+          "Notification preferences are updated and saved in the database",
+          "Notifications are delivered only via selected channels",
+          "Preference changes are logged in the system audit trail",
+          "User interface reflects current saved preferences",
+          "No notifications are sent to deselected channels"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify validation of invalid channel inputs",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Notification preferences UI is accessible",
+          "Email and SMS channels require contact information input",
+          "System has validation rules for email format and phone number format",
+          "User has permission to modify notification preferences"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to notification preferences UI",
+            "expectedResult": "Notification preferences page is displayed with input fields for email and phone number"
+          },
+          {
+            "step": 2,
+            "action": "Enable email notification channel and enter an invalid email address (e.g., 'invalidemail.com' without @ symbol)",
+            "expectedResult": "Email input field accepts the text entry"
+          },
+          {
+            "step": 3,
+            "action": "Click Save or move focus away from the email field to trigger validation",
+            "expectedResult": "System displays validation error message indicating invalid email format (e.g., 'Please enter a valid email address')"
+          },
+          {
+            "step": 4,
+            "action": "Verify that preferences are not saved with invalid email",
+            "expectedResult": "Save operation is blocked and error message remains visible, preferences remain unchanged"
+          },
+          {
+            "step": 5,
+            "action": "Enable SMS notification channel and enter an invalid phone number (e.g., '123' or 'abcd1234')",
+            "expectedResult": "Phone number input field accepts the text entry"
+          },
+          {
+            "step": 6,
+            "action": "Click Save or move focus away from the phone field to trigger validation",
+            "expectedResult": "System displays validation error message indicating invalid phone number format (e.g., 'Please enter a valid phone number')"
+          },
+          {
+            "step": 7,
+            "action": "Verify that preferences are not saved with invalid phone number",
+            "expectedResult": "Save operation is blocked and error message remains visible, preferences remain unchanged"
+          },
+          {
+            "step": 8,
+            "action": "Correct the email address to a valid format (e.g., 'scheduler@example.com')",
+            "expectedResult": "Email validation error clears and field shows valid state indicator"
+          },
+          {
+            "step": 9,
+            "action": "Correct the phone number to a valid format (e.g., '+1234567890' or '(123) 456-7890')",
+            "expectedResult": "Phone number validation error clears and field shows valid state indicator"
+          },
+          {
+            "step": 10,
+            "action": "Click Save button with all valid inputs",
+            "expectedResult": "System accepts the inputs, saves preferences successfully, and displays confirmation message"
+          },
+          {
+            "step": 11,
+            "action": "Verify that the corrected contact information is saved",
+            "expectedResult": "Preferences page shows the updated valid email and phone number, confirming successful save"
+          }
+        ],
+        "postconditions": [
+          "Invalid inputs are rejected and not saved to the database",
+          "Valid inputs are accepted and saved successfully",
+          "User receives clear validation error messages for invalid inputs",
+          "System maintains data integrity by preventing invalid contact information",
+          "Validation events are logged in the system"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure immediate effect of preference changes",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "User has existing notification preferences configured",
+          "Notification preferences UI is accessible",
+          "All notification channels are operational and ready to deliver",
+          "At least one schedule entry exists for triggering notifications",
+          "System is configured for real-time preference updates"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to notification preferences UI",
+            "expectedResult": "Notification preferences page is displayed with current settings visible"
+          },
+          {
+            "step": 2,
+            "action": "Note the currently enabled notification channels (e.g., email and in-app are enabled, SMS is disabled)",
+            "expectedResult": "Current preference state is clearly visible and documented"
+          },
+          {
+            "step": 3,
+            "action": "Change notification preferences by disabling email and enabling SMS",
+            "expectedResult": "UI reflects the selection changes with email unchecked and SMS checked"
+          },
+          {
+            "step": 4,
+            "action": "Click Save button to update preferences",
+            "expectedResult": "System displays success message confirming preferences are saved immediately without delay"
+          },
+          {
+            "step": 5,
+            "action": "Record the exact timestamp when preferences were saved",
+            "expectedResult": "Timestamp is captured for verification of immediate effect"
+          },
+          {
+            "step": 6,
+            "action": "Immediately navigate to the scheduling module without logging out or waiting",
+            "expectedResult": "Scheduling module is displayed and ready for interaction"
+          },
+          {
+            "step": 7,
+            "action": "Trigger a notification event by updating a schedule entry within seconds of saving preferences",
+            "expectedResult": "Schedule change is saved successfully and notification process is initiated"
+          },
+          {
+            "step": 8,
+            "action": "Monitor notification delivery across all channels",
+            "expectedResult": "Notification delivery process begins immediately after schedule change"
+          },
+          {
+            "step": 9,
+            "action": "Check SMS channel for notification delivery",
+            "expectedResult": "SMS notification is received with schedule change details, confirming newly enabled preference is active"
+          },
+          {
+            "step": 10,
+            "action": "Check in-app notification center",
+            "expectedResult": "In-app notification is received, confirming this channel remains active as per updated preferences"
+          },
+          {
+            "step": 11,
+            "action": "Check email inbox to verify no notification was sent",
+            "expectedResult": "No email notification is received, confirming the disabled preference took immediate effect"
+          },
+          {
+            "step": 12,
+            "action": "Review notification delivery logs",
+            "expectedResult": "Logs show notification was sent only to SMS and in-app channels, with no attempt to send email, confirming immediate application of updated preferences"
+          }
+        ],
+        "postconditions": [
+          "Notification preferences are updated and active immediately",
+          "Notifications are sent according to the updated preferences without delay",
+          "No caching or delay affects preference application",
+          "System logs reflect the preference change timestamp and subsequent notification delivery channels",
+          "User experience confirms real-time preference updates"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-31",
+    "storyTitle": "As Scheduler, I want to view notification history for schedule changes to track past alerts and responses",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate access to notification history",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has valid scheduler credentials",
+          "Notification history database contains test data with at least 50 notification records",
+          "Test notifications include various types: schedule changes, acknowledgments, and alerts",
+          "Export functionality is enabled in the system",
+          "User has appropriate permissions to access notification history"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the application login page and enter valid scheduler credentials",
+            "expectedResult": "User is successfully authenticated and redirected to the scheduler dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Locate and click on the 'Notification History' menu item or navigation link",
+            "expectedResult": "Notification history page loads and displays a list of past notifications with columns for date/time, notification type, content preview, and acknowledgment status"
+          },
+          {
+            "step": 3,
+            "action": "Verify that notification records are displayed with all required fields: timestamp, notification content, acknowledgment status, and recipient information",
+            "expectedResult": "All notification records show complete information in a structured table or list format with proper formatting"
+          },
+          {
+            "step": 4,
+            "action": "Click on the filter dropdown and select 'Acknowledged' status filter",
+            "expectedResult": "The notification list refreshes and displays only notifications with 'Acknowledged' status"
+          },
+          {
+            "step": 5,
+            "action": "Clear the status filter and enter a search term in the search box (e.g., specific date or keyword from notification content)",
+            "expectedResult": "Search results are displayed showing only notifications matching the search criteria, with matching text highlighted"
+          },
+          {
+            "step": 6,
+            "action": "Apply multiple filters simultaneously (e.g., date range filter and notification type filter)",
+            "expectedResult": "Filtered results display notifications that match all applied filter criteria"
+          },
+          {
+            "step": 7,
+            "action": "Click on the 'Export' button and select export format (CSV or PDF)",
+            "expectedResult": "Export dialog appears with format options and confirmation button"
+          },
+          {
+            "step": 8,
+            "action": "Confirm the export action and wait for file generation",
+            "expectedResult": "File downloads successfully to the default download location"
+          },
+          {
+            "step": 9,
+            "action": "Open the exported file and verify its contents",
+            "expectedResult": "Exported file contains all visible notification records with correct data matching the displayed information, including all columns and proper formatting"
+          }
+        ],
+        "postconditions": [
+          "User remains logged in to the system",
+          "Notification history page remains accessible",
+          "Exported file is saved in the download folder",
+          "No data modifications have occurred in the notification history database",
+          "Applied filters can be cleared to return to full list view"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify access control enforcement",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Test environment has multiple user roles configured (scheduler, non-scheduler, guest)",
+          "Unauthorized test user account exists without scheduler privileges",
+          "Authorized scheduler user account exists with proper permissions",
+          "Role-based access control (RBAC) is enabled in the system",
+          "Notification history endpoint requires authentication and authorization"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the application login page and enter credentials for an unauthorized user (non-scheduler role)",
+            "expectedResult": "User is successfully authenticated and redirected to their appropriate dashboard based on role"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to access the notification history page by entering the URL directly or clicking on the navigation link if visible",
+            "expectedResult": "Access is denied and an appropriate error message is displayed: 'Access Denied: You do not have permission to view notification history' or similar message"
+          },
+          {
+            "step": 3,
+            "action": "Verify that the user is redirected to an error page or their default dashboard",
+            "expectedResult": "User is redirected away from the notification history page and no notification data is visible"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to access the notification history API endpoint directly using browser developer tools or API client",
+            "expectedResult": "API returns 403 Forbidden status code with error message indicating insufficient permissions"
+          },
+          {
+            "step": 5,
+            "action": "Log out from the unauthorized user account",
+            "expectedResult": "User is successfully logged out and redirected to the login page"
+          },
+          {
+            "step": 6,
+            "action": "Log in with valid scheduler credentials that have proper authorization",
+            "expectedResult": "Scheduler user is successfully authenticated and redirected to the scheduler dashboard"
+          },
+          {
+            "step": 7,
+            "action": "Navigate to the notification history page using the navigation menu",
+            "expectedResult": "Access is granted and the notification history page loads successfully displaying notification records"
+          },
+          {
+            "step": 8,
+            "action": "Verify that all notification history features are accessible (filters, search, export)",
+            "expectedResult": "All functionality is available and operational for the authorized scheduler user"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized user access attempt is logged in security audit logs",
+          "Authorized scheduler user has full access to notification history",
+          "No unauthorized data exposure has occurred",
+          "System security controls remain intact",
+          "Access control rules are enforced consistently"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure performance of notification history queries",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "Notification history database contains at least 10,000 notification records for performance testing",
+          "User has valid scheduler credentials with access to notification history",
+          "System performance monitoring tools are available to measure response times",
+          "Pagination is configured with default page size (e.g., 50 records per page)",
+          "Network conditions are stable for accurate performance measurement"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as a scheduler user and navigate to the notification history page",
+            "expectedResult": "User is authenticated and redirected to the scheduler dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Open browser developer tools and navigate to the Network tab to monitor API requests",
+            "expectedResult": "Network monitoring is active and ready to capture request/response times"
+          },
+          {
+            "step": 3,
+            "action": "Click on the 'Notification History' link to load the notification history page with large dataset",
+            "expectedResult": "Notification history page loads and displays the first page of results"
+          },
+          {
+            "step": 4,
+            "action": "Measure the API response time for the GET /notifications/history request in the Network tab",
+            "expectedResult": "Response time is under 2 seconds, and the first page of paginated results (50 records) is displayed correctly"
+          },
+          {
+            "step": 5,
+            "action": "Verify that pagination controls are displayed showing total pages and current page number",
+            "expectedResult": "Pagination controls show correct total count and page navigation options (Next, Previous, Page numbers)"
+          },
+          {
+            "step": 6,
+            "action": "Click on the 'Next' button to navigate to page 2 of the notification history",
+            "expectedResult": "Page 2 loads within 2 seconds showing the next set of notification records"
+          },
+          {
+            "step": 7,
+            "action": "Measure the response time for the page 2 request in the Network tab",
+            "expectedResult": "Response time remains under 2 seconds with no errors or timeouts"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to a middle page (e.g., page 50) by entering the page number or clicking multiple times",
+            "expectedResult": "Target page loads successfully within 2 seconds displaying correct notification records"
+          },
+          {
+            "step": 9,
+            "action": "Navigate to the last page of results using the pagination controls",
+            "expectedResult": "Last page loads within 2 seconds showing the remaining notification records"
+          },
+          {
+            "step": 10,
+            "action": "Apply a filter to the large dataset and measure the query response time",
+            "expectedResult": "Filtered results are returned within 2 seconds with pagination applied to filtered data"
+          },
+          {
+            "step": 11,
+            "action": "Perform a search query on the large dataset and measure response time",
+            "expectedResult": "Search results are displayed within 2 seconds with matching records highlighted"
+          },
+          {
+            "step": 12,
+            "action": "Verify that no errors, timeouts, or performance degradation occurred during navigation",
+            "expectedResult": "All page loads completed successfully without errors, and UI remains responsive throughout testing"
+          }
+        ],
+        "postconditions": [
+          "All performance metrics are documented and meet the 2-second requirement",
+          "Pagination functionality works correctly across all pages",
+          "Database queries are optimized and indexed properly",
+          "No memory leaks or performance degradation observed",
+          "User remains logged in and notification history page is still accessible"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  }
+]
