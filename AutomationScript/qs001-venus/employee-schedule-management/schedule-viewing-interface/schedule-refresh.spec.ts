@@ -1,86 +1,135 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Story-21: Schedule Refresh Functionality', () => {
+test.describe('Story-14: Schedule Refresh Functionality', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to the schedule view page
-    await page.goto('/schedule');
-    // Wait for schedule to load
-    await page.waitForSelector('[data-testid="schedule-view"]', { state: 'visible' });
+    // Employee logs in
+    await page.goto('/login');
+    await page.fill('[data-testid="username-input"]', 'employee@company.com');
+    await page.fill('[data-testid="password-input"]', 'Password123!');
+    await page.click('[data-testid="login-button"]');
+    await expect(page).toHaveURL(/.*dashboard/);
+    
+    // Navigate to schedule view
+    await page.click('[data-testid="schedule-menu"]');
+    await expect(page).toHaveURL(/.*schedule/);
   });
 
-  test('Validate manual schedule refresh (happy-path)', async ({ page }) => {
-    // Note the current schedule data displayed (shifts, times, dates)
-    const initialScheduleData = await page.locator('[data-testid="schedule-view"]').textContent();
-    const initialShiftCount = await page.locator('[data-testid="shift-item"]').count();
-    
-    // Locate the refresh button on the schedule view interface
-    const refreshButton = page.locator('[data-testid="refresh-button"]');
+  test('Validate schedule refresh updates data correctly', async ({ page }) => {
+    // Verify that the refresh button is visible in the schedule view
+    const refreshButton = page.locator('[data-testid="refresh-schedule-button"]');
     await expect(refreshButton).toBeVisible();
     
-    // Click the refresh button
+    // Note the current schedule data displayed (shifts, times, dates)
+    const initialScheduleData = await page.locator('[data-testid="schedule-container"]').textContent();
+    const initialShiftCount = await page.locator('[data-testid="shift-item"]').count();
+    
+    // Click the refresh button in the schedule view
+    const startTime = Date.now();
     await refreshButton.click();
     
-    // Observe the loading indicator during the refresh operation
-    const loadingIndicator = page.locator('[data-testid="loading-indicator"]');
-    await expect(loadingIndicator).toBeVisible();
+    // Observe the schedule view during refresh - check for loading indicator
+    await expect(page.locator('[data-testid="loading-indicator"]')).toBeVisible({ timeout: 1000 });
     
-    // Wait for the refresh operation to complete (within 2 seconds as per requirements)
-    await expect(loadingIndicator).toBeHidden({ timeout: 2000 });
+    // Wait for refresh to complete
+    await expect(page.locator('[data-testid="loading-indicator"]')).toBeHidden({ timeout: 3000 });
+    const endTime = Date.now();
+    const refreshDuration = endTime - startTime;
     
-    // Verify that the schedule updates with latest data
-    await page.waitForSelector('[data-testid="schedule-view"]', { state: 'visible' });
+    // Verify schedule updates with latest data within 2 seconds
+    expect(refreshDuration).toBeLessThan(2000);
     
-    // Compare the updated schedule with the previously noted schedule data
-    const updatedScheduleData = await page.locator('[data-testid="schedule-view"]').textContent();
+    // Verify that the system displays a confirmation message
+    const successMessage = page.locator('[data-testid="success-notification"]');
+    await expect(successMessage).toBeVisible();
+    await expect(successMessage).toContainText(/refresh.*success|updated.*success/i);
     
-    // Verify that all schedule elements are properly rendered after refresh
-    await expect(page.locator('[data-testid="schedule-view"]')).toBeVisible();
-    const updatedShiftCount = await page.locator('[data-testid="shift-item"]').count();
-    expect(updatedShiftCount).toBeGreaterThanOrEqual(0);
+    // Compare the refreshed schedule data with the previously noted data
+    const refreshedScheduleData = await page.locator('[data-testid="schedule-container"]').textContent();
+    const refreshedShiftCount = await page.locator('[data-testid="shift-item"]').count();
     
-    // Verify schedule reflects any recent changes
-    await expect(page.locator('[data-testid="schedule-view"]')).toContainText(/\d{1,2}:\d{2}/);
+    // Verify data has been reloaded (container should exist and be populated)
+    expect(refreshedScheduleData).toBeTruthy();
+    expect(refreshedShiftCount).toBeGreaterThanOrEqual(0);
+    
+    // User sees success notification
+    await expect(successMessage).toBeVisible();
   });
 
-  test('Test refresh error handling (error-case)', async ({ page }) => {
-    // Note the current schedule data displayed on the screen
-    const initialScheduleData = await page.locator('[data-testid="schedule-view"]').textContent();
-    const initialShiftElements = await page.locator('[data-testid="shift-item"]').count();
+  test('Test refresh failure handling', async ({ page }) => {
+    // Verify that the refresh button is visible in the schedule view
+    const refreshButton = page.locator('[data-testid="refresh-schedule-button"]');
+    await expect(refreshButton).toBeVisible();
     
-    // Simulate an API failure condition by intercepting the API call
-    await page.route('**/api/schedules*', route => {
+    // Simulate a backend failure by intercepting the API call
+    await page.route('**/api/schedule**', route => {
       route.abort('failed');
     });
     
-    // Click the refresh button on the schedule view
-    const refreshButton = page.locator('[data-testid="refresh-button"]');
+    // Click the refresh button in the schedule view
     await refreshButton.click();
     
-    // Observe the loading indicator appears
-    const loadingIndicator = page.locator('[data-testid="loading-indicator"]');
-    await expect(loadingIndicator).toBeVisible();
+    // Observe the system response to the failed refresh attempt
+    // Verify error message displayed without crashing UI
+    const errorMessage = page.locator('[data-testid="error-notification"]');
+    await expect(errorMessage).toBeVisible({ timeout: 3000 });
     
-    // Wait for loading to complete
-    await expect(loadingIndicator).toBeHidden({ timeout: 3000 });
+    // Verify that the error message is user-friendly and informative
+    await expect(errorMessage).toContainText(/error|fail|unable|problem/i);
     
-    // Verify that the error message is displayed
-    const errorMessage = page.locator('[data-testid="error-message"]');
-    await expect(errorMessage).toBeVisible();
-    
-    // Verify that the error message is clear and user-friendly
-    await expect(errorMessage).toContainText(/error|failed|unable/i);
-    
-    // Check that the previous schedule data is still visible on the screen
-    await expect(page.locator('[data-testid="schedule-view"]')).toBeVisible();
-    const currentShiftElements = await page.locator('[data-testid="shift-item"]').count();
-    expect(currentShiftElements).toBe(initialShiftElements);
-    
-    // Verify that the schedule view remains functional after the error
-    await expect(page.locator('[data-testid="schedule-view"]')).toBeEnabled();
+    // Verify that the UI remains stable and functional
+    await expect(page.locator('[data-testid="schedule-container"]')).toBeVisible();
     await expect(refreshButton).toBeEnabled();
     
-    // Verify previous schedule remains visible
-    const currentScheduleData = await page.locator('[data-testid="schedule-view"]').textContent();
-    expect(currentScheduleData).toBe(initialScheduleData);
+    // Verify navigation still works
+    const navigationMenu = page.locator('[data-testid="navigation-menu"]');
+    await expect(navigationMenu).toBeVisible();
+    
+    // Restore backend connectivity by removing the route intercept
+    await page.unroute('**/api/schedule**');
+    
+    // Click refresh button again
+    await refreshButton.click();
+    
+    // Verify successful refresh after restoration
+    await expect(page.locator('[data-testid="loading-indicator"]')).toBeVisible({ timeout: 1000 });
+    await expect(page.locator('[data-testid="loading-indicator"]')).toBeHidden({ timeout: 3000 });
+    
+    const successMessage = page.locator('[data-testid="success-notification"]');
+    await expect(successMessage).toBeVisible();
+    await expect(successMessage).toContainText(/refresh.*success|updated.*success/i);
+  });
+
+  test('System maintains authentication during refresh', async ({ page }) => {
+    // Verify user is authenticated
+    await expect(page.locator('[data-testid="user-profile"]')).toBeVisible();
+    
+    // Click refresh button
+    const refreshButton = page.locator('[data-testid="refresh-schedule-button"]');
+    await refreshButton.click();
+    
+    // Wait for refresh to complete
+    await expect(page.locator('[data-testid="loading-indicator"]')).toBeHidden({ timeout: 3000 });
+    
+    // Verify user is still authenticated (not redirected to login)
+    await expect(page).toHaveURL(/.*schedule/);
+    await expect(page.locator('[data-testid="user-profile"]')).toBeVisible();
+    
+    // Verify schedule data is still accessible
+    await expect(page.locator('[data-testid="schedule-container"]')).toBeVisible();
+  });
+
+  test('System provides refresh button in schedule views', async ({ page }) => {
+    // Verify refresh button exists and is visible
+    const refreshButton = page.locator('[data-testid="refresh-schedule-button"]');
+    await expect(refreshButton).toBeVisible();
+    
+    // Verify button is enabled and clickable
+    await expect(refreshButton).toBeEnabled();
+    
+    // Verify button has appropriate label or icon
+    const buttonText = await refreshButton.textContent();
+    const hasRefreshIcon = await refreshButton.locator('svg, i, [class*="icon"]').count();
+    
+    expect(buttonText?.toLowerCase().includes('refresh') || hasRefreshIcon > 0).toBeTruthy();
   });
 });
