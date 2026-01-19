@@ -1,298 +1,674 @@
 [
   {
-    "storyId": "story-22",
-    "storyTitle": "As Biometric System Administrator, I want to configure biometric device connections to achieve seamless data integration",
+    "storyId": "story-17",
+    "storyTitle": "As Biometric System Administrator, I want to configure biometric device integration to achieve seamless automatic attendance capture",
     "testCases": [
       {
         "id": "tc-001",
-        "title": "Validate successful device configuration addition",
+        "title": "Validate successful biometric device configuration",
         "type": "happy-path",
         "priority": "High",
         "preconditions": [
-          "User is logged in as Biometric System Administrator",
-          "User has valid administrator credentials and permissions",
-          "Biometric device configuration module is accessible",
-          "Test biometric device is available with known valid IP, port, and credentials",
-          "Database is accessible and configuration table is available"
+          "User is logged in as administrator with device configuration permissions",
+          "Biometric device is powered on and connected to the network",
+          "Device API credentials are available",
+          "System is accessible and responsive"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Navigate to biometric device configuration page from the main menu or dashboard",
-            "expectedResult": "Configuration form is displayed with fields for device IP, port, and credentials. Form is empty and ready for input"
+            "action": "Navigate to biometric device configuration page from admin dashboard",
+            "expectedResult": "Configuration form is displayed with fields for device name, IP address, port, device type, unique identifier, and API credentials"
           },
           {
             "step": 2,
-            "action": "Enter valid device IP address (e.g., 192.168.1.100) in the IP field",
-            "expectedResult": "IP address is accepted and displayed in the field without validation errors"
+            "action": "Enter valid device name (e.g., 'Main Entrance Device 01')",
+            "expectedResult": "Device name is accepted and displayed in the input field"
           },
           {
             "step": 3,
-            "action": "Enter valid port number (e.g., 4370) in the port field",
-            "expectedResult": "Port number is accepted and displayed in the field without validation errors"
+            "action": "Enter valid IP address (e.g., '192.168.1.100'), port number (e.g., '8080'), and unique device identifier",
+            "expectedResult": "All connection parameters are accepted without validation errors"
           },
           {
             "step": 4,
-            "action": "Enter valid device credentials (username and password) in the respective fields",
-            "expectedResult": "Credentials are accepted, password field shows masked characters, no validation errors displayed"
+            "action": "Select device type from dropdown (e.g., 'Fingerprint Scanner')",
+            "expectedResult": "Device type is selected and displayed"
           },
           {
             "step": 5,
-            "action": "Click the Submit or Save button to save the configuration",
-            "expectedResult": "System initiates connectivity test to the device, loading indicator is displayed"
+            "action": "Enter valid API credentials (username and password/token)",
+            "expectedResult": "Credentials are accepted and masked appropriately"
           },
           {
             "step": 6,
-            "action": "Wait for connectivity test to complete",
-            "expectedResult": "Configuration is saved successfully to the database, connectivity test passes, success message is displayed confirming device connection, device appears in the device list with 'Connected' status"
-          }
-        ],
-        "postconditions": [
-          "New biometric device configuration is saved in the database",
-          "Device is listed in the active devices list with connected status",
-          "Configuration change is logged in audit trail with administrator username and timestamp",
-          "Device credentials are encrypted in storage",
-          "Device is ready for attendance data capture"
-        ],
-        "estimatedTime": "5 mins"
-      },
-      {
-        "id": "tc-002",
-        "title": "Verify rejection of invalid device parameters",
-        "type": "error-case",
-        "priority": "High",
-        "preconditions": [
-          "User is logged in as Biometric System Administrator",
-          "User has valid administrator credentials and permissions",
-          "Biometric device configuration module is accessible",
-          "Configuration form validation rules are active"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "Navigate to biometric device configuration page from the main menu or dashboard",
-            "expectedResult": "Configuration form is displayed with empty fields for device IP, port, and credentials"
-          },
-          {
-            "step": 2,
-            "action": "Enter invalid IP address format (e.g., '999.999.999.999' or 'invalid-ip') in the IP field",
-            "expectedResult": "Inline validation error is displayed below or next to the IP field indicating invalid IP format (e.g., 'Please enter a valid IP address')"
-          },
-          {
-            "step": 3,
-            "action": "Enter invalid port number (e.g., '99999' or '-1' or 'abc') in the port field",
-            "expectedResult": "Inline validation error is displayed below or next to the port field indicating invalid port range (e.g., 'Port must be between 1 and 65535')"
-          },
-          {
-            "step": 4,
-            "action": "Attempt to click the Submit or Save button with invalid inputs",
-            "expectedResult": "Form submission is blocked, validation errors remain visible, error summary message is displayed at the top of the form listing all validation failures, no data is sent to the server"
-          },
-          {
-            "step": 5,
-            "action": "Correct the IP address to valid format (e.g., 192.168.1.100) but leave port as invalid",
-            "expectedResult": "IP field validation error clears, port field validation error remains visible"
-          },
-          {
-            "step": 6,
-            "action": "Attempt to submit the form again",
-            "expectedResult": "Submission is still blocked due to invalid port, error message for port field remains displayed"
-          }
-        ],
-        "postconditions": [
-          "No invalid configuration is saved to the database",
-          "Form remains on the configuration page with validation errors visible",
-          "No audit log entry is created for failed submission",
-          "User can correct errors and retry submission"
-        ],
-        "estimatedTime": "6 mins"
-      },
-      {
-        "id": "tc-003",
-        "title": "Ensure access control restricts unauthorized users",
-        "type": "error-case",
-        "priority": "High",
-        "preconditions": [
-          "Two user accounts are available: one with non-administrator role and one with administrator role",
-          "Role-based access control is configured and active",
-          "Biometric device configuration module requires administrator privileges",
-          "API endpoints are protected with authentication and authorization"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "Login to the system using non-administrator user credentials (e.g., regular employee or viewer role)",
-            "expectedResult": "User is successfully authenticated and logged into the system with limited permissions"
-          },
-          {
-            "step": 2,
-            "action": "Attempt to navigate to the biometric device configuration page via menu or direct URL",
-            "expectedResult": "Access is denied, user is redirected to unauthorized access page or error message is displayed stating 'You do not have permission to access this page', configuration page is not displayed"
-          },
-          {
-            "step": 3,
-            "action": "Attempt to directly access the configuration API endpoint POST /api/biometric/devices using API testing tool or browser console",
-            "expectedResult": "API returns HTTP 401 Unauthorized or 403 Forbidden error with appropriate error message, no configuration data is accessible or modifiable"
-          },
-          {
-            "step": 4,
-            "action": "Attempt to access the device status API endpoint GET /api/biometric/devices/status",
-            "expectedResult": "API returns HTTP 401 Unauthorized or 403 Forbidden error, no device status data is returned"
-          },
-          {
-            "step": 5,
-            "action": "Logout from the non-administrator account",
-            "expectedResult": "User is successfully logged out and returned to login page"
-          },
-          {
-            "step": 6,
-            "action": "Login to the system using administrator credentials",
-            "expectedResult": "Administrator is successfully authenticated and logged into the system with full permissions"
+            "action": "Click 'Test Connection' button",
+            "expectedResult": "System initiates connectivity test and displays 'Testing connection...' message"
           },
           {
             "step": 7,
-            "action": "Navigate to the biometric device configuration page",
-            "expectedResult": "Full access is granted, configuration page is displayed with all features accessible including add, edit, and delete device configurations"
+            "action": "Wait for connection test to complete",
+            "expectedResult": "System displays 'Connection successful' message with green indicator within 5 seconds"
           },
           {
             "step": 8,
-            "action": "Access the configuration API endpoints POST /api/biometric/devices and GET /api/biometric/devices/status",
-            "expectedResult": "API endpoints are accessible, return HTTP 200 OK status, and provide expected data or accept configuration requests"
+            "action": "Click 'Save Configuration' button",
+            "expectedResult": "System validates all fields and displays 'Device registered successfully' confirmation message"
+          },
+          {
+            "step": 9,
+            "action": "Navigate to device status dashboard",
+            "expectedResult": "Device status dashboard is displayed showing all registered devices"
+          },
+          {
+            "step": 10,
+            "action": "Locate the newly configured device in the dashboard",
+            "expectedResult": "Device is listed with status showing as 'Connected' and 'Active' with green status indicator and current timestamp"
           }
         ],
         "postconditions": [
-          "Non-administrator users remain restricted from device configuration features",
-          "Administrator users have full access to all configuration features",
-          "All access attempts are logged in security audit trail",
-          "System security integrity is maintained"
+          "Biometric device is successfully registered in the system",
+          "Device status shows as connected and active",
+          "Device is ready to capture attendance data",
+          "Configuration is saved in the database",
+          "Device appears in the monitoring dashboard"
         ],
         "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify error handling for invalid device configuration",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as administrator with device configuration permissions",
+          "System is accessible and responsive",
+          "No biometric device is connected at the specified invalid address"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to biometric device configuration page from admin dashboard",
+            "expectedResult": "Configuration form is displayed with all required input fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter invalid IP address (e.g., '999.999.999.999')",
+            "expectedResult": "Field accepts the input temporarily"
+          },
+          {
+            "step": 3,
+            "action": "Enter invalid port number (e.g., '99999')",
+            "expectedResult": "Field accepts the input temporarily"
+          },
+          {
+            "step": 4,
+            "action": "Enter device name and select device type",
+            "expectedResult": "Valid fields are accepted normally"
+          },
+          {
+            "step": 5,
+            "action": "Enter incorrect API credentials",
+            "expectedResult": "Credentials are accepted in the form"
+          },
+          {
+            "step": 6,
+            "action": "Click 'Test Connection' button",
+            "expectedResult": "System attempts to connect and displays 'Testing connection...' message"
+          },
+          {
+            "step": 7,
+            "action": "Wait for connection test to complete",
+            "expectedResult": "System displays descriptive error message 'Connection failed: Invalid IP address format' or 'Unable to reach device at specified address' with red indicator"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Save Configuration' button without fixing errors",
+            "expectedResult": "System prevents saving and displays error message 'Cannot save device configuration: Connection test must pass before saving'"
+          },
+          {
+            "step": 9,
+            "action": "Navigate to device status dashboard",
+            "expectedResult": "Dashboard does not show the invalid device configuration"
+          },
+          {
+            "step": 10,
+            "action": "Attempt to manually trigger attendance data capture from non-existent device",
+            "expectedResult": "No data is captured and system shows 'No active devices available' message"
+          }
+        ],
+        "postconditions": [
+          "Invalid device configuration is not saved in the system",
+          "No device entry is created in the database",
+          "Device does not appear in monitoring dashboard",
+          "System remains stable with no data corruption",
+          "Error messages are logged in system audit trail"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure only authorized admins can configure devices",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "System has both admin and non-admin user accounts configured",
+          "Non-admin user credentials are available (e.g., regular employee account)",
+          "Admin user credentials are available",
+          "Biometric device is available for configuration",
+          "All users are logged out initially"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Login to the system using non-admin user credentials (e.g., employee username and password)",
+            "expectedResult": "User is successfully logged in and redirected to employee dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to biometric device configuration page by entering the URL directly or through menu",
+            "expectedResult": "System displays 'Access Denied: You do not have permission to access this page' message with 403 error code"
+          },
+          {
+            "step": 3,
+            "action": "Verify that device configuration menu option is not visible in navigation",
+            "expectedResult": "Device configuration option is hidden or disabled in the user interface"
+          },
+          {
+            "step": 4,
+            "action": "Logout from non-admin account",
+            "expectedResult": "User is successfully logged out and redirected to login page"
+          },
+          {
+            "step": 5,
+            "action": "Login to the system using admin user credentials",
+            "expectedResult": "Admin is successfully logged in and redirected to admin dashboard"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to biometric device configuration page from admin menu",
+            "expectedResult": "Configuration page is accessible and displays the device configuration form with all fields"
+          },
+          {
+            "step": 7,
+            "action": "Enter valid device details: name 'Reception Device 01', IP '192.168.1.101', port '8080', device type 'Fingerprint Scanner', and valid API credentials",
+            "expectedResult": "All fields accept the input without errors"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Test Connection' button",
+            "expectedResult": "Connection test completes successfully with 'Connection successful' message"
+          },
+          {
+            "step": 9,
+            "action": "Click 'Save Configuration' button",
+            "expectedResult": "System saves the configuration and displays 'Device registered successfully' confirmation message"
+          },
+          {
+            "step": 10,
+            "action": "Verify device appears in device status dashboard with 'Connected' and 'Active' status",
+            "expectedResult": "Device is listed in dashboard with green status indicators showing it is registered and active"
+          }
+        ],
+        "postconditions": [
+          "Non-admin users cannot access device configuration functionality",
+          "Admin users have full access to device configuration",
+          "Device is successfully registered by admin user",
+          "Access control is enforced and logged",
+          "Security permissions are validated correctly"
+        ],
+        "estimatedTime": "10 mins"
       }
     ]
   },
   {
-    "storyId": "story-25",
-    "storyTitle": "As Biometric System Administrator, I want to monitor biometric device status to ensure continuous attendance data capture",
+    "storyId": "story-18",
+    "storyTitle": "As Employee, I want my attendance to be recorded automatically via biometric authentication to achieve accurate and timely attendance tracking",
     "testCases": [
       {
         "id": "tc-004",
-        "title": "Validate real-time device status display",
+        "title": "Validate successful attendance recording via biometric authentication",
         "type": "happy-path",
         "priority": "High",
         "preconditions": [
-          "User has valid Biometric System Administrator credentials",
-          "At least 2-3 biometric devices are configured and connected to the system",
-          "Monitoring dashboard module is accessible and functional",
-          "Device status polling service is running and updating every minute",
-          "Alert notification system is configured and operational"
+          "Employee biometric data is registered in the system",
+          "Biometric device is configured, connected, and active",
+          "Employee profile exists in the database with valid employee ID",
+          "System time is synchronized correctly",
+          "Attendance recording service is running"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Login to the system using Biometric System Administrator credentials",
-            "expectedResult": "Administrator is successfully authenticated and logged into the system, main dashboard or home page is displayed"
+            "action": "Employee approaches the biometric device and places finger on fingerprint scanner or looks at facial recognition camera",
+            "expectedResult": "Biometric device activates and begins scanning, displaying 'Scanning...' or similar indicator"
           },
           {
             "step": 2,
-            "action": "Navigate to the biometric device monitoring dashboard from the main menu",
-            "expectedResult": "Access is granted, monitoring dashboard page loads successfully within 5 seconds"
+            "action": "Biometric device captures and sends biometric data to the system",
+            "expectedResult": "System receives biometric data and initiates validation process within 1 second"
           },
           {
             "step": 3,
-            "action": "View the device status panel on the monitoring dashboard",
-            "expectedResult": "All configured biometric devices are listed with their current status (Online/Offline), device details include IP address, location, last sync time, and connection status indicator (green for online, red for offline), status information is accurate and matches actual device states"
+            "action": "System validates biometric data against registered employee profiles",
+            "expectedResult": "System successfully matches biometric data to employee profile and identifies employee (e.g., 'John Doe, EMP001')"
           },
           {
             "step": 4,
-            "action": "Observe the real-time status updates by waiting for the next polling cycle (approximately 1 minute)",
-            "expectedResult": "Dashboard automatically refreshes and updates device status without manual page reload, timestamp of last update is displayed and current"
+            "action": "System records attendance timestamp automatically",
+            "expectedResult": "Attendance record is created in database with employee ID, date, timestamp (e.g., '2024-01-15 09:00:23'), and device location"
           },
           {
             "step": 5,
-            "action": "Simulate a device offline event by disconnecting one of the biometric devices from the network or powering it off",
-            "expectedResult": "Within the next polling cycle (maximum 1 minute), the device status changes from 'Online' to 'Offline', status indicator changes from green to red"
+            "action": "System processes the attendance record",
+            "expectedResult": "Attendance status is updated to 'Present' for the employee for current date"
           },
           {
             "step": 6,
-            "action": "Wait for alert notification to be triggered",
-            "expectedResult": "Alert notification is triggered and displayed on the dashboard (banner, popup, or notification panel), alert message clearly indicates which device went offline with device name/IP and timestamp, notification appears within 5 seconds of status detection, alert is also logged in the notifications history"
+            "action": "System displays confirmation message on biometric device screen",
+            "expectedResult": "Device displays 'Attendance Recorded Successfully' with employee name and timestamp within 2 seconds of authentication"
           },
           {
             "step": 7,
-            "action": "Reconnect the device and observe status update",
-            "expectedResult": "Device status returns to 'Online' within the next polling cycle, alert is cleared or marked as resolved, status indicator returns to green"
+            "action": "Verify attendance record in employee attendance dashboard",
+            "expectedResult": "Attendance record appears in employee's attendance history with correct date, time, and status"
+          },
+          {
+            "step": 8,
+            "action": "Check system logs for the attendance event",
+            "expectedResult": "System audit log contains entry for successful biometric authentication and attendance recording"
           }
         ],
         "postconditions": [
-          "All device status information is accurately displayed on the dashboard",
-          "Alert notifications are properly logged in the system",
-          "Device offline event is recorded in device logs",
-          "Administrator is aware of device connectivity issues",
-          "Dashboard remains accessible for continued monitoring"
+          "Attendance record is permanently stored in the database",
+          "Employee attendance status is updated for the current day",
+          "Confirmation message was displayed to employee",
+          "Attendance data is available for reporting",
+          "System logs contain successful authentication event"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify rejection of invalid biometric authentication",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Biometric device is configured, connected, and active",
+          "System has registered employee biometric data",
+          "Unregistered person is available to test (or use invalid biometric sample)",
+          "Attendance recording service is running",
+          "Audit logging is enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Unregistered person approaches biometric device and attempts authentication using fingerprint or facial recognition",
+            "expectedResult": "Biometric device activates and begins scanning process"
+          },
+          {
+            "step": 2,
+            "action": "Biometric device captures and sends unregistered biometric data to system",
+            "expectedResult": "System receives biometric data and attempts to match against registered profiles"
+          },
+          {
+            "step": 3,
+            "action": "System attempts to validate unregistered biometric data",
+            "expectedResult": "System fails to match biometric data to any registered employee profile within 2 seconds"
+          },
+          {
+            "step": 4,
+            "action": "System rejects the authentication attempt",
+            "expectedResult": "Device displays 'Authentication Failed: Biometric data not recognized' or 'Please try again' message with red indicator or error sound"
+          },
+          {
+            "step": 5,
+            "action": "Verify no attendance record is created in the database",
+            "expectedResult": "No new attendance record exists for the failed authentication attempt"
+          },
+          {
+            "step": 6,
+            "action": "Same person or registered employee retries authentication with valid registered biometric data",
+            "expectedResult": "Biometric device re-activates and scans the valid biometric data"
+          },
+          {
+            "step": 7,
+            "action": "System validates the correct biometric data",
+            "expectedResult": "System successfully matches biometric data to registered employee profile"
+          },
+          {
+            "step": 8,
+            "action": "System records attendance for valid authentication",
+            "expectedResult": "Attendance record is created with accurate timestamp and employee details, and confirmation message is displayed"
+          },
+          {
+            "step": 9,
+            "action": "Check system audit logs for both authentication attempts",
+            "expectedResult": "Audit log contains entry for failed authentication attempt with timestamp, device ID, and rejection reason, followed by successful authentication entry"
+          }
+        ],
+        "postconditions": [
+          "Invalid authentication attempt is logged in audit trail",
+          "No attendance record created for invalid authentication",
+          "Valid authentication creates proper attendance record",
+          "System security is maintained",
+          "Retry mechanism works correctly"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure attendance timestamp accuracy",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee biometric data is registered in the system",
+          "Biometric device is configured and active",
+          "System time is synchronized with NTP server or accurate time source",
+          "Database access is available for verification",
+          "Attendance reporting module is functional",
+          "Reference clock or time source is available for comparison"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Note the current accurate time from reference clock (e.g., 09:30:00 AM on 2024-01-15)",
+            "expectedResult": "Reference time is recorded for comparison"
+          },
+          {
+            "step": 2,
+            "action": "Employee authenticates using biometric device at the noted time",
+            "expectedResult": "Biometric device scans and system validates employee identity successfully"
+          },
+          {
+            "step": 3,
+            "action": "Observe the timestamp displayed on confirmation message",
+            "expectedResult": "Confirmation message shows timestamp matching the authentication time (e.g., '09:30:01 AM' - within 2 seconds of reference time)"
+          },
+          {
+            "step": 4,
+            "action": "Immediately access the database and query the attendance record for the employee using SQL: SELECT * FROM attendance WHERE employee_id = 'EMP001' AND date = '2024-01-15' ORDER BY timestamp DESC LIMIT 1",
+            "expectedResult": "Database returns the most recent attendance record with timestamp field"
+          },
+          {
+            "step": 5,
+            "action": "Compare database timestamp with reference authentication time",
+            "expectedResult": "Database timestamp matches actual authentication time within 2 seconds tolerance (e.g., reference: 09:30:00, database: 09:30:01)"
+          },
+          {
+            "step": 6,
+            "action": "Verify all timestamp components: date, hours, minutes, seconds",
+            "expectedResult": "All timestamp components are accurate: correct date (2024-01-15), correct hour (09), correct minute (30), seconds within acceptable range"
+          },
+          {
+            "step": 7,
+            "action": "Navigate to attendance reporting module and generate attendance report for the employee for current date",
+            "expectedResult": "Report generation completes successfully and displays attendance records"
+          },
+          {
+            "step": 8,
+            "action": "Locate the attendance entry in the generated report",
+            "expectedResult": "Report shows the attendance record with employee name, date, and timestamp"
+          },
+          {
+            "step": 9,
+            "action": "Verify timestamp accuracy in the report matches database and actual authentication time",
+            "expectedResult": "Report displays timestamp as '09:30:01 AM' or equivalent format, matching database record and within 2 seconds of actual authentication time"
+          },
+          {
+            "step": 10,
+            "action": "Perform second authentication test at different known time (e.g., 02:15:00 PM) and repeat timestamp verification",
+            "expectedResult": "Second attendance record also shows accurate timestamp within 2 seconds of actual authentication time, confirming consistent accuracy"
+          }
+        ],
+        "postconditions": [
+          "All attendance timestamps are accurate within 2-second tolerance",
+          "Database records match actual authentication times",
+          "Reports reflect accurate attendance timestamps",
+          "System time synchronization is verified",
+          "Timestamp accuracy is consistent across multiple authentications"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-24",
+    "storyTitle": "As System Administrator, I want to monitor biometric device connectivity to achieve system reliability",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate real-time device connectivity status display",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "System administrator account is created and active",
+          "At least one biometric device is registered in the system",
+          "Monitoring dashboard is deployed and accessible",
+          "Device status API endpoint (GET /api/biometric/devices/status) is operational",
+          "Administrator has valid authentication credentials"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the system login page and enter valid administrator credentials",
+            "expectedResult": "Administrator is successfully authenticated and redirected to the main dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Click on the 'Monitoring Dashboard' or 'Device Monitoring' menu option",
+            "expectedResult": "Monitoring dashboard page loads successfully"
+          },
+          {
+            "step": 3,
+            "action": "Observe the dashboard display showing all registered biometric devices",
+            "expectedResult": "Dashboard displays a list of all biometric devices with columns showing device ID, device name, location, current status (connected/disconnected), last heartbeat timestamp, and status indicator (green for connected, red for disconnected)"
+          },
+          {
+            "step": 4,
+            "action": "Verify the current status of all devices shows 'Connected' with green indicators",
+            "expectedResult": "All devices display 'Connected' status with green visual indicators and recent heartbeat timestamps (within last 30 seconds)"
+          },
+          {
+            "step": 5,
+            "action": "Simulate device disconnection by physically disconnecting a biometric device or using test simulation tool",
+            "expectedResult": "Device disconnection is initiated successfully"
+          },
+          {
+            "step": 6,
+            "action": "Wait and observe the dashboard for up to 30 seconds",
+            "expectedResult": "Within 30 seconds, the disconnected device's status changes from 'Connected' (green) to 'Disconnected' (red), and the status indicator updates accordingly"
+          },
+          {
+            "step": 7,
+            "action": "Click on the disconnected device row to view detailed information",
+            "expectedResult": "Device detail panel opens showing comprehensive device information including current status, last known connection time, and link to view logs"
+          },
+          {
+            "step": 8,
+            "action": "Click on 'View Logs' or 'Device Logs' button for the disconnected device",
+            "expectedResult": "Device connectivity logs page opens displaying historical connectivity data"
+          },
+          {
+            "step": 9,
+            "action": "Review the logs for the disconnection event",
+            "expectedResult": "Logs show complete connectivity history with timestamps, including the recent disconnection event with exact time, previous connection status, and any error messages or diagnostic information"
+          },
+          {
+            "step": 10,
+            "action": "Verify log entries include connection state changes, heartbeat signals, and disconnection timestamp",
+            "expectedResult": "All relevant log entries are present and accurately reflect the device's connectivity timeline"
+          }
+        ],
+        "postconditions": [
+          "Dashboard accurately reflects current device connectivity status",
+          "Disconnection event is logged in the system",
+          "Device status can be monitored in real-time",
+          "Administrator remains logged in to the system"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify alert generation on device connectivity loss",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "System administrator account is created and active",
+          "Administrator is logged into the monitoring dashboard",
+          "At least one biometric device is connected and operational",
+          "Alert notification system is configured and enabled",
+          "Alert channels (email, SMS, in-app notifications) are properly configured",
+          "Device heartbeat monitoring is active with 30-second intervals"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Verify that all biometric devices are currently showing 'Connected' status on the monitoring dashboard",
+            "expectedResult": "All devices display 'Connected' status with green indicators"
+          },
+          {
+            "step": 2,
+            "action": "Note the current time and simulate device connectivity loss by disconnecting a biometric device from the network or using the test simulation tool",
+            "expectedResult": "Device connectivity is successfully interrupted"
+          },
+          {
+            "step": 3,
+            "action": "Monitor the dashboard and wait for the system to detect the connectivity loss",
+            "expectedResult": "Within 30 seconds, the device status changes to 'Disconnected' on the dashboard"
+          },
+          {
+            "step": 4,
+            "action": "Check for alert notification generation in the system's alert panel or notification center",
+            "expectedResult": "System generates an alert notification immediately upon detecting device disconnection, displaying alert message with device name, location, disconnection time, and severity level"
+          },
+          {
+            "step": 5,
+            "action": "Verify the alert delivery time by comparing the disconnection time with alert generation time",
+            "expectedResult": "Alert is generated and displayed within 1 minute of the actual connectivity loss"
+          },
+          {
+            "step": 6,
+            "action": "Check configured alert channels (email inbox, SMS, in-app notifications) for alert delivery",
+            "expectedResult": "Administrator receives alert notification via all configured channels (email, SMS, in-app) promptly with complete device disconnection details"
+          },
+          {
+            "step": 7,
+            "action": "Review the alert message content for completeness",
+            "expectedResult": "Alert message includes device ID, device name, location, disconnection timestamp, alert severity, and recommended actions"
+          },
+          {
+            "step": 8,
+            "action": "Click on the alert notification in the dashboard or notification panel",
+            "expectedResult": "Alert details page opens showing full alert information and options to acknowledge or take action"
+          },
+          {
+            "step": 9,
+            "action": "Click the 'Acknowledge' button on the alert",
+            "expectedResult": "Alert acknowledgment confirmation dialog appears"
+          },
+          {
+            "step": 10,
+            "action": "Confirm the acknowledgment action",
+            "expectedResult": "Alert status changes to 'Acknowledged', acknowledgment timestamp is recorded, administrator name is logged, and alert is moved to acknowledged alerts section"
+          },
+          {
+            "step": 11,
+            "action": "Navigate to the alert logs or alert history section",
+            "expectedResult": "Alert history page displays the acknowledged alert with complete audit trail including generation time, delivery time, acknowledgment time, and administrator who acknowledged it"
+          }
+        ],
+        "postconditions": [
+          "Alert is generated and logged in the system",
+          "Alert is delivered to all configured channels",
+          "Alert status is updated to 'Acknowledged'",
+          "Complete alert audit trail is maintained in logs",
+          "Device remains in disconnected state until reconnected"
         ],
         "estimatedTime": "10 mins"
       },
       {
-        "id": "tc-005",
-        "title": "Verify access restriction to monitoring dashboard",
+        "id": "tc-003",
+        "title": "Ensure access control for monitoring dashboard",
         "type": "error-case",
         "priority": "High",
         "preconditions": [
-          "Two user accounts are available: one with non-administrator role and one with administrator role",
-          "Role-based access control is configured and enforced",
-          "Monitoring dashboard requires administrator privileges",
-          "Monitoring API endpoints are protected with authentication and authorization"
+          "System has role-based access control (RBAC) implemented",
+          "At least one administrator account exists with monitoring dashboard access",
+          "At least one non-admin user account exists (e.g., regular employee, HR staff without admin privileges)",
+          "Monitoring dashboard URL is known and accessible",
+          "Authentication system is operational"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Login to the system using non-administrator user credentials (e.g., regular employee, HR staff, or viewer role)",
-            "expectedResult": "User is successfully authenticated and logged into the system with limited permissions, user dashboard or home page is displayed"
+            "action": "Log out from any existing session and navigate to the system login page",
+            "expectedResult": "Login page is displayed with username and password fields"
           },
           {
             "step": 2,
-            "action": "Attempt to navigate to the biometric device monitoring dashboard via menu or direct URL",
-            "expectedResult": "Access to monitoring dashboard is denied, user is redirected to an unauthorized access page or receives error message 'Access Denied: You do not have permission to view this page', monitoring dashboard is not displayed, menu option for monitoring may be hidden or disabled"
+            "action": "Enter credentials for a non-admin user account (regular employee or HR staff without admin privileges)",
+            "expectedResult": "User is successfully authenticated and redirected to their authorized dashboard or home page"
           },
           {
             "step": 3,
-            "action": "Attempt to directly access the monitoring API endpoint GET /api/biometric/devices/status using API testing tool, browser console, or direct HTTP request",
-            "expectedResult": "API returns HTTP 401 Unauthorized or 403 Forbidden error response, error message indicates insufficient permissions (e.g., 'Unauthorized access' or 'Administrator privileges required'), no device status data is returned in the response"
+            "action": "Attempt to access the monitoring dashboard by clicking on the monitoring menu option (if visible) or by directly entering the monitoring dashboard URL",
+            "expectedResult": "Access is denied with an error message displayed: 'Access Denied - You do not have permission to access this resource' or 'Unauthorized Access - Administrator privileges required'"
           },
           {
             "step": 4,
-            "action": "Verify that no monitoring data or device information is accessible through any alternative means for the non-administrator user",
-            "expectedResult": "All monitoring-related features and data remain inaccessible, system maintains security boundaries"
+            "action": "Verify that the monitoring dashboard menu option is not visible in the navigation menu for non-admin users",
+            "expectedResult": "Monitoring dashboard link is hidden or not displayed in the navigation menu for non-admin users"
           },
           {
             "step": 5,
-            "action": "Logout from the non-administrator account",
-            "expectedResult": "User is successfully logged out and session is terminated, login page is displayed"
+            "action": "Verify that the user is redirected to an error page or remains on the current authorized page",
+            "expectedResult": "User is either shown an access denied page or remains on their current authorized page without accessing the monitoring dashboard"
           },
           {
             "step": 6,
-            "action": "Login to the system using valid Biometric System Administrator credentials",
-            "expectedResult": "Administrator is successfully authenticated with full permissions, administrator dashboard is displayed with access to all features"
+            "action": "Check the system logs for the unauthorized access attempt",
+            "expectedResult": "Security log records the unauthorized access attempt with timestamp, user ID, attempted resource, and access denial reason"
           },
           {
             "step": 7,
-            "action": "Navigate to the biometric device monitoring dashboard",
-            "expectedResult": "Full access is granted to the monitoring dashboard, all device status information is visible and accessible, dashboard loads successfully with all monitoring features enabled"
+            "action": "Log out from the non-admin user account",
+            "expectedResult": "User is successfully logged out and redirected to the login page"
           },
           {
             "step": 8,
-            "action": "Access the monitoring API endpoint GET /api/biometric/devices/status",
-            "expectedResult": "API endpoint is accessible and returns HTTP 200 OK status, device status data is returned in the response with complete information for all configured devices"
+            "action": "Enter credentials for a valid administrator account",
+            "expectedResult": "Administrator is successfully authenticated and redirected to the admin dashboard"
+          },
+          {
+            "step": 9,
+            "action": "Click on the 'Monitoring Dashboard' menu option in the navigation",
+            "expectedResult": "Monitoring dashboard menu option is visible and accessible to the administrator"
+          },
+          {
+            "step": 10,
+            "action": "Access the monitoring dashboard",
+            "expectedResult": "Monitoring dashboard loads successfully, displaying all biometric devices with their connectivity status, health indicators, and full dashboard functionality"
+          },
+          {
+            "step": 11,
+            "action": "Verify all dashboard features are accessible including device list, status indicators, logs, and alert management",
+            "expectedResult": "All monitoring dashboard features are fully functional and accessible to the administrator, including viewing device status, accessing logs, managing alerts, and viewing device health metrics"
+          },
+          {
+            "step": 12,
+            "action": "Navigate through different sections of the monitoring dashboard (device list, logs, alerts, settings)",
+            "expectedResult": "Administrator can successfully navigate and interact with all sections of the monitoring dashboard without any access restrictions"
           }
         ],
         "postconditions": [
-          "Non-administrator users remain restricted from monitoring dashboard and related features",
-          "Administrator users have full access to monitoring capabilities",
-          "All unauthorized access attempts are logged in security audit trail",
-          "System access control integrity is verified and maintained",
-          "No sensitive device information is exposed to unauthorized users"
+          "Non-admin users are prevented from accessing the monitoring dashboard",
+          "Unauthorized access attempts are logged in security logs",
+          "Administrator successfully accesses and uses the monitoring dashboard",
+          "Access control policies are enforced correctly",
+          "System maintains security integrity"
         ],
-        "estimatedTime": "7 mins"
+        "estimatedTime": "12 mins"
       }
     ]
   }
