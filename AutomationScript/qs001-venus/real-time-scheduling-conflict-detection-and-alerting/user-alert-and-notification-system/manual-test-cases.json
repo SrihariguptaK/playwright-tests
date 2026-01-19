@@ -1,535 +1,541 @@
 [
   {
-    "storyId": "story-13",
-    "storyTitle": "As Scheduler, I want to receive in-app alerts for scheduling conflicts to act immediately",
+    "storyId": "story-3",
+    "storyTitle": "As Scheduler, I want to receive real-time pop-up alerts for scheduling conflicts to act immediately",
     "testCases": [
       {
         "id": "tc-001",
-        "title": "Verify in-app alert displays upon scheduling conflict",
+        "title": "Verify pop-up alert displays on conflict detection",
         "type": "happy-path",
         "priority": "High",
         "preconditions": [
-          "User is logged in as a Scheduler",
-          "Application is open and active",
-          "At least one existing booking is present in the system",
-          "Conflict detection engine is operational",
-          "WebSocket or push notification service is connected"
+          "User is logged into the scheduling system with Scheduler role",
+          "Pop-up alerts are enabled in user preferences",
+          "Conflict detection engine is active and running",
+          "At least one existing schedule entry exists in the system",
+          "User has necessary permissions to create/modify schedules"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Scheduler creates a new booking that conflicts with an existing booking (same resource, overlapping time)",
-            "expectedResult": "In-app alert is displayed immediately on the screen with conflict notification"
+            "action": "Navigate to the scheduling interface",
+            "expectedResult": "Scheduling interface loads successfully with input fields visible"
           },
           {
             "step": 2,
-            "action": "Scheduler reviews the alert details displayed in the notification",
-            "expectedResult": "Alert shows accurate conflict information including conflicting booking IDs, resource names, time slots, and affected parties"
+            "action": "Enter scheduling data that causes a conflict with an existing schedule (e.g., same resource, overlapping time)",
+            "expectedResult": "Pop-up alert appears on screen within 1 second of entering the conflicting data"
           },
           {
             "step": 3,
-            "action": "Scheduler clicks the acknowledge/dismiss button on the alert",
-            "expectedResult": "Alert is removed from the interface and no longer visible on screen"
+            "action": "Read the alert details displayed in the pop-up",
+            "expectedResult": "Alert shows accurate conflict information including conflicting items, times, resources, and clear description of the conflict"
+          },
+          {
+            "step": 4,
+            "action": "Click the acknowledge button on the pop-up alert",
+            "expectedResult": "Alert is dismissed from the screen and acknowledgment is recorded in the system"
+          },
+          {
+            "step": 5,
+            "action": "Verify acknowledgment was recorded by checking system logs or audit trail",
+            "expectedResult": "System logs show the alert acknowledgment with timestamp and user information"
           }
         ],
         "postconditions": [
-          "Alert has been dismissed from the UI",
-          "Conflicting booking remains in the system until manually resolved",
-          "Alert dismissal is logged in the system"
+          "Pop-up alert is no longer visible on screen",
+          "Alert acknowledgment is recorded in system database",
+          "User remains on the scheduling interface",
+          "Conflicting schedule data is not saved until resolved"
         ],
         "estimatedTime": "3 mins"
       },
       {
         "id": "tc-002",
-        "title": "Ensure alerts persist until user dismissal or conflict resolution",
+        "title": "Test alert preference configuration",
         "type": "happy-path",
         "priority": "High",
         "preconditions": [
-          "User is logged in as a Scheduler",
-          "Application is open and active",
-          "A scheduling conflict exists in the system",
-          "In-app alert for the conflict has been triggered"
+          "User is logged into the scheduling system with Scheduler role",
+          "User has access to settings/preferences page",
+          "Pop-up alerts are currently enabled by default",
+          "At least one existing schedule entry exists to create conflicts",
+          "User preferences are stored and retrievable from database"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Scheduler receives alert for an unresolved conflict and observes the alert on screen",
-            "expectedResult": "Alert remains visible and prominently displayed in the application interface"
+            "action": "Navigate to user settings or preferences page",
+            "expectedResult": "Settings page loads successfully with alert preferences section visible"
           },
           {
             "step": 2,
-            "action": "Scheduler navigates to different pages within the application without taking action on the alert",
-            "expectedResult": "Alert persists on screen across different pages and remains visible until action is taken"
+            "action": "Locate the pop-up alert configuration option",
+            "expectedResult": "Pop-up alert toggle or checkbox is visible and currently enabled"
           },
           {
             "step": 3,
-            "action": "Scheduler clicks the dismiss button on the alert",
-            "expectedResult": "Alert is removed from the screen and no longer displayed"
+            "action": "Disable pop-up alerts by toggling off or unchecking the option",
+            "expectedResult": "Setting is updated and confirmation message appears indicating pop-up alerts are disabled"
+          },
+          {
+            "step": 4,
+            "action": "Save the preference changes",
+            "expectedResult": "Settings are saved successfully with confirmation message"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to scheduling interface and enter scheduling data causing a conflict",
+            "expectedResult": "No pop-up alert appears on screen despite the conflict being detected"
+          },
+          {
+            "step": 6,
+            "action": "Return to user settings and enable pop-up alerts by toggling on or checking the option",
+            "expectedResult": "Setting is updated and confirmation message appears indicating pop-up alerts are enabled"
+          },
+          {
+            "step": 7,
+            "action": "Save the preference changes",
+            "expectedResult": "Settings are saved successfully with confirmation message"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to scheduling interface and enter scheduling data causing a conflict",
+            "expectedResult": "Pop-up alert appears on screen within 1 second displaying conflict details"
           }
         ],
         "postconditions": [
-          "Alert is no longer visible in the UI",
-          "Underlying conflict still exists in the system",
-          "User dismissal action is recorded"
-        ],
-        "estimatedTime": "4 mins"
-      },
-      {
-        "id": "tc-003",
-        "title": "Test alert delivery latency under 1 second",
-        "type": "boundary",
-        "priority": "High",
-        "preconditions": [
-          "User is logged in as a Scheduler",
-          "Application is open and active",
-          "System performance monitoring tools are available",
-          "Conflict detection engine is operational",
-          "Timer or timestamp logging is enabled"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "Record the exact timestamp when a scheduling conflict is created (e.g., by creating overlapping booking)",
-            "expectedResult": "Conflict detection event is triggered and timestamp is captured"
-          },
-          {
-            "step": 2,
-            "action": "Observe when the in-app alert appears on the screen and record the timestamp",
-            "expectedResult": "Alert appears in the application interface and display timestamp is captured"
-          },
-          {
-            "step": 3,
-            "action": "Calculate the time difference between conflict creation and alert display",
-            "expectedResult": "Time difference is less than 1 second, meeting the performance requirement"
-          }
-        ],
-        "postconditions": [
-          "Alert delivery latency is measured and documented",
-          "Performance metrics are logged",
-          "Alert is displayed on screen"
+          "Pop-up alerts are enabled in user preferences",
+          "User preference settings are persisted in database",
+          "Alert behavior matches the configured preference",
+          "User remains logged into the system"
         ],
         "estimatedTime": "5 mins"
       }
     ]
   },
   {
-    "storyId": "story-14",
-    "storyTitle": "As Scheduler, I want to receive email notifications for scheduling conflicts to stay informed when away from the app",
+    "storyId": "story-4",
+    "storyTitle": "As Scheduler, I want to receive email notifications for scheduling conflicts to stay informed when away from system",
     "testCases": [
       {
-        "id": "tc-004",
-        "title": "Verify email notification is sent upon scheduling conflict",
+        "id": "tc-003",
+        "title": "Verify email notification sent on conflict detection",
         "type": "happy-path",
         "priority": "High",
         "preconditions": [
-          "User is registered as a Scheduler with a valid email address",
-          "Email notification service (SMTP) is configured and operational",
-          "Conflict detection engine is active",
-          "Email notification preferences are enabled for the user",
+          "User is registered in the system with valid email address",
+          "Email notifications are enabled in user preferences",
+          "SMTP or email service is configured and operational",
+          "Conflict detection engine is active and running",
+          "At least one existing schedule entry exists in the system",
+          "Email delivery logging is enabled",
           "Test email inbox is accessible for verification"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Create a scheduling conflict by booking a resource that overlaps with an existing booking",
-            "expectedResult": "Conflict detection event is triggered and email notification generation process begins"
+            "action": "Note the current timestamp before triggering the conflict",
+            "expectedResult": "Timestamp is recorded for measuring email delivery time"
           },
           {
             "step": 2,
-            "action": "Wait up to 5 minutes and check the scheduler's email inbox for the notification",
-            "expectedResult": "Email with conflict details is received in the inbox, containing subject line indicating scheduling conflict"
+            "action": "Trigger a scheduling conflict in the system by creating or modifying a schedule that conflicts with an existing entry",
+            "expectedResult": "Conflict is detected by the system and conflict detection logs show the event"
           },
           {
             "step": 3,
-            "action": "Open the email and review its content",
-            "expectedResult": "Email contains detailed conflict information including conflicting booking IDs, resource names, time slots, affected parties, and actionable links"
-          }
-        ],
-        "postconditions": [
-          "Email notification has been successfully delivered",
-          "Email content is accurate and complete",
-          "Delivery is logged in the email service"
-        ],
-        "estimatedTime": "7 mins"
-      },
-      {
-        "id": "tc-005",
-        "title": "Test user preference configuration for email notifications",
-        "type": "happy-path",
-        "priority": "Medium",
-        "preconditions": [
-          "User is logged in as a Scheduler",
-          "User settings or preferences page is accessible",
-          "Email notification feature is available in user preferences",
-          "Default notification preferences are set"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "Navigate to user settings/preferences page and locate email notification settings",
-            "expectedResult": "Email notification preferences section is displayed with toggle or checkbox options"
-          },
-          {
-            "step": 2,
-            "action": "Update email notification preferences (e.g., enable or disable conflict notifications) and save changes",
-            "expectedResult": "Preferences are saved successfully with confirmation message displayed"
-          },
-          {
-            "step": 3,
-            "action": "Trigger a scheduling conflict event in the system",
-            "expectedResult": "Email is sent or suppressed according to the saved preferences (email received if enabled, not received if disabled)"
+            "action": "Wait and monitor for email notification delivery",
+            "expectedResult": "Email notification is sent within 30 seconds of conflict detection"
           },
           {
             "step": 4,
-            "action": "Verify email inbox matches the configured preference setting",
-            "expectedResult": "Email delivery behavior matches the user's preference configuration"
+            "action": "Check the recipient's email inbox for the notification",
+            "expectedResult": "Email is received in inbox with subject line indicating scheduling conflict"
+          },
+          {
+            "step": 5,
+            "action": "Open and read the email content",
+            "expectedResult": "Email contains accurate conflict details including conflicting items, times, resources, and affected schedules"
+          },
+          {
+            "step": 6,
+            "action": "Review email delivery logs in the system",
+            "expectedResult": "Delivery status is logged as successful with timestamp, recipient email, and delivery confirmation"
+          },
+          {
+            "step": 7,
+            "action": "Verify the email delivery time from logs",
+            "expectedResult": "Email was sent within 30 seconds of the conflict detection timestamp"
           }
         ],
         "postconditions": [
-          "User preferences are persisted in the system",
-          "Email notification behavior reflects updated preferences",
-          "Preference changes are logged"
+          "Email notification is successfully delivered to recipient",
+          "Email delivery is logged with successful status",
+          "Conflict remains in system until resolved",
+          "Email service remains operational for future notifications"
         ],
-        "estimatedTime": "6 mins"
+        "estimatedTime": "4 mins"
       },
       {
-        "id": "tc-006",
-        "title": "Ensure email delivery success rate is above 99%",
-        "type": "boundary",
+        "id": "tc-004",
+        "title": "Test email notification preference settings",
+        "type": "happy-path",
         "priority": "High",
         "preconditions": [
-          "Email service is configured and operational",
-          "Test environment has access to email delivery monitoring tools",
-          "Multiple valid test email addresses are available (minimum 100)",
-          "Conflict detection can be triggered programmatically or in batch",
-          "Email delivery tracking and logging is enabled"
+          "User is logged into the scheduling system with Scheduler role",
+          "User has access to settings/preferences page",
+          "Email notifications are currently enabled by default",
+          "User has valid email address registered in system",
+          "At least one existing schedule entry exists to create conflicts",
+          "Email service is configured and operational"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Prepare a batch of at least 100 scheduling conflicts that will trigger email notifications to different valid email addresses",
-            "expectedResult": "Batch of conflict events is ready for execution with corresponding recipient email addresses"
+            "action": "Navigate to user settings or preferences page",
+            "expectedResult": "Settings page loads successfully with notification preferences section visible"
           },
           {
             "step": 2,
-            "action": "Trigger all conflict events and initiate email notification sending process",
-            "expectedResult": "Email service processes all notification requests and attempts delivery to all recipients"
+            "action": "Locate the email notification configuration option",
+            "expectedResult": "Email notification toggle or checkbox is visible and currently enabled"
           },
           {
             "step": 3,
-            "action": "Monitor email delivery status using email service logs or delivery reports for all sent emails",
-            "expectedResult": "Delivery status is tracked for each email (delivered, bounced, failed)"
+            "action": "Disable email notifications by toggling off or unchecking the option",
+            "expectedResult": "Setting is updated and confirmation message appears indicating email notifications are disabled"
           },
           {
             "step": 4,
-            "action": "Calculate the delivery success rate by dividing successfully delivered emails by total emails sent",
-            "expectedResult": "At least 99% of emails are marked as successfully delivered (99 out of 100 minimum)"
+            "action": "Save the preference changes",
+            "expectedResult": "Settings are saved successfully with confirmation message"
+          },
+          {
+            "step": 5,
+            "action": "Trigger a scheduling conflict in the system",
+            "expectedResult": "Conflict is detected by the system"
+          },
+          {
+            "step": 6,
+            "action": "Wait 60 seconds and check email inbox",
+            "expectedResult": "No email notification is received in the inbox"
+          },
+          {
+            "step": 7,
+            "action": "Verify email delivery logs",
+            "expectedResult": "No email delivery attempt is logged for this conflict"
+          },
+          {
+            "step": 8,
+            "action": "Return to user settings and enable email notifications by toggling on or checking the option",
+            "expectedResult": "Setting is updated and confirmation message appears indicating email notifications are enabled"
+          },
+          {
+            "step": 9,
+            "action": "Save the preference changes",
+            "expectedResult": "Settings are saved successfully with confirmation message"
+          },
+          {
+            "step": 10,
+            "action": "Trigger another scheduling conflict in the system",
+            "expectedResult": "Conflict is detected by the system"
+          },
+          {
+            "step": 11,
+            "action": "Wait up to 30 seconds and check email inbox",
+            "expectedResult": "Email notification is received in inbox with conflict details"
+          },
+          {
+            "step": 12,
+            "action": "Verify email delivery logs",
+            "expectedResult": "Email delivery is logged as successful for this conflict"
           }
         ],
         "postconditions": [
-          "Email delivery metrics are documented",
-          "Success rate meets or exceeds 99% threshold",
-          "Any failed deliveries are logged for investigation"
+          "Email notifications are enabled in user preferences",
+          "User preference settings are persisted in database",
+          "Email notification behavior matches the configured preference",
+          "User remains logged into the system",
+          "Email service continues to function normally"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-7",
+    "storyTitle": "As Scheduler, I want the system to log all scheduling conflicts and alerts for audit and analysis",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify logging of scheduling conflicts",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Logging system is operational and accessible",
+          "Database has sufficient storage for logs",
+          "At least two appointments exist that can create a conflict",
+          "User has permissions to query system logs"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Create or trigger a scheduling conflict by attempting to book overlapping appointments for the same resource",
+            "expectedResult": "System detects the scheduling conflict and prevents the double booking"
+          },
+          {
+            "step": 2,
+            "action": "Verify conflict details are logged with complete metadata including conflict type, timestamp, user ID, affected resources, and appointment IDs",
+            "expectedResult": "Conflict is logged within 500 milliseconds with all required metadata fields populated accurately"
+          },
+          {
+            "step": 3,
+            "action": "Navigate to the system log query interface and search for the conflict entry using the timestamp or conflict ID",
+            "expectedResult": "Log query returns results within 2 seconds"
+          },
+          {
+            "step": 4,
+            "action": "Review the retrieved log entry and verify all metadata fields match the triggered conflict details",
+            "expectedResult": "Log entry is present, complete, and accurate with correct conflict type, time, user information, and affected resource details"
+          }
+        ],
+        "postconditions": [
+          "Conflict log entry is permanently stored in the database",
+          "Log entry is retrievable for future audit purposes",
+          "System remains in operational state",
+          "No data loss occurred during logging operation"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify logging of alerts and acknowledgments",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Alert system is configured and operational",
+          "Logging system is functional",
+          "Test user account exists to receive alerts",
+          "Unauthorized test account exists for access control testing",
+          "A scheduling conflict scenario is ready to trigger"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Trigger a scheduling conflict that generates an alert to the designated user",
+            "expectedResult": "System detects conflict and generates an alert notification"
+          },
+          {
+            "step": 2,
+            "action": "Verify the alert is sent to the user through the configured notification channel",
+            "expectedResult": "Alert is successfully delivered to the user and alert delivery is logged with timestamp, recipient, and alert content"
+          },
+          {
+            "step": 3,
+            "action": "As the recipient user, acknowledge the received alert through the system interface",
+            "expectedResult": "System registers the acknowledgment and displays confirmation to the user"
+          },
+          {
+            "step": 4,
+            "action": "Verify the user acknowledgment is logged with timestamp, user ID, and alert reference",
+            "expectedResult": "Acknowledgment is logged within 500 milliseconds with complete metadata including acknowledgment time and user details"
+          },
+          {
+            "step": 5,
+            "action": "Query the logs to retrieve both the alert delivery and acknowledgment entries",
+            "expectedResult": "Both log entries are present, accurate, and linked to the same alert event"
+          },
+          {
+            "step": 6,
+            "action": "Log out and log in as an unauthorized user without log access permissions",
+            "expectedResult": "Unauthorized user successfully logs into the system"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to access the system logs or query log entries as the unauthorized user",
+            "expectedResult": "Access is denied with appropriate error message indicating insufficient permissions, and the access attempt is logged as a security event"
+          }
+        ],
+        "postconditions": [
+          "Alert delivery and acknowledgment are permanently logged",
+          "Logs are securely stored with proper access controls enforced",
+          "Unauthorized access attempt is logged for security audit",
+          "System maintains log integrity and security",
+          "All logging operations completed within performance requirements"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-10",
+    "storyTitle": "As Scheduler, I want the system to provide detailed conflict information in alerts to understand and resolve issues quickly",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify detailed conflict information in alerts",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Alert system is configured and operational",
+          "Multiple appointments exist in the system that can create conflicts",
+          "Resources are properly configured with names and availability",
+          "System performance monitoring tools are available to measure alert generation time",
+          "User has access to view scheduling details and navigate to conflicting schedules"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Create a scheduling scenario with multiple simultaneous conflicts by attempting to book three overlapping appointments for the same resource at the same time",
+            "expectedResult": "System detects multiple scheduling conflicts simultaneously"
+          },
+          {
+            "step": 2,
+            "action": "Trigger the conflict detection and wait for the alert to be generated",
+            "expectedResult": "Alert is generated and displayed to the user"
+          },
+          {
+            "step": 3,
+            "action": "Review the alert content and verify it includes full details of all conflicting appointments including appointment IDs, titles, times, and durations",
+            "expectedResult": "Alert displays complete information for all three conflicting appointments with accurate details"
+          },
+          {
+            "step": 4,
+            "action": "Verify the alert includes resource names and time slots for each conflict",
+            "expectedResult": "Alert shows the resource name and specific time slots for each conflicting appointment clearly"
+          },
+          {
+            "step": 5,
+            "action": "Identify and verify the presence of clickable links to each conflicting schedule in the alert",
+            "expectedResult": "Alert contains distinct clickable links or buttons for each of the conflicting appointments"
+          },
+          {
+            "step": 6,
+            "action": "Click on the first link in the alert to navigate to the first conflicting schedule",
+            "expectedResult": "System navigates to the correct schedule page showing the first conflicting appointment details"
+          },
+          {
+            "step": 7,
+            "action": "Return to the alert and click on the second link to navigate to the second conflicting schedule",
+            "expectedResult": "System navigates to the correct schedule page showing the second conflicting appointment details"
+          },
+          {
+            "step": 8,
+            "action": "Return to the alert and click on the third link to navigate to the third conflicting schedule",
+            "expectedResult": "System navigates to the correct schedule page showing the third conflicting appointment details"
+          },
+          {
+            "step": 9,
+            "action": "Using performance monitoring tools, measure the time elapsed between conflict detection and alert display",
+            "expectedResult": "Alert generation and display completes within 1 second of conflict detection, meeting the performance requirement"
+          },
+          {
+            "step": 10,
+            "action": "Verify the alert remains accessible and all information is readable and properly formatted",
+            "expectedResult": "Alert displays all conflict information in a clear, organized, and user-friendly format with no truncation or formatting errors"
+          }
+        ],
+        "postconditions": [
+          "Alert with detailed conflict information is logged in the system",
+          "User has successfully navigated to all conflicting schedules",
+          "Conflicts remain unresolved and available for user action",
+          "System performance metrics confirm alert generation within 1 second",
+          "Alert can be dismissed or remains available for future reference per system design"
         ],
         "estimatedTime": "15 mins"
       }
     ]
   },
   {
-    "storyId": "story-17",
-    "storyTitle": "As Scheduler, I want to acknowledge and dismiss conflict alerts to manage my notifications",
+    "storyId": "story-11",
+    "storyTitle": "As Scheduler, I want to configure my alert preferences to receive notifications via preferred channels",
     "testCases": [
       {
         "id": "tc-001",
-        "title": "Verify user can acknowledge and dismiss conflict alerts",
+        "title": "Verify alert preference configuration and application",
         "type": "happy-path",
         "priority": "High",
         "preconditions": [
-          "User is logged in as a Scheduler with valid credentials",
-          "User has permissions to manage alerts",
-          "At least one active conflict alert exists in the system",
-          "Alert management system is operational",
-          "User session is authenticated"
+          "User is logged in as Scheduler with valid credentials",
+          "User has access to alert preference settings",
+          "User profile database is accessible and operational",
+          "At least one alert-triggering event is available for testing",
+          "Default alert preferences are set (all channels enabled)"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Navigate to the alerts section where conflict alerts are displayed",
-            "expectedResult": "Alerts section loads successfully and displays all active conflict alerts"
+            "action": "Navigate to the alert preference settings page from the main dashboard or user profile menu",
+            "expectedResult": "Alert preference settings UI is displayed showing all available alert channels (pop-ups, emails, dashboard notifications) with current configuration status"
           },
           {
             "step": 2,
-            "action": "Verify that the conflict alert is visible in the UI with all relevant details (resource, time, severity)",
-            "expectedResult": "Alert is displayed in UI with complete information including alert type, timestamp, and affected resources"
+            "action": "Verify that all alert channel options are visible and accessible",
+            "expectedResult": "Pop-up notifications, email notifications, and dashboard notifications options are displayed with toggle switches or checkboxes in their current state"
           },
           {
             "step": 3,
-            "action": "Locate and click the 'Acknowledge' button on the conflict alert",
-            "expectedResult": "Alert status changes to 'Acknowledged' with visual indicator (e.g., color change, icon update, or status label)"
+            "action": "Enable the email alert channel by clicking the toggle switch or checkbox",
+            "expectedResult": "Email alert channel toggle changes to enabled state with visual confirmation (e.g., green color, checkmark)"
           },
           {
             "step": 4,
-            "action": "Verify the acknowledge action is reflected in the alert display",
-            "expectedResult": "Alert shows acknowledged status and remains visible in the interface"
+            "action": "Enable the dashboard notifications channel by clicking the toggle switch or checkbox",
+            "expectedResult": "Dashboard notifications channel toggle changes to enabled state with visual confirmation"
           },
           {
             "step": 5,
-            "action": "Locate and click the 'Dismiss' button on the acknowledged alert",
-            "expectedResult": "Alert is immediately removed from the UI within 1 second"
+            "action": "Disable the pop-up alert channel by clicking the toggle switch or checkbox",
+            "expectedResult": "Pop-up alert channel toggle changes to disabled state with visual confirmation (e.g., gray color, unchecked)"
           },
           {
             "step": 6,
-            "action": "Verify the dismissal action is logged by checking the audit log or system logs",
-            "expectedResult": "Dismissal action is logged with user ID, timestamp, and alert ID in the system logs"
+            "action": "Click the 'Save' or 'Apply' button to save the alert preferences",
+            "expectedResult": "Success message is displayed confirming preferences are saved successfully, and the save operation completes within 1 second"
           },
           {
             "step": 7,
-            "action": "Refresh the alerts page or navigate away and return to verify alert persistence",
-            "expectedResult": "Dismissed alert does not reappear in the alerts list"
-          }
-        ],
-        "postconditions": [
-          "Alert is removed from the active alerts interface",
-          "Dismissal action is logged with user and timestamp information",
-          "Alert status is updated to 'Dismissed' in the database",
-          "User can continue managing other alerts without interference"
-        ],
-        "estimatedTime": "5 mins"
-      },
-      {
-        "id": "tc-002",
-        "title": "Ensure dismissed alerts do not reappear unless conflict persists",
-        "type": "edge-case",
-        "priority": "High",
-        "preconditions": [
-          "User is logged in as a Scheduler with valid credentials",
-          "User has permissions to manage alerts",
-          "At least one active conflict alert exists in the system",
-          "Alert management system is operational",
-          "User session is authenticated"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "Navigate to the alerts section and identify an active conflict alert",
-            "expectedResult": "Active conflict alert is displayed in the UI with all details"
-          },
-          {
-            "step": 2,
-            "action": "Acknowledge the conflict alert by clicking the 'Acknowledge' button",
-            "expectedResult": "Alert status changes to 'Acknowledged'"
-          },
-          {
-            "step": 3,
-            "action": "Dismiss the alert by clicking the 'Dismiss' button",
-            "expectedResult": "Alert is removed from the UI immediately and dismissal is logged"
-          },
-          {
-            "step": 4,
-            "action": "Wait for 5 seconds without making any changes to the underlying conflict",
-            "expectedResult": "No changes occur in the system; conflict status remains unchanged"
-          },
-          {
-            "step": 5,
-            "action": "Refresh the alerts page or navigate away and return to the alerts section",
-            "expectedResult": "Dismissed alert does not reappear in the alerts list"
-          },
-          {
-            "step": 6,
-            "action": "Verify the alert remains dismissed by checking the alerts dashboard multiple times over a 2-minute period",
-            "expectedResult": "Alert does not reappear as long as the conflict status remains unchanged"
-          },
-          {
-            "step": 7,
-            "action": "Simulate a change in conflict status by resolving the underlying conflict in the system",
-            "expectedResult": "Conflict is marked as resolved in the system"
+            "action": "Refresh the alert preference settings page or navigate away and return to the settings",
+            "expectedResult": "Previously saved preferences are displayed correctly: email enabled, dashboard notifications enabled, pop-ups disabled"
           },
           {
             "step": 8,
-            "action": "Recreate the same conflict condition that triggered the original alert",
-            "expectedResult": "System detects the new conflict occurrence"
+            "action": "Trigger an alert event that would normally generate notifications across all channels",
+            "expectedResult": "Alert is delivered only through enabled channels: email notification is received and dashboard notification appears"
           },
           {
             "step": 9,
-            "action": "Check the alerts dashboard for new alert generation",
-            "expectedResult": "A new alert is generated and displayed in the UI for the reoccurring conflict"
+            "action": "Verify that no pop-up alert is displayed on the screen",
+            "expectedResult": "No pop-up notification appears, confirming that disabled channel preferences are respected"
           },
           {
             "step": 10,
-            "action": "Verify the new alert has a different alert ID and timestamp than the previously dismissed alert",
-            "expectedResult": "New alert has unique identifier and current timestamp, confirming it is a new alert instance"
-          }
-        ],
-        "postconditions": [
-          "Dismissed alert remains dismissed when conflict status is unchanged",
-          "New alert is generated only when conflict reoccurs after resolution",
-          "Alert management system correctly distinguishes between dismissed and new alerts",
-          "System maintains data integrity for alert lifecycle management"
-        ],
-        "estimatedTime": "8 mins"
-      }
-    ]
-  },
-  {
-    "storyId": "story-19",
-    "storyTitle": "As Scheduler, I want to view conflict alerts on a dashboard to monitor scheduling issues",
-    "testCases": [
-      {
-        "id": "tc-003",
-        "title": "Verify dashboard displays active conflict alerts",
-        "type": "happy-path",
-        "priority": "High",
-        "preconditions": [
-          "User is logged in as a Scheduler with valid credentials",
-          "User has authenticated scheduler access to the dashboard",
-          "Multiple active conflict alerts exist in the system with varying resources, times, and severity levels",
-          "Conflict alert database is accessible and operational",
-          "Dashboard application is running and accessible"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "Navigate to the conflict dashboard by clicking on the dashboard menu or accessing the dashboard URL",
-            "expectedResult": "Conflict dashboard loads successfully and displays the main interface"
-          },
-          {
-            "step": 2,
-            "action": "Verify that all active conflict alerts are displayed on the dashboard",
-            "expectedResult": "Dashboard shows a complete list of active conflict alerts with key information (resource name, time, severity, alert ID)"
-          },
-          {
-            "step": 3,
-            "action": "Check that each alert displays relevant details including resource, timestamp, and severity level",
-            "expectedResult": "Each alert entry shows complete information in a clear, readable format"
-          },
-          {
-            "step": 4,
-            "action": "Locate the filter options on the dashboard (resource filter, time filter, severity filter)",
-            "expectedResult": "Filter controls are visible and accessible on the dashboard interface"
-          },
-          {
-            "step": 5,
-            "action": "Apply a resource filter by selecting a specific resource from the filter dropdown",
-            "expectedResult": "Alerts list updates immediately to show only alerts related to the selected resource"
-          },
-          {
-            "step": 6,
-            "action": "Clear the resource filter and apply a severity filter by selecting a specific severity level",
-            "expectedResult": "Alerts list updates to display only alerts matching the selected severity level"
-          },
-          {
-            "step": 7,
-            "action": "Apply a time filter by selecting a specific time range or date",
-            "expectedResult": "Alerts list updates to show only alerts within the specified time range"
-          },
-          {
-            "step": 8,
-            "action": "Apply multiple filters simultaneously (resource + severity + time)",
-            "expectedResult": "Alerts list updates to show only alerts matching all applied filter criteria"
-          },
-          {
-            "step": 9,
-            "action": "Clear all filters to return to the full list of active alerts",
-            "expectedResult": "Dashboard displays all active conflict alerts again"
-          },
-          {
-            "step": 10,
-            "action": "Select a specific conflict alert from the list by clicking on it",
-            "expectedResult": "System navigates to the detailed conflict view showing comprehensive information about the selected alert"
+            "action": "Check the email inbox for the alert notification",
+            "expectedResult": "Email alert is received in the inbox with correct alert content and timestamp"
           },
           {
             "step": 11,
-            "action": "Verify the detailed view contains complete conflict information including affected resources, timeline, severity, and resolution options",
-            "expectedResult": "Detailed conflict view displays all relevant information in an organized format"
+            "action": "Check the dashboard notifications section",
+            "expectedResult": "Dashboard notification is visible in the notifications panel with correct alert content and timestamp"
           },
           {
             "step": 12,
-            "action": "Navigate back to the dashboard from the detailed view",
-            "expectedResult": "Dashboard reloads with the same filter settings and alert list as before"
+            "action": "Measure and verify the response time for preference retrieval",
+            "expectedResult": "Preference retrieval operation completes in under 1 second as per performance requirements"
           }
         ],
         "postconditions": [
-          "Dashboard displays accurate and current conflict alert information",
-          "Filter functionality works correctly for all filter types",
-          "Navigation to detailed views functions properly",
-          "User can effectively monitor and manage scheduling conflicts",
-          "Dashboard state is maintained during navigation"
+          "User alert preferences are saved in the user profile database",
+          "Email and dashboard notification channels remain enabled",
+          "Pop-up notification channel remains disabled",
+          "Future alerts will be delivered according to the saved preferences",
+          "User session remains active and authenticated"
         ],
-        "estimatedTime": "7 mins"
-      },
-      {
-        "id": "tc-004",
-        "title": "Ensure dashboard data refreshes within 2 seconds",
-        "type": "happy-path",
-        "priority": "High",
-        "preconditions": [
-          "User is logged in as a Scheduler with valid credentials",
-          "User has authenticated scheduler access to the dashboard",
-          "Conflict dashboard is open and displaying current alerts",
-          "System has capability to generate new conflict alerts",
-          "Real-time data refresh mechanism is enabled",
-          "Network connection is stable"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "Open the conflict dashboard and note the current number of active alerts displayed",
-            "expectedResult": "Dashboard loads with current list of active conflict alerts and count is visible"
-          },
-          {
-            "step": 2,
-            "action": "Prepare a timer or stopwatch to measure the refresh time",
-            "expectedResult": "Timer is ready to measure the time between alert generation and dashboard update"
-          },
-          {
-            "step": 3,
-            "action": "Generate a new conflict alert in the system (through backend process, API call, or by creating a scheduling conflict)",
-            "expectedResult": "New conflict alert is successfully created in the system and stored in the conflict alert database"
-          },
-          {
-            "step": 4,
-            "action": "Start the timer immediately after the new conflict alert is generated",
-            "expectedResult": "Timer begins counting to measure refresh latency"
-          },
-          {
-            "step": 5,
-            "action": "Observe the dashboard without manually refreshing the page",
-            "expectedResult": "Dashboard automatically updates to display the new conflict alert"
-          },
-          {
-            "step": 6,
-            "action": "Stop the timer when the new alert appears on the dashboard",
-            "expectedResult": "Timer shows the elapsed time between alert generation and dashboard display"
-          },
-          {
-            "step": 7,
-            "action": "Verify that the elapsed time is 2 seconds or less",
-            "expectedResult": "Dashboard refresh time is within the 2-second performance requirement"
-          },
-          {
-            "step": 8,
-            "action": "Verify the new alert displays with correct information (resource, time, severity)",
-            "expectedResult": "New alert shows accurate and complete information matching the generated conflict"
-          },
-          {
-            "step": 9,
-            "action": "Check that the alert count has increased by one",
-            "expectedResult": "Total alert count on dashboard reflects the addition of the new alert"
-          },
-          {
-            "step": 10,
-            "action": "Repeat the test by generating another new conflict alert and measuring refresh time again",
-            "expectedResult": "Dashboard consistently updates within 2 seconds for the second alert as well"
-          }
-        ],
-        "postconditions": [
-          "Dashboard demonstrates real-time refresh capability within performance requirements",
-          "New alerts are displayed accurately and promptly",
-          "Automatic refresh mechanism functions without manual intervention",
-          "Dashboard maintains data integrity during real-time updates",
-          "Performance metrics meet the 2-second refresh requirement"
-        ],
-        "estimatedTime": "6 mins"
+        "estimatedTime": "8 mins"
       }
     ]
   }
