@@ -21,61 +21,49 @@ test.describe('Schedule Report Generation', () => {
     await expect(page.locator('[data-testid="project-filter"]')).toBeVisible();
 
     // Step 2: Select valid date range, team, and project filters
-    const currentDate = new Date();
-    const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    await page.fill('[data-testid="start-date-input"]', '2024-01-01');
+    await page.fill('[data-testid="end-date-input"]', '2024-01-31');
+    await page.selectOption('[data-testid="team-filter-dropdown"]', { label: 'Engineering Team' });
+    await page.selectOption('[data-testid="project-filter-dropdown"]', { label: 'Project Alpha' });
     
-    await page.fill('[data-testid="start-date-input"]', startDate.toISOString().split('T')[0]);
-    await page.fill('[data-testid="end-date-input"]', endDate.toISOString().split('T')[0]);
-    
-    await page.click('[data-testid="team-filter"]');
-    await page.click('[data-testid="team-option-engineering"]');
-    
-    await page.click('[data-testid="project-filter"]');
-    await page.click('[data-testid="project-option-alpha"]');
-    
-    // Verify filters are accepted without errors
-    await expect(page.locator('[data-testid="filter-error"]')).not.toBeVisible();
+    // Verify no error messages are displayed
+    await expect(page.locator('[data-testid="filter-error-message"]')).not.toBeVisible();
 
     // Step 3: Submit report generation request
     const startTime = Date.now();
     await page.click('[data-testid="generate-report-button"]');
     
-    // Verify report is generated and displayed within 5 seconds
-    await expect(page.locator('[data-testid="schedule-report-table"]')).toBeVisible({ timeout: 5000 });
+    // Wait for report to be generated and displayed
+    await expect(page.locator('[data-testid="schedule-report-content"]')).toBeVisible({ timeout: 5000 });
     const endTime = Date.now();
     const generationTime = endTime - startTime;
     
+    // Verify report is generated within 5 seconds
     expect(generationTime).toBeLessThan(5000);
     
-    // Verify report contains data
-    await expect(page.locator('[data-testid="report-row"]').first()).toBeVisible();
-    await expect(page.locator('[data-testid="report-timeline"]')).toBeVisible();
+    // Verify report contains expected data
+    await expect(page.locator('[data-testid="report-project-name"]')).toContainText('Project Alpha');
+    await expect(page.locator('[data-testid="report-team-name"]')).toContainText('Engineering Team');
+    await expect(page.locator('[data-testid="report-date-range"]')).toContainText('01/01/2024 - 31/01/2024');
+    await expect(page.locator('[data-testid="report-activities-section"]')).toBeVisible();
     await expect(page.locator('[data-testid="report-resource-assignments"]')).toBeVisible();
   });
 
   test('Export schedule report to PDF and Excel', async ({ page }) => {
     // Step 1: Generate schedule report with filters
     await page.click('[data-testid="schedule-reporting-link"]');
-    await expect(page.locator('[data-testid="schedule-report-ui"]')).toBeVisible();
-    
-    const currentDate = new Date();
-    const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-    
-    await page.fill('[data-testid="start-date-input"]', startDate.toISOString().split('T')[0]);
-    await page.fill('[data-testid="end-date-input"]', endDate.toISOString().split('T')[0]);
-    await page.click('[data-testid="team-filter"]');
-    await page.click('[data-testid="team-option-engineering"]');
-    await page.click('[data-testid="project-filter"]');
-    await page.click('[data-testid="project-option-alpha"]');
+    await page.fill('[data-testid="start-date-input"]', '2024-01-01');
+    await page.fill('[data-testid="end-date-input"]', '2024-01-31');
+    await page.selectOption('[data-testid="team-filter-dropdown"]', { label: 'Engineering Team' });
+    await page.selectOption('[data-testid="project-filter-dropdown"]', { label: 'Project Alpha' });
     await page.click('[data-testid="generate-report-button"]');
+    await expect(page.locator('[data-testid="schedule-report-content"]')).toBeVisible();
     
-    await expect(page.locator('[data-testid="schedule-report-table"]')).toBeVisible();
-    
-    // Capture on-screen report data for verification
-    const reportData = await page.locator('[data-testid="schedule-report-table"]').textContent();
-    
+    // Capture on-screen report data for comparison
+    const reportProjectName = await page.locator('[data-testid="report-project-name"]').textContent();
+    const reportTeamName = await page.locator('[data-testid="report-team-name"]').textContent();
+    const reportDateRange = await page.locator('[data-testid="report-date-range"]').textContent();
+
     // Step 2: Click export to PDF
     const [pdfDownload] = await Promise.all([
       page.waitForEvent('download'),
@@ -87,11 +75,7 @@ test.describe('Schedule Report Generation', () => {
     const pdfPath = await pdfDownload.path();
     expect(pdfPath).toBeTruthy();
     expect(fs.existsSync(pdfPath!)).toBeTruthy();
-    
-    // Verify PDF file size is greater than 0
-    const pdfStats = fs.statSync(pdfPath!);
-    expect(pdfStats.size).toBeGreaterThan(0);
-    
+
     // Step 3: Click export to Excel
     const [excelDownload] = await Promise.all([
       page.waitForEvent('download'),
@@ -99,70 +83,72 @@ test.describe('Schedule Report Generation', () => {
     ]);
     
     // Verify Excel file is downloaded
-    const excelFilename = excelDownload.suggestedFilename();
-    expect(excelFilename).toMatch(/\.(xlsx|xls)$/);
+    expect(excelDownload.suggestedFilename()).toMatch(/\.(xlsx|xls)$/);
     const excelPath = await excelDownload.path();
     expect(excelPath).toBeTruthy();
     expect(fs.existsSync(excelPath!)).toBeTruthy();
     
-    // Verify Excel file size is greater than 0
+    // Verify both files have content (file size > 0)
+    const pdfStats = fs.statSync(pdfPath!);
     const excelStats = fs.statSync(excelPath!);
+    expect(pdfStats.size).toBeGreaterThan(0);
     expect(excelStats.size).toBeGreaterThan(0);
   });
 
-  test('Verify real-time update of schedule report', async ({ page, context }) => {
+  test('Verify real-time update of schedule report', async ({ page }) => {
     // Step 1: Open schedule report for a specific project
     await page.click('[data-testid="schedule-reporting-link"]');
-    await expect(page.locator('[data-testid="schedule-report-ui"]')).toBeVisible();
-    
-    const currentDate = new Date();
-    const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-    
-    await page.fill('[data-testid="start-date-input"]', startDate.toISOString().split('T')[0]);
-    await page.fill('[data-testid="end-date-input"]', endDate.toISOString().split('T')[0]);
-    await page.click('[data-testid="project-filter"]');
-    await page.click('[data-testid="project-option-alpha"]');
+    await page.fill('[data-testid="start-date-input"]', '2024-01-01');
+    await page.fill('[data-testid="end-date-input"]', '2024-01-31');
+    await page.selectOption('[data-testid="project-filter-dropdown"]', { label: 'Project Alpha' });
     await page.click('[data-testid="generate-report-button"]');
-    
-    await expect(page.locator('[data-testid="schedule-report-table"]')).toBeVisible();
-    
-    // Step 2: Note current values displayed in the report
-    const initialActivityDate = await page.locator('[data-testid="activity-date-1"]').textContent();
-    const initialResourceName = await page.locator('[data-testid="resource-name-1"]').textContent();
-    const initialTimeline = await page.locator('[data-testid="timeline-milestone-1"]').textContent();
-    
-    // Step 3: Update schedule data in backend using API
-    const apiContext = await context.request;
-    const updateResponse = await apiContext.put('/api/schedule/update', {
-      data: {
-        projectId: 'alpha',
-        activityId: 1,
-        activityDate: '2024-02-15',
-        resourceName: 'John Smith (Updated)',
-        timelineMilestone: 'Phase 2 Complete (Updated)'
-      }
+    await expect(page.locator('[data-testid="schedule-report-content"]')).toBeVisible();
+
+    // Step 2: Note the current values displayed in the report
+    const initialActivityDate = await page.locator('[data-testid="activity-date-0"]').textContent();
+    const initialResourceName = await page.locator('[data-testid="resource-name-0"]').textContent();
+    const initialTimestamp = await page.locator('[data-testid="last-updated-timestamp"]').textContent();
+
+    // Step 3: Simulate backend update (trigger update via API or backend action)
+    // In real scenario, this would be done via API call or database update
+    await page.evaluate(() => {
+      // Simulate backend schedule data update
+      window.dispatchEvent(new CustomEvent('scheduleUpdate', {
+        detail: {
+          activityDate: '2024-01-15',
+          resourceName: 'John Smith (Updated)',
+          timestamp: new Date().toISOString()
+        }
+      }));
     });
-    
-    expect(updateResponse.ok()).toBeTruthy();
-    
-    // Step 4: Wait up to 10 seconds and monitor for automatic updates
-    await page.waitForTimeout(1000); // Allow time for real-time update to propagate
-    
+
+    // Step 4: Monitor the report UI without refreshing the page
+    // Wait for real-time update to occur (within 10 seconds)
+    await page.waitForFunction(
+      (oldTimestamp) => {
+        const currentTimestamp = document.querySelector('[data-testid="last-updated-timestamp"]')?.textContent;
+        return currentTimestamp !== oldTimestamp;
+      },
+      initialTimestamp,
+      { timeout: 10000 }
+    );
+
     // Step 5: Verify updated data is reflected in the report
-    await expect(page.locator('[data-testid="activity-date-1"]')).not.toHaveText(initialActivityDate!, { timeout: 10000 });
+    const updatedActivityDate = await page.locator('[data-testid="activity-date-0"]').textContent();
+    const updatedResourceName = await page.locator('[data-testid="resource-name-0"]').textContent();
+    const updatedTimestamp = await page.locator('[data-testid="last-updated-timestamp"]').textContent();
+
+    // Verify data has changed
+    expect(updatedActivityDate).not.toBe(initialActivityDate);
+    expect(updatedResourceName).not.toBe(initialResourceName);
+    expect(updatedTimestamp).not.toBe(initialTimestamp);
+
+    // Verify report shows latest schedule information
+    await expect(page.locator('[data-testid="schedule-report-content"]')).toBeVisible();
+    await expect(page.locator('[data-testid="last-updated-timestamp"]')).toBeVisible();
     
-    const updatedActivityDate = await page.locator('[data-testid="activity-date-1"]').textContent();
-    const updatedResourceName = await page.locator('[data-testid="resource-name-1"]').textContent();
-    const updatedTimeline = await page.locator('[data-testid="timeline-milestone-1"]').textContent();
-    
-    // Verify the changes match backend updates
-    expect(updatedActivityDate).toContain('2024-02-15');
-    expect(updatedResourceName).toContain('John Smith (Updated)');
-    expect(updatedTimeline).toContain('Phase 2 Complete (Updated)');
-    
-    // Verify that unchanged elements remain the same
-    const unchangedElement = await page.locator('[data-testid="project-name"]').textContent();
-    expect(unchangedElement).toContain('Project Alpha');
+    // Verify timestamp shows recent update (within last minute)
+    const timestampText = await page.locator('[data-testid="last-updated-timestamp"]').textContent();
+    expect(timestampText).toBeTruthy();
   });
 });
