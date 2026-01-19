@@ -10,7 +10,7 @@
 - **Estimated Time:** 5 mins
 
 **Preconditions:**
-- User is logged in as a Project Manager with valid credentials
+- User is logged in as Project Manager with valid credentials
 - User has authorization to access schedule reporting functionality
 - Schedule database contains test data with multiple projects, teams, and date ranges
 - Reporting system is accessible and operational
@@ -19,18 +19,17 @@
 | Step | Action | Expected Result |
 |------|--------|------------------|
 | 1 | Navigate to Schedule Reporting section from the main dashboard | Schedule report UI is displayed with filter options including date range, team, and project dropdowns |
-| 2 | Select a valid start date and end date from the date range picker (e.g., current month) | Date range is populated in the filter fields without validation errors |
-| 3 | Select a valid team from the team filter dropdown | Team filter displays the selected team name and is accepted without errors |
-| 4 | Select a valid project from the project filter dropdown | Project filter displays the selected project name and is accepted without errors |
-| 5 | Click the 'Generate Report' button to submit the report generation request | System processes the request and displays a loading indicator |
-| 6 | Wait for report generation to complete | Schedule report is generated and displayed within 5 seconds showing timelines, activities, and resource assignments matching the selected filters |
-| 7 | Verify the report contains accurate data for the selected date range, team, and project | Report displays only activities within the specified date range, assigned to the selected team and project with correct timelines and resource information |
+| 2 | Select valid date range using the date picker (e.g., start date: 01/01/2024, end date: 31/01/2024) | Date range is populated in the filter fields without validation errors |
+| 3 | Select a valid team from the team filter dropdown | Team filter displays selected team name and is accepted without errors |
+| 4 | Select a valid project from the project filter dropdown | Project filter displays selected project name and filters are accepted without errors |
+| 5 | Click the 'Generate Report' button to submit report generation request | Schedule report is generated and displayed within 5 seconds showing timelines, resource assignments, and activities matching the selected filters |
+| 6 | Verify report contains accurate data including project name, team name, date range, activities, and resource assignments | Report displays all expected data fields with correct values matching the applied filters |
 
 **Postconditions:**
-- Schedule report is displayed on screen with filtered data
-- Report data matches the applied filters
-- System remains in ready state for additional operations (export, filter changes)
-- No errors are logged in the system
+- Schedule report is successfully generated and displayed on screen
+- Report data matches the selected filter criteria
+- System logs the report generation activity
+- User remains on the schedule reporting page
 
 ---
 
@@ -41,30 +40,28 @@
 - **Estimated Time:** 7 mins
 
 **Preconditions:**
-- User is logged in as a Project Manager with valid credentials
-- User has authorization to access schedule reporting functionality
-- Schedule report has been successfully generated with valid filters
-- Report is currently displayed on screen
+- User is logged in as Project Manager with valid credentials
+- User has authorization to export schedule reports
+- Schedule report has been successfully generated and is displayed on screen
 - Browser allows file downloads
+- User has write permissions to the download directory
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Generate schedule report by selecting valid date range, team, and project filters and clicking 'Generate Report' | Report is displayed on screen with complete schedule data including timelines and resource assignments |
-| 2 | Locate and click the 'Export to PDF' button in the report toolbar | System initiates PDF export process and displays export progress indicator |
-| 3 | Wait for PDF download to complete and open the downloaded PDF file | PDF file is downloaded successfully with filename containing report name and timestamp, file opens correctly and contains all report data with proper formatting, headers, and footers |
-| 4 | Verify PDF content matches the on-screen report data | PDF displays identical schedule information, timelines, resource assignments, and filter criteria as shown in the UI report |
-| 5 | Return to the displayed report and click the 'Export to Excel' button in the report toolbar | System initiates Excel export process and displays export progress indicator |
-| 6 | Wait for Excel download to complete and open the downloaded Excel file | Excel file is downloaded successfully with filename containing report name and timestamp, file opens correctly in spreadsheet application |
-| 7 | Verify Excel content matches the on-screen report data and contains proper column headers | Excel file displays identical schedule information in tabular format with proper column headers (Activity, Timeline, Resources, etc.) and all data matches the UI report |
-| 8 | Verify Excel file is editable and data can be manipulated | Excel file allows data manipulation, sorting, and filtering as expected from a standard Excel workbook |
+| 1 | Generate schedule report with valid filters (date range, team, and project) | Report is displayed on screen with complete schedule data including timelines and resource assignments |
+| 2 | Click the 'Export to PDF' button | PDF file is downloaded to the default download location with filename format 'ScheduleReport_YYYYMMDD_HHMMSS.pdf' |
+| 3 | Open the downloaded PDF file | PDF opens successfully and contains correct report data matching the on-screen report including all filters, timelines, and resource assignments with proper formatting |
+| 4 | Return to the schedule report page and click the 'Export to Excel' button | Excel file is downloaded to the default download location with filename format 'ScheduleReport_YYYYMMDD_HHMMSS.xlsx' |
+| 5 | Open the downloaded Excel file | Excel file opens successfully and contains correct report data matching the on-screen report with proper column headers, data rows, and formatting |
+| 6 | Verify both exported files contain identical data to the on-screen report | Both PDF and Excel exports contain accurate and complete schedule information matching the displayed report |
 
 **Postconditions:**
-- PDF file is saved to downloads folder with correct data
-- Excel file is saved to downloads folder with correct data
-- Both exported files contain accurate schedule report information
+- PDF file is successfully downloaded and contains accurate report data
+- Excel file is successfully downloaded and contains accurate report data
+- Export operations are logged in the system
+- User remains on the schedule reporting page
 - Original report remains displayed on screen
-- Export operations are logged successfully in the system
 
 ---
 
@@ -75,29 +72,28 @@
 - **Estimated Time:** 8 mins
 
 **Preconditions:**
-- User is logged in as a Project Manager with valid credentials
-- User has authorization to access schedule reporting functionality
-- Schedule report is currently displayed for a specific project
-- User has access to backend system or test tools to modify schedule data
-- Real-time update mechanism is enabled in the system
+- User is logged in as Project Manager with valid credentials
+- Schedule report is generated and displayed for a specific project
+- User has access to backend system or test data modification interface
+- Real-time update mechanism is enabled and functional
+- WebSocket or polling mechanism is active for live updates
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Navigate to Schedule Reporting section and generate a report for a specific project with current date range | Report is displayed showing current schedule data including activities, timelines, and resource assignments for the selected project |
-| 2 | Note the current values displayed in the report (e.g., activity dates, resource names, timeline milestones) | Current schedule data is clearly visible and documented for comparison |
-| 3 | Using backend access or test tools, update schedule data for the displayed project (e.g., change an activity date, modify resource assignment, or update timeline) | Backend schedule data is successfully updated and saved in the schedule database |
-| 4 | Return to the displayed report UI and observe for automatic updates without manual refresh | Report UI automatically detects the backend change and displays an update indicator or notification |
-| 5 | Wait up to 10 seconds and monitor the report display | Report UI updates automatically within 10 seconds showing the modified schedule data without requiring manual page refresh |
-| 6 | Verify the updated data is accurately reflected in the report by comparing with the backend changes made | Report shows the latest schedule information matching exactly with the backend updates (updated activity dates, modified resource assignments, or changed timelines) |
-| 7 | Verify that only the changed data is updated while other report elements remain unchanged | Only the modified schedule elements are updated in the report; all other data remains consistent and unchanged |
+| 1 | Open schedule report for a specific project with current schedule data visible | Report is displayed showing current schedule information including activities, timelines, and resource assignments |
+| 2 | Note the current values displayed in the report (e.g., activity dates, resource names, timeline milestones) | Current report data is documented for comparison after update |
+| 3 | Update schedule data in backend system (e.g., modify activity date, change resource assignment, or update timeline) | Backend data is successfully updated and saved in the schedule database |
+| 4 | Monitor the report UI without refreshing the page | Report UI updates automatically within 10 seconds showing a visual indicator of data refresh |
+| 5 | Verify updated data is reflected in the report by comparing with the noted original values | Report shows latest schedule information with all modified fields displaying the new values accurately |
+| 6 | Verify timestamp or last updated indicator shows recent update time | Report displays current timestamp indicating the real-time update occurred |
 
 **Postconditions:**
-- Report displays the most current schedule information
-- Real-time update mechanism is functioning correctly
-- Updated data matches backend schedule database
-- No data inconsistencies or display errors are present
-- System logs show successful real-time synchronization
+- Schedule report displays the most current data from the database
+- Real-time update mechanism is confirmed functional
+- Updated data is accurately reflected in the report
+- System maintains connection for future real-time updates
+- Update activity is logged in the system
 
 ---
 
@@ -111,30 +107,28 @@
 - **Estimated Time:** 5 mins
 
 **Preconditions:**
-- User is logged in as a Project Manager with valid credentials
+- User is logged in as Project Manager with valid credentials
 - User has authorization to access schedule reporting functionality
-- Schedule database contains data for multiple teams with assigned activities
-- At least one team has schedule data available for reporting
+- Schedule database contains data for multiple teams
+- At least one team has associated schedule data available
 - Team filter dropdown is populated with valid team options
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Navigate to Schedule Reporting section from the main dashboard | Schedule report UI is displayed with all available filter options including team filter dropdown |
-| 2 | Click on the team filter dropdown to view available teams | Team filter dropdown expands and displays a list of all available teams with their names |
-| 3 | Select a valid team from the filter dropdown (e.g., 'Development Team A') | Team filter displays the selected team name, dropdown closes, and the filter is visually indicated as applied |
-| 4 | Click the 'Generate Report' button to create the filtered report | System processes the request with team filter applied and displays a loading indicator |
-| 5 | Wait for report generation to complete (within 5 seconds) | Report is generated and displayed showing schedule data exclusively for the selected team |
-| 6 | Verify that all activities and schedules displayed belong only to the selected team | Report displays schedule data only for the selected team with no activities from other teams visible |
-| 7 | Check that resource assignments shown in the report are members of the selected team | All resource assignments and team members listed in the report belong to the selected team |
-| 8 | Verify the report header or filter summary indicates the team filter is active | Report header or filter summary section clearly shows that the report is filtered by the selected team name |
+| 1 | Navigate to Schedule Reporting section from the main dashboard | Schedule report UI is displayed with all filter options including team filter dropdown |
+| 2 | Click on the team filter dropdown to view available teams | Dropdown expands showing a list of valid teams with team names and identifiers |
+| 3 | Select a valid team from the filter dropdown (e.g., 'Development Team A') | Team filter is applied and displays the selected team name in the filter field |
+| 4 | Click the 'Generate Report' button to generate the filtered report | Report is generated within 5 seconds and displays schedule data only for the selected team |
+| 5 | Verify all displayed activities, resources, and timelines belong to the selected team | Report contains only schedule entries associated with the selected team, with no data from other teams visible |
+| 6 | Check report header or filter summary section | Report clearly indicates the team filter is active and shows the selected team name |
 
 **Postconditions:**
 - Schedule report displays only team-specific data
 - Team filter remains applied and visible
-- Report is ready for export or further filtering
-- No data from other teams is visible in the report
-- System logs successful team-filtered report generation
+- Report is ready for export if needed
+- Filter selection is logged in the system
+- User remains on the schedule reporting page
 
 ---
 
@@ -145,29 +139,67 @@
 - **Estimated Time:** 6 mins
 
 **Preconditions:**
-- User is logged in as a Project Manager with valid credentials
-- User has authorization to access schedule reporting functionality
-- Schedule reporting UI is accessible
-- Team filter accepts manual input or can be manipulated to test invalid values
+- User is logged in as Project Manager with valid credentials
+- User has access to schedule reporting functionality
+- Schedule reporting page is loaded and accessible
+- Team filter field accepts manual input or can be manipulated
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Navigate to Schedule Reporting section from the main dashboard | Schedule report UI is displayed with team filter input field or dropdown |
-| 2 | Enter an invalid team identifier in the team filter field (e.g., 'INVALID_TEAM_999', special characters, or non-existent team ID) | Invalid team identifier is entered in the filter field |
-| 3 | Tab out of the field or trigger validation by clicking elsewhere | System displays a validation error message such as 'Invalid team selected' or 'Please select a valid team from the list' near the team filter field |
-| 4 | Verify the error message is clearly visible and describes the validation issue | Error message is displayed in red or highlighted color, clearly indicating that the team filter input is invalid |
-| 5 | Attempt to click the 'Generate Report' button with the invalid team filter | Report generation is blocked and the 'Generate Report' button is either disabled or clicking it triggers a validation error message |
-| 6 | Verify that no report is generated with invalid team filter | No report is displayed, and the system prevents report generation until valid input is provided |
-| 7 | Clear the invalid team filter input and select a valid team from the dropdown | Validation error message disappears, valid team is selected, and the 'Generate Report' button becomes enabled |
-| 8 | Click 'Generate Report' with the valid team filter | Report is successfully generated and displayed with data for the valid team selected |
+| 1 | Navigate to Schedule Reporting section | Schedule report UI is displayed with team filter field available |
+| 2 | Enter an invalid team identifier in the team filter field (e.g., 'INVALID_TEAM_999' or special characters like '@#$%') | System displays a validation error message such as 'Invalid team selection. Please select a valid team from the list.' |
+| 3 | Verify the error message is clearly visible and user-friendly | Error message is displayed in red text near the team filter field with clear instructions |
+| 4 | Attempt to click the 'Generate Report' button with invalid team filter | Report generation is blocked and system prevents submission, displaying message 'Please correct the errors before generating the report.' |
+| 5 | Clear the invalid input and select a valid team from the dropdown | Validation error disappears and team filter accepts the valid selection |
+| 6 | Click 'Generate Report' button with valid team filter | Report is successfully generated with the valid team filter applied |
 
 **Postconditions:**
-- Invalid team filter input is rejected by the system
-- Validation error messages are cleared after valid input is provided
-- Report generation only proceeds with valid team filter
-- System maintains data integrity by preventing invalid queries
-- Error handling is logged appropriately in the system
+- Invalid team input is rejected by the system
+- Validation error message is displayed to the user
+- Report generation is prevented until valid input is provided
+- System maintains data integrity by blocking invalid filters
+- Error handling is logged for monitoring purposes
+
+---
+
+## Story: As Project Manager, I want to export schedule reports in Excel format to achieve flexible data analysis
+**Story ID:** story-9
+
+### Test Case: Export schedule report to Excel
+- **ID:** tc-001
+- **Type:** happy-path
+- **Priority:** High
+- **Estimated Time:** 8 mins
+
+**Preconditions:**
+- User is logged in with Project Manager role
+- User has authorization to export schedule reports
+- Schedule data exists in the system
+- Browser supports file downloads
+- Network connection is stable
+
+**Steps:**
+| Step | Action | Expected Result |
+|------|--------|------------------|
+| 1 | Navigate to the schedule reports section | Schedule reports page is displayed with available report options |
+| 2 | Select the desired schedule parameters (date range, project, resources) | Schedule parameters are selected and highlighted in the interface |
+| 3 | Click the 'Generate Report' button | Schedule report is generated and displayed on screen with all selected data including tasks, dates, resources, and dependencies |
+| 4 | Verify the report contains expected schedule data | Report displays accurate schedule information matching the selected parameters |
+| 5 | Click the 'Export to Excel' button | Export process initiates and Excel file download begins within 5 seconds |
+| 6 | Wait for the download to complete | Excel file is successfully downloaded to the default downloads folder with naming convention 'ScheduleReport_YYYY-MM-DD.xlsx' |
+| 7 | Navigate to the downloads folder and locate the exported Excel file | Excel file is present in the downloads folder with correct filename and non-zero file size |
+| 8 | Open the Excel file using Microsoft Excel or compatible spreadsheet application | Excel file opens without errors or corruption warnings |
+| 9 | Verify the Excel file contains all schedule data from the generated report | All tasks, dates, resources, dependencies, and other schedule information are present and match the original report |
+| 10 | Verify data formatting is maintained (dates, numbers, text alignment, headers) | Data is properly formatted with correct date formats, numerical values, column headers are bold, and cells are appropriately aligned |
+| 11 | Verify data integrity by comparing sample data points between the web report and Excel file | All compared data points match exactly between the web report and Excel export with no data loss or corruption |
+
+**Postconditions:**
+- Excel file remains in downloads folder
+- Original schedule report remains displayed in the browser
+- User session remains active
+- Export action is logged in system audit trail
+- No data is modified in the source system
 
 ---
 
