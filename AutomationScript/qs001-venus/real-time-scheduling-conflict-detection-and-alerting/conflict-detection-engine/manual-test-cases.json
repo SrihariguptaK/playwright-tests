@@ -1,0 +1,631 @@
+[
+  {
+    "storyId": "story-11",
+    "storyTitle": "As Scheduler, I want to detect overlapping appointments in real-time to prevent double-booking",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate detection of overlapping appointments",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "User has permissions to create and modify appointments",
+          "Appointment database is accessible and operational",
+          "No existing appointments in the test time slot",
+          "Real-time conflict detection service is running"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the appointment creation page",
+            "expectedResult": "Appointment creation form is displayed with all required fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter appointment details: Date: Today's date, Start time: 10:00 AM, End time: 11:00 AM, Resource: Conference Room A, Client: Test Client 1",
+            "expectedResult": "All appointment details are populated in the form fields"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Save' button to create the appointment",
+            "expectedResult": "Appointment is saved successfully, confirmation message is displayed, and appointment appears in the schedule"
+          },
+          {
+            "step": 4,
+            "action": "Navigate to create a new appointment",
+            "expectedResult": "New appointment creation form is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Enter overlapping appointment details: Date: Today's date, Start time: 10:30 AM, End time: 11:30 AM, Resource: Conference Room A, Client: Test Client 2",
+            "expectedResult": "Appointment details are entered in the form"
+          },
+          {
+            "step": 6,
+            "action": "Click 'Save' button or tab out of the time field to trigger validation",
+            "expectedResult": "System detects conflict within 1 second and displays conflict warning message showing the overlapping appointment details (10:00 AM - 11:00 AM with Test Client 1)"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to save the overlapping appointment without providing override justification",
+            "expectedResult": "System prevents saving the appointment and displays conflict error message: 'Cannot save appointment due to conflict with existing appointment. Override required.'"
+          },
+          {
+            "step": 8,
+            "action": "Verify the conflicting appointment details are displayed including: original appointment time, resource, and client information",
+            "expectedResult": "Conflict details clearly show: Appointment 1 (10:00 AM - 11:00 AM, Conference Room A, Test Client 1) conflicts with new appointment (10:30 AM - 11:30 AM, Conference Room A, Test Client 2)"
+          }
+        ],
+        "postconditions": [
+          "Only the first appointment (10:00 AM - 11:00 AM) exists in the system",
+          "Overlapping appointment is not saved",
+          "Conflict detection log entry is created",
+          "No double-booking exists in the schedule"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify configurable conflict detection rules",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Admin or Scheduler role",
+          "User has permissions to configure conflict detection rules",
+          "Conflict rules configuration interface is accessible",
+          "At least one default conflict rule exists in the system",
+          "Test appointment types are defined in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to Settings > Conflict Detection Rules configuration page",
+            "expectedResult": "Conflict detection rules configuration page is displayed showing existing rules"
+          },
+          {
+            "step": 2,
+            "action": "Click 'Add New Rule' button",
+            "expectedResult": "New rule creation form is displayed with fields for rule name, appointment type, overlap threshold, and priority"
+          },
+          {
+            "step": 3,
+            "action": "Configure a new conflict rule: Rule Name: 'VIP Client Rule', Appointment Type: 'VIP Consultation', Overlap Allowed: 0 minutes, Priority: High, Status: Active",
+            "expectedResult": "Rule details are entered in all fields"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Save Rule' button",
+            "expectedResult": "Rule is saved successfully, confirmation message is displayed, and 'VIP Client Rule' appears in the active rules list"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to appointment creation page",
+            "expectedResult": "Appointment creation form is displayed"
+          },
+          {
+            "step": 6,
+            "action": "Create first appointment: Type: 'VIP Consultation', Date: Tomorrow, Time: 2:00 PM - 3:00 PM, Resource: Room 1",
+            "expectedResult": "VIP appointment is created successfully"
+          },
+          {
+            "step": 7,
+            "action": "Create second appointment: Type: 'VIP Consultation', Date: Tomorrow, Time: 2:30 PM - 3:30 PM, Resource: Room 1",
+            "expectedResult": "System applies 'VIP Client Rule' and immediately detects conflict, displaying error message that no overlap is allowed for VIP consultations"
+          },
+          {
+            "step": 8,
+            "action": "Navigate back to Conflict Detection Rules configuration",
+            "expectedResult": "Rules configuration page is displayed"
+          },
+          {
+            "step": 9,
+            "action": "Modify 'VIP Client Rule': Change Overlap Allowed from 0 minutes to 15 minutes, click 'Save'",
+            "expectedResult": "Rule modification is saved successfully with confirmation message"
+          },
+          {
+            "step": 10,
+            "action": "Return to appointment creation and attempt to create the same overlapping appointment: Type: 'VIP Consultation', Date: Tomorrow, Time: 2:30 PM - 3:30 PM, Resource: Room 1",
+            "expectedResult": "System applies updated rule and still flags conflict because overlap (30 minutes) exceeds the allowed threshold (15 minutes)"
+          },
+          {
+            "step": 11,
+            "action": "Create a different overlapping appointment: Type: 'VIP Consultation', Date: Tomorrow, Time: 2:50 PM - 3:50 PM, Resource: Room 1",
+            "expectedResult": "System applies updated rule and allows the appointment because overlap (10 minutes) is within the allowed threshold (15 minutes)"
+          }
+        ],
+        "postconditions": [
+          "Modified conflict detection rule is active and applied",
+          "Appointments created according to rule thresholds are saved",
+          "Appointments violating rule thresholds are blocked",
+          "Rule change is logged in audit trail"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure conflict detection latency is under 1 second",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "Performance monitoring tools are available and configured",
+          "System is running under normal load conditions",
+          "Network latency is within acceptable range (<100ms)",
+          "Test appointments and resources are prepared",
+          "Browser developer tools or performance monitoring enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open browser developer tools and navigate to Network tab to monitor API response times",
+            "expectedResult": "Developer tools are open and ready to capture network activity"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to appointment creation page and create a baseline appointment: Date: Today, Time: 3:00 PM - 4:00 PM, Resource: Room A",
+            "expectedResult": "Appointment is created successfully"
+          },
+          {
+            "step": 3,
+            "action": "Start timer and create a conflicting appointment: Date: Today, Time: 3:30 PM - 4:30 PM, Resource: Room A",
+            "expectedResult": "Conflict detection is triggered"
+          },
+          {
+            "step": 4,
+            "action": "Measure the time from clicking 'Save' or tabbing out of time field until conflict warning appears on screen",
+            "expectedResult": "Conflict is detected and displayed within 1 second (≤1000ms), verified by timestamp in developer tools and visual observation"
+          },
+          {
+            "step": 5,
+            "action": "Check the Network tab for the conflict detection API call response time",
+            "expectedResult": "API response time for POST /api/appointments or conflict validation endpoint is under 1 second"
+          },
+          {
+            "step": 6,
+            "action": "Update an existing appointment to create a conflict: Change the 3:00 PM appointment end time to 5:00 PM, creating overlap with another appointment at 4:30 PM",
+            "expectedResult": "System detects conflict during update operation within 1 second"
+          },
+          {
+            "step": 7,
+            "action": "Verify update conflict detection latency in Network tab",
+            "expectedResult": "PUT /api/appointments/{id} response time shows conflict detection completed in under 1 second"
+          },
+          {
+            "step": 8,
+            "action": "Prepare to simulate high load: Open 5 browser tabs/windows with appointment creation forms",
+            "expectedResult": "Multiple appointment creation interfaces are ready"
+          },
+          {
+            "step": 9,
+            "action": "Simultaneously create 5 appointments with overlapping times across all tabs within a 10-second window: Tab 1: 5:00-6:00 PM, Tab 2: 5:15-6:15 PM, Tab 3: 5:30-6:30 PM, Tab 4: 5:45-6:45 PM, Tab 5: 5:50-6:50 PM, all for Resource: Room B",
+            "expectedResult": "All conflict detections are triggered"
+          },
+          {
+            "step": 10,
+            "action": "Monitor and record the conflict detection response time for each concurrent appointment creation",
+            "expectedResult": "Each conflict detection completes within 1 second despite concurrent load, system maintains SLA requirements with latency ≤1000ms for all 5 operations"
+          },
+          {
+            "step": 11,
+            "action": "Review performance monitoring logs or metrics dashboard for conflict detection latency statistics",
+            "expectedResult": "Average, median, and 95th percentile latency metrics all show values under 1 second for the test period"
+          }
+        ],
+        "postconditions": [
+          "All conflict detection operations completed within 1 second SLA",
+          "Performance metrics are logged and available for review",
+          "System maintained performance under concurrent load",
+          "No appointments with conflicts were saved",
+          "Performance test results are documented"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-14",
+    "storyTitle": "As Scheduler, I want the system to support configurable conflict detection rules to adapt to different scheduling scenarios",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate creation and modification of conflict detection rules",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Admin role",
+          "User has permissions to manage conflict detection rules",
+          "Conflict rule configuration UI is accessible",
+          "Database connection is active",
+          "At least one existing conflict rule is present for reference"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to Settings > Conflict Detection Rules or Administration > Rule Management",
+            "expectedResult": "Conflict rule configuration UI is displayed showing a list of existing rules with columns for rule name, type, status, and actions"
+          },
+          {
+            "step": 2,
+            "action": "Review the existing rules displayed in the list",
+            "expectedResult": "All existing conflict detection rules are visible with their current configurations including rule names, appointment types, overlap thresholds, and active/inactive status"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Create New Rule' or 'Add Rule' button",
+            "expectedResult": "New rule creation form is displayed with empty fields for: Rule Name, Description, Appointment Type, Overlap Threshold (minutes), Priority Level, Exception Cases, and Active Status toggle"
+          },
+          {
+            "step": 4,
+            "action": "Enter new rule details: Rule Name: 'Standard Consultation Rule', Description: 'Default rule for standard consultations', Appointment Type: 'Standard Consultation', Overlap Threshold: 0 minutes, Priority: Medium, Active: Yes",
+            "expectedResult": "All fields are populated with the entered values"
+          },
+          {
+            "step": 5,
+            "action": "Click 'Save' button",
+            "expectedResult": "Rule is saved successfully, success confirmation message is displayed ('Rule created successfully'), and the page returns to the rules list view"
+          },
+          {
+            "step": 6,
+            "action": "Verify the new rule 'Standard Consultation Rule' appears in the rules list",
+            "expectedResult": "New rule is visible in the list with all configured details displayed correctly: Name, Type, Overlap: 0 min, Priority: Medium, Status: Active"
+          },
+          {
+            "step": 7,
+            "action": "Locate an existing rule in the list and click 'Edit' or the rule name to modify it",
+            "expectedResult": "Rule modification form is displayed with all current values pre-populated in the fields"
+          },
+          {
+            "step": 8,
+            "action": "Modify the rule: Change Overlap Threshold from current value to 10 minutes, Update Description to include 'Updated on [current date]'",
+            "expectedResult": "Modified values are reflected in the form fields"
+          },
+          {
+            "step": 9,
+            "action": "Click 'Save Changes' button",
+            "expectedResult": "Changes are saved successfully, confirmation message is displayed ('Rule updated successfully'), and the updated rule shows the new values in the rules list"
+          },
+          {
+            "step": 10,
+            "action": "Verify the modified rule displays updated information in the rules list",
+            "expectedResult": "Rule shows updated Overlap Threshold (10 minutes) and updated description, modification timestamp is updated"
+          },
+          {
+            "step": 11,
+            "action": "Navigate away from the rules page and return to verify persistence",
+            "expectedResult": "All created and modified rules persist with their saved configurations intact"
+          }
+        ],
+        "postconditions": [
+          "New conflict detection rule is created and active in the system",
+          "Modified rule changes are persisted in the database",
+          "All rule changes are logged in the audit trail",
+          "Rules are immediately available for conflict detection operations"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify rule validation and error handling",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Admin role",
+          "User has permissions to create and modify conflict rules",
+          "Conflict rule configuration UI is accessible",
+          "System validation rules are active and configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to Settings > Conflict Detection Rules configuration page",
+            "expectedResult": "Conflict rule configuration UI is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Click 'Create New Rule' button",
+            "expectedResult": "New rule creation form is displayed with empty fields"
+          },
+          {
+            "step": 3,
+            "action": "Enter invalid rule syntax in the Overlap Threshold field: Enter text 'invalid' instead of a numeric value",
+            "expectedResult": "Field accepts the input temporarily"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Save' button to attempt saving the rule with invalid syntax",
+            "expectedResult": "System displays validation error message: 'Overlap Threshold must be a numeric value' or 'Invalid input format', error is highlighted on the Overlap Threshold field, and rule is not saved"
+          },
+          {
+            "step": 5,
+            "action": "Clear the Overlap Threshold field and leave Rule Name field empty, then click 'Save'",
+            "expectedResult": "System displays validation error: 'Rule Name is required' and prevents saving"
+          },
+          {
+            "step": 6,
+            "action": "Enter a negative number in Overlap Threshold field: -5",
+            "expectedResult": "System displays validation error: 'Overlap Threshold must be a positive number or zero' and prevents saving"
+          },
+          {
+            "step": 7,
+            "action": "Enter an excessively large number in Overlap Threshold field: 999999",
+            "expectedResult": "System displays validation error: 'Overlap Threshold exceeds maximum allowed value' or accepts if within business logic limits"
+          },
+          {
+            "step": 8,
+            "action": "Correct all validation errors: Rule Name: 'Test Valid Rule', Overlap Threshold: 15 (valid numeric value), Appointment Type: Select from dropdown, Priority: Medium",
+            "expectedResult": "All fields contain valid values, no validation errors are displayed"
+          },
+          {
+            "step": 9,
+            "action": "Click 'Save' button",
+            "expectedResult": "Rule is accepted and saved successfully, confirmation message is displayed: 'Rule created successfully', and rule appears in the rules list"
+          },
+          {
+            "step": 10,
+            "action": "Attempt to create a duplicate rule with the same Rule Name: 'Test Valid Rule'",
+            "expectedResult": "System displays validation error: 'A rule with this name already exists' and prevents saving the duplicate"
+          },
+          {
+            "step": 11,
+            "action": "Verify that the rules list shows only the valid saved rule without any invalid entries",
+            "expectedResult": "Only valid, successfully saved rules are displayed in the list, no invalid rules were persisted"
+          }
+        ],
+        "postconditions": [
+          "Only valid rules are saved in the system",
+          "Invalid rule attempts are rejected and logged",
+          "No corrupt or invalid data exists in the rules database",
+          "User receives clear feedback on validation errors"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure dynamic application of rules during conflict detection",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Admin or Scheduler role",
+          "User has permissions to configure rules and create appointments",
+          "Conflict detection service is running and operational",
+          "No existing appointments in the test time slots",
+          "At least one configurable rule exists or can be created"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to Settings > Conflict Detection Rules configuration",
+            "expectedResult": "Conflict rules configuration page is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Create a new rule allowing specific overlap: Rule Name: 'Flexible Meeting Rule', Appointment Type: 'Team Meeting', Overlap Allowed: 20 minutes, Priority: Low, Status: Active",
+            "expectedResult": "Rule is created and saved successfully"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Save' and verify the rule status shows as 'Active'",
+            "expectedResult": "Rule is active and displayed in the active rules list with status indicator showing 'Active' or green checkmark"
+          },
+          {
+            "step": 4,
+            "action": "Navigate to appointment creation page",
+            "expectedResult": "Appointment creation form is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Create first appointment: Type: 'Team Meeting', Date: Tomorrow, Start Time: 10:00 AM, End Time: 11:00 AM, Resource: Conference Room C",
+            "expectedResult": "Appointment is created successfully and appears in the schedule"
+          },
+          {
+            "step": 6,
+            "action": "Create second overlapping appointment within allowed threshold: Type: 'Team Meeting', Date: Tomorrow, Start Time: 10:45 AM (15 minutes overlap), End Time: 11:45 AM, Resource: Conference Room C",
+            "expectedResult": "System applies 'Flexible Meeting Rule', calculates overlap as 15 minutes, determines it is within the 20-minute threshold, and does NOT flag a conflict"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Save' on the second appointment",
+            "expectedResult": "Appointment is saved successfully without conflict warning, confirmation message is displayed, and both appointments appear in the schedule"
+          },
+          {
+            "step": 8,
+            "action": "Create third overlapping appointment exceeding allowed threshold: Type: 'Team Meeting', Date: Tomorrow, Start Time: 10:30 AM (30 minutes overlap), End Time: 11:30 AM, Resource: Conference Room C",
+            "expectedResult": "System applies 'Flexible Meeting Rule', calculates overlap as 30 minutes, determines it exceeds the 20-minute threshold"
+          },
+          {
+            "step": 9,
+            "action": "Observe system response when attempting to save the third appointment",
+            "expectedResult": "System flags a conflict, displays error message: 'Appointment overlap (30 minutes) exceeds allowed threshold (20 minutes) for Team Meeting type', and prevents saving without override"
+          },
+          {
+            "step": 10,
+            "action": "Verify conflict details show: Conflicting appointment time, overlap duration (30 minutes), allowed threshold (20 minutes), and rule name applied",
+            "expectedResult": "All conflict details are clearly displayed including which rule was applied and why the conflict was flagged"
+          },
+          {
+            "step": 11,
+            "action": "Cancel the third appointment creation and verify only the two valid appointments exist in the schedule",
+            "expectedResult": "Schedule shows only the first appointment (10:00-11:00 AM) and second appointment (10:45-11:45 AM), third conflicting appointment was not saved"
+          }
+        ],
+        "postconditions": [
+          "Configured rule is actively applied during conflict detection",
+          "Appointments within overlap threshold are successfully saved",
+          "Appointments exceeding overlap threshold are blocked",
+          "Rule application is logged for audit purposes",
+          "Schedule integrity is maintained according to configured rules"
+        ],
+        "estimatedTime": "14 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-16",
+    "storyTitle": "As Scheduler, I want the system to handle concurrent scheduling updates without missing conflicts to maintain data integrity",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate conflict detection under concurrent schedule updates",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Scheduling system is operational and accessible",
+          "Multiple test user accounts with scheduler role are created and authenticated",
+          "Scheduling database has concurrency controls enabled",
+          "Test appointments with overlapping time slots are prepared",
+          "System logging is enabled and configured",
+          "API endpoint PUT /api/appointments/{id} is available",
+          "Network connectivity is stable for all test users"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Set up 5 concurrent user sessions with valid authentication tokens",
+            "expectedResult": "All 5 user sessions are authenticated and ready to perform schedule updates"
+          },
+          {
+            "step": 2,
+            "action": "Prepare overlapping appointment data: User1 schedules Room A from 10:00-11:00, User2 schedules Room A from 10:30-11:30, User3 schedules Room A from 10:15-11:15",
+            "expectedResult": "Test data is prepared with intentional time and resource conflicts"
+          },
+          {
+            "step": 3,
+            "action": "Simultaneously trigger PUT /api/appointments/{id} requests from all 5 users within a 100ms window",
+            "expectedResult": "System receives all concurrent update requests without connection errors or timeouts"
+          },
+          {
+            "step": 4,
+            "action": "Monitor API responses for each concurrent request",
+            "expectedResult": "System processes all updates and returns appropriate HTTP status codes (200 for success, 409 for conflicts) without errors or crashes"
+          },
+          {
+            "step": 5,
+            "action": "Query the scheduling database to retrieve all appointments created in the test window",
+            "expectedResult": "All valid appointments are saved correctly, conflicting appointments are flagged with conflict status"
+          },
+          {
+            "step": 6,
+            "action": "Verify conflict detection results by checking each overlapping appointment for conflict flags",
+            "expectedResult": "All 3 overlapping Room A appointments are detected and flagged as conflicts with no false negatives"
+          },
+          {
+            "step": 7,
+            "action": "Check conflict alert queue or notification system for generated alerts",
+            "expectedResult": "Conflict alerts are generated for all detected conflicts (minimum 2 conflicts for the 3 overlapping appointments)"
+          },
+          {
+            "step": 8,
+            "action": "Access system logs and filter for concurrency events during the test execution window",
+            "expectedResult": "System logs contain entries for all 5 concurrent update requests with timestamps, user IDs, and appointment IDs"
+          },
+          {
+            "step": 9,
+            "action": "Verify log entries include conflict detection events with details of conflicting appointments",
+            "expectedResult": "All conflict events are logged accurately with conflict type, affected appointments, and detection timestamp"
+          },
+          {
+            "step": 10,
+            "action": "Validate data integrity by checking for duplicate appointments or missing records",
+            "expectedResult": "No data corruption detected, all appointments are uniquely identified, no records are lost or duplicated"
+          }
+        ],
+        "postconditions": [
+          "All concurrent updates are processed and recorded in the database",
+          "Conflict flags are accurately set for overlapping appointments",
+          "System logs contain complete audit trail of concurrent operations",
+          "No data corruption or inconsistencies exist in the scheduling database",
+          "Conflict alerts are queued for user notification",
+          "System remains stable and operational for subsequent operations"
+        ],
+        "estimatedTime": "15 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Ensure system performance under concurrent load",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "Scheduling system is operational with performance monitoring enabled",
+          "Load testing tools are configured and ready (e.g., JMeter, LoadRunner)",
+          "Performance baseline metrics are established",
+          "System resource monitoring tools are active (CPU, memory, database connections)",
+          "Test dataset with 1000+ appointments is loaded in the database",
+          "Network bandwidth is sufficient for high-volume concurrent requests",
+          "Performance SLA threshold is defined: conflict detection latency < 1 second"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Configure load testing tool to simulate 100 concurrent users performing schedule updates",
+            "expectedResult": "Load testing tool is configured with 100 virtual users, each with valid authentication credentials"
+          },
+          {
+            "step": 2,
+            "action": "Prepare test data with 500 appointment update requests including 50 intentional conflicts",
+            "expectedResult": "Test dataset is loaded with varied appointment times, resources, and conflict scenarios"
+          },
+          {
+            "step": 3,
+            "action": "Start system resource monitoring for CPU usage, memory consumption, database connections, and network I/O",
+            "expectedResult": "Monitoring dashboards display real-time metrics with baseline values recorded"
+          },
+          {
+            "step": 4,
+            "action": "Initiate load test to generate high volume of concurrent schedule updates over a 5-minute duration",
+            "expectedResult": "Load test executes successfully, generating 500 PUT /api/appointments/{id} requests from 100 concurrent users"
+          },
+          {
+            "step": 5,
+            "action": "Monitor API response times for each request during the load test",
+            "expectedResult": "System responds to all requests with response times recorded for analysis"
+          },
+          {
+            "step": 6,
+            "action": "Measure conflict detection latency by calculating time between request receipt and conflict flag creation",
+            "expectedResult": "Conflict detection latency is measured for all 50 conflict scenarios"
+          },
+          {
+            "step": 7,
+            "action": "Verify that 95th percentile conflict detection latency is under 1 second",
+            "expectedResult": "95% of conflict detections complete within 1 second, meeting performance SLA"
+          },
+          {
+            "step": 8,
+            "action": "Analyze CPU usage metrics during peak concurrent load",
+            "expectedResult": "CPU usage remains below 80% threshold, indicating sufficient processing capacity"
+          },
+          {
+            "step": 9,
+            "action": "Review memory consumption patterns throughout the load test",
+            "expectedResult": "Memory usage stays within acceptable limits (below 85%), no memory leaks detected"
+          },
+          {
+            "step": 10,
+            "action": "Check database connection pool utilization and query performance",
+            "expectedResult": "Database connections are managed efficiently, no connection pool exhaustion, query execution times remain optimal"
+          },
+          {
+            "step": 11,
+            "action": "Verify system throughput by calculating successful transactions per second",
+            "expectedResult": "System maintains minimum throughput of 10 transactions per second under concurrent load"
+          },
+          {
+            "step": 12,
+            "action": "Review error logs for any failures, timeouts, or exceptions during load test",
+            "expectedResult": "Error rate is below 1%, no critical errors or system crashes occurred"
+          }
+        ],
+        "postconditions": [
+          "System maintains conflict detection latency under 1 second for 95% of requests",
+          "All system resources operate within defined performance thresholds",
+          "No performance degradation or system instability after load test completion",
+          "Performance metrics are documented for baseline comparison",
+          "System successfully processes high volume of concurrent updates without data loss",
+          "Database integrity is maintained with no corruption or inconsistencies"
+        ],
+        "estimatedTime": "25 mins"
+      }
+    ]
+  }
+]
