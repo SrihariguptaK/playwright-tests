@@ -1,0 +1,348 @@
+[
+  {
+    "storyId": "story-10",
+    "storyTitle": "As Approver, I want to review and approve schedule change requests to ensure authorized modifications",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate approver can view and approve schedule change request",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has valid approver role and credentials",
+          "At least one pending schedule change request exists in the system",
+          "Schedule change request contains all required details and attachments",
+          "System is accessible and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the system login page and enter valid approver credentials",
+            "expectedResult": "User is successfully authenticated and redirected to the dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the approval queue section from the main menu",
+            "expectedResult": "List of pending schedule change requests is displayed with request ID, requester name, submission date, and status"
+          },
+          {
+            "step": 3,
+            "action": "Select a specific schedule change request from the list by clicking on it",
+            "expectedResult": "Request details page opens showing all relevant information including requester details, requested changes, justification, affected schedules, and any attached documents"
+          },
+          {
+            "step": 4,
+            "action": "Review all details and attachments displayed on the request details page",
+            "expectedResult": "All information is clearly visible, readable, and attachments are accessible for download or preview"
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Approve' button and enter comments in the comments field (e.g., 'Approved - request meets all requirements')",
+            "expectedResult": "Comments field accepts text input and approve button remains enabled"
+          },
+          {
+            "step": 6,
+            "action": "Click the 'Submit Decision' button to finalize the approval",
+            "expectedResult": "Success confirmation message is displayed, decision is recorded with timestamp and approver identity, and request status updates to 'Approved'"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request status is updated to 'Approved' in the database",
+          "Approval decision is logged in ApprovalDecisions table with timestamp and approver ID",
+          "Requester receives notification of approval",
+          "Request is removed from pending approval queue",
+          "Audit trail contains complete record of the approval action"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify rejection with comments is recorded and notified",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with valid approver role",
+          "At least one pending schedule change request exists in the approval queue",
+          "Notification system is configured and operational",
+          "Requester has valid contact information in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the approval queue and select a schedule change request to reject",
+            "expectedResult": "Request details page opens displaying all relevant information including requester details, requested changes, and justification"
+          },
+          {
+            "step": 2,
+            "action": "Click the 'Reject' button on the request details page",
+            "expectedResult": "Rejection dialog or form appears with a mandatory comments field"
+          },
+          {
+            "step": 3,
+            "action": "Enter detailed rejection comments in the comments field (e.g., 'Request rejected - insufficient justification provided for schedule change')",
+            "expectedResult": "Comments field accepts the text input and character count is displayed if applicable"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Submit Decision' button to finalize the rejection",
+            "expectedResult": "Success confirmation message is displayed indicating rejection has been recorded"
+          },
+          {
+            "step": 5,
+            "action": "Verify the rejection is recorded by checking the audit trail or decision history",
+            "expectedResult": "Rejection decision appears in audit trail with timestamp, approver identity, and rejection comments"
+          },
+          {
+            "step": 6,
+            "action": "Verify notification was sent by checking notification logs or requester's notification inbox",
+            "expectedResult": "Notification is sent to requester containing rejection decision, approver comments, and timestamp"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request status is updated to 'Rejected' in ScheduleChangeRequests table",
+          "Rejection decision is logged in ApprovalDecisions table with complete details",
+          "Requester receives email and/or in-app notification of rejection",
+          "Request is removed from pending approval queue",
+          "Rejection comments are permanently stored and accessible in audit trail"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure unauthorized users cannot access approval actions",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Test user account exists without approver role assigned",
+          "Role-based access control is configured in the system",
+          "API endpoints for approval actions are protected",
+          "At least one pending schedule change request exists in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Login to the system using credentials of a user without approver role (e.g., regular employee or requester role)",
+            "expectedResult": "User is successfully authenticated and redirected to appropriate dashboard for their role"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to the approval queue section from the main menu or by direct URL",
+            "expectedResult": "Approval queue menu option is not visible or navigation is blocked with 'Access Denied' or '403 Forbidden' error message"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to access approval actions (approve, reject, request modifications) through the UI",
+            "expectedResult": "Approval action buttons are not displayed or are disabled, preventing any approval actions"
+          },
+          {
+            "step": 4,
+            "action": "Using API testing tool (e.g., Postman), attempt to directly call GET /api/approvals endpoint with the unauthorized user's authentication token",
+            "expectedResult": "API returns 403 Forbidden status code with error message indicating insufficient permissions"
+          },
+          {
+            "step": 5,
+            "action": "Using API testing tool, attempt to directly call POST /api/approvals/{id}/decision endpoint with a valid request ID and decision payload",
+            "expectedResult": "API returns 403 Forbidden status code with error message 'User does not have approver role' or similar authorization error"
+          },
+          {
+            "step": 6,
+            "action": "Verify that no approval decision was recorded in the system by checking the ApprovalDecisions table or audit logs",
+            "expectedResult": "No new approval decision entries exist for the unauthorized user, confirming access was properly denied"
+          }
+        ],
+        "postconditions": [
+          "No unauthorized approval actions were executed",
+          "System security logs record the unauthorized access attempts",
+          "Schedule change request status remains unchanged",
+          "No notifications were sent based on unauthorized actions",
+          "System integrity and role-based access control remain intact"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-12",
+    "storyTitle": "As Approver, I want to receive notifications for pending schedule change approvals to ensure timely processing",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate notification delivery for new pending approvals",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Approver user account exists with valid email address configured",
+          "Notification system is operational and configured",
+          "Email server is accessible and functioning",
+          "Approver has default notification preferences enabled",
+          "User has permissions to submit schedule change requests"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Login as a requester user and navigate to the schedule change request submission form",
+            "expectedResult": "Schedule change request form is displayed with all required fields"
+          },
+          {
+            "step": 2,
+            "action": "Fill in all required fields (schedule details, justification, affected dates) and select an approver from the approver dropdown",
+            "expectedResult": "Form accepts all input and approver is successfully selected"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Submit' button to submit the schedule change request",
+            "expectedResult": "Request is successfully submitted with confirmation message and request ID is generated"
+          },
+          {
+            "step": 4,
+            "action": "Wait up to 5 minutes and check the assigned approver's email inbox",
+            "expectedResult": "Email notification is received within 5 minutes containing request ID, requester name, summary of changes, and link to review the request"
+          },
+          {
+            "step": 5,
+            "action": "Login as the assigned approver and check the in-app notification center or dashboard",
+            "expectedResult": "In-app notification is displayed showing the new pending approval with request details and action buttons"
+          },
+          {
+            "step": 6,
+            "action": "Click on the notification link in either email or in-app notification",
+            "expectedResult": "User is redirected to the specific schedule change request details page with all information displayed and actionable approve/reject buttons available"
+          },
+          {
+            "step": 7,
+            "action": "Verify notification content includes all required information (request ID, requester, date submitted, summary)",
+            "expectedResult": "All notification content is accurate, complete, and matches the submitted request details"
+          }
+        ],
+        "postconditions": [
+          "Notification is logged in notification history with delivery timestamp",
+          "Email notification is successfully delivered to approver's inbox",
+          "In-app notification appears in approver's notification center",
+          "Notification links are functional and direct to correct request",
+          "Notification delivery time is recorded and within 5-minute SLA"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify escalation notification for overdue approvals",
+        "type": "edge-case",
+        "priority": "High",
+        "preconditions": [
+          "SLA threshold for approvals is configured in the system (e.g., 24 hours)",
+          "At least one schedule change request exists in pending status",
+          "Escalation notification rules are configured",
+          "Approver has valid email and notification preferences enabled",
+          "System time can be manipulated or test data with past submission dates exists"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Create or identify a schedule change request that has been pending beyond the configured SLA threshold (simulate by adjusting submission timestamp or waiting for actual SLA breach)",
+            "expectedResult": "Schedule change request exists with submission timestamp exceeding SLA threshold"
+          },
+          {
+            "step": 2,
+            "action": "Trigger the escalation notification job manually or wait for scheduled job execution",
+            "expectedResult": "Escalation notification process executes and identifies overdue approval requests"
+          },
+          {
+            "step": 3,
+            "action": "Check the approver's email inbox for escalation notification",
+            "expectedResult": "Escalation email is received with subject line indicating urgency (e.g., 'URGENT: Overdue Approval Required'), request details, time pending, and SLA breach information"
+          },
+          {
+            "step": 4,
+            "action": "Check the approver's in-app notification center for escalation alert",
+            "expectedResult": "Escalation notification appears with high priority indicator or different visual styling to distinguish from regular notifications"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to notification logs or admin panel to verify escalation notification was logged",
+            "expectedResult": "Notification log shows escalation notification entry with notification type 'Escalation', timestamp, recipient, and request ID"
+          },
+          {
+            "step": 6,
+            "action": "Verify the escalation notification contains accurate information about how long the request has been pending",
+            "expectedResult": "Notification displays correct pending duration (e.g., 'Pending for 26 hours - SLA: 24 hours') and emphasizes urgency"
+          }
+        ],
+        "postconditions": [
+          "Escalation notification is logged in NotificationSettings or notification history table",
+          "Escalation email is delivered to approver",
+          "Escalation alert is visible in approver's notification center",
+          "Notification log contains complete escalation notification record",
+          "Request remains in pending status awaiting approval action"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Test notification preference management",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "Approver user is logged into the system",
+          "Notification preferences UI is accessible to approvers",
+          "Default notification preferences are enabled (email and in-app)",
+          "At least one notification preference option is available (e.g., email, in-app, SMS)"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to user settings or profile section and locate notification preferences",
+            "expectedResult": "Notification preferences page is displayed showing current settings for different notification types"
+          },
+          {
+            "step": 2,
+            "action": "Review current notification preferences displayed (email, in-app, frequency settings)",
+            "expectedResult": "Current preferences are clearly displayed with toggle switches or checkboxes for each notification type"
+          },
+          {
+            "step": 3,
+            "action": "Disable email notifications by unchecking or toggling off the email notification option",
+            "expectedResult": "Email notification toggle changes to disabled state visually"
+          },
+          {
+            "step": 4,
+            "action": "Keep in-app notifications enabled and click 'Save' or 'Update Preferences' button",
+            "expectedResult": "Success message is displayed confirming 'Notification preferences updated successfully'"
+          },
+          {
+            "step": 5,
+            "action": "Verify preferences are saved by refreshing the page or logging out and back in, then checking notification preferences again",
+            "expectedResult": "Updated preferences persist showing email notifications disabled and in-app notifications enabled"
+          },
+          {
+            "step": 6,
+            "action": "Trigger a notification event by having another user submit a new schedule change request assigned to this approver",
+            "expectedResult": "New schedule change request is submitted successfully"
+          },
+          {
+            "step": 7,
+            "action": "Wait up to 5 minutes and check the approver's email inbox",
+            "expectedResult": "No email notification is received, respecting the disabled email preference"
+          },
+          {
+            "step": 8,
+            "action": "Check the approver's in-app notification center",
+            "expectedResult": "In-app notification is displayed for the new pending approval, confirming preferences are respected"
+          },
+          {
+            "step": 9,
+            "action": "Verify in notification logs that only in-app notification was sent",
+            "expectedResult": "Notification log shows in-app notification delivery but no email notification entry for this event"
+          }
+        ],
+        "postconditions": [
+          "Notification preferences are saved in NotificationSettings table",
+          "Updated preferences are applied to all future notifications",
+          "Only enabled notification channels deliver notifications",
+          "Preference changes are logged in audit trail",
+          "User can modify preferences again at any time"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  }
+]
