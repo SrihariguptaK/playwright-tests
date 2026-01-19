@@ -1,544 +1,454 @@
 # Manual Test Cases
 
-## Story: As Approver, I want to review schedule change requests to achieve informed decision-making
-**Story ID:** story-2
+## Story: As Approver, I want to review schedule change requests to achieve informed approval decisions
+**Story ID:** story-12
 
-### Test Case: Display pending schedule change requests to approver
+### Test Case: Approve schedule change request successfully
 - **ID:** tc-001
 - **Type:** happy-path
-- **Priority:** High
-- **Estimated Time:** 3 mins
-
-**Preconditions:**
-- User has valid approver credentials
-- At least one pending schedule change request exists in the system
-- User has appropriate role-based access permissions
-- Network connectivity is available
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | Approver logs into the system using valid credentials | Dashboard loads successfully within 3 seconds and displays the main navigation menu |
-| 2 | Navigate to approval dashboard by clicking on the approval dashboard menu option | List of pending schedule change requests is displayed showing request ID, requester name, submission date, and current status |
-| 3 | Select a request from the list to view details by clicking on the request row | Detailed information is displayed including requester details, requested changes, attachments, comments, and request history |
-
-**Postconditions:**
-- Approver remains logged in
-- Request details page is displayed
-- No changes are made to request status
-
----
-
-### Test Case: Approve a schedule change request
-- **ID:** tc-002
-- **Type:** happy-path
-- **Priority:** High
-- **Estimated Time:** 4 mins
-
-**Preconditions:**
-- User is logged in as an approver
-- At least one pending schedule change request exists
-- User has authorization to approve requests
-- Approver is on the approval dashboard
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | Select a pending schedule change request from the list by clicking on it | Request details are displayed showing all relevant information including requester name, requested changes, attachments, and current status as 'Pending' |
-| 2 | Click the 'Approve' button and add optional comments in the comments text field | Approve action is accepted, comments field is populated, and the submit button becomes enabled |
-| 3 | Click the 'Submit' button to confirm the approval decision | Request status is updated to 'Approved', decision is logged with timestamp and approver details, confirmation message is displayed, and notification is sent to the requester |
-
-**Postconditions:**
-- Request status is changed to 'Approved' in the database
-- Approval action is logged in ApprovalActions table with timestamp
-- Requester receives notification of approval
-- Request is removed from pending list on dashboard
-
----
-
-### Test Case: Reject a schedule change request with comments
-- **ID:** tc-003
-- **Type:** happy-path
-- **Priority:** High
-- **Estimated Time:** 4 mins
-
-**Preconditions:**
-- User is logged in as an approver
-- At least one pending schedule change request exists
-- User has authorization to reject requests
-- Approver is on the approval dashboard
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | Select a pending schedule change request from the list by clicking on it | Request details are displayed showing all relevant information including requester name, requested changes, attachments, and current status as 'Pending' |
-| 2 | Click the 'Reject' button and enter a rejection reason in the mandatory comments field | Reject action is accepted, rejection reason is entered in the comments field, and the submit button becomes enabled |
-| 3 | Click the 'Submit' button to confirm the rejection decision | Request status is updated to 'Rejected', decision is logged with timestamp and approver details, rejection reason is saved, confirmation message is displayed, and notification is sent to the requester |
-
-**Postconditions:**
-- Request status is changed to 'Rejected' in the database
-- Rejection action is logged in ApprovalActions table with timestamp and comments
-- Requester receives notification of rejection with reason
-- Request is removed from pending list on dashboard
-
----
-
-## Story: As Scheduler, I want to view the status of my schedule change requests to achieve transparency and timely updates
-**Story ID:** story-3
-
-### Test Case: Display schedule change requests and statuses for scheduler
-- **ID:** tc-004
-- **Type:** happy-path
-- **Priority:** High
-- **Estimated Time:** 3 mins
-
-**Preconditions:**
-- User has valid scheduler credentials
-- Scheduler has submitted at least one schedule change request
-- User has appropriate role-based access permissions
-- Network connectivity is available
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | Scheduler logs into the system using valid credentials | 'My Schedule Changes' page loads successfully within 3 seconds and displays the navigation menu |
-| 2 | View the list of submitted schedule change requests on the 'My Schedule Changes' page | All requests submitted by the logged-in scheduler are displayed with columns showing request ID, submission date, type, current status (Pending, Approved, Rejected, or Escalated), and last updated timestamp |
-| 3 | Select a specific request from the list by clicking on it to view detailed approval history | Detailed view is displayed showing complete approval history including all approval actions, approver names, decision timestamps, and any comments provided by approvers |
-
-**Postconditions:**
-- Scheduler remains logged in
-- Request details page is displayed
-- No changes are made to any request status
-- Only scheduler's own requests are visible
-
----
-
-### Test Case: Filter and sort schedule change requests
-- **ID:** tc-005
-- **Type:** happy-path
-- **Priority:** Medium
-- **Estimated Time:** 4 mins
-
-**Preconditions:**
-- User is logged in as a scheduler
-- Scheduler is on the 'My Schedule Changes' page
-- Multiple schedule change requests exist with different statuses and dates
-- At least one request has 'Pending' status
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | On 'My Schedule Changes' page, locate the status filter dropdown and select 'Pending' from the available options | Only requests with 'Pending' status are displayed in the list, all other status requests are filtered out, and the count of displayed requests updates accordingly |
-| 2 | Click on the 'Submission Date' column header to sort requests by submission date in descending order | Requests are sorted correctly with the most recent submission date appearing first, and a descending sort indicator is displayed on the column header |
-| 3 | Click the 'Clear Filters' or 'Reset' button to remove all applied filters and sorting | All schedule change requests submitted by the scheduler are displayed again in the default order (typically by submission date descending), and filter selections are reset to default values |
-
-**Postconditions:**
-- All filters and sorting are cleared
-- Full list of scheduler's requests is visible
-- Page displays default view
-- No data is modified
-
----
-
-## Story: As Approver, I want to escalate schedule change requests to higher authority to achieve timely resolution
-**Story ID:** story-4
-
-### Test Case: Escalate a schedule change request successfully
-- **ID:** tc-001
-- **Type:** happy-path
-- **Priority:** High
-- **Estimated Time:** 5 mins
-
-**Preconditions:**
-- User is logged in with Approver role
-- At least one schedule change request exists in pending status
-- User has permission to escalate requests
-- Higher-level approvers are configured in the system
-- Notification service is operational
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | Navigate to the approval dashboard | Approval dashboard loads successfully displaying list of pending schedule change requests |
-| 2 | Select a schedule change request from the list | Request details are displayed including requester information, schedule details, and current status |
-| 3 | Click the 'Escalate' button | Escalation dialog box opens with a comments text field and submit/cancel buttons |
-| 4 | Enter escalation comments in the text field (e.g., 'Requires senior management approval due to budget implications') | Escalation comments are accepted and displayed in the text field without validation errors |
-| 5 | Click the 'Submit' button to submit the escalation | System processes the escalation within 2 seconds, request status updates to 'Escalated', success message is displayed |
-| 6 | Verify the request status on the dashboard | Request status shows 'Escalated' with timestamp and escalation indicator |
-| 7 | Check that notification was sent to higher-level approvers | Notification is sent to next-level approvers within 1 minute containing request details and escalation comments |
-| 8 | Review audit logs for the escalation action | Escalation action is logged in audit logs with timestamp, approver user details, and escalation comments |
-
-**Postconditions:**
-- Schedule change request status is 'Escalated'
-- Higher-level approvers have been notified
-- Escalation action is recorded in audit logs with complete details
-- Original approver can view escalation history on the request
-
----
-
-### Test Case: Reject escalation with missing comments
-- **ID:** tc-002
-- **Type:** error-case
-- **Priority:** High
-- **Estimated Time:** 4 mins
-
-**Preconditions:**
-- User is logged in with Approver role
-- At least one schedule change request exists in pending status
-- User has permission to escalate requests
-- Escalation comments are configured as mandatory field
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | Navigate to the approval dashboard | Approval dashboard loads successfully displaying list of pending schedule change requests |
-| 2 | Select a schedule change request from the list | Request details are displayed with available actions including 'Escalate' button |
-| 3 | Click the 'Escalate' button | Escalation dialog box opens with an empty comments text field |
-| 4 | Leave the comments field empty and click the 'Submit' button | Validation error message is displayed: 'Escalation comments are required' or similar, submission is blocked |
-| 5 | Attempt to submit escalation again without entering comments | Submission remains blocked, validation error persists, escalation dialog stays open |
-| 6 | Verify that the request status has not changed | Request status remains in original state (not 'Escalated'), no escalation action recorded |
-| 7 | Enter valid comments in the text field (e.g., 'Escalating for policy review') | Validation error clears, comments are accepted |
-| 8 | Click 'Submit' button with valid comments | Escalation is successfully submitted, request status updates to 'Escalated' |
-
-**Postconditions:**
-- System enforces mandatory comments validation for escalations
-- No incomplete escalation records are created in the system
-- Request status only changes after valid escalation submission
-
----
-
-## Story: As System Administrator, I want to configure approval workflow rules to achieve flexible and compliant schedule change processing
-**Story ID:** story-5
-
-### Test Case: Create and save new approval workflow configuration
-- **ID:** tc-003
-- **Type:** happy-path
-- **Priority:** High
-- **Estimated Time:** 10 mins
-
-**Preconditions:**
-- User is logged in with System Administrator role
-- User has access to workflow configuration module
-- WorkflowConfig database tables are accessible
-- No pending workflow configuration changes exist
-- System is in stable state with no ongoing deployments
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | Log into the system with administrator credentials | Administrator successfully logs in and lands on admin dashboard |
-| 2 | Navigate to the workflow configuration page from the admin menu | Workflow configuration UI loads successfully displaying current workflow settings and configuration options |
-| 3 | Click 'Add New Approval Level' button | New approval level form appears with fields for level name, sequence order, and role assignment |
-| 4 | Enter approval level details: Level Name = 'Senior Management Approval', Sequence = '3', Role = 'Senior Manager' | Input fields accept the values without validation errors, data is displayed correctly in the form |
-| 5 | Click 'Add Role' to assign additional roles to the approval level | Role selection dropdown appears with available system roles |
-| 6 | Select 'Director' role from the dropdown and add it to the approval level | Director role is added to the approval level, both Senior Manager and Director roles are displayed |
-| 7 | Define escalation path by selecting 'Escalates to: Executive Level' from the escalation dropdown | Escalation path is configured and displayed in the workflow diagram |
-| 8 | Review the complete workflow configuration in the preview panel | Preview shows all approval levels, assigned roles, and escalation paths in logical sequence |
-| 9 | Click 'Save Configuration' button | System validates the configuration for consistency, validation passes with no errors |
-| 10 | Confirm the save action in the confirmation dialog | Configuration is saved successfully, success message displays: 'Workflow configuration saved and will be applied within 5 minutes' |
-| 11 | Wait for 5 minutes and refresh the workflow configuration page | New configuration is active and displayed as current workflow, changes are applied without system downtime |
-| 12 | Navigate to audit logs and search for workflow configuration changes | Configuration change is logged with administrator username, timestamp, and details of changes made |
-
-**Postconditions:**
-- New approval workflow configuration is saved in WorkflowConfig tables
-- Configuration is applied and active in the system within 5 minutes
-- All configuration changes are logged in audit logs
-- System remains operational with no downtime
-- New approval level is available for schedule change requests
-
----
-
-### Test Case: Reject invalid workflow configuration
-- **ID:** tc-004
-- **Type:** error-case
 - **Priority:** High
 - **Estimated Time:** 8 mins
 
 **Preconditions:**
-- User is logged in with System Administrator role
-- User has access to workflow configuration module
-- Existing valid workflow configuration is in place
-- Validation rules are configured for workflow consistency
+- Approver account exists with valid credentials and approval permissions
+- At least one pending schedule change request is assigned to the approver
+- Request contains complete details and attachments
+- System is accessible and approval dashboard is functional
+- Database contains ScheduleChangeRequests and ApprovalActions tables with test data
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Log into the system with administrator credentials | Administrator successfully logs in and accesses admin dashboard |
-| 2 | Navigate to the workflow configuration page | Workflow configuration UI loads with current workflow settings displayed |
-| 3 | Click 'Add New Approval Level' to create a new level | New approval level form appears ready for input |
-| 4 | Enter approval level: Level Name = 'Department Head', Sequence = '2', Role = 'Department Manager' | Approval level details are entered and displayed in the form |
-| 5 | Configure escalation path to point to a non-existent approval level: 'Escalates to: Non-Existent Level' | Escalation path input accepts the entry temporarily |
-| 6 | Create another approval level with the same sequence number '2' as an existing level | Duplicate sequence number is entered in the form |
-| 7 | Click 'Save Configuration' button | System performs validation and displays validation errors: 'Escalation path references non-existent approval level' and 'Duplicate sequence numbers detected' |
-| 8 | Review the validation error messages displayed on the screen | Clear, specific error messages are shown for each validation failure with guidance on how to resolve |
-| 9 | Attempt to save the configuration again without making corrections | Save operation is blocked, validation errors persist, configuration is not saved to database |
-| 10 | Verify that the original workflow configuration remains unchanged | Current active workflow configuration is unchanged, no partial updates applied |
-| 11 | Correct the errors: Change escalation path to valid existing level and update sequence number to '4' | Corrections are accepted, validation errors clear from the screen |
-| 12 | Click 'Save Configuration' button with corrected data | Validation passes, configuration is saved successfully, success message is displayed |
+| 1 | Navigate to the system login page and enter valid approver credentials (username and password), then click Login button | Approver is successfully authenticated and redirected to the home page or approval dashboard |
+| 2 | Navigate to the approval dashboard by clicking on 'Approvals' or 'Pending Requests' menu option | Dashboard displays within 3 seconds showing a list of all pending schedule change requests assigned to the approver with columns for request ID, employee name, request date, and current status |
+| 3 | Select a specific pending schedule change request from the list by clicking on it | Request details page opens displaying complete information including employee details, requested schedule changes, reason for change, submission date, and any attached supporting documents |
+| 4 | Review all request details and click on any attachments to view supporting documents | Attachments open correctly in appropriate viewer (PDF, image, document) and display the complete content without errors |
+| 5 | Click the 'Approve' button to approve the schedule change request | A confirmation dialog or comment box appears allowing the approver to add optional comments |
+| 6 | Enter optional approval comments in the comment field (e.g., 'Approved as requested. Schedule updated.') and click 'Submit' or 'Confirm Approval' button | System processes the approval action and displays a success message confirming the request has been approved |
+| 7 | Verify the request status has been updated by returning to the approval dashboard or refreshing the request details page | Request status is updated to 'Approved', the request is removed from pending list or marked as approved, and approval timestamp with approver name is recorded |
+| 8 | Verify that the requester receives a notification (check notification log or system notification panel) | System sends notification to the requester indicating the schedule change request has been approved, including approver comments if provided |
 
 **Postconditions:**
-- Invalid configuration is rejected and not saved to the system
-- Original workflow configuration remains intact and operational
-- No partial or inconsistent configuration data exists in the database
-- Administrator is informed of specific validation errors
-- System maintains data integrity throughout the validation process
+- Request status is permanently updated to 'Approved' in ScheduleChangeRequests table
+- Approval action is logged in ApprovalActions table with timestamp, approver ID, and comments
+- Requester has received notification of approval
+- Request no longer appears in pending requests list for the approver
+- Audit trail is complete with all approval details
+- Schedule change is ready for implementation
 
 ---
 
-## Story: As Scheduler, I want to receive notifications about schedule change approval decisions to achieve timely awareness
-**Story ID:** story-7
-
-### Test Case: Receive notification on approval decision
-- **ID:** tc-001
-- **Type:** happy-path
-- **Priority:** High
-- **Estimated Time:** 5 mins
-
-**Preconditions:**
-- Scheduler is logged into the system
-- Scheduler has submitted a schedule change request with valid details
-- Schedule change request is in 'Pending' status
-- Approver has appropriate permissions to approve requests
-- Notification service is operational
-- Scheduler's email address is configured in user profile
-- In-app notification feature is enabled
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | Approver logs into the system and navigates to the approval dashboard | Approver successfully accesses the approval dashboard and sees the pending schedule change request |
-| 2 | Approver selects the schedule change request submitted by the scheduler | Request details are displayed with all relevant information including requester name, date, and change details |
-| 3 | Approver adds comments 'Approved as requested - no conflicts identified' and clicks the 'Approve' button | System displays confirmation message that the decision has been recorded and request status changes to 'Approved' |
-| 4 | System automatically triggers notification service within 1 minute of approval | Notification service processes the approval decision and queues email and in-app notifications for the scheduler |
-| 5 | Scheduler checks email inbox within 1 minute of approval | Scheduler receives email notification with subject line indicating approval, including decision details and approver comments |
-| 6 | Scheduler logs into the system and checks in-app notifications | In-app notification badge shows unread notification count, notification appears in notification center |
-| 7 | Scheduler clicks on the in-app notification to view details | Notification displays complete decision information including: approval status, approver name, timestamp, comments 'Approved as requested - no conflicts identified', and link to view full request details |
-
-**Postconditions:**
-- Schedule change request status is 'Approved'
-- Scheduler has received both email and in-app notifications
-- Notification delivery timestamp is within 1 minute of approval decision
-- Notification is marked as delivered in the system
-- Audit log records notification sent event
-
----
-
-### Test Case: Receive notification on rejection decision
+### Test Case: Reject schedule change request with comments
 - **ID:** tc-002
 - **Type:** happy-path
 - **Priority:** High
-- **Estimated Time:** 5 mins
+- **Estimated Time:** 7 mins
 
 **Preconditions:**
-- Scheduler is logged into the system
-- Scheduler has submitted a schedule change request with valid details
-- Schedule change request is in 'Pending' status
-- Approver has appropriate permissions to reject requests
-- Notification service is operational
-- Scheduler's email address is configured in user profile
-- In-app notification feature is enabled
+- Approver is logged into the system with valid approval permissions
+- At least one pending schedule change request exists in the system
+- Approver has access to the approval dashboard
+- System notification mechanism is configured and functional
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Approver logs into the system and navigates to the approval dashboard | Approver successfully accesses the approval dashboard and sees the pending schedule change request |
-| 2 | Approver selects the schedule change request submitted by the scheduler | Request details are displayed with all relevant information including requester name, date, and change details |
-| 3 | Approver adds comments 'Rejected due to insufficient staffing coverage during requested period' and clicks the 'Reject' button | System displays confirmation message that the decision has been recorded and request status changes to 'Rejected' |
-| 4 | System automatically triggers notification service within 1 minute of rejection | Notification service processes the rejection decision and queues email and in-app notifications for the scheduler |
-| 5 | Scheduler checks email inbox within 1 minute of rejection | Scheduler receives email notification with subject line indicating rejection, including decision details and approver comments |
-| 6 | Scheduler logs into the system and checks in-app notifications | In-app notification badge shows unread notification count, notification appears in notification center with rejection indicator |
-| 7 | Scheduler clicks on the in-app notification to view details | Notification displays complete decision information including: rejection status, approver name, timestamp, comments 'Rejected due to insufficient staffing coverage during requested period', and link to view full request details |
+| 1 | From the approval dashboard, locate and click on a pending schedule change request to review | Request details page opens displaying complete information including employee name, requested changes, submission date, reason, and any attachments |
+| 2 | Review the request details and determine that the request should be rejected | All request information is clearly visible and the 'Reject' button or option is available and enabled |
+| 3 | Click the 'Reject' button to initiate the rejection process | A rejection dialog or form appears with a mandatory or optional comment field for entering the rejection reason |
+| 4 | Enter a detailed rejection reason in the comment field (e.g., 'Request conflicts with operational requirements. Insufficient staffing coverage during requested period.') and click 'Submit' or 'Confirm Rejection' button | System processes the rejection and displays a success message confirming the request has been rejected |
+| 5 | Verify the request status has been updated by checking the request details or returning to the dashboard | Request status is updated to 'Rejected', rejection comments are saved and visible in the approval history, and timestamp with approver details is recorded |
+| 6 | Verify that the requester receives a rejection notification by checking the notification log or system records | System sends notification to the requester containing the rejection status and the complete rejection reason provided by the approver |
+| 7 | As the requester (or verify in requester's view), check the notification received | Notification clearly states the request was rejected and displays the rejection reason: 'Request conflicts with operational requirements. Insufficient staffing coverage during requested period.' |
 
 **Postconditions:**
-- Schedule change request status is 'Rejected'
-- Scheduler has received both email and in-app notifications
-- Notification delivery timestamp is within 1 minute of rejection decision
-- Notification is marked as delivered in the system
-- Audit log records notification sent event
-- Original schedule remains unchanged
+- Request status is updated to 'Rejected' in the database
+- Rejection comments are permanently saved in ApprovalActions table
+- Requester has received notification with rejection reason
+- Request is removed from pending list and moved to rejected requests
+- Complete audit trail exists with rejection details and timestamp
+- Requester can view rejection reason in their request history
 
 ---
 
-## Story: As Approver, I want to filter and search schedule change requests to achieve efficient workload management
-**Story ID:** story-8
-
-### Test Case: Filter schedule change requests by status and date
+### Test Case: Request additional information for schedule change request
 - **ID:** tc-003
 - **Type:** happy-path
 - **Priority:** High
-- **Estimated Time:** 4 mins
+- **Estimated Time:** 12 mins
 
 **Preconditions:**
 - Approver is logged into the system with valid credentials
-- Approver has appropriate permissions to view schedule change requests
-- Multiple schedule change requests exist in the system with varying statuses (Pending, Approved, Rejected)
-- Schedule change requests exist with different submission dates spanning more than 7 days
-- At least 3 requests with 'Pending' status exist within the last 7 days
-- Approval dashboard is accessible and fully loaded
+- Pending schedule change request exists that requires additional information
+- System supports 'Request More Information' workflow status
+- Requester account is active and can receive notifications
+- Request resubmission functionality is enabled
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Approver navigates to the approval dashboard | Dashboard loads successfully displaying all schedule change requests in default view with filter options visible |
-| 2 | Approver locates the status filter dropdown and selects 'Pending' from the available options | Status filter is applied and dropdown shows 'Pending' as selected value |
-| 3 | Approver locates the date range filter and selects 'Last 7 days' option | Date range filter is applied showing date range from current date minus 7 days to current date |
-| 4 | Approver clicks 'Apply Filters' button | System processes the filter request and displays filtered results within 2 seconds showing only requests with 'Pending' status submitted within the last 7 days |
-| 5 | Approver verifies the filtered list by checking status and date columns of displayed requests | All displayed requests show 'Pending' status and submission dates within the last 7 days, no requests outside filter criteria are shown |
-| 6 | Approver notes the response time from clicking 'Apply Filters' to results display | Results are returned and displayed within 2 seconds as per performance requirement |
-| 7 | Approver clicks 'Clear Filters' button | All filters are removed, filter dropdowns reset to default values, and full unfiltered list of all schedule change requests is displayed |
+| 1 | Navigate to the approval dashboard and select a pending schedule change request to review | Request details page opens showing all available information about the schedule change request |
+| 2 | Review the request details and determine that additional information is needed to make an informed decision | Request details are displayed but lack sufficient information for approval or rejection decision |
+| 3 | Locate and click the 'Request More Information' or 'Request Additional Info' button | A form or dialog box appears with a comment field to specify what additional information is required |
+| 4 | Enter detailed comments specifying the required information (e.g., 'Please provide: 1) Coverage plan for your current shift, 2) Manager approval from your department, 3) Justification for urgency of this change') in the comment field | Comment field accepts the text input and displays the entered information clearly |
+| 5 | Click 'Submit' or 'Send Request' button to submit the information request | System processes the action and displays a success message confirming that the information request has been sent to the requester |
+| 6 | Verify the request status has been updated by checking the request details or dashboard | Request status is updated to 'Information Requested' or 'Pending Additional Info', and the request remains in the approver's queue with updated status indicator |
+| 7 | Verify that the requester receives a notification by checking notification logs or system records | System sends notification to the requester indicating that additional information is required, including the complete list of requested details from the approver's comments |
+| 8 | As the requester (or simulate requester action), log into the system and navigate to 'My Requests' to view the request | Request displays with status 'Information Requested' and shows the approver's comments detailing what additional information is needed |
+| 9 | As the requester, add the requested additional information by editing the request or adding attachments, then click 'Resubmit' or 'Update Request' button | System accepts the updated information, changes request status back to 'Pending Review', and notifies the approver that additional information has been provided |
+| 10 | As the approver, verify that the updated request appears back in the pending requests queue with the new information | Request reappears in approver's dashboard with updated status and timestamp, and the additional information provided by the requester is visible in the request details |
 
 **Postconditions:**
-- Filters are cleared and system returns to default view
-- All schedule change requests are visible without any filtering applied
-- Filter controls are reset to default state
-- System performance remains within acceptable limits
+- Request status is updated to reflect information was requested and subsequently provided
+- All comments and information requests are logged in ApprovalActions table with timestamps
+- Requester has successfully resubmitted the request with additional information
+- Request is back in approver's pending queue for final decision
+- Complete audit trail exists showing the information request cycle
+- Both approver and requester notifications have been sent and logged
 
 ---
 
-### Test Case: Search schedule change requests by keyword
+## Story: As Employee, I want to track the status of my schedule change requests to achieve transparency and timely updates
+**Story ID:** story-13
+
+### Test Case: View schedule change request status successfully
 - **ID:** tc-004
 - **Type:** happy-path
 - **Priority:** High
-- **Estimated Time:** 4 mins
-
-**Preconditions:**
-- Approver is logged into the system with valid credentials
-- Approver has appropriate permissions to view schedule change requests
-- Multiple schedule change requests exist in the system
-- At least 3 requests contain the keyword 'maintenance' in their details, comments, or description fields
-- Search functionality is enabled on the approval dashboard
-- Approval dashboard is accessible and fully loaded
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | Approver navigates to the approval dashboard | Dashboard loads successfully displaying all schedule change requests with search box visible at the top of the request list |
-| 2 | Approver locates the search box and clicks inside it to activate the search field | Search box is activated, cursor appears in the field, and placeholder text is visible |
-| 3 | Approver types the keyword 'maintenance' into the search box | Text 'maintenance' appears in the search box as typed, character by character |
-| 4 | Approver presses Enter key or clicks the search icon button | System initiates search query and displays loading indicator while processing |
-| 5 | System processes the search and returns results | Search results are displayed within 2 seconds showing only schedule change requests that contain the keyword 'maintenance' in any of their detail fields |
-| 6 | Approver reviews the search results and verifies each displayed request contains the keyword 'maintenance' | All displayed requests contain 'maintenance' in description, comments, or other detail fields, with the keyword highlighted or emphasized in the results |
-| 7 | Approver notes the response time from initiating search to results display | Search results are returned and displayed within 2 seconds as per performance requirement |
-| 8 | Approver clicks 'Clear Search' button or deletes text from search box and presses Enter | Search is cleared, search box is empty, and full unfiltered list of all schedule change requests is displayed |
-
-**Postconditions:**
-- Search is cleared and system returns to default view
-- All schedule change requests are visible without any search filtering applied
-- Search box is empty and ready for new search input
-- System performance remains within acceptable limits
-
----
-
-### Test Case: Save and reuse filter presets
-- **ID:** tc-005
-- **Type:** happy-path
-- **Priority:** Medium
 - **Estimated Time:** 6 mins
 
 **Preconditions:**
-- Approver is logged into the system with valid credentials
-- Approver has appropriate permissions to view and manage schedule change requests
-- Filter preset functionality is enabled for the approver role
-- Multiple schedule change requests exist with varying priorities and statuses
-- At least 3 requests with 'High' priority and 'Pending' status exist in the system
-- Approval dashboard is accessible and fully loaded
-- Approver has not previously saved a preset named 'Urgent Requests'
+- Employee account exists with valid login credentials
+- Employee has previously submitted at least one schedule change request
+- Schedule change requests exist in various statuses (pending, approved, rejected)
+- System is accessible and 'My Requests' page is functional
+- Database contains employee's request history with approval actions and timestamps
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Approver navigates to the approval dashboard | Dashboard loads successfully displaying all schedule change requests with filter options and preset management controls visible |
-| 2 | Approver applies multiple filters: selects 'Pending' from status dropdown and 'High' from priority dropdown | Both filters are applied and displayed as active filters in the filter panel |
-| 3 | Approver clicks 'Apply Filters' button to view filtered results | Filtered list displays only requests with 'Pending' status and 'High' priority within 2 seconds |
-| 4 | Approver clicks 'Save Preset' or 'Save Filter' button | Dialog box or modal appears prompting for preset name and optional description |
-| 5 | Approver enters preset name 'Urgent Requests' in the name field | Text 'Urgent Requests' appears in the preset name field |
-| 6 | Approver clicks 'Save' button in the preset dialog | System displays success message 'Preset saved successfully', dialog closes, and 'Urgent Requests' appears in the saved presets list or dropdown |
-| 7 | Approver clicks 'Clear Filters' to reset the view | All filters are cleared and full unfiltered list of schedule change requests is displayed |
-| 8 | Approver locates the saved presets dropdown or list and selects 'Urgent Requests' preset | Preset 'Urgent Requests' is selected from the list |
-| 9 | Approver clicks 'Load Preset' or 'Apply' button | System automatically applies the saved filters (Status: Pending, Priority: High) and displays matching requests within 2 seconds |
-| 10 | Approver verifies that the loaded preset displays the same filtered results as when originally saved | Filtered list shows only requests with 'Pending' status and 'High' priority, matching the original filter criteria |
+| 1 | Navigate to the scheduling portal login page and enter valid employee credentials (username and password), then click Login button | Employee is successfully authenticated and redirected to the scheduling portal home page or dashboard |
+| 2 | Locate and click on the 'My Requests' menu option or navigation link | System loads the 'My Requests' page within 2 seconds displaying a list of all schedule change requests submitted by the logged-in employee |
+| 3 | Review the list of schedule change requests displayed on the page | List displays all employee's requests with columns showing request ID, submission date, requested change details, and current status (pending, approved, rejected, or info requested) with clear visual indicators for each status type |
+| 4 | Verify that status indicators are visually distinct (e.g., different colors or icons for pending, approved, rejected) | Each status type has a clear visual indicator: pending (yellow/orange), approved (green), rejected (red), info requested (blue), making it easy to identify request status at a glance |
+| 5 | Select a specific schedule change request from the list by clicking on it | Request details page opens displaying complete information including requested schedule changes, submission date, current status, and reason for request |
+| 6 | Scroll down or navigate to the approval history section of the request details | Detailed approval history is displayed showing all approval actions taken on the request, including action type (submitted, reviewed, approved/rejected), approver name, timestamp for each action, and any comments provided by approvers |
+| 7 | Verify the timestamps are displayed in a readable format and are chronologically ordered | All timestamps are displayed in clear date-time format (e.g., 'MM/DD/YYYY HH:MM AM/PM'), listed in chronological order from oldest to newest action |
+| 8 | Check if any approver comments are present in the approval history | If approver added comments (approval notes, rejection reasons, or information requests), they are displayed clearly alongside the corresponding approval action with full text visible |
+| 9 | Return to 'My Requests' list and verify that the status shown in the list matches the detailed status viewed | Status displayed in the list view is consistent with the detailed status shown in the request details page, confirming real-time accuracy |
 
 **Postconditions:**
-- Filter preset 'Urgent Requests' is saved in the system and associated with the approver's profile
-- Preset is available for future use in the saved presets list
-- Current view displays filtered results based on the loaded preset
-- Preset can be edited or deleted by the approver
-- System audit log records preset creation event
+- Employee has successfully viewed all their schedule change requests
+- Employee has accessed detailed approval history for at least one request
+- No unauthorized access to other employees' requests occurred
+- System performance met the 2-second response time requirement
+- All status information displayed accurately reflects current database state
+- Employee session remains active and secure
 
 ---
 
-## Story: As System Administrator, I want to manage user roles and permissions for approval workflows to achieve secure and compliant access control
-**Story ID:** story-9
+### Test Case: Prevent employee from viewing others' requests
+- **ID:** tc-005
+- **Type:** error-case
+- **Priority:** High
+- **Estimated Time:** 8 mins
 
-### Test Case: Assign and enforce user roles
+**Preconditions:**
+- Employee is logged into the scheduling portal with valid credentials
+- Multiple employees exist in the system with their own schedule change requests
+- Another employee's request ID is known or can be obtained
+- System has role-based access control implemented
+- Security validation is active on API endpoints
+
+**Steps:**
+| Step | Action | Expected Result |
+|------|--------|------------------|
+| 1 | As the logged-in employee, navigate to 'My Requests' page and note the URL structure and request IDs visible | Employee can view their own requests normally, and URL structure is visible (e.g., '/my-requests' or '/requests?employeeId=123') |
+| 2 | Identify or obtain a request ID that belongs to another employee (e.g., request ID 9999 that is not in the employee's list) | Another employee's request ID is identified for testing purposes |
+| 3 | Attempt to access another employee's request by manually modifying the URL in the browser address bar (e.g., change '/request/1234' to '/request/9999' or modify employeeId parameter) | System detects unauthorized access attempt and denies access to the request |
+| 4 | Observe the system response after attempting unauthorized access | System displays an error message such as 'Access Denied', 'Unauthorized Access', or 'You do not have permission to view this request', and does not display any details of the other employee's request |
+| 5 | Verify that the employee is redirected back to their 'My Requests' page or an error page, and no sensitive information about the other employee's request is exposed | Employee is redirected to a safe page (their own requests list or error page), and no data about the unauthorized request is visible in the response, page source, or network traffic |
+| 6 | Attempt to access another employee's request using API endpoint directly (e.g., using browser developer tools or API testing tool to call GET /api/my-schedule-change-requests with another employee's request ID) | API returns 403 Forbidden or 401 Unauthorized status code with appropriate error message, and does not return any request data |
+| 7 | Return to 'My Requests' page using normal navigation (clicking menu link) | Employee can access their own 'My Requests' page normally without any issues |
+| 8 | Select and view one of the employee's own requests from the list | Access is granted immediately, and full request details including approval history, timestamps, and comments are displayed without any errors or access restrictions |
+| 9 | Verify that the security event was logged by checking system logs (if accessible) or confirming with system administrator | Unauthorized access attempt is logged in security audit logs with timestamp, employee ID, and attempted request ID for security monitoring purposes |
+
+**Postconditions:**
+- Employee was successfully prevented from accessing another employee's request
+- No unauthorized data was exposed or accessible
+- Employee can still access their own requests without restriction
+- Security controls are confirmed to be functioning correctly
+- Unauthorized access attempt is logged in audit trail
+- System maintains data privacy and security compliance
+
+---
+
+## Story: As System Administrator, I want to configure approval workflow rules to achieve flexible and compliant schedule change approvals
+**Story ID:** story-14
+
+### Test Case: Create and activate a new approval workflow
 - **ID:** tc-001
 - **Type:** happy-path
 - **Priority:** High
 - **Estimated Time:** 8 mins
 
 **Preconditions:**
-- Admin user is authenticated and logged into the system
-- User management console is accessible
-- Test user account exists in the system without 'Approver' role
-- UserRoles and Permissions tables are properly configured
-- Approval dashboard is available and functional
+- Administrator account with valid credentials exists
+- Administrator has proper role permissions for workflow configuration
+- Admin portal is accessible and operational
+- At least one role, department, and individual user exists in the system for approver assignment
+- ApprovalWorkflows and ApproverAssignments tables are accessible
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Navigate to user management console as Admin | User management console loads successfully displaying list of users and their current roles |
-| 2 | Search for and select the test user from the user list | Test user profile is displayed with current role information |
-| 3 | Click on 'Edit Roles' or 'Assign Role' button for the selected user | Role assignment interface opens showing available roles (Scheduler, Approver, Auditor, Admin) |
-| 4 | Select 'Approver' role from the available roles list | 'Approver' role is highlighted/selected in the interface |
-| 5 | Click 'Save' button to confirm role assignment | Success message is displayed confirming role assignment. Role change is saved to UserRoles table and logged with admin username and timestamp |
-| 6 | Verify the audit log for the role change entry | Audit log shows new entry with user ID, assigned role 'Approver', admin who made the change, and timestamp |
-| 7 | Log out from admin account and log in as the test user with newly assigned 'Approver' role | Test user successfully logs into the system |
-| 8 | Navigate to the approval dashboard | Approval dashboard loads successfully showing pending approval requests and approval actions available to 'Approver' role |
-| 9 | Attempt to perform an action restricted to 'Approver' role (e.g., approve a pending schedule change) | Action is permitted and executes successfully, confirming 'Approver' permissions are enforced |
-| 10 | Attempt to access an unauthorized action for 'Approver' role (e.g., access admin configuration settings or user management console) | Access is denied with appropriate error message (e.g., 'You do not have permission to access this resource' or 403 Forbidden) |
-| 11 | Verify that unauthorized action attempt is logged in security audit log | Security audit log contains entry of unauthorized access attempt with user ID, attempted action, and timestamp |
+| 1 | Navigate to the admin portal login page and enter valid administrator credentials | Administrator is successfully authenticated and redirected to the admin portal dashboard |
+| 2 | Locate and click on the workflow configuration section in the navigation menu | Workflow configuration page is displayed showing existing workflows and option to create new workflow |
+| 3 | Click on 'Create New Workflow' button | New workflow creation form is displayed with fields for workflow name, description, and approval stages |
+| 4 | Enter workflow name as 'Multi-Level Schedule Approval' and description as 'Three-stage approval process for schedule changes' | Workflow name and description are accepted and displayed in the form fields |
+| 5 | Add first approval stage named 'Manager Review' and assign approver by role 'Department Manager' | First approval stage is created with role-based approver assignment successfully configured |
+| 6 | Add second approval stage named 'HR Review' and assign approver by department 'Human Resources' | Second approval stage is created with department-based approver assignment successfully configured |
+| 7 | Add third approval stage named 'Executive Approval' and assign specific individual approver 'John Smith - VP Operations' | Third approval stage is created with individual approver assignment successfully configured |
+| 8 | Click 'Save Workflow' button | System validates the workflow configuration, displays success message 'Workflow saved successfully', and workflow appears in the list with 'Inactive' status |
+| 9 | Locate the newly created workflow in the list and click 'Activate' button | Confirmation dialog appears asking 'Are you sure you want to activate this workflow?' |
+| 10 | Click 'Confirm' on the activation dialog | Workflow status changes to 'Active', success message displays 'Workflow activated successfully', and workflow becomes available for new schedule change requests |
+| 11 | Submit a new schedule change request that should trigger this workflow | The newly activated workflow is applied to the schedule change request and first stage approver receives assignment |
 
 **Postconditions:**
-- Test user has 'Approver' role assigned in the system
-- Role assignment is logged in audit trail
-- User can access Approver-specific functions
-- User cannot access functions outside Approver permissions
-- All access attempts are properly logged
+- New approval workflow is created and saved in ApprovalWorkflows table
+- Workflow status is set to 'Active'
+- All three approval stages are configured with assigned approvers in ApproverAssignments table
+- Workflow is available for routing new schedule change requests
+- Changes are applied within 1 minute as per performance requirements
+- Administrator remains logged into the admin portal
 
 ---
 
-### Test Case: Restrict role management access
+### Test Case: Prevent invalid workflow configurations
 - **ID:** tc-002
+- **Type:** error-case
+- **Priority:** High
+- **Estimated Time:** 6 mins
+
+**Preconditions:**
+- Administrator is logged into the admin portal
+- Administrator has proper role permissions for workflow configuration
+- Workflow configuration page is accessible
+- System validation rules are active and enforced
+
+**Steps:**
+| Step | Action | Expected Result |
+|------|--------|------------------|
+| 1 | Navigate to workflow configuration page and click 'Create New Workflow' button | New workflow creation form is displayed |
+| 2 | Enter workflow name as 'Incomplete Workflow Test' and description | Workflow name and description are accepted in the form |
+| 3 | Add first approval stage named 'Initial Review' but leave the approver assignment field empty | Approval stage is added with no approver assigned |
+| 4 | Add second approval stage named 'Final Review' but leave the approver assignment field empty | Second approval stage is added with no approver assigned |
+| 5 | Click 'Save Workflow' button without assigning any approvers | System performs validation and displays error messages: 'Approval stage 1 requires at least one approver' and 'Approval stage 2 requires at least one approver'. Workflow is not saved |
+| 6 | Verify that the workflow does not appear in the workflow list | Workflow list does not contain the invalid workflow, confirming save was prevented |
+| 7 | Return to the workflow form and assign approver by role 'Team Lead' to the first approval stage | First approval stage now has valid approver assignment, error for stage 1 is cleared |
+| 8 | Assign approver by department 'Finance' to the second approval stage | Second approval stage now has valid approver assignment, error for stage 2 is cleared |
+| 9 | Click 'Save Workflow' button with all required approvers assigned | System validates successfully, displays success message 'Workflow saved successfully', and workflow appears in the list with all validation errors resolved |
+
+**Postconditions:**
+- Invalid workflow configuration was prevented from being saved
+- Validation errors were displayed to guide administrator
+- Corrected workflow is successfully saved in ApprovalWorkflows table
+- Data integrity is maintained with no incomplete workflows in the system
+- Administrator remains on workflow configuration page
+
+---
+
+### Test Case: Restrict workflow configuration access to administrators
+- **ID:** tc-003
 - **Type:** error-case
 - **Priority:** High
 - **Estimated Time:** 7 mins
 
 **Preconditions:**
-- System has role-based access control configured
-- Non-admin test user account exists and is authenticated
-- Admin test user account exists and is authenticated
-- Role management page URL is known
-- Access control is properly configured to restrict role management to admins only
+- Non-admin user account exists with valid credentials and standard user role
+- Administrator account exists with valid credentials and admin role
+- Workflow configuration page requires admin role for access
+- Role-based access control is properly configured
+- Both users are not currently logged in
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Log into the system as a non-admin user (e.g., user with 'Scheduler' or 'Approver' role) | Non-admin user successfully logs into the system and lands on their default dashboard |
-| 2 | Attempt to navigate to the role management page by entering the URL directly in the browser or clicking on role management link if visible | Access is denied. System displays error message such as 'Access Denied - Insufficient Permissions' or 'You must be an administrator to access this page'. HTTP 403 Forbidden status is returned |
-| 3 | Verify that role management navigation option is not visible in the user interface for non-admin user | Role management menu item or link is not displayed in navigation menu or sidebar for non-admin user |
-| 4 | Attempt to access role management API endpoint directly (GET /api/user-roles) using non-admin credentials | API request is rejected with 403 Forbidden status and appropriate error message in response body |
-| 5 | Verify that the unauthorized access attempt is logged in security audit log | Security audit log contains entry showing non-admin user attempted to access role management with timestamp and denial status |
-| 6 | Log out from non-admin account and log in as an admin user | Admin user successfully logs into the system |
-| 7 | Navigate to the role management page using the same URL or navigation link | Role management page loads successfully displaying user list, roles, and management controls |
-| 8 | Verify that all role management functions are accessible (view users, assign roles, modify roles) | Admin can view complete user list with current roles, access role assignment interface, and all management functions are enabled and functional |
-| 9 | Access role management API endpoint (GET /api/user-roles) using admin credentials | API request succeeds with 200 OK status and returns user roles data in response |
-| 10 | Verify admin access is logged in audit trail | Audit log shows admin user accessed role management page with timestamp |
+| 1 | Navigate to the application login page using non-admin user credentials | Login page is displayed |
+| 2 | Enter valid non-admin user credentials and click 'Login' | Non-admin user is successfully authenticated and redirected to standard user dashboard |
+| 3 | Attempt to navigate directly to the workflow configuration page URL | Access is denied with error message 'Access Denied: You do not have permission to access this page. Administrator privileges required.' User is redirected to unauthorized access page or remains on current page |
+| 4 | Verify that workflow configuration menu option is not visible in the navigation menu | Workflow configuration option is not displayed in the navigation menu for non-admin user |
+| 5 | Log out from the non-admin user account | User is successfully logged out and redirected to login page |
+| 6 | Enter valid administrator credentials and click 'Login' | Administrator is successfully authenticated and redirected to admin portal dashboard |
+| 7 | Locate workflow configuration option in the navigation menu | Workflow configuration menu option is visible and accessible to administrator |
+| 8 | Click on workflow configuration menu option | Access is granted and workflow configuration page is displayed with full functionality including create, edit, delete, and activate options |
+| 9 | Verify all workflow management features are available: create new workflow, edit existing workflow, delete workflow, and activate/deactivate workflow | All workflow management features are accessible and functional for administrator user |
 
 **Postconditions:**
-- Non-admin users remain unable to access role management functions
-- Admin users retain full access to role management
-- All access attempts (both denied and granted) are logged in audit trail
-- System security posture is maintained with proper access controls enforced
+- Non-admin user access to workflow configuration was successfully blocked
+- Appropriate error message was displayed to non-admin user
+- Administrator successfully accessed workflow configuration with full permissions
+- Role-based access control is confirmed to be working correctly
+- Security requirements are met with admin-only access enforced
+- Administrator remains logged into the admin portal
+
+---
+
+## Story: As Approver, I want to receive notifications for pending schedule change requests to achieve timely processing
+**Story ID:** story-15
+
+### Test Case: Verify notification sent upon request assignment
+- **ID:** tc-004
+- **Type:** happy-path
+- **Priority:** High
+- **Estimated Time:** 6 mins
+
+**Preconditions:**
+- Approver account exists with valid email address and active status
+- Approver has default notification preferences enabled for both email and in-app notifications
+- Active approval workflow is configured with the approver assigned
+- Notification service is operational and integrated
+- Employee account exists to submit schedule change request
+- ScheduleChangeRequests and ApprovalWorkflows tables are accessible
+- Notification delivery logging is enabled
+
+**Steps:**
+| Step | Action | Expected Result |
+|------|--------|------------------|
+| 1 | Log in as employee user and navigate to schedule change request submission page | Schedule change request form is displayed with all required fields |
+| 2 | Fill in schedule change request details: select date, enter reason 'Medical appointment', and specify requested time change from 9:00 AM to 11:00 AM | All request details are entered successfully in the form |
+| 3 | Click 'Submit Request' button | Request is submitted successfully, confirmation message displays 'Your schedule change request has been submitted', and request is saved in ScheduleChangeRequests table |
+| 4 | System automatically determines approver based on configured workflow and assigns the request | Request is assigned to the designated approver within the workflow, assignment is recorded in the system |
+| 5 | Wait up to 1 minute and verify notification is triggered and sent to the assigned approver | Notification is sent to approver via both email and in-app notification within 1 minute of assignment as per SLA |
+| 6 | Log in as the assigned approver and check email inbox | Email notification is received with subject line 'New Schedule Change Request Requires Your Approval' containing request ID, employee name, requested date, reason, and direct link to approval interface |
+| 7 | Verify in-app notification by checking notification center in the application | In-app notification is displayed showing 'New schedule change request from [Employee Name] requires your review' with request summary and timestamp |
+| 8 | Review notification content for accuracy: verify request ID, employee name, date, time change details, and reason match the submitted request | All notification content is accurate and matches the original schedule change request details |
+| 9 | Click on the direct link provided in the email notification | Browser opens and approver is directed to the approval interface with the specific schedule change request displayed for review |
+| 10 | Verify the correct request is displayed with all details: employee name, current schedule, requested schedule, reason, and submission date | Approval interface displays the correct request with complete and accurate information, approve and deny buttons are available |
+| 11 | Check notification delivery logs in the admin system | Notification delivery status is logged showing successful delivery timestamp, recipient, notification type (email and in-app), and delivery confirmation |
+
+**Postconditions:**
+- Schedule change request is successfully submitted and assigned to approver
+- Notification is sent to approver within 1 minute SLA
+- Both email and in-app notifications are delivered successfully
+- Notification content is accurate and actionable
+- Direct link navigates approver to correct request
+- Notification delivery is logged for audit purposes
+- Request remains in pending status awaiting approval
+- Approver has access to review and act on the request
+
+---
+
+### Test Case: Test notification preference settings
+- **ID:** tc-005
+- **Type:** happy-path
+- **Priority:** Medium
+- **Estimated Time:** 7 mins
+
+**Preconditions:**
+- Approver account exists and is active
+- Approver is currently receiving both email and in-app notifications (default settings)
+- Approver profile page with notification preferences is accessible
+- Active approval workflow is configured with the approver assigned
+- Employee account exists to submit schedule change request
+- Notification service is operational
+
+**Steps:**
+| Step | Action | Expected Result |
+|------|--------|------------------|
+| 1 | Log in as approver and navigate to user profile settings page | Profile settings page is displayed with personal information and notification preferences section |
+| 2 | Locate notification preferences section and view current settings | Notification preferences section shows current settings with checkboxes for 'Email Notifications' (checked) and 'In-App Notifications' (checked) |
+| 3 | Uncheck the 'Email Notifications' checkbox to disable email alerts while keeping 'In-App Notifications' enabled | Email Notifications checkbox is unchecked, In-App Notifications remains checked |
+| 4 | Click 'Save Preferences' button | Success message displays 'Notification preferences updated successfully', and changes are saved to approver profile in the database |
+| 5 | Verify updated preferences are displayed correctly after save | Notification preferences show Email Notifications disabled (unchecked) and In-App Notifications enabled (checked) |
+| 6 | Log out from approver account | Approver is successfully logged out |
+| 7 | Log in as employee user and navigate to schedule change request submission page | Schedule change request form is displayed |
+| 8 | Submit a new schedule change request with details: date tomorrow, reason 'Personal appointment', time change from 1:00 PM to 3:00 PM | Request is submitted successfully and assigned to the approver based on workflow |
+| 9 | Wait up to 1 minute for notification processing | System processes the request assignment and triggers notification based on approver preferences |
+| 10 | Check approver's email inbox for notification | No email notification is received, confirming email alerts are disabled as per updated preferences |
+| 11 | Log in as approver and check in-app notification center | In-app notification is displayed showing the new schedule change request, confirming in-app notifications are still active |
+| 12 | Verify notification delivery logs show only in-app notification was sent | Logs confirm in-app notification was delivered successfully and no email notification was sent, respecting approver preferences |
+
+**Postconditions:**
+- Approver notification preferences are successfully updated and saved
+- Email notifications are disabled for the approver
+- In-app notifications remain enabled and functional
+- New schedule change request triggers only in-app notification
+- No email notification is sent to approver
+- Notification preferences are respected by the system
+- Notification delivery logs accurately reflect preference-based delivery
+- Request remains pending and accessible to approver for review
+
+---
+
+## Story: As Approver, I want to delegate approval tasks to another approver to achieve continuity during absence
+**Story ID:** story-18
+
+### Test Case: Assign and revoke delegation successfully
+- **ID:** tc-001
+- **Type:** happy-path
+- **Priority:** High
+- **Estimated Time:** 12 mins
+
+**Preconditions:**
+- User with approver role is logged into the system
+- At least one other approver exists in the system to be assigned as delegate
+- Approver has active approval tasks in their queue
+- DelegationAssignments table is accessible
+- API endpoints POST /api/delegations and GET /api/delegations are operational
+
+**Steps:**
+| Step | Action | Expected Result |
+|------|--------|------------------|
+| 1 | Navigate to delegation settings page from the main dashboard | Delegation settings page loads successfully displaying delegation management interface |
+| 2 | Click on 'Assign Delegate' or 'Create Delegation' button | Delegation assignment form is displayed with fields for delegate selection, start date, and end date |
+| 3 | Select a valid approver from the delegate dropdown list | Selected approver name is populated in the delegate field |
+| 4 | Set start date to current date and end date to 7 days from current date | Both dates are accepted and displayed in the form with proper date format |
+| 5 | Click 'Save' or 'Assign Delegation' button | Delegation is saved successfully, confirmation message is displayed, and delegation appears in the delegation list with status 'Active' |
+| 6 | Verify delegate receives notification about the delegation assignment | Delegate receives notification indicating they have been assigned approval tasks with delegation period details |
+| 7 | Log out from the original approver account and log in as the delegate | Delegate successfully logs into the system |
+| 8 | Navigate to approval requests queue or delegated tasks section | Delegate can see the delegated approval requests from the original approver in their queue |
+| 9 | Select one of the delegated approval requests and click 'Approve' | Delegate can successfully approve the request, approval is processed, and request status changes to 'Approved' |
+| 10 | Log out from delegate account and log back in as the original approver | Original approver successfully logs back into the system |
+| 11 | Navigate to delegation settings and locate the active delegation assignment | Active delegation is displayed in the delegation list with current status and delegate information |
+| 12 | Click 'Revoke' or 'Cancel Delegation' button for the active delegation | Confirmation dialog appears asking to confirm revocation of delegation |
+| 13 | Confirm the revocation action | Delegation is removed successfully, confirmation message is displayed, and delegation status changes to 'Revoked' in the audit log |
+| 14 | Log out and log back in as the delegate, then navigate to approval requests | Delegate no longer has access to the previously delegated approval tasks, and delegated requests are removed from their queue |
+
+**Postconditions:**
+- Delegation assignment is revoked and recorded in audit logs
+- Delegate no longer has access to original approver's tasks
+- Original approver retains full control of their approval tasks
+- Delegation history is maintained in DelegationAssignments table with revocation timestamp
+- All approval actions taken by delegate during delegation period remain valid and recorded
+
+---
+
+### Test Case: Prevent unauthorized delegation assignment
+- **ID:** tc-002
+- **Type:** error-case
+- **Priority:** High
+- **Estimated Time:** 5 mins
+
+**Preconditions:**
+- User without approver role is logged into the system
+- User has standard or non-approver permissions
+- Delegation functionality is enabled in the system
+- Security controls are properly configured to restrict delegation assignment to approvers only
+
+**Steps:**
+| Step | Action | Expected Result |
+|------|--------|------------------|
+| 1 | Attempt to navigate to delegation settings page by entering the URL directly or through navigation menu | System denies access and displays error message 'Access Denied: You do not have permission to access delegation settings' or redirects to unauthorized access page |
+| 2 | Attempt to send a POST request to /api/delegations endpoint with delegation assignment data using API testing tool or browser console | API returns HTTP 403 Forbidden status code with error message 'Unauthorized: Only approvers can assign delegations' |
+| 3 | Verify that no delegation assignment is created in the DelegationAssignments table | No new delegation record is created, and database remains unchanged |
+| 4 | Check system audit logs for the unauthorized access attempt | Audit log records the unauthorized delegation assignment attempt with user details, timestamp, and action denied status |
+
+**Postconditions:**
+- No delegation assignment is created in the system
+- Non-approver user remains restricted from delegation functionality
+- Security violation is logged in audit trail
+- System security controls remain intact and functional
 
 ---
 
