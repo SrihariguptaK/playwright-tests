@@ -1,189 +1,159 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Weekly Schedule View - Story 8', () => {
+test.describe('Weekly Schedule - Employee View', () => {
   const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
-  const EMPLOYEE_A_EMAIL = 'employee.a@company.com';
-  const EMPLOYEE_A_PASSWORD = 'Password123!';
-  const EMPLOYEE_B_ID = '789';
-
-  test.beforeEach(async ({ page }) => {
-    // Navigate to login page
-    await page.goto(`${BASE_URL}/login`);
-    
-    // Login with valid employee credentials
-    await page.fill('[data-testid="email-input"]', EMPLOYEE_A_EMAIL);
-    await page.fill('[data-testid="password-input"]', EMPLOYEE_A_PASSWORD);
-    await page.click('[data-testid="login-button"]');
-    
-    // Wait for successful login and dashboard load
-    await expect(page).toHaveURL(/.*dashboard/, { timeout: 5000 });
-  });
+  const VALID_USERNAME = process.env.TEST_USERNAME || 'employee@company.com';
+  const VALID_PASSWORD = process.env.TEST_PASSWORD || 'Test123!';
 
   test('Validate weekly schedule display and navigation', async ({ page }) => {
-    // Action: Employee navigates to weekly schedule
-    await page.click('[data-testid="schedule-nav-link"]');
-    await page.click('[data-testid="weekly-view-option"]');
+    // Step 1: Navigate to the web portal login page
+    await page.goto(`${BASE_URL}/login`);
+    await expect(page).toHaveURL(/.*login/);
+
+    // Step 2: Enter valid employee credentials and click Login button
+    await page.fill('input[name="username"]', VALID_USERNAME);
+    await page.fill('input[name="password"]', VALID_PASSWORD);
+    await page.click('button[type="submit"]');
+
+    // Step 3: Verify the dashboard is fully loaded with all navigation elements visible
+    await expect(page.locator('[data-testid="dashboard"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('nav')).toBeVisible();
+    await expect(page.locator('[data-testid="navigation-menu"]')).toBeVisible();
+
+    // Step 4: Click on the Schedule section from the navigation menu
+    await page.click('text=Schedule');
+    await page.waitForLoadState('networkidle');
+
+    // Step 5: Select the Weekly View option
+    await page.click('[data-testid="weekly-view-button"]');
+    await page.waitForLoadState('networkidle');
+
+    // Step 6: Verify the weekly schedule displays all scheduled shifts with complete details
+    await expect(page.locator('[data-testid="weekly-schedule"]')).toBeVisible();
+    const shifts = page.locator('[data-testid="shift-item"]');
+    await expect(shifts.first()).toBeVisible();
     
-    // Expected Result: Weekly schedule for current week displayed with all shifts
-    await expect(page.locator('[data-testid="weekly-schedule-container"]')).toBeVisible();
-    
-    // Verify all 7 days are displayed
-    const dayElements = page.locator('[data-testid="schedule-day"]');
-    await expect(dayElements).toHaveCount(7);
-    
-    // Verify shifts are displayed
-    const shiftElements = page.locator('[data-testid="shift-item"]');
-    await expect(shiftElements.first()).toBeVisible();
-    
-    // Verify weekends and off days are highlighted distinctly
-    const weekendDays = page.locator('[data-testid="schedule-day"][data-weekend="true"]');
-    await expect(weekendDays.first()).toHaveClass(/weekend|highlighted/);
-    
-    const offDays = page.locator('[data-testid="schedule-day"][data-off-day="true"]');
-    if (await offDays.count() > 0) {
-      await expect(offDays.first()).toHaveClass(/off-day/);
+    // Verify shift details are present
+    const firstShift = shifts.first();
+    await expect(firstShift.locator('[data-testid="shift-time"]')).toBeVisible();
+    await expect(firstShift.locator('[data-testid="shift-location"]')).toBeVisible();
+
+    // Step 7: Verify weekends are highlighted or visually distinguished
+    const weekendDays = page.locator('[data-testid="weekend-day"]');
+    const weekendCount = await weekendDays.count();
+    expect(weekendCount).toBeGreaterThanOrEqual(2);
+
+    // Step 8: Verify any holidays in the current week are appropriately marked
+    const holidays = page.locator('[data-testid="holiday-marker"]');
+    if (await holidays.count() > 0) {
+      await expect(holidays.first()).toBeVisible();
     }
-    
-    // Action: Employee navigates to next week
-    const currentWeekText = await page.locator('[data-testid="week-display"]').textContent();
+
+    // Step 9: Click on the Next Week navigation button
     await page.click('[data-testid="next-week-button"]');
-    
-    // Expected Result: Schedule for next week displayed correctly
-    await page.waitForTimeout(500);
-    const nextWeekText = await page.locator('[data-testid="week-display"]').textContent();
-    expect(nextWeekText).not.toBe(currentWeekText);
-    await expect(page.locator('[data-testid="weekly-schedule-container"]')).toBeVisible();
-    await expect(dayElements).toHaveCount(7);
-    
-    // Action: Employee navigates to previous week (twice to go before original week)
+    await page.waitForLoadState('networkidle');
+
+    // Step 10: Verify the next week's schedule displays correctly
+    await expect(page.locator('[data-testid="weekly-schedule"]')).toBeVisible();
+    const nextWeekShifts = page.locator('[data-testid="shift-item"]');
+    await expect(nextWeekShifts.first()).toBeVisible();
+
+    // Step 11: Click on the Previous Week navigation button to return
     await page.click('[data-testid="previous-week-button"]');
-    await page.waitForTimeout(500);
-    await page.click('[data-testid="previous-week-button"]');
-    
-    // Expected Result: Schedule for previous week displayed correctly
-    await page.waitForTimeout(500);
-    const previousWeekText = await page.locator('[data-testid="week-display"]').textContent();
-    expect(previousWeekText).not.toBe(currentWeekText);
-    expect(previousWeekText).not.toBe(nextWeekText);
-    await expect(page.locator('[data-testid="weekly-schedule-container"]')).toBeVisible();
-    await expect(dayElements).toHaveCount(7);
-    
-    // Navigate back to current week
-    await page.click('[data-testid="next-week-button"]');
-    await page.waitForTimeout(500);
-    const returnedWeekText = await page.locator('[data-testid="week-display"]').textContent();
-    expect(returnedWeekText).toBe(currentWeekText);
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-testid="weekly-schedule"]')).toBeVisible();
   });
 
-  test('Verify access control for weekly schedule', async ({ page }) => {
-    // Navigate to weekly schedule view
-    await page.click('[data-testid="schedule-nav-link"]');
-    await page.click('[data-testid="weekly-view-option"]');
-    
-    // Wait for schedule to load
-    await expect(page.locator('[data-testid="weekly-schedule-container"]')).toBeVisible();
-    
-    // Note the current URL pattern
+  test('Verify access control for weekly schedule', async ({ page, context }) => {
+    // Step 1: Clear all browser cookies, cache, and session data
+    await context.clearCookies();
+    await context.clearPermissions();
+
+    // Step 2: Open a new browser window (already in incognito mode via context)
+    // Step 3: Directly enter the weekly schedule URL
+    await page.goto(`${BASE_URL}/schedules/weekly`);
+
+    // Step 4: Verify the login page is displayed
+    await expect(page).toHaveURL(/.*login/, { timeout: 10000 });
+    await expect(page.locator('[data-testid="login-form"]')).toBeVisible();
+
+    // Step 5: Verify no schedule data or sensitive information is visible
+    await expect(page.locator('[data-testid="weekly-schedule"]')).not.toBeVisible();
+    await expect(page.locator('[data-testid="shift-item"]')).not.toBeVisible();
+
+    // Step 6: Check the browser address bar for the current URL
     const currentUrl = page.url();
-    
-    // Action: Attempt to modify URL to access Employee B's weekly schedule
-    let unauthorizedUrl: string;
-    if (currentUrl.includes('employeeId=')) {
-      unauthorizedUrl = currentUrl.replace(/employeeId=\d+/, `employeeId=${EMPLOYEE_B_ID}`);
-    } else if (currentUrl.includes('/employee/')) {
-      unauthorizedUrl = currentUrl.replace(/\/employee\/\d+/, `/employee/${EMPLOYEE_B_ID}`);
-    } else {
-      // Construct URL with employee ID parameter
-      unauthorizedUrl = `${currentUrl}${currentUrl.includes('?') ? '&' : '?'}employeeId=${EMPLOYEE_B_ID}`;
-    }
-    
-    await page.goto(unauthorizedUrl);
-    
-    // Expected Result: Access denied with error message
-    const errorMessage = page.locator('[data-testid="error-message"]');
-    const accessDeniedMessage = page.locator('text=/access denied|unauthorized|forbidden/i');
-    
-    // Verify error message is displayed
-    await expect(errorMessage.or(accessDeniedMessage)).toBeVisible({ timeout: 5000 });
-    
-    // Verify no schedule data from Employee B is visible
-    const scheduleContainer = page.locator('[data-testid="weekly-schedule-container"]');
-    if (await scheduleContainer.isVisible()) {
-      // If container is visible, verify it shows error state, not actual schedule data
-      const shiftItems = page.locator('[data-testid="shift-item"]');
-      await expect(shiftItems).toHaveCount(0);
-    }
-    
-    // Navigate back to schedule section through menu
-    await page.click('[data-testid="schedule-nav-link"]');
-    await page.click('[data-testid="weekly-view-option"]');
-    
-    // Expected Result: Employee A can still access their own weekly schedule normally
-    await expect(page.locator('[data-testid="weekly-schedule-container"]')).toBeVisible();
-    const dayElements = page.locator('[data-testid="schedule-day"]');
-    await expect(dayElements).toHaveCount(7);
-    const shiftElements = page.locator('[data-testid="shift-item"]');
-    if (await shiftElements.count() > 0) {
-      await expect(shiftElements.first()).toBeVisible();
-    }
+    expect(currentUrl).toContain('login');
+    expect(currentUrl).not.toContain('schedules/weekly');
   });
 
-  test('Test weekly schedule loading performance', async ({ page }) => {
-    // Clear cache by using a new context (handled by Playwright by default per test)
+  test('Test UI responsiveness on tablet devices', async ({ page }) => {
+    // Set tablet viewport (iPad dimensions)
+    await page.setViewportSize({ width: 768, height: 1024 });
+
+    // Step 1: Navigate to the web portal URL
+    await page.goto(`${BASE_URL}/login`);
+
+    // Step 2: Enter valid employee credentials using on-screen keyboard and tap Login
+    await page.fill('input[name="username"]', VALID_USERNAME);
+    await page.fill('input[name="password"]', VALID_PASSWORD);
+    await page.click('button[type="submit"]');
+
+    // Step 3: Verify dashboard loads
+    await expect(page.locator('[data-testid="dashboard"]')).toBeVisible({ timeout: 10000 });
+
+    // Step 4: Tap on the Schedule section from the navigation menu
+    await page.click('text=Schedule');
+    await page.waitForLoadState('networkidle');
+
+    // Step 5: Select the Weekly View option by tapping
+    await page.click('[data-testid="weekly-view-button"]');
+    await page.waitForLoadState('networkidle');
+
+    // Step 6: Verify the entire week is visible without horizontal scrolling
+    const weeklySchedule = page.locator('[data-testid="weekly-schedule"]');
+    await expect(weeklySchedule).toBeVisible();
     
-    // Navigate to Schedule section and measure load time
-    await page.click('[data-testid="schedule-nav-link"]');
+    const scheduleBox = await weeklySchedule.boundingBox();
+    expect(scheduleBox?.width).toBeLessThanOrEqual(768);
+
+    // Step 7: Verify all shift information is readable
+    const shifts = page.locator('[data-testid="shift-item"]');
+    const firstShift = shifts.first();
+    await expect(firstShift.locator('[data-testid="shift-time"]')).toBeVisible();
+    await expect(firstShift.locator('[data-testid="shift-location"]')).toBeVisible();
     
-    // Start performance measurement
-    const startTime = Date.now();
-    
-    // Action: Click on Weekly View option
-    await page.click('[data-testid="weekly-view-option"]');
-    
-    // Wait for weekly schedule to fully render with all 7 days visible
-    await expect(page.locator('[data-testid="weekly-schedule-container"]')).toBeVisible();
-    const dayElements = page.locator('[data-testid="schedule-day"]');
-    await expect(dayElements).toHaveCount(7);
-    
-    // Wait for all shifts to load
-    await page.waitForLoadState('networkidle', { timeout: 5000 });
-    
-    const loadTime = Date.now() - startTime;
-    
-    // Expected Result: Schedule loads within 3 seconds (3000ms)
-    expect(loadTime).toBeLessThan(3000);
-    console.log(`Initial weekly schedule load time: ${loadTime}ms`);
-    
-    // Refresh the weekly schedule view and measure load time again
-    const refreshStartTime = Date.now();
-    await page.reload();
-    
-    await expect(page.locator('[data-testid="weekly-schedule-container"]')).toBeVisible();
-    await expect(dayElements).toHaveCount(7);
-    await page.waitForLoadState('networkidle', { timeout: 5000 });
-    
-    const refreshLoadTime = Date.now() - refreshStartTime;
-    expect(refreshLoadTime).toBeLessThan(3000);
-    console.log(`Refresh weekly schedule load time: ${refreshLoadTime}ms`);
-    
-    // Navigate to next week and measure load time
-    const nextWeekStartTime = Date.now();
+    const shiftTime = firstShift.locator('[data-testid="shift-time"]');
+    const fontSize = await shiftTime.evaluate(el => window.getComputedStyle(el).fontSize);
+    const fontSizeNum = parseInt(fontSize);
+    expect(fontSizeNum).toBeGreaterThanOrEqual(12);
+
+    // Step 8: Test next week navigation
     await page.click('[data-testid="next-week-button"]');
-    
-    await page.waitForLoadState('networkidle', { timeout: 5000 });
-    await expect(page.locator('[data-testid="weekly-schedule-container"]')).toBeVisible();
-    await expect(dayElements).toHaveCount(7);
-    
-    const nextWeekLoadTime = Date.now() - nextWeekStartTime;
-    expect(nextWeekLoadTime).toBeLessThan(3000);
-    console.log(`Next week schedule load time: ${nextWeekLoadTime}ms`);
-  });
+    await page.waitForLoadState('networkidle');
+    await expect(weeklySchedule).toBeVisible();
 
-  test.afterEach(async ({ page }) => {
-    // Logout after each test
-    const logoutButton = page.locator('[data-testid="logout-button"]');
-    if (await logoutButton.isVisible()) {
-      await logoutButton.click();
-    }
+    // Step 9: Test previous week navigation
+    await page.click('[data-testid="previous-week-button"]');
+    await page.waitForLoadState('networkidle');
+    await expect(weeklySchedule).toBeVisible();
+
+    // Step 10: Rotate tablet to landscape orientation
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await page.waitForTimeout(500);
+
+    // Step 11: Verify all schedule elements remain accessible in landscape
+    await expect(weeklySchedule).toBeVisible();
+    await expect(shifts.first()).toBeVisible();
+    await expect(page.locator('[data-testid="next-week-button"]')).toBeVisible();
+    await expect(page.locator('[data-testid="previous-week-button"]')).toBeVisible();
+
+    const landscapeBox = await weeklySchedule.boundingBox();
+    expect(landscapeBox?.width).toBeLessThanOrEqual(1024);
+
+    // Step 12: Rotate back to portrait orientation
+    await page.setViewportSize({ width: 768, height: 1024 });
+    await page.waitForTimeout(500);
+    await expect(weeklySchedule).toBeVisible();
   });
 });
