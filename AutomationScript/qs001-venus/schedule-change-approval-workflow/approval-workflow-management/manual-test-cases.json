@@ -1,380 +1,974 @@
 [
   {
-    "storyId": "story-24",
+    "storyId": "story-2",
     "storyTitle": "As Approver, I want to review schedule change requests to achieve informed decision-making",
     "testCases": [
       {
         "id": "tc-001",
-        "title": "Verify approver can view and act on pending schedule change requests",
+        "title": "Display pending schedule change requests to approver",
         "type": "happy-path",
         "priority": "High",
         "preconditions": [
-          "User account with approver role exists in the system",
-          "At least one pending schedule change request is assigned to the approver",
-          "Request contains complete details and at least one attachment",
-          "System is accessible and all services are running",
-          "Database contains valid test data in ScheduleChangeRequests table"
+          "User has valid approver credentials",
+          "At least one pending schedule change request exists in the system",
+          "User has appropriate role-based access permissions",
+          "Network connectivity is available"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Navigate to the application login page and enter valid approver credentials",
-            "expectedResult": "User is successfully authenticated and redirected to the home page"
+            "action": "Approver logs into the system using valid credentials",
+            "expectedResult": "Dashboard loads successfully within 3 seconds and displays the main navigation menu"
           },
           {
             "step": 2,
-            "action": "Click on 'Pending Approvals' menu item or navigate to the pending approvals dashboard",
-            "expectedResult": "Pending approvals dashboard loads within 3 seconds and displays all assigned pending requests with request ID, requester name, request date, and status"
+            "action": "Navigate to approval dashboard by clicking on the approval dashboard menu option",
+            "expectedResult": "List of pending schedule change requests is displayed showing request ID, requester name, submission date, and current status"
           },
           {
             "step": 3,
-            "action": "Select a specific pending schedule change request from the list by clicking on it",
-            "expectedResult": "Request details page opens showing complete information including requester details, requested changes, reason, submission date, and all attached documents"
-          },
-          {
-            "step": 4,
-            "action": "Click on attachment links to verify accessibility",
-            "expectedResult": "Attachments open or download successfully without errors"
-          },
-          {
-            "step": 5,
-            "action": "Click the 'Approve' button to initiate approval action",
-            "expectedResult": "Comment dialog box appears prompting for optional comments"
-          },
-          {
-            "step": 6,
-            "action": "Enter comment 'Approved as requested - meets all policy requirements' in the comment field",
-            "expectedResult": "Comment text is accepted and displayed in the input field"
-          },
-          {
-            "step": 7,
-            "action": "Click 'Submit' or 'Confirm' button to finalize the approval",
-            "expectedResult": "Success message is displayed confirming approval action, request status updates to 'Approved', action is logged in ApprovalActions table with timestamp and approver details, and request is removed from pending list"
+            "action": "Select a request from the list to view details by clicking on the request row",
+            "expectedResult": "Detailed information is displayed including requester details, requested changes, attachments, comments, and request history"
           }
         ],
         "postconditions": [
-          "Request status is updated to 'Approved' in the database",
-          "Approval action is logged with timestamp, approver ID, and comments in ApprovalActions table",
-          "Request no longer appears in the approver's pending list",
-          "Audit trail is complete and traceable",
-          "Requester can view the updated status"
+          "Approver remains logged in",
+          "Request details page is displayed",
+          "No changes are made to request status"
+        ],
+        "estimatedTime": "3 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Approve a schedule change request",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an approver",
+          "At least one pending schedule change request exists",
+          "User has authorization to approve requests",
+          "Approver is on the approval dashboard"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Select a pending schedule change request from the list by clicking on it",
+            "expectedResult": "Request details are displayed showing all relevant information including requester name, requested changes, attachments, and current status as 'Pending'"
+          },
+          {
+            "step": 2,
+            "action": "Click the 'Approve' button and add optional comments in the comments text field",
+            "expectedResult": "Approve action is accepted, comments field is populated, and the submit button becomes enabled"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Submit' button to confirm the approval decision",
+            "expectedResult": "Request status is updated to 'Approved', decision is logged with timestamp and approver details, confirmation message is displayed, and notification is sent to the requester"
+          }
+        ],
+        "postconditions": [
+          "Request status is changed to 'Approved' in the database",
+          "Approval action is logged in ApprovalActions table with timestamp",
+          "Requester receives notification of approval",
+          "Request is removed from pending list on dashboard"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Reject a schedule change request with comments",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an approver",
+          "At least one pending schedule change request exists",
+          "User has authorization to reject requests",
+          "Approver is on the approval dashboard"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Select a pending schedule change request from the list by clicking on it",
+            "expectedResult": "Request details are displayed showing all relevant information including requester name, requested changes, attachments, and current status as 'Pending'"
+          },
+          {
+            "step": 2,
+            "action": "Click the 'Reject' button and enter a rejection reason in the mandatory comments field",
+            "expectedResult": "Reject action is accepted, rejection reason is entered in the comments field, and the submit button becomes enabled"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Submit' button to confirm the rejection decision",
+            "expectedResult": "Request status is updated to 'Rejected', decision is logged with timestamp and approver details, rejection reason is saved, confirmation message is displayed, and notification is sent to the requester"
+          }
+        ],
+        "postconditions": [
+          "Request status is changed to 'Rejected' in the database",
+          "Rejection action is logged in ApprovalActions table with timestamp and comments",
+          "Requester receives notification of rejection with reason",
+          "Request is removed from pending list on dashboard"
+        ],
+        "estimatedTime": "4 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-3",
+    "storyTitle": "As Scheduler, I want to view the status of my schedule change requests to achieve transparency and timely updates",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Display schedule change requests and statuses for scheduler",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has valid scheduler credentials",
+          "Scheduler has submitted at least one schedule change request",
+          "User has appropriate role-based access permissions",
+          "Network connectivity is available"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Scheduler logs into the system using valid credentials",
+            "expectedResult": "'My Schedule Changes' page loads successfully within 3 seconds and displays the navigation menu"
+          },
+          {
+            "step": 2,
+            "action": "View the list of submitted schedule change requests on the 'My Schedule Changes' page",
+            "expectedResult": "All requests submitted by the logged-in scheduler are displayed with columns showing request ID, submission date, type, current status (Pending, Approved, Rejected, or Escalated), and last updated timestamp"
+          },
+          {
+            "step": 3,
+            "action": "Select a specific request from the list by clicking on it to view detailed approval history",
+            "expectedResult": "Detailed view is displayed showing complete approval history including all approval actions, approver names, decision timestamps, and any comments provided by approvers"
+          }
+        ],
+        "postconditions": [
+          "Scheduler remains logged in",
+          "Request details page is displayed",
+          "No changes are made to any request status",
+          "Only scheduler's own requests are visible"
+        ],
+        "estimatedTime": "3 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Filter and sort schedule change requests",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "User is logged in as a scheduler",
+          "Scheduler is on the 'My Schedule Changes' page",
+          "Multiple schedule change requests exist with different statuses and dates",
+          "At least one request has 'Pending' status"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "On 'My Schedule Changes' page, locate the status filter dropdown and select 'Pending' from the available options",
+            "expectedResult": "Only requests with 'Pending' status are displayed in the list, all other status requests are filtered out, and the count of displayed requests updates accordingly"
+          },
+          {
+            "step": 2,
+            "action": "Click on the 'Submission Date' column header to sort requests by submission date in descending order",
+            "expectedResult": "Requests are sorted correctly with the most recent submission date appearing first, and a descending sort indicator is displayed on the column header"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Clear Filters' or 'Reset' button to remove all applied filters and sorting",
+            "expectedResult": "All schedule change requests submitted by the scheduler are displayed again in the default order (typically by submission date descending), and filter selections are reset to default values"
+          }
+        ],
+        "postconditions": [
+          "All filters and sorting are cleared",
+          "Full list of scheduler's requests is visible",
+          "Page displays default view",
+          "No data is modified"
+        ],
+        "estimatedTime": "4 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-4",
+    "storyTitle": "As Approver, I want to escalate schedule change requests to higher authority to achieve timely resolution",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Escalate a schedule change request successfully",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Approver role",
+          "At least one schedule change request exists in pending status",
+          "User has permission to escalate requests",
+          "Higher-level approvers are configured in the system",
+          "Notification service is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the approval dashboard",
+            "expectedResult": "Approval dashboard loads successfully displaying list of pending schedule change requests"
+          },
+          {
+            "step": 2,
+            "action": "Select a schedule change request from the list",
+            "expectedResult": "Request details are displayed including requester information, schedule details, and current status"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Escalate' button",
+            "expectedResult": "Escalation dialog box opens with a comments text field and submit/cancel buttons"
+          },
+          {
+            "step": 4,
+            "action": "Enter escalation comments in the text field (e.g., 'Requires senior management approval due to budget implications')",
+            "expectedResult": "Escalation comments are accepted and displayed in the text field without validation errors"
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Submit' button to submit the escalation",
+            "expectedResult": "System processes the escalation within 2 seconds, request status updates to 'Escalated', success message is displayed"
+          },
+          {
+            "step": 6,
+            "action": "Verify the request status on the dashboard",
+            "expectedResult": "Request status shows 'Escalated' with timestamp and escalation indicator"
+          },
+          {
+            "step": 7,
+            "action": "Check that notification was sent to higher-level approvers",
+            "expectedResult": "Notification is sent to next-level approvers within 1 minute containing request details and escalation comments"
+          },
+          {
+            "step": 8,
+            "action": "Review audit logs for the escalation action",
+            "expectedResult": "Escalation action is logged in audit logs with timestamp, approver user details, and escalation comments"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request status is 'Escalated'",
+          "Higher-level approvers have been notified",
+          "Escalation action is recorded in audit logs with complete details",
+          "Original approver can view escalation history on the request"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Reject escalation with missing comments",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Approver role",
+          "At least one schedule change request exists in pending status",
+          "User has permission to escalate requests",
+          "Escalation comments are configured as mandatory field"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the approval dashboard",
+            "expectedResult": "Approval dashboard loads successfully displaying list of pending schedule change requests"
+          },
+          {
+            "step": 2,
+            "action": "Select a schedule change request from the list",
+            "expectedResult": "Request details are displayed with available actions including 'Escalate' button"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Escalate' button",
+            "expectedResult": "Escalation dialog box opens with an empty comments text field"
+          },
+          {
+            "step": 4,
+            "action": "Leave the comments field empty and click the 'Submit' button",
+            "expectedResult": "Validation error message is displayed: 'Escalation comments are required' or similar, submission is blocked"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to submit escalation again without entering comments",
+            "expectedResult": "Submission remains blocked, validation error persists, escalation dialog stays open"
+          },
+          {
+            "step": 6,
+            "action": "Verify that the request status has not changed",
+            "expectedResult": "Request status remains in original state (not 'Escalated'), no escalation action recorded"
+          },
+          {
+            "step": 7,
+            "action": "Enter valid comments in the text field (e.g., 'Escalating for policy review')",
+            "expectedResult": "Validation error clears, comments are accepted"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Submit' button with valid comments",
+            "expectedResult": "Escalation is successfully submitted, request status updates to 'Escalated'"
+          }
+        ],
+        "postconditions": [
+          "System enforces mandatory comments validation for escalations",
+          "No incomplete escalation records are created in the system",
+          "Request status only changes after valid escalation submission"
+        ],
+        "estimatedTime": "4 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-5",
+    "storyTitle": "As System Administrator, I want to configure approval workflow rules to achieve flexible and compliant schedule change processing",
+    "testCases": [
+      {
+        "id": "tc-003",
+        "title": "Create and save new approval workflow configuration",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with System Administrator role",
+          "User has access to workflow configuration module",
+          "WorkflowConfig database tables are accessible",
+          "No pending workflow configuration changes exist",
+          "System is in stable state with no ongoing deployments"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log into the system with administrator credentials",
+            "expectedResult": "Administrator successfully logs in and lands on admin dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the workflow configuration page from the admin menu",
+            "expectedResult": "Workflow configuration UI loads successfully displaying current workflow settings and configuration options"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Add New Approval Level' button",
+            "expectedResult": "New approval level form appears with fields for level name, sequence order, and role assignment"
+          },
+          {
+            "step": 4,
+            "action": "Enter approval level details: Level Name = 'Senior Management Approval', Sequence = '3', Role = 'Senior Manager'",
+            "expectedResult": "Input fields accept the values without validation errors, data is displayed correctly in the form"
+          },
+          {
+            "step": 5,
+            "action": "Click 'Add Role' to assign additional roles to the approval level",
+            "expectedResult": "Role selection dropdown appears with available system roles"
+          },
+          {
+            "step": 6,
+            "action": "Select 'Director' role from the dropdown and add it to the approval level",
+            "expectedResult": "Director role is added to the approval level, both Senior Manager and Director roles are displayed"
+          },
+          {
+            "step": 7,
+            "action": "Define escalation path by selecting 'Escalates to: Executive Level' from the escalation dropdown",
+            "expectedResult": "Escalation path is configured and displayed in the workflow diagram"
+          },
+          {
+            "step": 8,
+            "action": "Review the complete workflow configuration in the preview panel",
+            "expectedResult": "Preview shows all approval levels, assigned roles, and escalation paths in logical sequence"
+          },
+          {
+            "step": 9,
+            "action": "Click 'Save Configuration' button",
+            "expectedResult": "System validates the configuration for consistency, validation passes with no errors"
+          },
+          {
+            "step": 10,
+            "action": "Confirm the save action in the confirmation dialog",
+            "expectedResult": "Configuration is saved successfully, success message displays: 'Workflow configuration saved and will be applied within 5 minutes'"
+          },
+          {
+            "step": 11,
+            "action": "Wait for 5 minutes and refresh the workflow configuration page",
+            "expectedResult": "New configuration is active and displayed as current workflow, changes are applied without system downtime"
+          },
+          {
+            "step": 12,
+            "action": "Navigate to audit logs and search for workflow configuration changes",
+            "expectedResult": "Configuration change is logged with administrator username, timestamp, and details of changes made"
+          }
+        ],
+        "postconditions": [
+          "New approval workflow configuration is saved in WorkflowConfig tables",
+          "Configuration is applied and active in the system within 5 minutes",
+          "All configuration changes are logged in audit logs",
+          "System remains operational with no downtime",
+          "New approval level is available for schedule change requests"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-004",
+        "title": "Reject invalid workflow configuration",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with System Administrator role",
+          "User has access to workflow configuration module",
+          "Existing valid workflow configuration is in place",
+          "Validation rules are configured for workflow consistency"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log into the system with administrator credentials",
+            "expectedResult": "Administrator successfully logs in and accesses admin dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the workflow configuration page",
+            "expectedResult": "Workflow configuration UI loads with current workflow settings displayed"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Add New Approval Level' to create a new level",
+            "expectedResult": "New approval level form appears ready for input"
+          },
+          {
+            "step": 4,
+            "action": "Enter approval level: Level Name = 'Department Head', Sequence = '2', Role = 'Department Manager'",
+            "expectedResult": "Approval level details are entered and displayed in the form"
+          },
+          {
+            "step": 5,
+            "action": "Configure escalation path to point to a non-existent approval level: 'Escalates to: Non-Existent Level'",
+            "expectedResult": "Escalation path input accepts the entry temporarily"
+          },
+          {
+            "step": 6,
+            "action": "Create another approval level with the same sequence number '2' as an existing level",
+            "expectedResult": "Duplicate sequence number is entered in the form"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Save Configuration' button",
+            "expectedResult": "System performs validation and displays validation errors: 'Escalation path references non-existent approval level' and 'Duplicate sequence numbers detected'"
+          },
+          {
+            "step": 8,
+            "action": "Review the validation error messages displayed on the screen",
+            "expectedResult": "Clear, specific error messages are shown for each validation failure with guidance on how to resolve"
+          },
+          {
+            "step": 9,
+            "action": "Attempt to save the configuration again without making corrections",
+            "expectedResult": "Save operation is blocked, validation errors persist, configuration is not saved to database"
+          },
+          {
+            "step": 10,
+            "action": "Verify that the original workflow configuration remains unchanged",
+            "expectedResult": "Current active workflow configuration is unchanged, no partial updates applied"
+          },
+          {
+            "step": 11,
+            "action": "Correct the errors: Change escalation path to valid existing level and update sequence number to '4'",
+            "expectedResult": "Corrections are accepted, validation errors clear from the screen"
+          },
+          {
+            "step": 12,
+            "action": "Click 'Save Configuration' button with corrected data",
+            "expectedResult": "Validation passes, configuration is saved successfully, success message is displayed"
+          }
+        ],
+        "postconditions": [
+          "Invalid configuration is rejected and not saved to the system",
+          "Original workflow configuration remains intact and operational",
+          "No partial or inconsistent configuration data exists in the database",
+          "Administrator is informed of specific validation errors",
+          "System maintains data integrity throughout the validation process"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-7",
+    "storyTitle": "As Scheduler, I want to receive notifications about schedule change approval decisions to achieve timely awareness",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Receive notification on approval decision",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Scheduler is logged into the system",
+          "Scheduler has submitted a schedule change request with valid details",
+          "Schedule change request is in 'Pending' status",
+          "Approver has appropriate permissions to approve requests",
+          "Notification service is operational",
+          "Scheduler's email address is configured in user profile",
+          "In-app notification feature is enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Approver logs into the system and navigates to the approval dashboard",
+            "expectedResult": "Approver successfully accesses the approval dashboard and sees the pending schedule change request"
+          },
+          {
+            "step": 2,
+            "action": "Approver selects the schedule change request submitted by the scheduler",
+            "expectedResult": "Request details are displayed with all relevant information including requester name, date, and change details"
+          },
+          {
+            "step": 3,
+            "action": "Approver adds comments 'Approved as requested - no conflicts identified' and clicks the 'Approve' button",
+            "expectedResult": "System displays confirmation message that the decision has been recorded and request status changes to 'Approved'"
+          },
+          {
+            "step": 4,
+            "action": "System automatically triggers notification service within 1 minute of approval",
+            "expectedResult": "Notification service processes the approval decision and queues email and in-app notifications for the scheduler"
+          },
+          {
+            "step": 5,
+            "action": "Scheduler checks email inbox within 1 minute of approval",
+            "expectedResult": "Scheduler receives email notification with subject line indicating approval, including decision details and approver comments"
+          },
+          {
+            "step": 6,
+            "action": "Scheduler logs into the system and checks in-app notifications",
+            "expectedResult": "In-app notification badge shows unread notification count, notification appears in notification center"
+          },
+          {
+            "step": 7,
+            "action": "Scheduler clicks on the in-app notification to view details",
+            "expectedResult": "Notification displays complete decision information including: approval status, approver name, timestamp, comments 'Approved as requested - no conflicts identified', and link to view full request details"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request status is 'Approved'",
+          "Scheduler has received both email and in-app notifications",
+          "Notification delivery timestamp is within 1 minute of approval decision",
+          "Notification is marked as delivered in the system",
+          "Audit log records notification sent event"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Receive notification on rejection decision",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Scheduler is logged into the system",
+          "Scheduler has submitted a schedule change request with valid details",
+          "Schedule change request is in 'Pending' status",
+          "Approver has appropriate permissions to reject requests",
+          "Notification service is operational",
+          "Scheduler's email address is configured in user profile",
+          "In-app notification feature is enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Approver logs into the system and navigates to the approval dashboard",
+            "expectedResult": "Approver successfully accesses the approval dashboard and sees the pending schedule change request"
+          },
+          {
+            "step": 2,
+            "action": "Approver selects the schedule change request submitted by the scheduler",
+            "expectedResult": "Request details are displayed with all relevant information including requester name, date, and change details"
+          },
+          {
+            "step": 3,
+            "action": "Approver adds comments 'Rejected due to insufficient staffing coverage during requested period' and clicks the 'Reject' button",
+            "expectedResult": "System displays confirmation message that the decision has been recorded and request status changes to 'Rejected'"
+          },
+          {
+            "step": 4,
+            "action": "System automatically triggers notification service within 1 minute of rejection",
+            "expectedResult": "Notification service processes the rejection decision and queues email and in-app notifications for the scheduler"
+          },
+          {
+            "step": 5,
+            "action": "Scheduler checks email inbox within 1 minute of rejection",
+            "expectedResult": "Scheduler receives email notification with subject line indicating rejection, including decision details and approver comments"
+          },
+          {
+            "step": 6,
+            "action": "Scheduler logs into the system and checks in-app notifications",
+            "expectedResult": "In-app notification badge shows unread notification count, notification appears in notification center with rejection indicator"
+          },
+          {
+            "step": 7,
+            "action": "Scheduler clicks on the in-app notification to view details",
+            "expectedResult": "Notification displays complete decision information including: rejection status, approver name, timestamp, comments 'Rejected due to insufficient staffing coverage during requested period', and link to view full request details"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request status is 'Rejected'",
+          "Scheduler has received both email and in-app notifications",
+          "Notification delivery timestamp is within 1 minute of rejection decision",
+          "Notification is marked as delivered in the system",
+          "Audit log records notification sent event",
+          "Original schedule remains unchanged"
+        ],
+        "estimatedTime": "5 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-8",
+    "storyTitle": "As Approver, I want to filter and search schedule change requests to achieve efficient workload management",
+    "testCases": [
+      {
+        "id": "tc-003",
+        "title": "Filter schedule change requests by status and date",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Approver is logged into the system with valid credentials",
+          "Approver has appropriate permissions to view schedule change requests",
+          "Multiple schedule change requests exist in the system with varying statuses (Pending, Approved, Rejected)",
+          "Schedule change requests exist with different submission dates spanning more than 7 days",
+          "At least 3 requests with 'Pending' status exist within the last 7 days",
+          "Approval dashboard is accessible and fully loaded"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Approver navigates to the approval dashboard",
+            "expectedResult": "Dashboard loads successfully displaying all schedule change requests in default view with filter options visible"
+          },
+          {
+            "step": 2,
+            "action": "Approver locates the status filter dropdown and selects 'Pending' from the available options",
+            "expectedResult": "Status filter is applied and dropdown shows 'Pending' as selected value"
+          },
+          {
+            "step": 3,
+            "action": "Approver locates the date range filter and selects 'Last 7 days' option",
+            "expectedResult": "Date range filter is applied showing date range from current date minus 7 days to current date"
+          },
+          {
+            "step": 4,
+            "action": "Approver clicks 'Apply Filters' button",
+            "expectedResult": "System processes the filter request and displays filtered results within 2 seconds showing only requests with 'Pending' status submitted within the last 7 days"
+          },
+          {
+            "step": 5,
+            "action": "Approver verifies the filtered list by checking status and date columns of displayed requests",
+            "expectedResult": "All displayed requests show 'Pending' status and submission dates within the last 7 days, no requests outside filter criteria are shown"
+          },
+          {
+            "step": 6,
+            "action": "Approver notes the response time from clicking 'Apply Filters' to results display",
+            "expectedResult": "Results are returned and displayed within 2 seconds as per performance requirement"
+          },
+          {
+            "step": 7,
+            "action": "Approver clicks 'Clear Filters' button",
+            "expectedResult": "All filters are removed, filter dropdowns reset to default values, and full unfiltered list of all schedule change requests is displayed"
+          }
+        ],
+        "postconditions": [
+          "Filters are cleared and system returns to default view",
+          "All schedule change requests are visible without any filtering applied",
+          "Filter controls are reset to default state",
+          "System performance remains within acceptable limits"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-004",
+        "title": "Search schedule change requests by keyword",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Approver is logged into the system with valid credentials",
+          "Approver has appropriate permissions to view schedule change requests",
+          "Multiple schedule change requests exist in the system",
+          "At least 3 requests contain the keyword 'maintenance' in their details, comments, or description fields",
+          "Search functionality is enabled on the approval dashboard",
+          "Approval dashboard is accessible and fully loaded"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Approver navigates to the approval dashboard",
+            "expectedResult": "Dashboard loads successfully displaying all schedule change requests with search box visible at the top of the request list"
+          },
+          {
+            "step": 2,
+            "action": "Approver locates the search box and clicks inside it to activate the search field",
+            "expectedResult": "Search box is activated, cursor appears in the field, and placeholder text is visible"
+          },
+          {
+            "step": 3,
+            "action": "Approver types the keyword 'maintenance' into the search box",
+            "expectedResult": "Text 'maintenance' appears in the search box as typed, character by character"
+          },
+          {
+            "step": 4,
+            "action": "Approver presses Enter key or clicks the search icon button",
+            "expectedResult": "System initiates search query and displays loading indicator while processing"
+          },
+          {
+            "step": 5,
+            "action": "System processes the search and returns results",
+            "expectedResult": "Search results are displayed within 2 seconds showing only schedule change requests that contain the keyword 'maintenance' in any of their detail fields"
+          },
+          {
+            "step": 6,
+            "action": "Approver reviews the search results and verifies each displayed request contains the keyword 'maintenance'",
+            "expectedResult": "All displayed requests contain 'maintenance' in description, comments, or other detail fields, with the keyword highlighted or emphasized in the results"
+          },
+          {
+            "step": 7,
+            "action": "Approver notes the response time from initiating search to results display",
+            "expectedResult": "Search results are returned and displayed within 2 seconds as per performance requirement"
+          },
+          {
+            "step": 8,
+            "action": "Approver clicks 'Clear Search' button or deletes text from search box and presses Enter",
+            "expectedResult": "Search is cleared, search box is empty, and full unfiltered list of all schedule change requests is displayed"
+          }
+        ],
+        "postconditions": [
+          "Search is cleared and system returns to default view",
+          "All schedule change requests are visible without any search filtering applied",
+          "Search box is empty and ready for new search input",
+          "System performance remains within acceptable limits"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Save and reuse filter presets",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "Approver is logged into the system with valid credentials",
+          "Approver has appropriate permissions to view and manage schedule change requests",
+          "Filter preset functionality is enabled for the approver role",
+          "Multiple schedule change requests exist with varying priorities and statuses",
+          "At least 3 requests with 'High' priority and 'Pending' status exist in the system",
+          "Approval dashboard is accessible and fully loaded",
+          "Approver has not previously saved a preset named 'Urgent Requests'"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Approver navigates to the approval dashboard",
+            "expectedResult": "Dashboard loads successfully displaying all schedule change requests with filter options and preset management controls visible"
+          },
+          {
+            "step": 2,
+            "action": "Approver applies multiple filters: selects 'Pending' from status dropdown and 'High' from priority dropdown",
+            "expectedResult": "Both filters are applied and displayed as active filters in the filter panel"
+          },
+          {
+            "step": 3,
+            "action": "Approver clicks 'Apply Filters' button to view filtered results",
+            "expectedResult": "Filtered list displays only requests with 'Pending' status and 'High' priority within 2 seconds"
+          },
+          {
+            "step": 4,
+            "action": "Approver clicks 'Save Preset' or 'Save Filter' button",
+            "expectedResult": "Dialog box or modal appears prompting for preset name and optional description"
+          },
+          {
+            "step": 5,
+            "action": "Approver enters preset name 'Urgent Requests' in the name field",
+            "expectedResult": "Text 'Urgent Requests' appears in the preset name field"
+          },
+          {
+            "step": 6,
+            "action": "Approver clicks 'Save' button in the preset dialog",
+            "expectedResult": "System displays success message 'Preset saved successfully', dialog closes, and 'Urgent Requests' appears in the saved presets list or dropdown"
+          },
+          {
+            "step": 7,
+            "action": "Approver clicks 'Clear Filters' to reset the view",
+            "expectedResult": "All filters are cleared and full unfiltered list of schedule change requests is displayed"
+          },
+          {
+            "step": 8,
+            "action": "Approver locates the saved presets dropdown or list and selects 'Urgent Requests' preset",
+            "expectedResult": "Preset 'Urgent Requests' is selected from the list"
+          },
+          {
+            "step": 9,
+            "action": "Approver clicks 'Load Preset' or 'Apply' button",
+            "expectedResult": "System automatically applies the saved filters (Status: Pending, Priority: High) and displays matching requests within 2 seconds"
+          },
+          {
+            "step": 10,
+            "action": "Approver verifies that the loaded preset displays the same filtered results as when originally saved",
+            "expectedResult": "Filtered list shows only requests with 'Pending' status and 'High' priority, matching the original filter criteria"
+          }
+        ],
+        "postconditions": [
+          "Filter preset 'Urgent Requests' is saved in the system and associated with the approver's profile",
+          "Preset is available for future use in the saved presets list",
+          "Current view displays filtered results based on the loaded preset",
+          "Preset can be edited or deleted by the approver",
+          "System audit log records preset creation event"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-9",
+    "storyTitle": "As System Administrator, I want to manage user roles and permissions for approval workflows to achieve secure and compliant access control",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Assign and enforce user roles",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Admin user is authenticated and logged into the system",
+          "User management console is accessible",
+          "Test user account exists in the system without 'Approver' role",
+          "UserRoles and Permissions tables are properly configured",
+          "Approval dashboard is available and functional"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to user management console as Admin",
+            "expectedResult": "User management console loads successfully displaying list of users and their current roles"
+          },
+          {
+            "step": 2,
+            "action": "Search for and select the test user from the user list",
+            "expectedResult": "Test user profile is displayed with current role information"
+          },
+          {
+            "step": 3,
+            "action": "Click on 'Edit Roles' or 'Assign Role' button for the selected user",
+            "expectedResult": "Role assignment interface opens showing available roles (Scheduler, Approver, Auditor, Admin)"
+          },
+          {
+            "step": 4,
+            "action": "Select 'Approver' role from the available roles list",
+            "expectedResult": "'Approver' role is highlighted/selected in the interface"
+          },
+          {
+            "step": 5,
+            "action": "Click 'Save' button to confirm role assignment",
+            "expectedResult": "Success message is displayed confirming role assignment. Role change is saved to UserRoles table and logged with admin username and timestamp"
+          },
+          {
+            "step": 6,
+            "action": "Verify the audit log for the role change entry",
+            "expectedResult": "Audit log shows new entry with user ID, assigned role 'Approver', admin who made the change, and timestamp"
+          },
+          {
+            "step": 7,
+            "action": "Log out from admin account and log in as the test user with newly assigned 'Approver' role",
+            "expectedResult": "Test user successfully logs into the system"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to the approval dashboard",
+            "expectedResult": "Approval dashboard loads successfully showing pending approval requests and approval actions available to 'Approver' role"
+          },
+          {
+            "step": 9,
+            "action": "Attempt to perform an action restricted to 'Approver' role (e.g., approve a pending schedule change)",
+            "expectedResult": "Action is permitted and executes successfully, confirming 'Approver' permissions are enforced"
+          },
+          {
+            "step": 10,
+            "action": "Attempt to access an unauthorized action for 'Approver' role (e.g., access admin configuration settings or user management console)",
+            "expectedResult": "Access is denied with appropriate error message (e.g., 'You do not have permission to access this resource' or 403 Forbidden)"
+          },
+          {
+            "step": 11,
+            "action": "Verify that unauthorized action attempt is logged in security audit log",
+            "expectedResult": "Security audit log contains entry of unauthorized access attempt with user ID, attempted action, and timestamp"
+          }
+        ],
+        "postconditions": [
+          "Test user has 'Approver' role assigned in the system",
+          "Role assignment is logged in audit trail",
+          "User can access Approver-specific functions",
+          "User cannot access functions outside Approver permissions",
+          "All access attempts are properly logged"
         ],
         "estimatedTime": "8 mins"
       },
       {
         "id": "tc-002",
-        "title": "Ensure unauthorized users cannot approve requests",
+        "title": "Restrict role management access",
         "type": "error-case",
         "priority": "High",
         "preconditions": [
-          "User account without approver role exists in the system",
-          "At least one pending schedule change request exists",
-          "Role-based access control is configured and active",
-          "API endpoints are protected with authorization checks"
+          "System has role-based access control configured",
+          "Non-admin test user account exists and is authenticated",
+          "Admin test user account exists and is authenticated",
+          "Role management page URL is known",
+          "Access control is properly configured to restrict role management to admins only"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Navigate to the application login page and enter credentials for a user without approver role (e.g., regular employee)",
-            "expectedResult": "User is successfully authenticated and redirected to the home page"
+            "action": "Log into the system as a non-admin user (e.g., user with 'Scheduler' or 'Approver' role)",
+            "expectedResult": "Non-admin user successfully logs into the system and lands on their default dashboard"
           },
           {
             "step": 2,
-            "action": "Attempt to navigate to 'Pending Approvals' dashboard via URL or menu",
-            "expectedResult": "Access is denied with error message 'You do not have permission to access this page' or 'Pending Approvals' menu item is not visible"
+            "action": "Attempt to navigate to the role management page by entering the URL directly in the browser or clicking on role management link if visible",
+            "expectedResult": "Access is denied. System displays error message such as 'Access Denied - Insufficient Permissions' or 'You must be an administrator to access this page'. HTTP 403 Forbidden status is returned"
           },
           {
             "step": 3,
-            "action": "Attempt to directly access a specific approval request URL if known",
-            "expectedResult": "System redirects to error page or displays 'Access Denied' message with HTTP 403 status"
+            "action": "Verify that role management navigation option is not visible in the user interface for non-admin user",
+            "expectedResult": "Role management menu item or link is not displayed in navigation menu or sidebar for non-admin user"
           },
           {
             "step": 4,
-            "action": "Using API testing tool (e.g., Postman), attempt to call GET /api/approvals/pending with non-approver user token",
-            "expectedResult": "API returns HTTP 403 Forbidden status with error message indicating insufficient permissions"
+            "action": "Attempt to access role management API endpoint directly (GET /api/user-roles) using non-admin credentials",
+            "expectedResult": "API request is rejected with 403 Forbidden status and appropriate error message in response body"
           },
           {
             "step": 5,
-            "action": "Using API testing tool, attempt to call POST /api/approvals/decisions with non-approver user token and valid request payload",
-            "expectedResult": "API returns HTTP 403 Forbidden or 401 Unauthorized status with authorization error message, and no changes are made to the request status"
-          }
-        ],
-        "postconditions": [
-          "No approval actions are recorded in the system",
-          "Request status remains unchanged",
-          "Security violation attempt is logged in audit trail",
-          "No unauthorized access is granted to approval functionality"
-        ],
-        "estimatedTime": "6 mins"
-      },
-      {
-        "id": "tc-003",
-        "title": "Validate rejection and request for additional information flows",
-        "type": "happy-path",
-        "priority": "High",
-        "preconditions": [
-          "User account with approver role exists and is logged in",
-          "At least two pending schedule change requests are assigned to the approver",
-          "System is accessible and all services are running",
-          "Database is in consistent state"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "From the pending approvals dashboard, select the first pending schedule change request",
-            "expectedResult": "Request details page opens displaying complete request information including all fields and attachments"
-          },
-          {
-            "step": 2,
-            "action": "Click the 'Reject' button to initiate rejection action",
-            "expectedResult": "Comment dialog box appears with mandatory comment field indicated"
-          },
-          {
-            "step": 3,
-            "action": "Enter rejection comment 'Request does not comply with company policy section 4.2 - insufficient justification provided'",
-            "expectedResult": "Comment text is accepted and displayed in the input field"
-          },
-          {
-            "step": 4,
-            "action": "Click 'Submit' or 'Confirm' button to finalize the rejection",
-            "expectedResult": "Success message is displayed, request status updates to 'Rejected', rejection action is logged in ApprovalActions table with timestamp, approver ID, and comments, and request is removed from pending list"
-          },
-          {
-            "step": 5,
-            "action": "Navigate back to pending approvals dashboard and select a second pending request",
-            "expectedResult": "Second request details page opens displaying complete information"
+            "action": "Verify that the unauthorized access attempt is logged in security audit log",
+            "expectedResult": "Security audit log contains entry showing non-admin user attempted to access role management with timestamp and denial status"
           },
           {
             "step": 6,
-            "action": "Click the 'Request Additional Information' button",
-            "expectedResult": "Comment dialog box appears prompting for details about what additional information is needed"
+            "action": "Log out from non-admin account and log in as an admin user",
+            "expectedResult": "Admin user successfully logs into the system"
           },
           {
             "step": 7,
-            "action": "Enter comment 'Please provide supporting documentation from your manager and clarify the business justification for the schedule change'",
-            "expectedResult": "Comment text is accepted and displayed in the input field"
+            "action": "Navigate to the role management page using the same URL or navigation link",
+            "expectedResult": "Role management page loads successfully displaying user list, roles, and management controls"
           },
           {
             "step": 8,
-            "action": "Click 'Submit' or 'Confirm' button to send the request for additional information",
-            "expectedResult": "Success message is displayed, request status updates to 'Additional Information Required' or 'Pending Requester', action is logged in ApprovalActions table with timestamp, approver ID, and comments, and request is removed from approver's pending list"
+            "action": "Verify that all role management functions are accessible (view users, assign roles, modify roles)",
+            "expectedResult": "Admin can view complete user list with current roles, access role assignment interface, and all management functions are enabled and functional"
           },
           {
             "step": 9,
-            "action": "Verify the audit trail by accessing request history for both requests",
-            "expectedResult": "Complete history is displayed showing all actions with timestamps, approver names, status changes, and comments for both rejected and information-requested actions"
-          }
-        ],
-        "postconditions": [
-          "First request status is 'Rejected' with rejection comments logged",
-          "Second request status is 'Additional Information Required' with comments logged",
-          "Both actions are recorded in ApprovalActions table with complete audit information",
-          "Requesters can view updated statuses and comments",
-          "Both requests are removed from approver's pending list",
-          "Audit trail shows 100% completeness for all actions"
-        ],
-        "estimatedTime": "10 mins"
-      }
-    ]
-  },
-  {
-    "storyId": "story-25",
-    "storyTitle": "As System Administrator, I want to configure approval workflow rules to achieve flexible and compliant routing",
-    "testCases": [
-      {
-        "id": "tc-004",
-        "title": "Validate creation and activation of approval workflow rules",
-        "type": "happy-path",
-        "priority": "High",
-        "preconditions": [
-          "User account with system administrator role exists in the system",
-          "Admin console is accessible",
-          "At least two approver users exist in the system with assigned roles",
-          "WorkflowConfig tables are accessible and in consistent state",
-          "No conflicting workflow rules exist for the test scenario"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "Navigate to the admin console login page and enter valid system administrator credentials",
-            "expectedResult": "Administrator is successfully authenticated and redirected to the admin console home page"
-          },
-          {
-            "step": 2,
-            "action": "Click on 'Approval Workflow Configuration' menu item or navigate to workflow configuration section",
-            "expectedResult": "Workflow configuration UI is displayed showing existing workflows and a 'Create New Workflow' button"
-          },
-          {
-            "step": 3,
-            "action": "Click 'Create New Workflow' or 'Add Workflow Rule' button",
-            "expectedResult": "Workflow creation form is displayed with fields for workflow name, description, conditions, and approver assignment"
-          },
-          {
-            "step": 4,
-            "action": "Enter workflow name 'Schedule Change - Manager Approval', description 'Requires manager approval for schedule changes up to 5 days'",
-            "expectedResult": "Workflow name and description are accepted and displayed in the form fields"
-          },
-          {
-            "step": 5,
-            "action": "Configure condition: Set 'Request Type' equals 'Schedule Change' AND 'Duration' less than or equal to '5 days'",
-            "expectedResult": "Conditional rules are added and displayed in the conditions section with proper logical operators"
-          },
-          {
-            "step": 6,
-            "action": "In the approver section, select 'Direct Manager' as Level 1 approver from the dropdown",
-            "expectedResult": "Direct Manager is assigned as Level 1 approver and displayed in the workflow chain"
-          },
-          {
-            "step": 7,
-            "action": "Click 'Validate' button to check workflow configuration",
-            "expectedResult": "System validates the workflow and displays success message 'Workflow configuration is valid - no errors detected'"
-          },
-          {
-            "step": 8,
-            "action": "Click 'Save' button to save the workflow rule",
-            "expectedResult": "Workflow rule is saved to WorkflowConfig table, success message is displayed, and workflow appears in the list with 'Inactive' status"
-          },
-          {
-            "step": 9,
-            "action": "Select the newly created workflow from the list and click 'Activate' button",
-            "expectedResult": "Confirmation dialog appears asking to confirm activation"
+            "action": "Access role management API endpoint (GET /api/user-roles) using admin credentials",
+            "expectedResult": "API request succeeds with 200 OK status and returns user roles data in response"
           },
           {
             "step": 10,
-            "action": "Click 'Confirm' to activate the workflow",
-            "expectedResult": "Workflow status changes to 'Active', success message confirms activation, and workflow becomes effective immediately"
-          },
-          {
-            "step": 11,
-            "action": "Create a test schedule change request matching the workflow conditions (schedule change for 3 days)",
-            "expectedResult": "Request is automatically routed to Direct Manager for approval based on the newly activated workflow rule, confirming the rule is applied to new requests"
+            "action": "Verify admin access is logged in audit trail",
+            "expectedResult": "Audit log shows admin user accessed role management page with timestamp"
           }
         ],
         "postconditions": [
-          "New workflow rule is saved in WorkflowConfig table with active status",
-          "Workflow configuration is validated without errors",
-          "Workflow is active and applies to new matching requests",
-          "Changes propagate within 1 minute",
-          "Audit log records workflow creation and activation with administrator details and timestamps"
-        ],
-        "estimatedTime": "12 mins"
-      },
-      {
-        "id": "tc-005",
-        "title": "Ensure validation prevents circular routing in workflow rules",
-        "type": "error-case",
-        "priority": "High",
-        "preconditions": [
-          "User account with system administrator role is logged into admin console",
-          "Workflow configuration UI is accessible",
-          "At least three approver roles exist in the system (e.g., Manager, Director, VP)",
-          "Validation rules for circular dependency detection are active"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "Navigate to 'Approval Workflow Configuration' section in admin console",
-            "expectedResult": "Workflow configuration UI is displayed with option to create new workflow"
-          },
-          {
-            "step": 2,
-            "action": "Click 'Create New Workflow' button to start creating a new workflow rule",
-            "expectedResult": "Workflow creation form is displayed with all configuration fields"
-          },
-          {
-            "step": 3,
-            "action": "Enter workflow name 'Circular Test Workflow' and description 'Testing circular routing validation'",
-            "expectedResult": "Workflow name and description are accepted"
-          },
-          {
-            "step": 4,
-            "action": "Configure multi-level approval chain: Set Level 1 approver as 'Manager', Level 2 as 'Director', Level 3 as 'VP'",
-            "expectedResult": "Three-level approval chain is configured and displayed"
-          },
-          {
-            "step": 5,
-            "action": "Attempt to add Level 4 approver and select 'Manager' (same as Level 1), creating a circular reference",
-            "expectedResult": "Approver is added to the configuration temporarily"
-          },
-          {
-            "step": 6,
-            "action": "Click 'Validate' or 'Save' button to validate the workflow configuration",
-            "expectedResult": "System detects circular routing and displays validation error message 'Error: Circular routing detected - Manager appears multiple times in the approval chain' or similar, preventing save operation"
-          },
-          {
-            "step": 7,
-            "action": "Attempt to configure escalation rule where escalation routes back to a previous level approver",
-            "expectedResult": "Configuration is temporarily accepted in the UI"
-          },
-          {
-            "step": 8,
-            "action": "Click 'Validate' or 'Save' button",
-            "expectedResult": "System detects circular escalation path and displays validation error 'Error: Circular escalation detected - escalation path creates an infinite loop', preventing save operation"
-          },
-          {
-            "step": 9,
-            "action": "Verify that the workflow is not saved by checking the workflow list",
-            "expectedResult": "Invalid workflow does not appear in the saved workflows list, confirming save was prevented"
-          }
-        ],
-        "postconditions": [
-          "No workflow with circular routing is saved to the database",
-          "Validation error messages are clearly displayed to the administrator",
-          "WorkflowConfig table remains in consistent state without invalid rules",
-          "System integrity is maintained",
-          "Error is logged in system logs for audit purposes"
-        ],
-        "estimatedTime": "8 mins"
-      },
-      {
-        "id": "tc-006",
-        "title": "Verify access restriction to workflow configuration",
-        "type": "error-case",
-        "priority": "High",
-        "preconditions": [
-          "User account without administrator role exists (e.g., regular employee or approver role only)",
-          "Workflow configuration section exists and is protected by role-based access control",
-          "Admin console is accessible",
-          "Security policies are properly configured"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "Navigate to the application login page and enter credentials for a non-administrator user (e.g., regular employee)",
-            "expectedResult": "User is successfully authenticated and redirected to appropriate home page based on their role"
-          },
-          {
-            "step": 2,
-            "action": "Attempt to access admin console by clicking admin menu or navigating to admin URL",
-            "expectedResult": "Admin console menu is not visible or access is denied with error message 'Access Denied: Administrator privileges required'"
-          },
-          {
-            "step": 3,
-            "action": "Attempt to directly navigate to workflow configuration URL (e.g., /admin/workflow-config) by typing in browser address bar",
-            "expectedResult": "System redirects to error page or displays 'Access Denied' message with HTTP 403 Forbidden status, preventing access to workflow configuration"
-          },
-          {
-            "step": 4,
-            "action": "Using API testing tool (e.g., Postman), attempt to call GET /api/workflow-config with non-admin user authentication token",
-            "expectedResult": "API returns HTTP 403 Forbidden status with error message 'Insufficient permissions - Administrator role required'"
-          },
-          {
-            "step": 5,
-            "action": "Using API testing tool, attempt to call POST /api/workflow-config with non-admin user token and valid workflow configuration payload",
-            "expectedResult": "API returns HTTP 403 Forbidden or 401 Unauthorized status with appropriate error message, and no workflow configuration changes are made to the database"
-          },
-          {
-            "step": 6,
-            "action": "Verify audit logs for unauthorized access attempts",
-            "expectedResult": "All unauthorized access attempts are logged in security audit trail with user ID, timestamp, attempted action, and denial reason"
-          }
-        ],
-        "postconditions": [
-          "No workflow configuration changes are made by non-admin user",
-          "WorkflowConfig table remains unchanged",
-          "All unauthorized access attempts are logged in security audit trail",
-          "System security is maintained",
-          "User receives clear error messages indicating lack of permissions"
+          "Non-admin users remain unable to access role management functions",
+          "Admin users retain full access to role management",
+          "All access attempts (both denied and granted) are logged in audit trail",
+          "System security posture is maintained with proper access controls enforced"
         ],
         "estimatedTime": "7 mins"
       }
