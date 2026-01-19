@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
+import path from 'path';
 
 test.describe('Schedule Change Request Submission', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to the application and authenticate as employee
+    // Employee logs into the scheduling system
     await page.goto('/login');
     await page.fill('[data-testid="username-input"]', 'employee@company.com');
     await page.fill('[data-testid="password-input"]', 'password123');
@@ -11,181 +12,137 @@ test.describe('Schedule Change Request Submission', () => {
   });
 
   test('Validate successful schedule change request submission with valid data', async ({ page }) => {
-    // Step 1: Navigate to schedule change request page
-    await page.click('[data-testid="schedule-change-menu"]');
+    // Action: Navigate to schedule change request page
+    await page.click('[data-testid="schedule-change-link"]');
+    
+    // Expected Result: Schedule change request form is displayed
     await expect(page.locator('[data-testid="schedule-change-form"]')).toBeVisible();
-    await expect(page.locator('[data-testid="employee-name-input"]')).toBeVisible();
-    await expect(page.locator('[data-testid="current-schedule-input"]')).toBeVisible();
-    await expect(page.locator('[data-testid="requested-schedule-input"]')).toBeVisible();
-    await expect(page.locator('[data-testid="reason-input"]')).toBeVisible();
-    await expect(page.locator('[data-testid="effective-date-input"]')).toBeVisible();
-
-    // Step 2: Enter valid schedule change details and upload a valid attachment
-    await page.fill('[data-testid="employee-name-input"]', 'John Smith');
-    await page.fill('[data-testid="current-schedule-input"]', 'Monday-Friday, 9:00 AM - 5:00 PM');
-    await page.fill('[data-testid="requested-schedule-input"]', 'Monday-Friday, 10:00 AM - 6:00 PM');
-    await page.fill('[data-testid="reason-input"]', 'Need to accommodate childcare schedule');
+    await expect(page.locator('h1')).toContainText('Schedule Change Request');
     
-    // Set effective date to 7 days in the future
-    const futureDate = new Date();
-    futureDate.setDate(futureDate.getDate() + 7);
-    const formattedDate = futureDate.toISOString().split('T')[0];
-    await page.fill('[data-testid="effective-date-input"]', formattedDate);
+    // Action: Enter valid date, time, reason, and attach a document
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const formattedDate = tomorrow.toISOString().split('T')[0];
     
-    // Upload valid attachment
-    const fileInput = page.locator('[data-testid="attachment-upload-input"]');
-    await fileInput.setInputFiles({
-      name: 'schedule_justification.pdf',
-      mimeType: 'application/pdf',
-      buffer: Buffer.from('Mock PDF content for testing')
-    });
+    await page.fill('[data-testid="date-field"]', formattedDate);
+    await page.fill('[data-testid="time-field"]', '09:00');
+    await page.fill('[data-testid="reason-field"]', 'Medical appointment');
     
-    // Verify no validation errors
+    // Attach a valid document
+    const filePath = path.join(__dirname, 'fixtures', 'test-document.pdf');
+    await page.setInputFiles('[data-testid="attachment-input"]', filePath);
+    
+    // Expected Result: All inputs accept data without validation errors
+    await expect(page.locator('[data-testid="date-field"]')).toHaveValue(formattedDate);
+    await expect(page.locator('[data-testid="time-field"]')).toHaveValue('09:00');
+    await expect(page.locator('[data-testid="reason-field"]')).toHaveValue('Medical appointment');
     await expect(page.locator('[data-testid="validation-error"]')).not.toBeVisible();
-
-    // Step 3: Submit the form
+    
+    // Action: Submit the schedule change request
     await page.click('[data-testid="submit-button"]');
     
-    // Verify confirmation message
+    // Expected Result: Request is saved and confirmation message is displayed
     await expect(page.locator('[data-testid="confirmation-message"]')).toBeVisible();
-    await expect(page.locator('[data-testid="confirmation-message"]')).toContainText('successfully submitted');
+    await expect(page.locator('[data-testid="confirmation-message"]')).toContainText('Schedule change request submitted successfully');
     
-    // Verify status is set to Pending Approval
-    await expect(page.locator('[data-testid="request-status"]')).toContainText('Pending Approval');
-    
-    // Verify request appears in history
-    await page.click('[data-testid="request-history-link"]');
-    await expect(page.locator('[data-testid="request-list"]')).toContainText('John Smith');
+    // Verify API call was made
+    const response = await page.waitForResponse(response => 
+      response.url().includes('/api/schedule-change-requests') && response.status() === 200
+    );
+    expect(response.ok()).toBeTruthy();
   });
 
   test('Verify rejection of submission with missing mandatory fields', async ({ page }) => {
-    // Step 1: Navigate to schedule change request page
-    await page.click('[data-testid="schedule-change-menu"]');
+    // Action: Navigate to schedule change request page
+    await page.click('[data-testid="schedule-change-link"]');
+    
+    // Expected Result: Schedule change request form is displayed
     await expect(page.locator('[data-testid="schedule-change-form"]')).toBeVisible();
-
-    // Step 2: Leave mandatory fields empty and attempt to submit
+    
+    // Action: Leave mandatory fields empty
+    await page.click('[data-testid="date-field"]');
+    await page.click('[data-testid="time-field"]');
+    await page.click('[data-testid="reason-field"]');
+    await page.click('h1'); // Click outside to trigger validation
+    
+    // Expected Result: Real-time validation highlights missing fields
+    await expect(page.locator('[data-testid="date-error"]')).toBeVisible();
+    await expect(page.locator('[data-testid="time-error"]')).toBeVisible();
+    await expect(page.locator('[data-testid="reason-error"]')).toBeVisible();
+    
+    // Action: Attempt to submit the form
     await page.click('[data-testid="submit-button"]');
     
-    // Verify inline validation highlights missing fields
-    await expect(page.locator('[data-testid="employee-name-error"]')).toBeVisible();
-    await expect(page.locator('[data-testid="employee-name-error"]')).toContainText('required');
-    await expect(page.locator('[data-testid="current-schedule-error"]')).toBeVisible();
-    await expect(page.locator('[data-testid="requested-schedule-error"]')).toBeVisible();
-    await expect(page.locator('[data-testid="reason-error"]')).toBeVisible();
-    await expect(page.locator('[data-testid="effective-date-error"]')).toBeVisible();
-
-    // Step 3: Fill in only Employee Name and attempt to submit again
-    await page.fill('[data-testid="employee-name-input"]', 'Jane Doe');
+    // Expected Result: Submission is blocked and error messages are displayed
+    await expect(page.locator('[data-testid="date-error"]')).toContainText('Date is required');
+    await expect(page.locator('[data-testid="time-error"]')).toContainText('Time is required');
+    await expect(page.locator('[data-testid="reason-error"]')).toContainText('Reason is required');
+    await expect(page.locator('[data-testid="confirmation-message"]')).not.toBeVisible();
+    
+    // Verify submit button is disabled or form is not submitted
+    await expect(page.locator('[data-testid="schedule-change-form"]')).toBeVisible();
+    
+    // Fill in only the date field and attempt to submit again
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const formattedDate = tomorrow.toISOString().split('T')[0];
+    await page.fill('[data-testid="date-field"]', formattedDate);
     await page.click('[data-testid="submit-button"]');
     
-    // Verify Employee Name error is cleared but others remain
-    await expect(page.locator('[data-testid="employee-name-error"]')).not.toBeVisible();
-    await expect(page.locator('[data-testid="current-schedule-error"]')).toBeVisible();
-    await expect(page.locator('[data-testid="requested-schedule-error"]')).toBeVisible();
+    // Verify time and reason errors still present
+    await expect(page.locator('[data-testid="time-error"]')).toBeVisible();
     await expect(page.locator('[data-testid="reason-error"]')).toBeVisible();
-    await expect(page.locator('[data-testid="effective-date-error"]')).toBeVisible();
-    
-    // Progressively fill in each mandatory field
-    await page.fill('[data-testid="current-schedule-input"]', 'Monday-Friday, 9:00 AM - 5:00 PM');
-    await expect(page.locator('[data-testid="current-schedule-error"]')).not.toBeVisible();
-    
-    await page.fill('[data-testid="requested-schedule-input"]', 'Monday-Friday, 10:00 AM - 6:00 PM');
-    await expect(page.locator('[data-testid="requested-schedule-error"]')).not.toBeVisible();
-    
-    await page.fill('[data-testid="reason-input"]', 'Personal reasons');
-    await expect(page.locator('[data-testid="reason-error"]')).not.toBeVisible();
-    
-    // Verify submit button is disabled or submission blocked until all fields are filled
-    const submitButton = page.locator('[data-testid="submit-button"]');
-    const isDisabled = await submitButton.isDisabled();
-    if (!isDisabled) {
-      await submitButton.click();
-      await expect(page.locator('[data-testid="effective-date-error"]')).toBeVisible();
-    }
-    
-    // Fill in the last mandatory field
-    const futureDate = new Date();
-    futureDate.setDate(futureDate.getDate() + 7);
-    const formattedDate = futureDate.toISOString().split('T')[0];
-    await page.fill('[data-testid="effective-date-input"]', formattedDate);
-    await expect(page.locator('[data-testid="effective-date-error"]')).not.toBeVisible();
-    
-    // Verify submission is now allowed
-    await expect(submitButton).toBeEnabled();
+    await expect(page.locator('[data-testid="confirmation-message"]')).not.toBeVisible();
   });
 
-  test('Test attachment upload validation', async ({ page }) => {
-    // Step 1: Navigate to schedule change request page
-    await page.click('[data-testid="schedule-change-menu"]');
+  test('Test file attachment size validation', async ({ page }) => {
+    // Navigate to schedule change request page and locate the file attachment section
+    await page.click('[data-testid="schedule-change-link"]');
     await expect(page.locator('[data-testid="schedule-change-form"]')).toBeVisible();
-
-    // Step 2: Upload a file that exceeds the 10MB size limit
-    const fileInput = page.locator('[data-testid="attachment-upload-input"]');
-    const largeFileBuffer = Buffer.alloc(12 * 1024 * 1024); // 12MB file
-    await fileInput.setInputFiles({
-      name: 'large_file.pdf',
-      mimeType: 'application/pdf',
-      buffer: largeFileBuffer
-    });
+    await expect(page.locator('[data-testid="attachment-section"]')).toBeVisible();
     
-    // Verify validation error for file size
+    // Action: Attach a file larger than 5MB
+    const largeFilePath = path.join(__dirname, 'fixtures', 'large-file-6mb.pdf');
+    await page.setInputFiles('[data-testid="attachment-input"]', largeFilePath);
+    
+    // Expected Result: Validation error message is displayed preventing attachment
     await expect(page.locator('[data-testid="attachment-error"]')).toBeVisible();
-    await expect(page.locator('[data-testid="attachment-error"]')).toContainText('10MB');
+    await expect(page.locator('[data-testid="attachment-error"]')).toContainText('File size must not exceed 5MB');
     
-    // Step 3: Upload a file with invalid file type
-    await fileInput.setInputFiles({
-      name: 'malicious.exe',
-      mimeType: 'application/x-msdownload',
-      buffer: Buffer.from('Mock executable content')
-    });
+    // Verify that the attachment field remains empty after the error
+    const fileInputValue = await page.locator('[data-testid="attachment-input"]').inputValue();
+    expect(fileInputValue).toBe('');
+    await expect(page.locator('[data-testid="attached-file-name"]')).not.toBeVisible();
     
-    // Verify validation error for file type
-    await expect(page.locator('[data-testid="attachment-error"]')).toBeVisible();
-    await expect(page.locator('[data-testid="attachment-error"]')).toContainText('file type');
+    // Action: Attach a file smaller than 5MB
+    const validFilePath = path.join(__dirname, 'fixtures', 'valid-file-3mb.pdf');
+    await page.setInputFiles('[data-testid="attachment-input"]', validFilePath);
     
-    // Step 4: Upload a valid file
-    const validFileBuffer = Buffer.alloc(5 * 1024 * 1024); // 5MB file
-    await fileInput.setInputFiles({
-      name: 'schedule_justification.pdf',
-      mimeType: 'application/pdf',
-      buffer: validFileBuffer
-    });
-    
-    // Verify attachment accepted without errors
+    // Expected Result: File is accepted without errors
     await expect(page.locator('[data-testid="attachment-error"]')).not.toBeVisible();
-    await expect(page.locator('[data-testid="uploaded-file-name"]')).toContainText('schedule_justification.pdf');
+    await expect(page.locator('[data-testid="attached-file-name"]')).toBeVisible();
+    await expect(page.locator('[data-testid="attached-file-name"]')).toContainText('valid-file-3mb.pdf');
     
-    // Verify file can be previewed or downloaded if functionality exists
-    const previewLink = page.locator('[data-testid="file-preview-link"]');
-    if (await previewLink.isVisible()) {
-      await expect(previewLink).toBeVisible();
-    }
+    // Fill in all mandatory fields (date, time, reason) with valid data
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const formattedDate = tomorrow.toISOString().split('T')[0];
     
-    // Step 5: Remove the uploaded file
-    await page.click('[data-testid="remove-attachment-button"]');
-    await expect(page.locator('[data-testid="uploaded-file-name"]')).not.toBeVisible();
+    await page.fill('[data-testid="date-field"]', formattedDate);
+    await page.fill('[data-testid="time-field"]', '09:00');
+    await page.fill('[data-testid="reason-field"]', 'Medical appointment');
     
-    // Step 6: Upload valid file again and submit complete form
-    await fileInput.setInputFiles({
-      name: 'schedule_justification.pdf',
-      mimeType: 'application/pdf',
-      buffer: validFileBuffer
-    });
-    
-    await page.fill('[data-testid="employee-name-input"]', 'John Smith');
-    await page.fill('[data-testid="current-schedule-input"]', 'Monday-Friday, 9:00 AM - 5:00 PM');
-    await page.fill('[data-testid="requested-schedule-input"]', 'Monday-Friday, 10:00 AM - 6:00 PM');
-    await page.fill('[data-testid="reason-input"]', 'Need to accommodate childcare schedule');
-    
-    const futureDate = new Date();
-    futureDate.setDate(futureDate.getDate() + 7);
-    const formattedDate = futureDate.toISOString().split('T')[0];
-    await page.fill('[data-testid="effective-date-input"]', formattedDate);
-    
+    // Action: Submit the form with the valid attachment
     await page.click('[data-testid="submit-button"]');
     
-    // Verify successful submission
+    // Expected Result: Submission succeeds with confirmation
     await expect(page.locator('[data-testid="confirmation-message"]')).toBeVisible();
-    await expect(page.locator('[data-testid="request-status"]')).toContainText('Pending Approval');
+    await expect(page.locator('[data-testid="confirmation-message"]')).toContainText('Schedule change request submitted successfully');
+    
+    // Verify API call was successful
+    const response = await page.waitForResponse(response => 
+      response.url().includes('/api/schedule-change-requests') && response.status() === 200
+    );
+    expect(response.ok()).toBeTruthy();
   });
 });
