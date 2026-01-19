@@ -1,7 +1,7 @@
 [
   {
-    "storyId": "story-23",
-    "storyTitle": "As Employee, I want to submit schedule change requests to achieve formal processing and approval",
+    "storyId": "story-11",
+    "storyTitle": "As Employee, I want to submit schedule change requests to achieve timely updates to my work schedule",
     "testCases": [
       {
         "id": "tc-001",
@@ -10,195 +10,504 @@
         "priority": "High",
         "preconditions": [
           "Employee has valid login credentials",
-          "Employee is authenticated in the scheduling system",
-          "Employee has permission to submit schedule change requests",
-          "Supporting document (PDF/DOC) under 10MB is available for upload",
-          "Network connectivity is stable"
+          "Scheduling portal is accessible and operational",
+          "Employee has a valid work schedule in the system",
+          "Supporting document is available and under 10MB in size"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Navigate to schedule change request submission page",
-            "expectedResult": "Submission form is displayed with all mandatory fields including employee name, current schedule, requested schedule, reason for change, effective date, and attachment option"
+            "action": "Navigate to the scheduling portal login page and enter valid employee credentials",
+            "expectedResult": "Employee is successfully authenticated and redirected to the scheduling portal dashboard"
           },
           {
             "step": 2,
-            "action": "Enter valid employee name in the employee name field",
-            "expectedResult": "Employee name is accepted and displayed in the field without validation errors"
+            "action": "Click on the 'Schedule Change Request' menu option or button",
+            "expectedResult": "Schedule change request form is displayed with all mandatory fields clearly marked"
           },
           {
             "step": 3,
-            "action": "Enter current schedule details (e.g., Monday-Friday, 9:00 AM - 5:00 PM)",
-            "expectedResult": "Current schedule details are accepted and displayed correctly"
+            "action": "Fill in the 'Date' field with a current or future date",
+            "expectedResult": "Date field accepts the input and displays the selected date in the correct format"
           },
           {
             "step": 4,
-            "action": "Enter requested schedule details (e.g., Tuesday-Saturday, 10:00 AM - 6:00 PM)",
-            "expectedResult": "Requested schedule details are accepted and displayed correctly"
+            "action": "Fill in the 'Time' field with the desired schedule time",
+            "expectedResult": "Time field accepts the input and displays the selected time"
           },
           {
             "step": 5,
-            "action": "Enter a valid reason for the schedule change (e.g., 'Personal commitment requiring schedule adjustment')",
-            "expectedResult": "Reason is accepted and displayed in the text field"
+            "action": "Fill in the 'Reason' field with a valid explanation for the schedule change",
+            "expectedResult": "Reason field accepts the text input without validation errors"
           },
           {
             "step": 6,
-            "action": "Select a valid effective date (future date) using the date picker",
-            "expectedResult": "Date is selected and displayed in correct format (MM/DD/YYYY or DD/MM/YYYY based on locale)"
+            "action": "Click on the 'Attach Document' button and select a valid document file under 10MB",
+            "expectedResult": "Document is successfully uploaded and file name is displayed in the attachment section"
           },
           {
             "step": 7,
-            "action": "Click on the attachment button and select a valid document (e.g., medical certificate, 2MB PDF)",
-            "expectedResult": "Document is uploaded successfully, file name and size are displayed, no error messages appear"
+            "action": "Click the 'Submit' button to submit the schedule change request",
+            "expectedResult": "System processes the request within 2 seconds, saves the data to ScheduleChangeRequests table, and displays a confirmation message with timestamp and request ID"
           },
           {
             "step": 8,
-            "action": "Review all entered data for accuracy",
-            "expectedResult": "All fields display the entered information correctly"
-          },
-          {
-            "step": 9,
-            "action": "Click the Submit button",
-            "expectedResult": "Request is saved to ScheduleChangeRequests table, approval workflow is initiated automatically, confirmation message is displayed with unique request ID (e.g., 'Your request #SCR-12345 has been submitted successfully'), response time is under 2 seconds"
+            "action": "Verify the confirmation message contains request details and submission timestamp",
+            "expectedResult": "Confirmation message displays all submitted information including date, time, reason, and unique request identifier"
           }
         ],
         "postconditions": [
-          "Schedule change request is saved in the database with status 'Pending Approval'",
-          "Approval workflow is initiated and assigned to appropriate approver",
-          "Attached document is stored in DocumentStorage and linked to the request",
-          "Request ID is generated and associated with the submission",
-          "Employee can view the submitted request in their request history"
+          "Schedule change request is saved in the ScheduleChangeRequests table with status 'Pending'",
+          "Request is timestamped with current date and time",
+          "Attached document is stored securely and linked to the request",
+          "Employee can view the submitted request in their request history",
+          "Request is available for approver review"
         ],
         "estimatedTime": "5 mins"
       },
       {
         "id": "tc-002",
-        "title": "Verify rejection of submission with missing mandatory fields",
+        "title": "Reject submission with missing mandatory fields",
         "type": "error-case",
         "priority": "High",
         "preconditions": [
           "Employee has valid login credentials",
-          "Employee is authenticated in the scheduling system",
-          "Employee has navigated to the schedule change request submission page",
-          "All mandatory fields are clearly marked with asterisks or 'required' labels"
+          "Scheduling portal is accessible and operational",
+          "Employee is authenticated and on the schedule change request form"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Navigate to submission page",
-            "expectedResult": "Form is displayed with all mandatory fields marked as required (employee name, current schedule, requested schedule, reason, effective date)"
+            "action": "Navigate to the schedule change request form after successful login",
+            "expectedResult": "Schedule change request form is displayed with all mandatory fields marked with asterisks or 'required' indicators"
           },
           {
             "step": 2,
-            "action": "Leave the employee name field empty",
-            "expectedResult": "Field remains empty, no data is entered"
+            "action": "Leave the 'Date' field empty",
+            "expectedResult": "Date field remains empty without any value"
           },
           {
             "step": 3,
-            "action": "Enter valid data in current schedule field",
-            "expectedResult": "Current schedule data is accepted"
+            "action": "Leave the 'Reason' field empty",
+            "expectedResult": "Reason field remains empty without any text"
           },
           {
             "step": 4,
-            "action": "Leave the requested schedule field empty",
-            "expectedResult": "Field remains empty, no data is entered"
+            "action": "Click the 'Submit' button without filling mandatory fields",
+            "expectedResult": "System prevents form submission and displays inline error messages next to each empty mandatory field indicating 'This field is required' or similar validation message"
           },
           {
             "step": 5,
-            "action": "Enter valid reason for change",
-            "expectedResult": "Reason is accepted and displayed"
+            "action": "Verify that no data is saved to the database",
+            "expectedResult": "No new record is created in the ScheduleChangeRequests table and submission is blocked"
           },
           {
             "step": 6,
-            "action": "Leave the effective date field empty",
-            "expectedResult": "Field remains empty, no date is selected"
+            "action": "Fill in the 'Date' field with a valid current or future date",
+            "expectedResult": "Date field accepts the input and error message for date field is cleared"
           },
           {
             "step": 7,
-            "action": "Click outside the empty mandatory fields or tab to next field",
-            "expectedResult": "Real-time validation highlights missing fields with red borders or error icons, inline error messages appear (e.g., 'This field is required')"
+            "action": "Fill in the 'Reason' field with a valid explanation",
+            "expectedResult": "Reason field accepts the text and error message for reason field is cleared"
           },
           {
             "step": 8,
-            "action": "Attempt to submit the form by clicking the Submit button",
-            "expectedResult": "Submission is blocked, form does not submit, error summary message is displayed at the top of the form (e.g., 'Please complete all required fields'), focus is set to the first missing mandatory field"
+            "action": "Fill in the 'Time' field with a valid time",
+            "expectedResult": "Time field accepts the input and all validation errors are cleared"
           },
           {
             "step": 9,
-            "action": "Verify that all empty mandatory fields are highlighted with error messages",
-            "expectedResult": "All missing mandatory fields (employee name, requested schedule, effective date) display individual error messages and visual indicators"
+            "action": "Click the 'Submit' button with all mandatory fields completed",
+            "expectedResult": "System successfully validates the form, saves the request, and displays confirmation message with request details"
           }
         ],
         "postconditions": [
-          "No request is saved to the database",
-          "No approval workflow is initiated",
-          "Form remains on the submission page with entered data preserved",
-          "Error messages are clearly visible to guide user correction"
+          "Schedule change request is saved in the database only after all mandatory fields are filled",
+          "Employee receives confirmation of successful submission",
+          "Request is timestamped and available for approval processing"
         ],
-        "estimatedTime": "4 mins"
+        "estimatedTime": "6 mins"
       },
       {
         "id": "tc-003",
-        "title": "Test attachment upload size limit enforcement",
+        "title": "Handle attachment size limit enforcement",
         "type": "boundary",
         "priority": "High",
         "preconditions": [
-          "Employee has valid login credentials",
-          "Employee is authenticated in the scheduling system",
-          "Test file larger than 10MB (e.g., 12MB PDF) is prepared",
-          "Test file within size limit (e.g., 5MB PDF) is prepared",
-          "Employee has navigated to the schedule change request submission page"
+          "Employee has valid login credentials and is authenticated",
+          "Schedule change request form is accessible",
+          "Test files are prepared: one file larger than 10MB and one file within the 10MB limit",
+          "Employee is on the schedule change request form page"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Navigate to submission form",
-            "expectedResult": "Form is displayed with all fields including attachment upload option, size limit information is visible (e.g., 'Maximum file size: 10MB')"
+            "action": "Navigate to the schedule change request form and fill in all mandatory fields with valid data",
+            "expectedResult": "All mandatory fields are populated with valid information and form is ready for attachment"
           },
           {
             "step": 2,
-            "action": "Click on the attachment upload button",
-            "expectedResult": "File browser dialog opens allowing file selection"
+            "action": "Click on the 'Attach Document' or 'Browse' button",
+            "expectedResult": "File selection dialog opens allowing user to browse and select files"
           },
           {
             "step": 3,
-            "action": "Select a document larger than 10MB (e.g., 12MB PDF file)",
-            "expectedResult": "File selection dialog closes and system begins validation"
+            "action": "Select a file larger than 10MB from the file system",
+            "expectedResult": "System detects the file size exceeds the 10MB limit and displays an error message stating 'File size exceeds maximum allowed size of 10MB' or similar, preventing the upload"
           },
           {
             "step": 4,
-            "action": "Observe the upload attempt",
-            "expectedResult": "Upload is rejected immediately, error message is displayed (e.g., 'File size exceeds maximum limit of 10MB. Please select a smaller file'), no file is attached to the form, attachment field remains empty"
+            "action": "Verify that the oversized file is not attached to the form",
+            "expectedResult": "No file name appears in the attachment section and the attachment field remains empty"
           },
           {
             "step": 5,
-            "action": "Click on the attachment upload button again",
-            "expectedResult": "File browser dialog opens again for new selection"
+            "action": "Click on the 'Attach Document' button again",
+            "expectedResult": "File selection dialog opens again for new file selection"
           },
           {
             "step": 6,
-            "action": "Select a valid size document (e.g., 5MB PDF file)",
-            "expectedResult": "File is uploaded successfully, file name and size are displayed in the attachment field (e.g., 'medical_certificate.pdf (5MB)'), no error messages appear"
+            "action": "Select a valid file that is within the 10MB size limit (e.g., 5MB file)",
+            "expectedResult": "File is successfully uploaded and the file name is displayed in the attachment section without any error messages"
           },
           {
             "step": 7,
-            "action": "Complete all other mandatory fields with valid data (employee name, current schedule, requested schedule, reason, effective date)",
-            "expectedResult": "All fields accept valid data without errors"
+            "action": "Verify the attachment indicator shows the uploaded file name and size",
+            "expectedResult": "Attachment section displays the file name, size, and possibly a remove/delete option"
           },
           {
             "step": 8,
-            "action": "Click the Submit button",
-            "expectedResult": "Submission succeeds, request is saved with attachment linked, approval workflow is initiated, confirmation message with request ID is displayed, attached document is stored in DocumentStorage API"
+            "action": "Click the 'Submit' button to submit the request with the valid attachment",
+            "expectedResult": "System validates all inputs including the attachment, saves the request to ScheduleChangeRequests table, stores the attachment securely with proper linkage, and displays confirmation message"
+          },
+          {
+            "step": 9,
+            "action": "Verify the confirmation message includes details about the attached document",
+            "expectedResult": "Confirmation message shows request was submitted successfully with attachment information included"
           }
         ],
         "postconditions": [
-          "Schedule change request is saved in the database with valid attachment",
-          "Attachment file is stored in DocumentStorage and associated with the request ID",
-          "Approval workflow is initiated successfully",
-          "Employee receives confirmation with request ID",
-          "Oversized file is not stored in the system"
+          "Schedule change request is saved with status 'Pending'",
+          "Valid attachment (under 10MB) is stored securely and linked to the request record",
+          "Oversized file was rejected and not stored in the system",
+          "Request is available for approver review with the attached document accessible"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-17",
+    "storyTitle": "As Employee, I want to edit my pending schedule change requests to achieve flexibility before approval",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Edit pending schedule change request successfully",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee has valid login credentials",
+          "Employee has at least one pending schedule change request in the system",
+          "Pending request has status 'Pending' and has not been approved or rejected",
+          "Scheduling portal is accessible and operational",
+          "Approver notification system is configured and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log into the scheduling portal using valid employee credentials",
+            "expectedResult": "Employee is successfully authenticated and redirected to the scheduling portal dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the 'My Requests' section or menu option",
+            "expectedResult": "'My Requests' page is displayed showing a list of all schedule change requests submitted by the employee with their current statuses"
+          },
+          {
+            "step": 3,
+            "action": "Identify and click on a pending schedule change request from the list",
+            "expectedResult": "Request details page opens displaying all current information including date, time, reason, attachments, and an 'Edit' button or option is visible"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Edit' button to enable editing mode",
+            "expectedResult": "Form fields become editable and the employee can modify the request details"
+          },
+          {
+            "step": 5,
+            "action": "Update the 'Date' field with a new valid future date",
+            "expectedResult": "Date field accepts the new date and displays it correctly"
+          },
+          {
+            "step": 6,
+            "action": "Update the 'Reason' field with modified or additional explanation",
+            "expectedResult": "Reason field accepts the updated text without validation errors"
+          },
+          {
+            "step": 7,
+            "action": "Optionally update or add a new attachment within the 10MB size limit",
+            "expectedResult": "New attachment is uploaded successfully and displayed, or existing attachment is replaced"
+          },
+          {
+            "step": 8,
+            "action": "Click the 'Submit' or 'Save Changes' button to save the updated request",
+            "expectedResult": "System validates the updated data within 2 seconds, saves changes to ScheduleChangeRequests table, creates a version history entry, and displays confirmation message"
+          },
+          {
+            "step": 9,
+            "action": "Verify the confirmation message indicates successful update",
+            "expectedResult": "Confirmation message displays stating 'Request updated successfully' or similar with updated timestamp"
+          },
+          {
+            "step": 10,
+            "action": "Verify that approvers receive notification of the updated request",
+            "expectedResult": "Notification is sent to the assigned approver(s) indicating the request has been modified, and notification is logged in the system"
+          },
+          {
+            "step": 11,
+            "action": "Navigate back to 'My Requests' and verify the updated request shows the new information",
+            "expectedResult": "Updated request displays the modified date, reason, and attachment with a new timestamp indicating when it was last updated"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request is updated in the ScheduleChangeRequests table with new values",
+          "Version history record is created capturing the previous state and the changes made",
+          "Request status remains 'Pending'",
+          "Approvers are notified of the update via configured notification channels",
+          "Updated request is available for approver review with the latest information",
+          "Audit trail shows who made the changes and when"
         ],
         "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Prevent editing of approved requests",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Employee has valid login credentials",
+          "Employee has at least one schedule change request with status 'Approved' in the system",
+          "Scheduling portal is accessible and operational",
+          "Employee is authenticated and logged into the portal"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the 'My Requests' section after successful login",
+            "expectedResult": "'My Requests' page displays all schedule change requests including those with 'Approved' status"
+          },
+          {
+            "step": 2,
+            "action": "Identify a schedule change request with status 'Approved' from the list",
+            "expectedResult": "Approved request is visible in the list with status clearly marked as 'Approved'"
+          },
+          {
+            "step": 3,
+            "action": "Click on the approved schedule change request to view details",
+            "expectedResult": "Request details page opens showing all information including date, time, reason, attachments, and approval details"
+          },
+          {
+            "step": 4,
+            "action": "Verify that the 'Edit' button is either disabled, hidden, or not present for the approved request",
+            "expectedResult": "No 'Edit' option is available for the approved request, or if present, it is visually disabled (grayed out)"
+          },
+          {
+            "step": 5,
+            "action": "If an 'Edit' button is visible but disabled, attempt to click on it",
+            "expectedResult": "System prevents the edit action and displays an appropriate message such as 'Approved requests cannot be edited' or 'This request has already been approved and cannot be modified'"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to directly access the edit functionality via URL manipulation (if applicable) by modifying the URL to include edit parameters for the approved request",
+            "expectedResult": "System denies access and redirects to an error page or displays a message stating 'You do not have permission to edit this request' or 'Only pending requests can be edited'"
+          },
+          {
+            "step": 7,
+            "action": "Verify that the request details remain unchanged and no edit form is displayed",
+            "expectedResult": "Request details are displayed in read-only mode with no editable fields, and the approved status is maintained"
+          }
+        ],
+        "postconditions": [
+          "Approved schedule change request remains unchanged in the database",
+          "Request status remains 'Approved'",
+          "No version history entry is created for the approved request",
+          "System security prevents unauthorized modification of approved requests",
+          "Employee is informed that approved requests cannot be edited"
+        ],
+        "estimatedTime": "4 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-19",
+    "storyTitle": "As Employee, I want to receive notifications about my schedule change request status to achieve timely awareness",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify employee receives notification on status change",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the system",
+          "Employee has submitted a schedule change request",
+          "Schedule change request is in 'Pending' status",
+          "Approver has appropriate permissions to approve requests",
+          "Notification service is operational",
+          "Employee has default notification preferences enabled (email and in-app)"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as an approver with appropriate permissions",
+            "expectedResult": "Approver successfully logs in and can access the schedule change request approval dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the pending schedule change requests list",
+            "expectedResult": "List of pending schedule change requests is displayed, including the employee's request"
+          },
+          {
+            "step": 3,
+            "action": "Select the employee's schedule change request from the list",
+            "expectedResult": "Request details are displayed with option to approve, reject, or request more information"
+          },
+          {
+            "step": 4,
+            "action": "Change the schedule change request status to 'Approved' and submit the decision",
+            "expectedResult": "Status is updated to 'Approved' in the system and confirmation message is displayed to approver"
+          },
+          {
+            "step": 5,
+            "action": "Verify notification is triggered and sent to the employee within 1 minute",
+            "expectedResult": "System logs show notification was sent successfully to the employee via configured channels (email and in-app)"
+          },
+          {
+            "step": 6,
+            "action": "Log in as the employee who submitted the request",
+            "expectedResult": "Employee successfully logs in to the system"
+          },
+          {
+            "step": 7,
+            "action": "Check in-app notifications by clicking on the notification icon",
+            "expectedResult": "In-app notification is displayed showing the schedule change request has been approved with clear status details including request ID, date, and approval information"
+          },
+          {
+            "step": 8,
+            "action": "Check employee's email inbox for notification email",
+            "expectedResult": "Email notification is received containing clear information about the approved status, request details, and any next steps required"
+          },
+          {
+            "step": 9,
+            "action": "Click on the notification link or navigate to schedule change requests section",
+            "expectedResult": "Employee is directed to the schedule change request details page"
+          },
+          {
+            "step": 10,
+            "action": "View the schedule change request details in the system",
+            "expectedResult": "Request status is displayed as 'Approved' with timestamp of approval and approver information visible"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request status is 'Approved' in the system",
+          "Employee has received and viewed notification via both email and in-app channels",
+          "Notification delivery is logged in the system audit trail",
+          "Employee is aware of the approved status and can proceed with schedule changes"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Test employee notification preference settings",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the system",
+          "Employee has an active account with notification preferences accessible",
+          "Employee has at least one schedule change request in the system",
+          "Notification service is operational",
+          "Employee currently has both email and in-app notifications enabled by default"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as the employee",
+            "expectedResult": "Employee successfully logs in and is directed to the dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to user profile settings by clicking on profile icon or settings menu",
+            "expectedResult": "Profile settings page is displayed with various configuration options"
+          },
+          {
+            "step": 3,
+            "action": "Locate and click on 'Notification Preferences' or 'Notifications' section",
+            "expectedResult": "Notification preferences page is displayed showing available notification channels and options"
+          },
+          {
+            "step": 4,
+            "action": "Review current notification settings for schedule change requests",
+            "expectedResult": "Current settings show both 'Email Notifications' and 'In-App Notifications' are enabled (checked)"
+          },
+          {
+            "step": 5,
+            "action": "Uncheck or toggle off the 'Email Notifications' option for schedule change request updates",
+            "expectedResult": "Email notification checkbox is unchecked while in-app notification remains checked"
+          },
+          {
+            "step": 6,
+            "action": "Click 'Save' or 'Update Preferences' button to save the changes",
+            "expectedResult": "Success message is displayed confirming 'Notification preferences saved successfully' and settings are persisted in the database"
+          },
+          {
+            "step": 7,
+            "action": "Refresh the notification preferences page to verify persistence",
+            "expectedResult": "Email notifications remain disabled and in-app notifications remain enabled, confirming preferences were saved correctly"
+          },
+          {
+            "step": 8,
+            "action": "Log out and log back in as an approver",
+            "expectedResult": "Approver successfully logs in with appropriate permissions"
+          },
+          {
+            "step": 9,
+            "action": "Navigate to the employee's schedule change request and change its status (e.g., from 'Pending' to 'Approved' or 'Rejected')",
+            "expectedResult": "Status change is successfully processed and saved in the system"
+          },
+          {
+            "step": 10,
+            "action": "Wait for notification processing (up to 1 minute) and verify notification delivery logs",
+            "expectedResult": "System logs show in-app notification was sent but email notification was not sent, respecting employee's preferences"
+          },
+          {
+            "step": 11,
+            "action": "Log back in as the employee",
+            "expectedResult": "Employee successfully logs in to the system"
+          },
+          {
+            "step": 12,
+            "action": "Check in-app notifications by clicking on the notification icon",
+            "expectedResult": "In-app notification is displayed showing the status change with clear details about the new status"
+          },
+          {
+            "step": 13,
+            "action": "Check employee's email inbox for any notification emails",
+            "expectedResult": "No email notification is received for this status change, confirming email notifications are disabled as per preferences"
+          },
+          {
+            "step": 14,
+            "action": "Verify the notification contains only in-app delivery and no email was sent by checking notification delivery logs",
+            "expectedResult": "Audit logs confirm only in-app notification was delivered, email notification was skipped based on user preferences"
+          }
+        ],
+        "postconditions": [
+          "Employee notification preferences are updated with email notifications disabled",
+          "Employee receives only in-app notifications for schedule change request status updates",
+          "No email notifications are sent to the employee for schedule change requests",
+          "Notification preference changes are logged in the system",
+          "Employee can still access all status updates through in-app notifications"
+        ],
+        "estimatedTime": "10 mins"
       }
     ]
   }
