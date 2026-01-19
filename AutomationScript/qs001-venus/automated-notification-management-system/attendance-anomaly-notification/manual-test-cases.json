@@ -1,0 +1,671 @@
+[
+  {
+    "storyId": "story-26",
+    "storyTitle": "As Supervisor, I want to receive notifications for attendance anomalies to take timely corrective actions",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate notification sent on attendance anomaly detection",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Supervisor account is active and configured in the system",
+          "Supervisor has valid email address and phone number registered",
+          "Attendance tracking system is operational",
+          "Notification service is running and configured",
+          "Anomaly detection rules are properly configured",
+          "Employee records exist in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Record attendance data with an anomaly (e.g., employee arrives 30 minutes late)",
+            "expectedResult": "System detects the late arrival anomaly based on configured threshold rules and triggers notification generation"
+          },
+          {
+            "step": 2,
+            "action": "Check supervisor's email inbox for notification",
+            "expectedResult": "Email notification received containing employee name, employee ID, anomaly type (late arrival), timestamp of occurrence, and duration of lateness"
+          },
+          {
+            "step": 3,
+            "action": "Check supervisor's mobile phone for SMS notification",
+            "expectedResult": "SMS notification received with concise anomaly details including employee name, anomaly type, and timestamp"
+          },
+          {
+            "step": 4,
+            "action": "Open the application and navigate to notifications section",
+            "expectedResult": "In-app notification is displayed with complete anomaly details including employee information, anomaly type, timestamp, and action buttons"
+          },
+          {
+            "step": 5,
+            "action": "Click on the in-app notification to view full details",
+            "expectedResult": "Notification expands showing comprehensive information: employee name, ID, department, anomaly type, occurrence time, severity level, and acknowledgment options"
+          },
+          {
+            "step": 6,
+            "action": "Click the 'Acknowledge' button on the notification",
+            "expectedResult": "Acknowledgment dialog appears with optional comment field"
+          },
+          {
+            "step": 7,
+            "action": "Enter comment 'Contacted employee, valid reason provided' and submit acknowledgment",
+            "expectedResult": "Success message displayed confirming acknowledgment has been recorded"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to notification logs/audit trail section",
+            "expectedResult": "Acknowledgment entry is visible with supervisor name, timestamp, comment text, and notification ID"
+          }
+        ],
+        "postconditions": [
+          "Notification is marked as acknowledged in the system",
+          "Acknowledgment and comment are permanently logged in audit trail",
+          "Notification status updated to 'Acknowledged' in database",
+          "Email, SMS, and in-app notifications remain accessible for historical reference"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify notification retry mechanism on failure",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Notification service is operational",
+          "Test environment allows simulation of delivery failures",
+          "Retry mechanism is configured with maximum 3 attempts",
+          "Notification logging is enabled",
+          "Supervisor account exists with valid contact details",
+          "Attendance anomaly detection is functional"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Configure test environment to simulate email delivery failure",
+            "expectedResult": "Email service mock configured to reject delivery attempts"
+          },
+          {
+            "step": 2,
+            "action": "Record attendance data with anomaly to trigger notification",
+            "expectedResult": "System detects anomaly and attempts to send notification"
+          },
+          {
+            "step": 3,
+            "action": "Monitor notification service logs for first delivery attempt",
+            "expectedResult": "First delivery attempt logged with timestamp and failure status"
+          },
+          {
+            "step": 4,
+            "action": "Wait for first retry attempt (based on retry interval configuration)",
+            "expectedResult": "System automatically initiates second delivery attempt"
+          },
+          {
+            "step": 5,
+            "action": "Check notification logs for second attempt",
+            "expectedResult": "Second retry attempt logged with timestamp and failure status"
+          },
+          {
+            "step": 6,
+            "action": "Wait for second retry attempt",
+            "expectedResult": "System automatically initiates third delivery attempt"
+          },
+          {
+            "step": 7,
+            "action": "Check notification logs for third attempt",
+            "expectedResult": "Third retry attempt logged with timestamp and failure status"
+          },
+          {
+            "step": 8,
+            "action": "Verify system behavior after maximum retries exhausted",
+            "expectedResult": "System logs final failure status and does not attempt further retries"
+          },
+          {
+            "step": 9,
+            "action": "Query notification logs database for the specific notification ID",
+            "expectedResult": "All three retry attempts are recorded with individual timestamps, attempt numbers (1, 2, 3), and failure reasons"
+          },
+          {
+            "step": 10,
+            "action": "Restore email service to working state and trigger new anomaly",
+            "expectedResult": "New notification is successfully delivered on first attempt"
+          },
+          {
+            "step": 11,
+            "action": "Check logs for successful delivery",
+            "expectedResult": "Successful delivery logged with timestamp and delivery confirmation"
+          }
+        ],
+        "postconditions": [
+          "All retry attempts are permanently logged in system",
+          "Failed notification is marked with final failure status",
+          "System alert generated for notification delivery failure",
+          "Subsequent notifications function normally after service restoration"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure notifications meet delivery SLA",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "Notification service is fully operational",
+          "System clock is synchronized with accurate time source",
+          "Performance monitoring tools are configured",
+          "Multiple employee records exist for testing",
+          "Anomaly detection rules are active",
+          "All notification channels (email, SMS, in-app) are functional",
+          "Test supervisor account is configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Record attendance anomaly for Employee A (late arrival at 09:15 AM)",
+            "expectedResult": "System detects anomaly and records detection timestamp"
+          },
+          {
+            "step": 2,
+            "action": "Record attendance anomaly for Employee B (absence without notice at 09:00 AM)",
+            "expectedResult": "System detects second anomaly and records detection timestamp"
+          },
+          {
+            "step": 3,
+            "action": "Record attendance anomaly for Employee C (early departure at 04:30 PM)",
+            "expectedResult": "System detects third anomaly and records detection timestamp"
+          },
+          {
+            "step": 4,
+            "action": "Record attendance anomaly for Employee D (extended break at 12:00 PM)",
+            "expectedResult": "System detects fourth anomaly and records detection timestamp"
+          },
+          {
+            "step": 5,
+            "action": "Record attendance anomaly for Employee E (late arrival at 09:20 AM)",
+            "expectedResult": "System detects fifth anomaly and records detection timestamp"
+          },
+          {
+            "step": 6,
+            "action": "Monitor notification delivery for Employee A anomaly",
+            "expectedResult": "Notification delivered via all channels (email, SMS, in-app) within 10 minutes of anomaly detection"
+          },
+          {
+            "step": 7,
+            "action": "Monitor notification delivery for Employee B anomaly",
+            "expectedResult": "Notification delivered via all channels within 10 minutes of anomaly detection"
+          },
+          {
+            "step": 8,
+            "action": "Monitor notification delivery for Employee C anomaly",
+            "expectedResult": "Notification delivered via all channels within 10 minutes of anomaly detection"
+          },
+          {
+            "step": 9,
+            "action": "Monitor notification delivery for Employee D anomaly",
+            "expectedResult": "Notification delivered via all channels within 10 minutes of anomaly detection"
+          },
+          {
+            "step": 10,
+            "action": "Monitor notification delivery for Employee E anomaly",
+            "expectedResult": "Notification delivered via all channels within 10 minutes of anomaly detection"
+          },
+          {
+            "step": 11,
+            "action": "Calculate delivery time for each notification (delivery timestamp minus detection timestamp)",
+            "expectedResult": "All five notifications show delivery time of 10 minutes or less"
+          },
+          {
+            "step": 12,
+            "action": "Query system performance logs for notification processing metrics",
+            "expectedResult": "Performance logs show average delivery time well within 10-minute SLA"
+          },
+          {
+            "step": 13,
+            "action": "Review system error logs for any delays or failures during test period",
+            "expectedResult": "No errors, delays beyond SLA, or delivery failures recorded in logs"
+          },
+          {
+            "step": 14,
+            "action": "Generate SLA compliance report from notification system",
+            "expectedResult": "Report shows 100% compliance with 10-minute delivery SLA for all test notifications"
+          }
+        ],
+        "postconditions": [
+          "All five test notifications successfully delivered within SLA",
+          "Delivery metrics recorded in performance monitoring system",
+          "No outstanding errors or delays in system logs",
+          "SLA compliance documented for audit purposes",
+          "Test data available for performance analysis"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-29",
+    "storyTitle": "As Supervisor, I want to acknowledge attendance anomaly notifications to confirm awareness and initiate follow-up actions",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate supervisor acknowledgment of attendance anomaly",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Supervisor is logged into the system with valid credentials",
+          "At least one unacknowledged attendance anomaly notification exists",
+          "Notification database is accessible",
+          "User has supervisor role with acknowledgment permissions",
+          "Application UI is fully loaded and responsive"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the notifications section in the application",
+            "expectedResult": "Notifications page loads displaying list of attendance anomaly notifications"
+          },
+          {
+            "step": 2,
+            "action": "Locate the unacknowledged attendance anomaly notification in the list",
+            "expectedResult": "Notification is displayed with employee name, anomaly type, timestamp, and 'Unacknowledged' status indicator"
+          },
+          {
+            "step": 3,
+            "action": "Click on the notification to view full details",
+            "expectedResult": "Notification detail view opens showing complete information: employee details, anomaly type, occurrence time, severity, and acknowledgment section"
+          },
+          {
+            "step": 4,
+            "action": "Locate and click the 'Acknowledge' button",
+            "expectedResult": "Acknowledgment dialog or form appears with optional comment text field"
+          },
+          {
+            "step": 5,
+            "action": "Enter optional comment: 'Spoke with employee - medical emergency, documentation to follow'",
+            "expectedResult": "Comment text is accepted and displayed in the comment field"
+          },
+          {
+            "step": 6,
+            "action": "Click 'Submit' or 'Confirm' button to complete acknowledgment",
+            "expectedResult": "Success confirmation message displayed: 'Notification acknowledged successfully' or similar"
+          },
+          {
+            "step": 7,
+            "action": "Verify notification status updated in the notifications list",
+            "expectedResult": "Notification status changed from 'Unacknowledged' to 'Acknowledged' with supervisor name and timestamp visible"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to system audit logs or acknowledgment history section",
+            "expectedResult": "Audit log section loads showing acknowledgment records"
+          },
+          {
+            "step": 9,
+            "action": "Search for the recently acknowledged notification in audit logs",
+            "expectedResult": "Acknowledgment entry found containing: notification ID, supervisor username, acknowledgment timestamp, and comment text"
+          },
+          {
+            "step": 10,
+            "action": "Verify timestamp accuracy in acknowledgment record",
+            "expectedResult": "Timestamp matches the time of acknowledgment submission (within 1-2 seconds)"
+          },
+          {
+            "step": 11,
+            "action": "Verify comment is correctly stored in the log",
+            "expectedResult": "Comment text 'Spoke with employee - medical emergency, documentation to follow' is displayed exactly as entered"
+          }
+        ],
+        "postconditions": [
+          "Notification status permanently changed to 'Acknowledged'",
+          "Acknowledgment record stored in database with all details",
+          "Audit trail entry created with timestamp and user information",
+          "Comment is permanently associated with the notification",
+          "Notification removed from unacknowledged queue"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Ensure acknowledgment processing performance",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "Supervisor is logged into the system",
+          "Unacknowledged attendance anomaly notification is available",
+          "System performance monitoring is enabled",
+          "Network connection is stable",
+          "Database is operational and responsive",
+          "Timer or stopwatch tool is available for measurement"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open the attendance anomaly notification requiring acknowledgment",
+            "expectedResult": "Notification details displayed with acknowledgment option"
+          },
+          {
+            "step": 2,
+            "action": "Click the 'Acknowledge' button and start timer",
+            "expectedResult": "Acknowledgment form appears immediately"
+          },
+          {
+            "step": 3,
+            "action": "Enter optional comment: 'Performance test acknowledgment'",
+            "expectedResult": "Comment text accepted in field"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Submit' button and measure response time until confirmation appears",
+            "expectedResult": "Success confirmation message displayed within 2 seconds of clicking submit"
+          },
+          {
+            "step": 5,
+            "action": "Record the exact processing time from submission to confirmation",
+            "expectedResult": "Processing time is 2 seconds or less"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to system audit logs immediately after acknowledgment",
+            "expectedResult": "Audit logs section loads successfully"
+          },
+          {
+            "step": 7,
+            "action": "Search for the acknowledgment entry just created",
+            "expectedResult": "Acknowledgment entry is present in logs with correct notification ID"
+          },
+          {
+            "step": 8,
+            "action": "Verify all acknowledgment details in the log entry",
+            "expectedResult": "Entry contains: supervisor username, accurate timestamp, notification ID, and comment 'Performance test acknowledgment'"
+          },
+          {
+            "step": 9,
+            "action": "Check system performance metrics or logs for processing time",
+            "expectedResult": "System logs confirm acknowledgment processing completed within 2-second SLA"
+          }
+        ],
+        "postconditions": [
+          "Acknowledgment processed within performance SLA",
+          "System logs contain performance metrics for the transaction",
+          "Acknowledgment data correctly stored in database",
+          "No performance degradation observed",
+          "Response time documented for compliance verification"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Verify system handles missing acknowledgment gracefully",
+        "type": "error-case",
+        "priority": "Medium",
+        "preconditions": [
+          "Supervisor is logged into the system",
+          "Attendance anomaly notification is available for acknowledgment",
+          "Form validation rules are configured and active",
+          "Error messaging system is functional",
+          "Required field validations are enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open an unacknowledged attendance anomaly notification",
+            "expectedResult": "Notification details displayed with acknowledgment form"
+          },
+          {
+            "step": 2,
+            "action": "Click the 'Acknowledge' button to open acknowledgment form",
+            "expectedResult": "Acknowledgment form appears with required and optional fields clearly marked"
+          },
+          {
+            "step": 3,
+            "action": "Leave all required fields empty (if any exist beyond the acknowledge action itself)",
+            "expectedResult": "Form displays with empty required fields"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to submit the acknowledgment without completing required fields",
+            "expectedResult": "System displays validation error messages indicating which required fields are missing"
+          },
+          {
+            "step": 5,
+            "action": "Verify error messages are clear and user-friendly",
+            "expectedResult": "Error messages clearly state: 'Required field must be completed' or similar descriptive text for each missing field"
+          },
+          {
+            "step": 6,
+            "action": "Verify form submission is blocked",
+            "expectedResult": "Acknowledgment is not submitted and notification status remains 'Unacknowledged'"
+          },
+          {
+            "step": 7,
+            "action": "Check that no partial data was saved to the database",
+            "expectedResult": "No acknowledgment record created in audit logs or database"
+          },
+          {
+            "step": 8,
+            "action": "Fill in all required fields with valid data",
+            "expectedResult": "Required fields populated with valid information, validation errors cleared"
+          },
+          {
+            "step": 9,
+            "action": "Add optional comment: 'Resubmitting after validation correction'",
+            "expectedResult": "Comment accepted in optional field"
+          },
+          {
+            "step": 10,
+            "action": "Click 'Submit' button to resubmit acknowledgment",
+            "expectedResult": "Form submits successfully without validation errors"
+          },
+          {
+            "step": 11,
+            "action": "Verify success confirmation message is displayed",
+            "expectedResult": "Success message appears: 'Notification acknowledged successfully'"
+          },
+          {
+            "step": 12,
+            "action": "Check audit logs for acknowledgment entry",
+            "expectedResult": "Acknowledgment logged with all required details: supervisor name, timestamp, notification ID, and comment"
+          },
+          {
+            "step": 13,
+            "action": "Verify notification status updated to 'Acknowledged'",
+            "expectedResult": "Notification status changed to 'Acknowledged' in the system"
+          }
+        ],
+        "postconditions": [
+          "Invalid submission attempt blocked and not recorded",
+          "Valid acknowledgment successfully submitted and logged",
+          "No data corruption or partial records in database",
+          "Notification properly acknowledged after correction",
+          "User experience demonstrates clear validation feedback"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-33",
+    "storyTitle": "As Supervisor, I want to customize notification thresholds for attendance anomalies to reduce false alerts",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate updating attendance anomaly thresholds",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Supervisor role credentials",
+          "Supervisor has permission to access attendance anomaly settings",
+          "Configuration database is accessible and operational",
+          "Current threshold values are set to system defaults",
+          "At least one employee record exists in the system for testing anomaly detection"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance anomaly notification settings page from the main dashboard or settings menu",
+            "expectedResult": "Threshold configuration UI is displayed with all current threshold values visible (late arrival threshold, absence threshold, early departure threshold, etc.)"
+          },
+          {
+            "step": 2,
+            "action": "Review the currently displayed threshold values on the configuration screen",
+            "expectedResult": "All threshold fields show current values with appropriate labels and units (e.g., minutes for late arrival, number of occurrences for absences)"
+          },
+          {
+            "step": 3,
+            "action": "Enter valid threshold values: Late arrival threshold = 15 minutes, Absence threshold = 2 occurrences, Early departure threshold = 10 minutes",
+            "expectedResult": "New values are accepted in the input fields without validation errors"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Save' or 'Apply Changes' button",
+            "expectedResult": "Success message is displayed confirming changes have been saved and applied immediately. UI shows updated threshold values"
+          },
+          {
+            "step": 5,
+            "action": "Create a test scenario by simulating or recording an attendance event that triggers the newly set late arrival threshold (e.g., employee arrives 16 minutes late)",
+            "expectedResult": "Anomaly detection system processes the event using the new 15-minute threshold"
+          },
+          {
+            "step": 6,
+            "action": "Check the notifications dashboard or notification center for alerts generated",
+            "expectedResult": "Notification is generated for the late arrival as it exceeds the new 15-minute threshold, confirming thresholds are applied immediately"
+          },
+          {
+            "step": 7,
+            "action": "Create another test scenario with an attendance event below the threshold (e.g., employee arrives 10 minutes late)",
+            "expectedResult": "No notification is generated as the event is within the acceptable threshold range"
+          }
+        ],
+        "postconditions": [
+          "New threshold values are saved in the configuration database",
+          "Anomaly detection system is using the updated thresholds for all subsequent checks",
+          "Threshold change is logged in the audit log with supervisor username and timestamp",
+          "System continues to monitor attendance using new thresholds"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify validation of invalid threshold inputs",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Supervisor role credentials",
+          "Supervisor has permission to access attendance anomaly settings",
+          "Threshold configuration UI is accessible",
+          "Current threshold values are set and displayed"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance anomaly notification settings page",
+            "expectedResult": "Threshold configuration UI is displayed with current threshold values"
+          },
+          {
+            "step": 2,
+            "action": "Enter a negative number in the late arrival threshold field (e.g., -5)",
+            "expectedResult": "Field accepts the input temporarily for validation testing"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Save' or 'Apply Changes' button",
+            "expectedResult": "System displays validation error message indicating that negative values are not allowed. Error message appears near the invalid field or in an error summary section. Changes are not saved"
+          },
+          {
+            "step": 4,
+            "action": "Enter a non-numeric value in the absence threshold field (e.g., 'abc' or special characters)",
+            "expectedResult": "System displays validation error message indicating that only numeric values are accepted. Changes are not saved"
+          },
+          {
+            "step": 5,
+            "action": "Enter an extremely large number that exceeds reasonable bounds (e.g., 99999 minutes for late arrival)",
+            "expectedResult": "System displays validation error message indicating the value exceeds maximum allowed threshold. Changes are not saved"
+          },
+          {
+            "step": 6,
+            "action": "Leave a required threshold field empty and attempt to save",
+            "expectedResult": "System displays validation error message indicating that the field is required. Changes are not saved"
+          },
+          {
+            "step": 7,
+            "action": "Correct all invalid inputs with valid threshold values: Late arrival = 20 minutes, Absence = 3 occurrences",
+            "expectedResult": "Valid values are accepted in the input fields without any validation errors displayed"
+          },
+          {
+            "step": 8,
+            "action": "Click the 'Save' or 'Apply Changes' button",
+            "expectedResult": "Success message is displayed. Changes are accepted, saved, and applied to the anomaly detection system"
+          }
+        ],
+        "postconditions": [
+          "Invalid threshold values are rejected and not saved to the database",
+          "Valid corrected threshold values are saved in the configuration database",
+          "System continues to use previous valid thresholds until new valid values are saved",
+          "Validation errors are cleared after successful save"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure reset to default thresholds works",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "User is logged in with Supervisor role credentials",
+          "Supervisor has permission to access attendance anomaly settings",
+          "Current threshold values have been modified from system defaults",
+          "System default threshold values are defined and accessible",
+          "Audit logging is enabled and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance anomaly notification settings page",
+            "expectedResult": "Threshold configuration UI is displayed showing currently modified threshold values (non-default values)"
+          },
+          {
+            "step": 2,
+            "action": "Note the current custom threshold values displayed on the screen",
+            "expectedResult": "Custom values are visible and different from system defaults (e.g., Late arrival = 15 minutes, Absence = 2 occurrences)"
+          },
+          {
+            "step": 3,
+            "action": "Locate and click the 'Reset to Default' or 'Restore Defaults' button",
+            "expectedResult": "System displays a confirmation dialog asking to confirm the reset action (e.g., 'Are you sure you want to reset all thresholds to default values?')"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Confirm' or 'Yes' in the confirmation dialog",
+            "expectedResult": "All threshold input fields are immediately populated with default system values (e.g., Late arrival = 30 minutes, Absence = 5 occurrences, Early departure = 20 minutes)"
+          },
+          {
+            "step": 5,
+            "action": "Verify that all threshold fields now display the default values",
+            "expectedResult": "All fields show default values correctly. Visual indication may show that values have been reset but not yet saved"
+          },
+          {
+            "step": 6,
+            "action": "Click the 'Save' or 'Apply Changes' button to persist the default values",
+            "expectedResult": "Success message is displayed confirming that default thresholds have been applied. UI confirms the save operation"
+          },
+          {
+            "step": 7,
+            "action": "Navigate to the audit log or change history section",
+            "expectedResult": "Audit log shows an entry for the threshold reset action with supervisor username, timestamp, action type (reset to defaults), and the default values that were applied"
+          },
+          {
+            "step": 8,
+            "action": "Trigger a test attendance anomaly scenario using the default threshold values",
+            "expectedResult": "Anomaly detection system uses the default thresholds for evaluation and generates notifications accordingly"
+          }
+        ],
+        "postconditions": [
+          "All threshold values are reset to system defaults in the configuration database",
+          "Anomaly detection system is using default thresholds for all subsequent checks",
+          "Reset action is logged in the audit log with complete details including user, timestamp, and action type",
+          "Previous custom threshold values are overwritten with defaults"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  }
+]
