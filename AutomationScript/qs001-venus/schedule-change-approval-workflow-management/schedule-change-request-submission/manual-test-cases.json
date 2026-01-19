@@ -1,0 +1,221 @@
+[
+  {
+    "storyId": "story-1",
+    "storyTitle": "As Employee, I want to submit schedule change requests to achieve timely updates to my work schedule",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful schedule change request submission with valid data",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the system with valid credentials",
+          "Employee has necessary permissions to submit schedule change requests",
+          "Schedule change request page is accessible",
+          "Test attachment file (PDF, 5MB) is prepared for upload"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule change request page from the main dashboard or menu",
+            "expectedResult": "Schedule change request form is displayed with all mandatory fields visible including: Employee Name, Current Schedule, Requested Schedule, Reason for Change, Effective Date, and Attachment Upload option"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid data in Employee Name field (e.g., 'John Smith')",
+            "expectedResult": "Employee Name field accepts the input without any validation errors"
+          },
+          {
+            "step": 3,
+            "action": "Enter valid Current Schedule details (e.g., 'Monday-Friday, 9:00 AM - 5:00 PM')",
+            "expectedResult": "Current Schedule field accepts the input without any validation errors"
+          },
+          {
+            "step": 4,
+            "action": "Enter valid Requested Schedule details (e.g., 'Monday-Friday, 10:00 AM - 6:00 PM')",
+            "expectedResult": "Requested Schedule field accepts the input without any validation errors"
+          },
+          {
+            "step": 5,
+            "action": "Enter valid Reason for Change (e.g., 'Need to accommodate childcare schedule')",
+            "expectedResult": "Reason for Change field accepts the input without any validation errors"
+          },
+          {
+            "step": 6,
+            "action": "Select valid Effective Date using date picker (e.g., a date 7 days in the future)",
+            "expectedResult": "Effective Date field accepts the selected date in correct format without validation errors"
+          },
+          {
+            "step": 7,
+            "action": "Click on the attachment upload button and select a valid file (PDF, 5MB)",
+            "expectedResult": "File upload progress indicator appears, file is successfully uploaded, file name is displayed with file size, no error messages appear"
+          },
+          {
+            "step": 8,
+            "action": "Review all entered data for accuracy",
+            "expectedResult": "All fields display the entered data correctly"
+          },
+          {
+            "step": 9,
+            "action": "Click the 'Submit' button",
+            "expectedResult": "System processes the request within 2 seconds, request is saved to ScheduleChangeRequests table, status is automatically set to 'Pending Approval', confirmation message is displayed stating 'Your schedule change request has been submitted successfully. Request ID: [ID]', page redirects to confirmation page or displays success notification"
+          },
+          {
+            "step": 10,
+            "action": "Verify the request appears in the employee's request history or dashboard",
+            "expectedResult": "Submitted request is visible with status 'Pending Approval' and all entered details are correctly displayed"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request is saved in the database with unique request ID",
+          "Request status is set to 'Pending Approval'",
+          "Uploaded attachment is stored and linked to the request",
+          "Employee can view the submitted request in their request history",
+          "Request is available in the approval workflow queue"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify rejection of submission with missing mandatory fields",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the system with valid credentials",
+          "Employee has necessary permissions to access schedule change request page",
+          "Schedule change request page is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule change request page from the main dashboard or menu",
+            "expectedResult": "Schedule change request form is displayed with all mandatory fields marked with asterisks (*) or 'Required' labels"
+          },
+          {
+            "step": 2,
+            "action": "Leave the Employee Name field empty",
+            "expectedResult": "Field remains empty without immediate validation error (validation occurs on blur or submit)"
+          },
+          {
+            "step": 3,
+            "action": "Leave the Current Schedule field empty",
+            "expectedResult": "Field remains empty without immediate validation error"
+          },
+          {
+            "step": 4,
+            "action": "Leave the Requested Schedule field empty",
+            "expectedResult": "Field remains empty without immediate validation error"
+          },
+          {
+            "step": 5,
+            "action": "Leave the Reason for Change field empty",
+            "expectedResult": "Field remains empty without immediate validation error"
+          },
+          {
+            "step": 6,
+            "action": "Leave the Effective Date field empty",
+            "expectedResult": "Field remains empty without immediate validation error"
+          },
+          {
+            "step": 7,
+            "action": "Click the 'Submit' button without filling any mandatory fields",
+            "expectedResult": "Form submission is blocked, page does not refresh or navigate away, inline validation error messages appear next to each empty mandatory field (e.g., 'Employee Name is required', 'Current Schedule is required', 'Requested Schedule is required', 'Reason for Change is required', 'Effective Date is required'), empty fields are highlighted with red borders or error styling, focus moves to the first invalid field"
+          },
+          {
+            "step": 8,
+            "action": "Fill in only the Employee Name field with valid data (e.g., 'Jane Doe') and attempt to submit again",
+            "expectedResult": "Form submission is still blocked, error messages remain for all other empty mandatory fields, Employee Name field error is cleared and field shows valid styling"
+          },
+          {
+            "step": 9,
+            "action": "Progressively fill in each mandatory field one by one and observe validation behavior",
+            "expectedResult": "As each field is filled with valid data, its corresponding error message disappears and field styling changes to valid state, remaining empty fields continue to show error messages"
+          },
+          {
+            "step": 10,
+            "action": "Verify that the Submit button remains disabled or submission continues to be blocked until all mandatory fields are completed",
+            "expectedResult": "Submit button functionality prevents submission until all mandatory field validations pass"
+          }
+        ],
+        "postconditions": [
+          "No data is saved to the database",
+          "User remains on the schedule change request form",
+          "Form retains any valid data entered by the user",
+          "Error messages are clearly visible for all validation failures"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Test attachment upload validation",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the system with valid credentials",
+          "Employee has necessary permissions to submit schedule change requests",
+          "Schedule change request page is accessible",
+          "Test files are prepared: one file exceeding 10MB size limit (e.g., 12MB PDF), one invalid file type (e.g., .exe or .bat file), one valid file (e.g., 5MB PDF)"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule change request page from the main dashboard or menu",
+            "expectedResult": "Schedule change request form is displayed with attachment upload section visible, accepted file types and size limits are displayed (e.g., 'Accepted formats: PDF, DOC, DOCX, JPG, PNG. Maximum size: 10MB')"
+          },
+          {
+            "step": 2,
+            "action": "Click on the attachment upload button",
+            "expectedResult": "File browser dialog opens allowing file selection"
+          },
+          {
+            "step": 3,
+            "action": "Select a file that exceeds the 10MB size limit (e.g., 12MB PDF file)",
+            "expectedResult": "File upload is rejected, validation error message is displayed stating 'File size exceeds the maximum limit of 10MB', file is not uploaded, no file name appears in the attachment area"
+          },
+          {
+            "step": 4,
+            "action": "Click on the attachment upload button again",
+            "expectedResult": "File browser dialog opens again for new file selection"
+          },
+          {
+            "step": 5,
+            "action": "Select a file with an invalid file type (e.g., .exe or .bat file)",
+            "expectedResult": "File upload is rejected, validation error message is displayed stating 'Invalid file type. Accepted formats are: PDF, DOC, DOCX, JPG, PNG', file is not uploaded, no file name appears in the attachment area"
+          },
+          {
+            "step": 6,
+            "action": "Clear any error messages and click on the attachment upload button again",
+            "expectedResult": "File browser dialog opens, previous error messages are cleared"
+          },
+          {
+            "step": 7,
+            "action": "Select a valid file that meets all requirements (e.g., 5MB PDF file named 'schedule_justification.pdf')",
+            "expectedResult": "File upload begins with progress indicator displayed, upload completes successfully within reasonable time, file name 'schedule_justification.pdf' is displayed in the attachment area, file size '5MB' is shown next to the file name, no error messages appear, a remove/delete icon appears next to the uploaded file"
+          },
+          {
+            "step": 8,
+            "action": "Verify the uploaded file can be previewed or downloaded (if functionality exists)",
+            "expectedResult": "File preview or download link is functional and displays/downloads the correct file"
+          },
+          {
+            "step": 9,
+            "action": "Click the remove/delete icon next to the uploaded file",
+            "expectedResult": "File is removed from the attachment area, upload section returns to initial state allowing new file upload"
+          },
+          {
+            "step": 10,
+            "action": "Upload the valid file again and fill in all mandatory fields with valid data, then submit the form",
+            "expectedResult": "Form submits successfully with the attached file, confirmation message is displayed, attachment is saved and linked to the schedule change request"
+          }
+        ],
+        "postconditions": [
+          "Only valid attachments within size and type constraints are accepted",
+          "Invalid attachments are rejected with clear error messages",
+          "Valid attachment is stored and associated with the schedule change request",
+          "System maintains data integrity by enforcing attachment validation rules"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  }
+]
