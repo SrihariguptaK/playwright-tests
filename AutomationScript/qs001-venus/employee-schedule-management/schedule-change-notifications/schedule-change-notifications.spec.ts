@@ -1,257 +1,203 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Schedule Change Notifications - Story 16', () => {
-  const employeeCredentials = {
-    username: 'employee.user@company.com',
-    password: 'TestPassword123!'
-  };
+test.describe('Schedule Change Notifications', () => {
+  const baseURL = process.env.BASE_URL || 'http://localhost:3000';
+  const adminCredentials = { username: 'admin@company.com', password: 'Admin123!' };
+  const employeeACredentials = { username: 'employeeA@company.com', password: 'EmployeeA123!' };
+  const employeeBCredentials = { username: 'employeeB@company.com', password: 'EmployeeB123!' };
 
-  test.beforeEach(async ({ page }) => {
-    // Navigate to employee portal login page
-    await page.goto('/employee/login');
-    
-    // Login with valid employee credentials
-    await page.fill('[data-testid="username-input"]', employeeCredentials.username);
-    await page.fill('[data-testid="password-input"]', employeeCredentials.password);
+  test('Validate real-time delivery of schedule change notifications (happy-path)', async ({ page, context }) => {
+    // Step 1: Access backend system with administrator privileges
+    await page.goto(`${baseURL}/admin/login`);
+    await page.fill('[data-testid="username-input"]', adminCredentials.username);
+    await page.fill('[data-testid="password-input"]', adminCredentials.password);
     await page.click('[data-testid="login-button"]');
-    
-    // Wait for dashboard to load
-    await expect(page.locator('[data-testid="employee-dashboard"]')).toBeVisible();
-  });
+    await expect(page.locator('[data-testid="admin-dashboard"]')).toBeVisible();
 
-  test('Validate real-time notification display on dashboard', async ({ page }) => {
-    // Trigger a schedule change event for the employee (simulated via API or admin action)
-    // In real scenario, this would be done by manager/admin in separate session
-    // For automation, we can trigger via API call
-    const scheduleChangeData = {
-      employeeId: 'EMP001',
-      changeType: 'Shift Time Modified',
-      oldSchedule: {
-        date: '2024-01-15',
-        startTime: '09:00',
-        endTime: '17:00',
-        location: 'Office A'
-      },
-      newSchedule: {
-        date: '2024-01-15',
-        startTime: '10:00',
-        endTime: '18:00',
-        location: 'Office A'
-      }
-    };
+    // Step 2: Navigate to employee schedule management section
+    await page.click('[data-testid="schedule-management-link"]');
+    await expect(page.locator('[data-testid="schedule-management-page"]')).toBeVisible();
 
-    // Wait for notification to appear on dashboard (within 15 minutes, using shorter timeout for test)
-    const notificationLocator = page.locator('[data-testid="notification-item"]').first();
-    await expect(notificationLocator).toBeVisible({ timeout: 900000 }); // 15 minutes max
-
-    // Verify notification content includes required details
-    await expect(notificationLocator).toContainText('Shift Time Modified');
-    await expect(notificationLocator).toContainText('09:00');
-    await expect(notificationLocator).toContainText('10:00');
-    
-    // Verify timestamp is present
-    const timestamp = notificationLocator.locator('[data-testid="notification-timestamp"]');
-    await expect(timestamp).toBeVisible();
-
-    // Click on notification to view full details
-    await notificationLocator.click();
-    
-    // Verify full notification details are displayed
-    const notificationDetails = page.locator('[data-testid="notification-details"]');
-    await expect(notificationDetails).toBeVisible();
-    await expect(notificationDetails).toContainText('Old Schedule');
-    await expect(notificationDetails).toContainText('New Schedule');
-    await expect(notificationDetails).toContainText('2024-01-15');
-
-    // Click the Acknowledge button
-    const acknowledgeButton = page.locator('[data-testid="acknowledge-button"]');
-    await acknowledgeButton.click();
-
-    // Verify acknowledgment is recorded and notification marked as read
-    await expect(notificationLocator).toHaveAttribute('data-status', 'read');
-    const acknowledgedBadge = notificationLocator.locator('[data-testid="acknowledged-badge"]');
-    await expect(acknowledgedBadge).toBeVisible();
-    await expect(acknowledgedBadge).toContainText('Acknowledged');
-  });
-
-  test('Verify email alert delivery for schedule changes', async ({ page, request }) => {
-    const employeeEmail = 'employee.user@company.com';
-    
-    // Trigger schedule change event (simulated)
-    const scheduleChange = {
-      employeeId: 'EMP001',
-      changeType: 'Shift Date Changed',
-      originalDate: '2024-01-20',
-      newDate: '2024-01-21',
-      startTime: '09:00',
-      endTime: '17:00'
-    };
-
-    // Monitor email delivery system logs (via API endpoint)
-    const emailLogsResponse = await request.get('/api/email-logs', {
-      params: {
-        recipient: employeeEmail,
-        timeRange: '15m'
-      }
-    });
-    expect(emailLogsResponse.ok()).toBeTruthy();
-    const emailLogs = await emailLogsResponse.json();
-    
-    // Verify email dispatch confirmation within 15 minutes
-    const scheduleChangeEmail = emailLogs.find((log: any) => 
-      log.subject.includes('Schedule Change') && 
-      log.timestamp > Date.now() - 900000
-    );
-    expect(scheduleChangeEmail).toBeDefined();
-
-    // Navigate to email verification page (test email inbox)
-    await page.goto('/test/email-inbox');
-    await page.fill('[data-testid="email-search"]', employeeEmail);
+    // Step 3: Locate target employee's schedule and modify a shift
+    await page.fill('[data-testid="employee-search-input"]', 'Employee A');
     await page.click('[data-testid="search-button"]');
+    await page.click('[data-testid="employee-schedule-row"]');
+    await page.click('[data-testid="edit-shift-button"]');
+    
+    // Change shift time
+    await page.fill('[data-testid="shift-time-input"]', '14:00');
+    await page.fill('[data-testid="shift-date-input"]', '2024-02-15');
+    
+    // Step 4: Save schedule changes and note timestamp
+    const changeTimestamp = Date.now();
+    await page.click('[data-testid="save-schedule-button"]');
+    await expect(page.locator('[data-testid="success-message"]')).toContainText('Schedule updated successfully');
 
-    // Locate the schedule change email
-    const emailItem = page.locator('[data-testid="email-item"]').filter({ hasText: 'Schedule Change' }).first();
-    await expect(emailItem).toBeVisible({ timeout: 900000 }); // 15 minutes
+    // Step 5: Wait for notification generation (up to 1 minute)
+    await page.waitForTimeout(5000); // Simulating notification processing time
 
-    // Verify sender address matches system notification address
-    await emailItem.click();
-    const senderAddress = page.locator('[data-testid="email-sender"]');
-    await expect(senderAddress).toContainText('notifications@company.com');
+    // Step 6: Employee logs into web interface
+    const employeePage = await context.newPage();
+    await employeePage.goto(`${baseURL}/employee/login`);
+    await employeePage.fill('[data-testid="username-input"]', employeeACredentials.username);
+    await employeePage.fill('[data-testid="password-input"]', employeeACredentials.password);
+    await employeePage.click('[data-testid="login-button"]');
+    await expect(employeePage.locator('[data-testid="employee-dashboard"]')).toBeVisible();
 
-    // Review email subject line
-    const subjectLine = page.locator('[data-testid="email-subject"]');
-    await expect(subjectLine).toContainText('Schedule Change Notification');
+    // Step 7: Navigate to notifications section
+    await employeePage.click('[data-testid="notifications-icon"]');
+    await expect(employeePage.locator('[data-testid="notifications-panel"]')).toBeVisible();
 
-    // Verify email content includes required details
-    const emailBody = page.locator('[data-testid="email-body"]');
-    await expect(emailBody).toContainText('Original Schedule');
-    await expect(emailBody).toContainText('2024-01-20');
-    await expect(emailBody).toContainText('New Schedule');
-    await expect(emailBody).toContainText('2024-01-21');
-    await expect(emailBody).toContainText('Shift Date Changed');
-    await expect(emailBody).toContainText('Effective Date');
+    // Step 8: Verify new notification is visible
+    const notification = employeePage.locator('[data-testid="notification-item"]').first();
+    await expect(notification).toBeVisible();
+    await expect(notification).toContainText('Schedule change');
+    await expect(notification.locator('[data-testid="notification-status"]')).toContainText('unread');
 
-    // Check for portal link in email
-    const portalLink = emailBody.locator('a[href*="/employee/notifications"]');
-    await expect(portalLink).toBeVisible();
-
-    // Compare email content with dashboard notification
-    await page.goto('/employee/dashboard');
-    const dashboardNotification = page.locator('[data-testid="notification-item"]').first();
-    await expect(dashboardNotification).toContainText('2024-01-21');
-    await expect(dashboardNotification).toContainText('Shift Date Changed');
+    // Step 9: Acknowledge notification
+    await notification.click();
+    await employeePage.click('[data-testid="acknowledge-notification-button"]');
+    
+    // Step 10: Verify notification is marked as read
+    await employeePage.click('[data-testid="notifications-icon"]');
+    await expect(notification.locator('[data-testid="notification-status"]')).toContainText('read');
+    
+    // Verify notification delivery time was within 1 minute
+    const notificationTime = await notification.locator('[data-testid="notification-timestamp"]').getAttribute('data-timestamp');
+    const deliveryLatency = parseInt(notificationTime!) - changeTimestamp;
+    expect(deliveryLatency).toBeLessThan(60000); // Less than 1 minute
   });
 
-  test('Test notification history access', async ({ page }) => {
-    // From employee dashboard, locate and click notification history link
-    const notificationHistoryLink = page.locator('[data-testid="notification-history-link"]');
-    await notificationHistoryLink.click();
+  test('Verify notification visibility and security (error-case)', async ({ page, context }) => {
+    // Step 1: Log into web interface using Employee A's credentials
+    await page.goto(`${baseURL}/employee/login`);
+    await page.fill('[data-testid="username-input"]', employeeACredentials.username);
+    await page.fill('[data-testid="password-input"]', employeeACredentials.password);
+    await page.click('[data-testid="login-button"]');
+    await expect(page.locator('[data-testid="employee-dashboard"]')).toBeVisible();
 
-    // Verify notification history page loads completely
-    await expect(page).toHaveURL(/.*\/notifications\/history/);
-    const historyPage = page.locator('[data-testid="notification-history-page"]');
-    await expect(historyPage).toBeVisible();
+    // Step 2: Navigate to notifications section
+    await page.click('[data-testid="notifications-icon"]');
+    await expect(page.locator('[data-testid="notifications-panel"]')).toBeVisible();
 
-    // Review the list of notifications displayed
-    const notificationList = page.locator('[data-testid="notification-list"]');
-    await expect(notificationList).toBeVisible();
-
-    // Verify each notification entry shows key information
-    const firstNotification = page.locator('[data-testid="history-notification-item"]').first();
-    await expect(firstNotification).toBeVisible();
+    // Step 3: Review all visible notifications and verify content
+    const employeeANotifications = page.locator('[data-testid="notification-item"]');
+    const employeeANotificationCount = await employeeANotifications.count();
     
-    // Check for date/time of change
-    const dateTime = firstNotification.locator('[data-testid="notification-datetime"]');
-    await expect(dateTime).toBeVisible();
-    
-    // Check for change type
-    const changeType = firstNotification.locator('[data-testid="notification-change-type"]');
-    await expect(changeType).toBeVisible();
-    
-    // Check for old schedule details
-    const oldSchedule = firstNotification.locator('[data-testid="notification-old-schedule"]');
-    await expect(oldSchedule).toBeVisible();
-    
-    // Check for new schedule details
-    const newSchedule = firstNotification.locator('[data-testid="notification-new-schedule"]');
-    await expect(newSchedule).toBeVisible();
-    
-    // Check for acknowledgment status
-    const acknowledgmentStatus = firstNotification.locator('[data-testid="notification-ack-status"]');
-    await expect(acknowledgmentStatus).toBeVisible();
-
-    // Verify acknowledged notifications show timestamp
-    const acknowledgedNotification = page.locator('[data-testid="history-notification-item"][data-acknowledged="true"]').first();
-    if (await acknowledgedNotification.count() > 0) {
-      const ackTimestamp = acknowledgedNotification.locator('[data-testid="acknowledgment-timestamp"]');
-      await expect(ackTimestamp).toBeVisible();
+    // Verify all notifications belong to Employee A
+    for (let i = 0; i < employeeANotificationCount; i++) {
+      const notification = employeeANotifications.nth(i);
+      const recipientId = await notification.getAttribute('data-recipient-id');
+      expect(recipientId).toBe('employeeA');
     }
 
-    // Verify unacknowledged notifications are clearly marked
-    const unacknowledgedNotification = page.locator('[data-testid="history-notification-item"][data-acknowledged="false"]').first();
-    if (await unacknowledgedNotification.count() > 0) {
-      const unacknowledgedBadge = unacknowledgedNotification.locator('[data-testid="unacknowledged-badge"]');
-      await expect(unacknowledgedBadge).toBeVisible();
-      
-      // Verify acknowledgment can be done from history page
-      const ackButtonInHistory = unacknowledgedNotification.locator('[data-testid="acknowledge-button"]');
-      await expect(ackButtonInHistory).toBeVisible();
-      await ackButtonInHistory.click();
-      
-      // Verify status updates
-      await expect(unacknowledgedNotification).toHaveAttribute('data-acknowledged', 'true');
+    // Step 4: Verify no notifications from other employees are displayed
+    const employeeBNotifications = page.locator('[data-testid="notification-item"][data-recipient-id="employeeB"]');
+    await expect(employeeBNotifications).toHaveCount(0);
+
+    // Step 5: Log out from Employee A's account
+    await page.click('[data-testid="user-menu"]');
+    await page.click('[data-testid="logout-button"]');
+    await expect(page.locator('[data-testid="login-page"]')).toBeVisible();
+
+    // Step 6: Log into web interface using Employee B's credentials
+    await page.fill('[data-testid="username-input"]', employeeBCredentials.username);
+    await page.fill('[data-testid="password-input"]', employeeBCredentials.password);
+    await page.click('[data-testid="login-button"]');
+    await expect(page.locator('[data-testid="employee-dashboard"]')).toBeVisible();
+
+    // Step 7: Navigate to notifications section
+    await page.click('[data-testid="notifications-icon"]');
+    await expect(page.locator('[data-testid="notifications-panel"]')).toBeVisible();
+
+    // Step 8: Review all visible notifications and verify content
+    const employeeBNotificationsList = page.locator('[data-testid="notification-item"]');
+    const employeeBNotificationCount = await employeeBNotificationsList.count();
+    
+    // Verify all notifications belong to Employee B
+    for (let i = 0; i < employeeBNotificationCount; i++) {
+      const notification = employeeBNotificationsList.nth(i);
+      const recipientId = await notification.getAttribute('data-recipient-id');
+      expect(recipientId).toBe('employeeB');
     }
 
-    // Test pagination if more than 10-20 notifications exist
-    const notificationCount = await page.locator('[data-testid="history-notification-item"]').count();
-    if (notificationCount >= 10) {
-      const paginationControls = page.locator('[data-testid="pagination-controls"]');
-      await expect(paginationControls).toBeVisible();
-      
-      const nextPageButton = page.locator('[data-testid="next-page-button"]');
-      if (await nextPageButton.isEnabled()) {
-        await nextPageButton.click();
-        await expect(page).toHaveURL(/.*page=2/);
-      }
+    // Step 9: Verify Employee A's notifications are not visible to Employee B
+    const employeeANotificationsInB = page.locator('[data-testid="notification-item"][data-recipient-id="employeeA"]');
+    await expect(employeeANotificationsInB).toHaveCount(0);
+
+    // Step 10: Attempt to access Employee A's notification via URL manipulation
+    const employeeANotificationId = 'notification-employeeA-001';
+    await page.goto(`${baseURL}/employee/notifications/${employeeANotificationId}`);
+    
+    // Verify access is denied or redirected
+    await expect(page.locator('[data-testid="error-message"]')).toContainText('Access denied');
+    // OR verify redirect to dashboard/error page
+    await expect(page).toHaveURL(new RegExp('(dashboard|error|unauthorized)'));
+  });
+
+  test('Test notification history accessibility (happy-path)', async ({ page }) => {
+    // Login as employee
+    await page.goto(`${baseURL}/employee/login`);
+    await page.fill('[data-testid="username-input"]', employeeACredentials.username);
+    await page.fill('[data-testid="password-input"]', employeeACredentials.password);
+    await page.click('[data-testid="login-button"]');
+    await expect(page.locator('[data-testid="employee-dashboard"]')).toBeVisible();
+
+    // Step 1: Locate and click on notifications section or notification history link
+    await page.click('[data-testid="notifications-link"]');
+    
+    // Step 2: Verify notification history section is accessible and loads properly
+    await expect(page.locator('[data-testid="notification-history-page"]')).toBeVisible();
+    await expect(page.locator('[data-testid="notification-history-title"]')).toContainText('Notification History');
+
+    // Step 3: Review the list of notifications displayed in history
+    const notificationList = page.locator('[data-testid="notification-item"]');
+    await expect(notificationList).not.toHaveCount(0);
+
+    // Step 4: Verify each notification displays read/unread status clearly
+    const notificationCount = await notificationList.count();
+    for (let i = 0; i < notificationCount; i++) {
+      const notification = notificationList.nth(i);
+      const statusBadge = notification.locator('[data-testid="notification-status"]');
+      await expect(statusBadge).toBeVisible();
+      const statusText = await statusBadge.textContent();
+      expect(['read', 'unread']).toContain(statusText?.toLowerCase());
     }
 
-    // Apply date range filter
-    const dateFilterButton = page.locator('[data-testid="date-filter-button"]');
-    await dateFilterButton.click();
+    // Step 5: Check that unread notifications are visually distinct from read notifications
+    const unreadNotifications = page.locator('[data-testid="notification-item"][data-status="unread"]');
+    const readNotifications = page.locator('[data-testid="notification-item"][data-status="read"]');
     
-    const startDateInput = page.locator('[data-testid="start-date-input"]');
-    await startDateInput.fill('2024-01-01');
-    
-    const endDateInput = page.locator('[data-testid="end-date-input"]');
-    await endDateInput.fill('2024-01-31');
-    
-    const applyFilterButton = page.locator('[data-testid="apply-filter-button"]');
-    await applyFilterButton.click();
-    
-    // Verify filtered results
-    await expect(notificationList).toBeVisible();
-
-    // Apply acknowledgment status filter
-    const statusFilter = page.locator('[data-testid="status-filter-dropdown"]');
-    await statusFilter.click();
-    
-    const unacknowledgedOption = page.locator('[data-testid="filter-unacknowledged"]');
-    await unacknowledgedOption.click();
-    
-    // Verify only unacknowledged notifications are shown
-    const visibleNotifications = page.locator('[data-testid="history-notification-item"]');
-    const count = await visibleNotifications.count();
-    for (let i = 0; i < count; i++) {
-      await expect(visibleNotifications.nth(i)).toHaveAttribute('data-acknowledged', 'false');
+    if (await unreadNotifications.count() > 0) {
+      const unreadBgColor = await unreadNotifications.first().evaluate(el => window.getComputedStyle(el).backgroundColor);
+      const readBgColor = await readNotifications.first().evaluate(el => window.getComputedStyle(el).backgroundColor);
+      expect(unreadBgColor).not.toBe(readBgColor);
     }
 
-    // Click on a specific notification to view full details
-    const specificNotification = page.locator('[data-testid="history-notification-item"]').nth(0);
-    await specificNotification.click();
+    // Step 6: Verify each notification includes relevant details
+    const firstNotification = notificationList.first();
+    await expect(firstNotification.locator('[data-testid="notification-message"]')).toBeVisible();
+    await expect(firstNotification.locator('[data-testid="notification-timestamp"]')).toBeVisible();
+    await expect(firstNotification.locator('[data-testid="notification-type"]')).toBeVisible();
     
-    // Verify full details modal/page opens
-    const detailsModal = page.locator('[data-testid="notification-details-modal"]');
-    await expect(detailsModal).toBeVisible();
-    await expect(detailsModal).toContainText('Schedule Change Details');
+    const notificationMessage = await firstNotification.locator('[data-testid="notification-message"]').textContent();
+    expect(notificationMessage).toContain('schedule');
+
+    // Step 7: Scroll through notification history to verify all notifications are accessible
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(1000);
+    const lastNotification = notificationList.last();
+    await expect(lastNotification).toBeVisible();
+
+    // Step 8: Click on an individual notification to view full details
+    await firstNotification.click();
+    await expect(page.locator('[data-testid="notification-detail-modal"]')).toBeVisible();
+    await expect(page.locator('[data-testid="notification-detail-content"]')).toBeVisible();
+
+    // Step 9: Verify notification count matches total notifications received
+    const notificationCountBadge = page.locator('[data-testid="notification-count-badge"]');
+    const displayedCount = await notificationCountBadge.textContent();
+    const actualCount = await notificationList.count();
+    expect(parseInt(displayedCount!)).toBe(actualCount);
   });
 });
