@@ -1,198 +1,157 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Monthly Schedule View - Story 9', () => {
-  const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
-  const EMPLOYEE_A_EMAIL = 'employee.a@company.com';
-  const EMPLOYEE_A_PASSWORD = 'Password123!';
-  const EMPLOYEE_B_ID = 'emp-456';
-
+test.describe('Story-13: Monthly Schedule View', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to login page
-    await page.goto(`${BASE_URL}/login`);
-  });
-
-  test('Validate monthly schedule calendar display and navigation', async ({ page }) => {
-    // Step 1: Employee logs into the portal
-    await page.fill('[data-testid="email-input"]', EMPLOYEE_A_EMAIL);
-    await page.fill('[data-testid="password-input"]', EMPLOYEE_A_PASSWORD);
+    await page.goto('/login');
+    
+    // Login with valid credentials
+    await page.fill('[data-testid="username-input"]', 'employee@company.com');
+    await page.fill('[data-testid="password-input"]', 'ValidPassword123');
     await page.click('[data-testid="login-button"]');
     
     // Wait for successful login
     await expect(page).toHaveURL(/.*dashboard/);
-    
-    // Navigate to schedule section from main menu
+  });
+
+  test('Validate monthly schedule display and navigation', async ({ page }) => {
+    // Employee navigates to the schedule section from the main menu
     await page.click('[data-testid="schedule-menu-item"]');
+    await expect(page).toHaveURL(/.*schedule/);
     
-    // Select monthly schedule view option
+    // Employee selects monthly view option
     await page.click('[data-testid="monthly-view-button"]');
     
-    // Expected Result: Monthly calendar displayed with shift indicators
+    // Employee verifies that all shifts for the current month are visible on the calendar
     await expect(page.locator('[data-testid="monthly-calendar"]')).toBeVisible();
-    await expect(page.locator('[data-testid="shift-indicator"]').first()).toBeVisible();
+    const currentMonthHeader = page.locator('[data-testid="current-month-header"]');
+    await expect(currentMonthHeader).toBeVisible();
     
-    // Verify current month is displayed
-    const currentMonthYear = page.locator('[data-testid="current-month-year"]');
-    await expect(currentMonthYear).toBeVisible();
-    const currentMonthText = await currentMonthYear.textContent();
+    // Verify shifts are displayed
+    const shifts = page.locator('[data-testid="shift-entry"]');
+    await expect(shifts.first()).toBeVisible();
+    const shiftCount = await shifts.count();
+    expect(shiftCount).toBeGreaterThan(0);
     
-    // Step 2: Employee navigates to next month
+    // Employee clicks the next month navigation button
+    const currentMonthText = await currentMonthHeader.textContent();
     await page.click('[data-testid="next-month-button"]');
     
-    // Expected Result: Next month's schedule displayed correctly
-    await page.waitForLoadState('networkidle');
-    const nextMonthText = await page.locator('[data-testid="current-month-year"]').textContent();
+    // Verify schedule for next month is displayed
+    await page.waitForTimeout(500);
+    const nextMonthText = await currentMonthHeader.textContent();
     expect(nextMonthText).not.toBe(currentMonthText);
     await expect(page.locator('[data-testid="monthly-calendar"]')).toBeVisible();
     
-    // Step 3: Employee navigates to previous month twice
+    // Employee clicks the previous month navigation button to return to current month
     await page.click('[data-testid="previous-month-button"]');
-    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(500);
+    const returnedMonthText = await currentMonthHeader.textContent();
+    expect(returnedMonthText).toBe(currentMonthText);
     
-    // Verify back to original month
-    const backToCurrentMonth = await page.locator('[data-testid="current-month-year"]').textContent();
-    expect(backToCurrentMonth).toBe(currentMonthText);
+    // Employee hovers mouse cursor over a shift entry on the calendar
+    const firstShift = shifts.first();
+    await firstShift.hover();
     
-    await page.click('[data-testid="previous-month-button"]');
-    await page.waitForLoadState('networkidle');
+    // Verify shift details are displayed on hover
+    const shiftTooltip = page.locator('[data-testid="shift-details-tooltip"]');
+    await expect(shiftTooltip).toBeVisible();
+    await expect(shiftTooltip).toContainText(/\d{1,2}:\d{2}/);
     
-    // Expected Result: Previous month's schedule displayed correctly
-    const previousMonthText = await page.locator('[data-testid="current-month-year"]').textContent();
-    expect(previousMonthText).not.toBe(currentMonthText);
-    await expect(page.locator('[data-testid="monthly-calendar"]')).toBeVisible();
+    // Employee moves cursor away from the shift entry
+    await page.mouse.move(0, 0);
+    await page.waitForTimeout(300);
     
-    // Verify weekends are visually distinct from weekdays
-    const weekendDays = page.locator('[data-testid="calendar-day"][data-weekend="true"]');
-    await expect(weekendDays.first()).toBeVisible();
-    const weekendClass = await weekendDays.first().getAttribute('class');
-    expect(weekendClass).toContain('weekend');
+    // Employee clicks on a different shift entry
+    const secondShift = shifts.nth(1);
+    await secondShift.click();
     
-    // Verify company holidays are visually distinct
-    const holidayDays = page.locator('[data-testid="calendar-day"][data-holiday="true"]');
-    if (await holidayDays.count() > 0) {
-      const holidayClass = await holidayDays.first().getAttribute('class');
-      expect(holidayClass).toContain('holiday');
-    }
-    
-    // Logout
-    await page.click('[data-testid="user-menu-button"]');
-    await page.click('[data-testid="logout-button"]');
+    // Verify shift details are displayed on click
+    const shiftDetailsModal = page.locator('[data-testid="shift-details-modal"]');
+    await expect(shiftDetailsModal).toBeVisible();
+    await expect(shiftDetailsModal).toContainText(/Shift Details/);
   });
 
-  test('Verify access control for monthly schedule', async ({ page }) => {
-    // Step 1: Log in as Employee A with valid credentials
-    await page.fill('[data-testid="email-input"]', EMPLOYEE_A_EMAIL);
-    await page.fill('[data-testid="password-input"]', EMPLOYEE_A_PASSWORD);
-    await page.click('[data-testid="login-button"]');
+  test('Verify responsiveness on desktop and mobile', async ({ page, context }) => {
+    // Set desktop viewport
+    await page.setViewportSize({ width: 1920, height: 1080 });
     
-    await expect(page).toHaveURL(/.*dashboard/);
-    
-    // Step 2: Navigate to the monthly schedule view
+    // Employee navigates to the schedule section and selects monthly view on desktop
     await page.click('[data-testid="schedule-menu-item"]');
     await page.click('[data-testid="monthly-view-button"]');
     
-    await expect(page.locator('[data-testid="monthly-calendar"]')).toBeVisible();
+    // Employee verifies that the calendar grid displays properly on desktop with adequate spacing and readability
+    const desktopCalendar = page.locator('[data-testid="monthly-calendar"]');
+    await expect(desktopCalendar).toBeVisible();
     
-    // Get Employee A's schedule data for comparison
-    const employeeASchedule = await page.locator('[data-testid="employee-name"]').textContent();
+    const calendarBoundingBox = await desktopCalendar.boundingBox();
+    expect(calendarBoundingBox?.width).toBeGreaterThan(800);
     
-    // Step 3: Attempt to access Employee B's monthly schedule by manipulating URL
-    const currentUrl = page.url();
-    await page.goto(`${BASE_URL}/schedule/monthly?employeeId=${EMPLOYEE_B_ID}`);
+    // Verify calendar cells are properly sized for desktop
+    const calendarCells = page.locator('[data-testid="calendar-day-cell"]');
+    const firstCellBox = await calendarCells.first().boundingBox();
+    expect(firstCellBox?.width).toBeGreaterThan(80);
     
-    // Expected Result: Access denied with error message
-    const errorMessage = page.locator('[data-testid="error-message"]');
-    const accessDeniedMessage = page.locator('text=/Access Denied|Unauthorized|You do not have permission/i');
-    
-    // Check if error message is displayed or redirected back
-    const isErrorVisible = await errorMessage.isVisible().catch(() => false);
-    const isAccessDeniedVisible = await accessDeniedMessage.isVisible().catch(() => false);
-    
-    if (isErrorVisible || isAccessDeniedVisible) {
-      expect(isErrorVisible || isAccessDeniedVisible).toBe(true);
-    } else {
-      // Verify Employee A's schedule view remains unchanged
-      const currentEmployeeName = await page.locator('[data-testid="employee-name"]').textContent();
-      expect(currentEmployeeName).toBe(employeeASchedule);
-    }
-    
-    // Attempt via API endpoint
-    const response = await page.request.get(`${BASE_URL}/api/schedules/monthly?employeeId=${EMPLOYEE_B_ID}`);
-    expect(response.status()).toBe(403);
-    
-    // Logout
-    await page.click('[data-testid="user-menu-button"]');
-    await page.click('[data-testid="logout-button"]');
-  });
-
-  test('Test monthly schedule loading performance', async ({ page }) => {
-    // Step 1: Clear browser cache and cookies
-    await page.context().clearCookies();
-    await page.context().clearPermissions();
-    
-    // Step 2: Log in to the employee portal with valid credentials
-    await page.goto(`${BASE_URL}/login`);
-    await page.fill('[data-testid="email-input"]', EMPLOYEE_A_EMAIL);
-    await page.fill('[data-testid="password-input"]', EMPLOYEE_A_PASSWORD);
-    await page.click('[data-testid="login-button"]');
-    
-    await expect(page).toHaveURL(/.*dashboard/);
-    
-    // Navigate to schedule section
-    await page.click('[data-testid="schedule-menu-item"]');
-    
-    // Step 3: Start performance timer and navigate to monthly schedule view
-    const startTime = Date.now();
-    
-    await page.click('[data-testid="monthly-view-button"]');
-    
-    // Wait for calendar to be fully rendered and interactive
-    await expect(page.locator('[data-testid="monthly-calendar"]')).toBeVisible();
-    await page.waitForLoadState('networkidle');
-    
-    // Ensure all shift indicators are loaded
-    await page.waitForSelector('[data-testid="shift-indicator"]', { state: 'visible', timeout: 5000 }).catch(() => {});
-    
-    const endTime = Date.now();
-    const loadTime = (endTime - startTime) / 1000;
-    
-    console.log(`Monthly schedule load time: ${loadTime} seconds`);
-    
-    // Expected Result: Schedule loads within 4 seconds
-    expect(loadTime).toBeLessThan(4);
-    
-    // Step 4: Repeat test by navigating to different month and back
-    const secondStartTime = Date.now();
-    
+    // Employee tests navigation between months using desktop interface
     await page.click('[data-testid="next-month-button"]');
-    await expect(page.locator('[data-testid="monthly-calendar"]')).toBeVisible();
-    await page.waitForLoadState('networkidle');
+    await expect(desktopCalendar).toBeVisible();
+    await page.click('[data-testid="previous-month-button"]');
+    await expect(desktopCalendar).toBeVisible();
     
-    const secondEndTime = Date.now();
-    const secondLoadTime = (secondEndTime - secondStartTime) / 1000;
+    // Employee hovers over shifts and clicks on shifts to view details on desktop
+    const shifts = page.locator('[data-testid="shift-entry"]');
+    await shifts.first().hover();
+    await expect(page.locator('[data-testid="shift-details-tooltip"]')).toBeVisible();
     
-    console.log(`Next month navigation load time: ${secondLoadTime} seconds`);
-    expect(secondLoadTime).toBeLessThan(4);
+    await shifts.first().click();
+    const shiftDetailsModal = page.locator('[data-testid="shift-details-modal"]');
+    await expect(shiftDetailsModal).toBeVisible();
     
-    // Navigate back to original month
-    const thirdStartTime = Date.now();
+    // Close modal if present
+    const closeButton = page.locator('[data-testid="close-modal-button"]');
+    if (await closeButton.isVisible()) {
+      await closeButton.click();
+    }
+    
+    // Switch to mobile viewport
+    await page.setViewportSize({ width: 375, height: 667 });
+    
+    // Employee navigates to the schedule section and selects monthly view on mobile
+    await page.reload();
+    await page.click('[data-testid="schedule-menu-item"]');
+    await page.click('[data-testid="monthly-view-button"]');
+    
+    // Employee verifies that the calendar grid adapts properly to mobile screen size
+    const mobileCalendar = page.locator('[data-testid="monthly-calendar"]');
+    await expect(mobileCalendar).toBeVisible();
+    
+    const mobileCalendarBox = await mobileCalendar.boundingBox();
+    expect(mobileCalendarBox?.width).toBeLessThanOrEqual(375);
+    
+    // Verify calendar is responsive and fits mobile screen
+    const mobileCells = page.locator('[data-testid="calendar-day-cell"]');
+    const mobileCellBox = await mobileCells.first().boundingBox();
+    expect(mobileCellBox?.width).toBeLessThan(80);
+    expect(mobileCellBox?.width).toBeGreaterThan(30);
+    
+    // Employee tests navigation between months using mobile touch interface
+    await page.click('[data-testid="next-month-button"]');
+    await expect(mobileCalendar).toBeVisible();
+    await page.waitForTimeout(300);
     
     await page.click('[data-testid="previous-month-button"]');
-    await expect(page.locator('[data-testid="monthly-calendar"]')).toBeVisible();
-    await page.waitForLoadState('networkidle');
+    await expect(mobileCalendar).toBeVisible();
+    await page.waitForTimeout(300);
     
-    const thirdEndTime = Date.now();
-    const thirdLoadTime = (thirdEndTime - thirdStartTime) / 1000;
+    // Employee taps on shifts to view details on mobile
+    const mobileShifts = page.locator('[data-testid="shift-entry"]');
+    await mobileShifts.first().click();
     
-    console.log(`Previous month navigation load time: ${thirdLoadTime} seconds`);
-    expect(thirdLoadTime).toBeLessThan(4);
+    const mobileShiftDetails = page.locator('[data-testid="shift-details-modal"]');
+    await expect(mobileShiftDetails).toBeVisible();
     
-    // Verify consistent performance
-    const averageLoadTime = (loadTime + secondLoadTime + thirdLoadTime) / 3;
-    console.log(`Average load time: ${averageLoadTime} seconds`);
-    expect(averageLoadTime).toBeLessThan(4);
-    
-    // Logout
-    await page.click('[data-testid="user-menu-button"]');
-    await page.click('[data-testid="logout-button"]');
+    // Verify modal is properly sized for mobile
+    const mobileModalBox = await mobileShiftDetails.boundingBox();
+    expect(mobileModalBox?.width).toBeLessThanOrEqual(375);
   });
 });
