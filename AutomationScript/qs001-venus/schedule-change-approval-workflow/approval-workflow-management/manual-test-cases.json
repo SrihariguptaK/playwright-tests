@@ -1,0 +1,383 @@
+[
+  {
+    "storyId": "story-24",
+    "storyTitle": "As Approver, I want to review schedule change requests to achieve informed decision-making",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify approver can view and act on pending schedule change requests",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User account with approver role exists in the system",
+          "At least one pending schedule change request is assigned to the approver",
+          "Request contains complete details and at least one attachment",
+          "System is accessible and all services are running",
+          "Database contains valid test data in ScheduleChangeRequests table"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the application login page and enter valid approver credentials",
+            "expectedResult": "User is successfully authenticated and redirected to the home page"
+          },
+          {
+            "step": 2,
+            "action": "Click on 'Pending Approvals' menu item or navigate to the pending approvals dashboard",
+            "expectedResult": "Pending approvals dashboard loads within 3 seconds and displays all assigned pending requests with request ID, requester name, request date, and status"
+          },
+          {
+            "step": 3,
+            "action": "Select a specific pending schedule change request from the list by clicking on it",
+            "expectedResult": "Request details page opens showing complete information including requester details, requested changes, reason, submission date, and all attached documents"
+          },
+          {
+            "step": 4,
+            "action": "Click on attachment links to verify accessibility",
+            "expectedResult": "Attachments open or download successfully without errors"
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Approve' button to initiate approval action",
+            "expectedResult": "Comment dialog box appears prompting for optional comments"
+          },
+          {
+            "step": 6,
+            "action": "Enter comment 'Approved as requested - meets all policy requirements' in the comment field",
+            "expectedResult": "Comment text is accepted and displayed in the input field"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Submit' or 'Confirm' button to finalize the approval",
+            "expectedResult": "Success message is displayed confirming approval action, request status updates to 'Approved', action is logged in ApprovalActions table with timestamp and approver details, and request is removed from pending list"
+          }
+        ],
+        "postconditions": [
+          "Request status is updated to 'Approved' in the database",
+          "Approval action is logged with timestamp, approver ID, and comments in ApprovalActions table",
+          "Request no longer appears in the approver's pending list",
+          "Audit trail is complete and traceable",
+          "Requester can view the updated status"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Ensure unauthorized users cannot approve requests",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User account without approver role exists in the system",
+          "At least one pending schedule change request exists",
+          "Role-based access control is configured and active",
+          "API endpoints are protected with authorization checks"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the application login page and enter credentials for a user without approver role (e.g., regular employee)",
+            "expectedResult": "User is successfully authenticated and redirected to the home page"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to 'Pending Approvals' dashboard via URL or menu",
+            "expectedResult": "Access is denied with error message 'You do not have permission to access this page' or 'Pending Approvals' menu item is not visible"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to directly access a specific approval request URL if known",
+            "expectedResult": "System redirects to error page or displays 'Access Denied' message with HTTP 403 status"
+          },
+          {
+            "step": 4,
+            "action": "Using API testing tool (e.g., Postman), attempt to call GET /api/approvals/pending with non-approver user token",
+            "expectedResult": "API returns HTTP 403 Forbidden status with error message indicating insufficient permissions"
+          },
+          {
+            "step": 5,
+            "action": "Using API testing tool, attempt to call POST /api/approvals/decisions with non-approver user token and valid request payload",
+            "expectedResult": "API returns HTTP 403 Forbidden or 401 Unauthorized status with authorization error message, and no changes are made to the request status"
+          }
+        ],
+        "postconditions": [
+          "No approval actions are recorded in the system",
+          "Request status remains unchanged",
+          "Security violation attempt is logged in audit trail",
+          "No unauthorized access is granted to approval functionality"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Validate rejection and request for additional information flows",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User account with approver role exists and is logged in",
+          "At least two pending schedule change requests are assigned to the approver",
+          "System is accessible and all services are running",
+          "Database is in consistent state"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "From the pending approvals dashboard, select the first pending schedule change request",
+            "expectedResult": "Request details page opens displaying complete request information including all fields and attachments"
+          },
+          {
+            "step": 2,
+            "action": "Click the 'Reject' button to initiate rejection action",
+            "expectedResult": "Comment dialog box appears with mandatory comment field indicated"
+          },
+          {
+            "step": 3,
+            "action": "Enter rejection comment 'Request does not comply with company policy section 4.2 - insufficient justification provided'",
+            "expectedResult": "Comment text is accepted and displayed in the input field"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Submit' or 'Confirm' button to finalize the rejection",
+            "expectedResult": "Success message is displayed, request status updates to 'Rejected', rejection action is logged in ApprovalActions table with timestamp, approver ID, and comments, and request is removed from pending list"
+          },
+          {
+            "step": 5,
+            "action": "Navigate back to pending approvals dashboard and select a second pending request",
+            "expectedResult": "Second request details page opens displaying complete information"
+          },
+          {
+            "step": 6,
+            "action": "Click the 'Request Additional Information' button",
+            "expectedResult": "Comment dialog box appears prompting for details about what additional information is needed"
+          },
+          {
+            "step": 7,
+            "action": "Enter comment 'Please provide supporting documentation from your manager and clarify the business justification for the schedule change'",
+            "expectedResult": "Comment text is accepted and displayed in the input field"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Submit' or 'Confirm' button to send the request for additional information",
+            "expectedResult": "Success message is displayed, request status updates to 'Additional Information Required' or 'Pending Requester', action is logged in ApprovalActions table with timestamp, approver ID, and comments, and request is removed from approver's pending list"
+          },
+          {
+            "step": 9,
+            "action": "Verify the audit trail by accessing request history for both requests",
+            "expectedResult": "Complete history is displayed showing all actions with timestamps, approver names, status changes, and comments for both rejected and information-requested actions"
+          }
+        ],
+        "postconditions": [
+          "First request status is 'Rejected' with rejection comments logged",
+          "Second request status is 'Additional Information Required' with comments logged",
+          "Both actions are recorded in ApprovalActions table with complete audit information",
+          "Requesters can view updated statuses and comments",
+          "Both requests are removed from approver's pending list",
+          "Audit trail shows 100% completeness for all actions"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-25",
+    "storyTitle": "As System Administrator, I want to configure approval workflow rules to achieve flexible and compliant routing",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate creation and activation of approval workflow rules",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User account with system administrator role exists in the system",
+          "Admin console is accessible",
+          "At least two approver users exist in the system with assigned roles",
+          "WorkflowConfig tables are accessible and in consistent state",
+          "No conflicting workflow rules exist for the test scenario"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the admin console login page and enter valid system administrator credentials",
+            "expectedResult": "Administrator is successfully authenticated and redirected to the admin console home page"
+          },
+          {
+            "step": 2,
+            "action": "Click on 'Approval Workflow Configuration' menu item or navigate to workflow configuration section",
+            "expectedResult": "Workflow configuration UI is displayed showing existing workflows and a 'Create New Workflow' button"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Create New Workflow' or 'Add Workflow Rule' button",
+            "expectedResult": "Workflow creation form is displayed with fields for workflow name, description, conditions, and approver assignment"
+          },
+          {
+            "step": 4,
+            "action": "Enter workflow name 'Schedule Change - Manager Approval', description 'Requires manager approval for schedule changes up to 5 days'",
+            "expectedResult": "Workflow name and description are accepted and displayed in the form fields"
+          },
+          {
+            "step": 5,
+            "action": "Configure condition: Set 'Request Type' equals 'Schedule Change' AND 'Duration' less than or equal to '5 days'",
+            "expectedResult": "Conditional rules are added and displayed in the conditions section with proper logical operators"
+          },
+          {
+            "step": 6,
+            "action": "In the approver section, select 'Direct Manager' as Level 1 approver from the dropdown",
+            "expectedResult": "Direct Manager is assigned as Level 1 approver and displayed in the workflow chain"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Validate' button to check workflow configuration",
+            "expectedResult": "System validates the workflow and displays success message 'Workflow configuration is valid - no errors detected'"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Save' button to save the workflow rule",
+            "expectedResult": "Workflow rule is saved to WorkflowConfig table, success message is displayed, and workflow appears in the list with 'Inactive' status"
+          },
+          {
+            "step": 9,
+            "action": "Select the newly created workflow from the list and click 'Activate' button",
+            "expectedResult": "Confirmation dialog appears asking to confirm activation"
+          },
+          {
+            "step": 10,
+            "action": "Click 'Confirm' to activate the workflow",
+            "expectedResult": "Workflow status changes to 'Active', success message confirms activation, and workflow becomes effective immediately"
+          },
+          {
+            "step": 11,
+            "action": "Create a test schedule change request matching the workflow conditions (schedule change for 3 days)",
+            "expectedResult": "Request is automatically routed to Direct Manager for approval based on the newly activated workflow rule, confirming the rule is applied to new requests"
+          }
+        ],
+        "postconditions": [
+          "New workflow rule is saved in WorkflowConfig table with active status",
+          "Workflow configuration is validated without errors",
+          "Workflow is active and applies to new matching requests",
+          "Changes propagate within 1 minute",
+          "Audit log records workflow creation and activation with administrator details and timestamps"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Ensure validation prevents circular routing in workflow rules",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User account with system administrator role is logged into admin console",
+          "Workflow configuration UI is accessible",
+          "At least three approver roles exist in the system (e.g., Manager, Director, VP)",
+          "Validation rules for circular dependency detection are active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to 'Approval Workflow Configuration' section in admin console",
+            "expectedResult": "Workflow configuration UI is displayed with option to create new workflow"
+          },
+          {
+            "step": 2,
+            "action": "Click 'Create New Workflow' button to start creating a new workflow rule",
+            "expectedResult": "Workflow creation form is displayed with all configuration fields"
+          },
+          {
+            "step": 3,
+            "action": "Enter workflow name 'Circular Test Workflow' and description 'Testing circular routing validation'",
+            "expectedResult": "Workflow name and description are accepted"
+          },
+          {
+            "step": 4,
+            "action": "Configure multi-level approval chain: Set Level 1 approver as 'Manager', Level 2 as 'Director', Level 3 as 'VP'",
+            "expectedResult": "Three-level approval chain is configured and displayed"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to add Level 4 approver and select 'Manager' (same as Level 1), creating a circular reference",
+            "expectedResult": "Approver is added to the configuration temporarily"
+          },
+          {
+            "step": 6,
+            "action": "Click 'Validate' or 'Save' button to validate the workflow configuration",
+            "expectedResult": "System detects circular routing and displays validation error message 'Error: Circular routing detected - Manager appears multiple times in the approval chain' or similar, preventing save operation"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to configure escalation rule where escalation routes back to a previous level approver",
+            "expectedResult": "Configuration is temporarily accepted in the UI"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Validate' or 'Save' button",
+            "expectedResult": "System detects circular escalation path and displays validation error 'Error: Circular escalation detected - escalation path creates an infinite loop', preventing save operation"
+          },
+          {
+            "step": 9,
+            "action": "Verify that the workflow is not saved by checking the workflow list",
+            "expectedResult": "Invalid workflow does not appear in the saved workflows list, confirming save was prevented"
+          }
+        ],
+        "postconditions": [
+          "No workflow with circular routing is saved to the database",
+          "Validation error messages are clearly displayed to the administrator",
+          "WorkflowConfig table remains in consistent state without invalid rules",
+          "System integrity is maintained",
+          "Error is logged in system logs for audit purposes"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Verify access restriction to workflow configuration",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User account without administrator role exists (e.g., regular employee or approver role only)",
+          "Workflow configuration section exists and is protected by role-based access control",
+          "Admin console is accessible",
+          "Security policies are properly configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the application login page and enter credentials for a non-administrator user (e.g., regular employee)",
+            "expectedResult": "User is successfully authenticated and redirected to appropriate home page based on their role"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to access admin console by clicking admin menu or navigating to admin URL",
+            "expectedResult": "Admin console menu is not visible or access is denied with error message 'Access Denied: Administrator privileges required'"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to directly navigate to workflow configuration URL (e.g., /admin/workflow-config) by typing in browser address bar",
+            "expectedResult": "System redirects to error page or displays 'Access Denied' message with HTTP 403 Forbidden status, preventing access to workflow configuration"
+          },
+          {
+            "step": 4,
+            "action": "Using API testing tool (e.g., Postman), attempt to call GET /api/workflow-config with non-admin user authentication token",
+            "expectedResult": "API returns HTTP 403 Forbidden status with error message 'Insufficient permissions - Administrator role required'"
+          },
+          {
+            "step": 5,
+            "action": "Using API testing tool, attempt to call POST /api/workflow-config with non-admin user token and valid workflow configuration payload",
+            "expectedResult": "API returns HTTP 403 Forbidden or 401 Unauthorized status with appropriate error message, and no workflow configuration changes are made to the database"
+          },
+          {
+            "step": 6,
+            "action": "Verify audit logs for unauthorized access attempts",
+            "expectedResult": "All unauthorized access attempts are logged in security audit trail with user ID, timestamp, attempted action, and denial reason"
+          }
+        ],
+        "postconditions": [
+          "No workflow configuration changes are made by non-admin user",
+          "WorkflowConfig table remains unchanged",
+          "All unauthorized access attempts are logged in security audit trail",
+          "System security is maintained",
+          "User receives clear error messages indicating lack of permissions"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  }
+]
