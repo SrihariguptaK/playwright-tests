@@ -1,0 +1,834 @@
+[
+  {
+    "storyId": "story-15",
+    "storyTitle": "As Approver, I want to review and approve schedule change requests to ensure proper schedule management",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Approve a schedule change request successfully",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Approver account exists with valid credentials",
+          "Approver has appropriate approval permissions assigned",
+          "At least one pending schedule change request exists in the system",
+          "Schedule change request is assigned to the logged-in approver",
+          "System is accessible and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the application login page and enter valid approver credentials (username and password), then click Login button",
+            "expectedResult": "Approver is successfully authenticated and redirected to the dashboard/home page"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the pending approvals section/dashboard from the main menu",
+            "expectedResult": "List of pending schedule change requests assigned to the approver is displayed with request details (requester name, date, type, submission date)"
+          },
+          {
+            "step": 3,
+            "action": "Select a specific pending schedule change request from the list by clicking on it",
+            "expectedResult": "Request details page opens showing complete information including requester details, requested changes, reason, and any attachments"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Approve' button and optionally enter a comment in the comment field, then click 'Submit' or 'Confirm'",
+            "expectedResult": "Request status updates to 'Approved' within 1 second, success message is displayed, and the request is removed from pending list or marked as approved"
+          },
+          {
+            "step": 5,
+            "action": "Verify that the requester receives notification of approval by checking the notification system or requester's notification inbox",
+            "expectedResult": "Notification is successfully sent to the requester containing approval status, approver name, timestamp, and any comments provided"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to approval history or audit log section",
+            "expectedResult": "Approval action is logged with timestamp, approver details, request ID, action taken (approved), and comments"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request status is 'Approved' in the database",
+          "Requester has received approval notification via configured channels",
+          "Approval action is recorded in audit trail with complete details",
+          "Request is no longer in pending approvals list",
+          "Approver remains logged in to the system"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Reject a schedule change request with mandatory comment",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Approver account exists with valid credentials and approval permissions",
+          "Approver is logged into the system",
+          "At least one pending schedule change request exists assigned to the approver",
+          "System validation rules for mandatory rejection comments are configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "From the pending approvals dashboard, select a schedule change request that needs to be rejected by clicking on it",
+            "expectedResult": "Request details page is displayed with complete information about the schedule change request"
+          },
+          {
+            "step": 2,
+            "action": "Click the 'Reject' button",
+            "expectedResult": "Rejection form is displayed with a mandatory comment input field clearly marked as required, and Submit/Cancel buttons"
+          },
+          {
+            "step": 3,
+            "action": "Leave the comment field empty and click the 'Submit' or 'Confirm Rejection' button",
+            "expectedResult": "Validation error message is displayed indicating 'Comment is required for rejection' or similar message, and rejection is not processed"
+          },
+          {
+            "step": 4,
+            "action": "Enter a valid rejection comment in the comment field (e.g., 'Request conflicts with operational requirements') and click 'Submit' or 'Confirm Rejection'",
+            "expectedResult": "Request status updates to 'Rejected' within 1 second, success message is displayed, and request is removed from pending list or marked as rejected"
+          },
+          {
+            "step": 5,
+            "action": "Verify that notification is sent to the requester by checking notification logs or requester's notification inbox",
+            "expectedResult": "Rejection notification is sent to the requester containing rejection status, approver name, timestamp, and the mandatory rejection comment"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to approval history or audit log section and locate the rejected request",
+            "expectedResult": "Rejection action is logged with timestamp, approver details, request ID, action taken (rejected), and the rejection comment"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request status is 'Rejected' in the database",
+          "Rejection comment is stored with the request",
+          "Requester has received rejection notification with comments",
+          "Rejection action is recorded in audit trail",
+          "Request is no longer in pending approvals list"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Prevent unauthorized approval actions",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Two user accounts exist: one unauthorized user without approval permissions and one authorized approver",
+          "At least one pending schedule change request exists in the system",
+          "Authorization and authentication mechanisms are properly configured",
+          "API endpoint security is enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in to the system using unauthorized user credentials (user without approval permissions)",
+            "expectedResult": "User is successfully authenticated and logged into the system"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to the pending approvals dashboard or directly access a schedule change request approval page via URL manipulation",
+            "expectedResult": "Access is denied with error message 'You do not have permission to access this resource' or similar, and user is redirected to appropriate page or shown 403 Forbidden error"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to call the approval API endpoint directly (PUT /api/schedule-change-requests/{id}/approval) using unauthorized user credentials",
+            "expectedResult": "API returns 403 Forbidden or 401 Unauthorized status code with appropriate error message, and no changes are made to the request status"
+          },
+          {
+            "step": 4,
+            "action": "Log out the unauthorized user and log in using authorized approver credentials",
+            "expectedResult": "Authorized approver is successfully authenticated and logged into the system"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to pending approvals dashboard",
+            "expectedResult": "Pending approvals dashboard is accessible and displays list of pending schedule change requests"
+          },
+          {
+            "step": 6,
+            "action": "Select a pending request and click 'Approve' button, optionally add a comment, and submit the approval",
+            "expectedResult": "Approval is processed successfully, request status updates to 'Approved' within 1 second, and success message is displayed"
+          },
+          {
+            "step": 7,
+            "action": "Verify the approval action in the audit log",
+            "expectedResult": "Approval action is logged with authorized approver's details, timestamp, and action taken"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized access attempts are blocked and logged in security audit trail",
+          "Schedule change request status is 'Approved' only after authorized approver action",
+          "System security integrity is maintained",
+          "Authorized approver remains logged in"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-16",
+    "storyTitle": "As Employee, I want to receive notifications about schedule change request status to stay informed",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Verify notification sent on schedule change request submission",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee account exists with valid credentials",
+          "Employee has valid email address configured in the system",
+          "Employee is logged into the system",
+          "Notification service is operational and configured",
+          "Email server is accessible and functional",
+          "In-app notification system is enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule change request submission page from the employee dashboard",
+            "expectedResult": "Schedule change request form is displayed with all required fields (date, time, reason, etc.)"
+          },
+          {
+            "step": 2,
+            "action": "Fill in all required fields with valid data (select date, time, enter reason for change) and click 'Submit' button",
+            "expectedResult": "Request is successfully submitted, confirmation message is displayed, and request is saved in the system with 'Pending' status"
+          },
+          {
+            "step": 3,
+            "action": "Check the employee's email inbox for submission confirmation notification within 1 minute",
+            "expectedResult": "Email notification is received containing submission confirmation, request ID, submitted date/time, requested changes, and current status (Pending)"
+          },
+          {
+            "step": 4,
+            "action": "Navigate to the in-app notifications section or notification bell icon in the application",
+            "expectedResult": "In-app notification is displayed showing submission confirmation with request details including request ID, submission timestamp, and status"
+          },
+          {
+            "step": 5,
+            "action": "Click on the in-app notification to view details",
+            "expectedResult": "Notification expands or navigates to show complete details of the submitted request matching the information in the email notification"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to notification history or logs section in the admin panel or system logs",
+            "expectedResult": "Notification record is logged with timestamp, recipient (employee), notification type (submission confirmation), delivery status (sent), and channels used (email and in-app)"
+          }
+        ],
+        "postconditions": [
+          "Employee has received submission confirmation via both email and in-app channels",
+          "Notification is logged in the system with timestamp and delivery status",
+          "Schedule change request remains in 'Pending' status",
+          "Employee can view notification history",
+          "Notification was delivered within 1 minute of submission"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify notification sent on approval decision",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee has submitted a schedule change request that is in 'Pending' status",
+          "Approver account exists with approval permissions",
+          "Employee has valid email address and in-app notification access",
+          "Notification service is operational",
+          "Request is assigned to an active approver"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as an approver with valid credentials",
+            "expectedResult": "Approver is successfully authenticated and logged into the system"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to pending approvals dashboard and select the employee's schedule change request",
+            "expectedResult": "Request details are displayed with all relevant information"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Approve' button, optionally enter approval comments (e.g., 'Approved as requested'), and submit the approval",
+            "expectedResult": "Request status updates to 'Approved', success message is displayed, and approval is processed"
+          },
+          {
+            "step": 4,
+            "action": "Log out as approver and log in as the employee who submitted the request",
+            "expectedResult": "Employee is successfully authenticated and logged into the system"
+          },
+          {
+            "step": 5,
+            "action": "Check the employee's email inbox for approval notification within 1 minute",
+            "expectedResult": "Email notification is received containing approval status, approver name, approval timestamp, request details, and any comments provided by the approver"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to in-app notifications section in the employee dashboard",
+            "expectedResult": "In-app notification is displayed showing approval status with complete details including approver name, timestamp, and comments"
+          },
+          {
+            "step": 7,
+            "action": "Click on the notification to view full details",
+            "expectedResult": "Notification details page opens displaying approval status, approver comments, approval date/time, and updated request status with all relevant information"
+          },
+          {
+            "step": 8,
+            "action": "Verify notification logging in the system logs or notification history",
+            "expectedResult": "Approval notification is logged with timestamp, recipient (employee), notification type (approval), delivery channels (email and in-app), and delivery status (sent)"
+          }
+        ],
+        "postconditions": [
+          "Employee has received approval notification via email and in-app channels",
+          "Notification includes approval status and approver comments",
+          "Notification is logged with complete details and timestamp",
+          "Schedule change request status is 'Approved'",
+          "Employee is informed of the approval decision"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure notifications are not sent to unauthorized users",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Multiple user accounts exist in the system",
+          "A schedule change request exists submitted by Employee A",
+          "Employee B exists but is not associated with the request",
+          "Notification service is operational with security controls enabled",
+          "System has authorization checks configured for notification delivery"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Identify a schedule change request submitted by Employee A and note the request ID",
+            "expectedResult": "Request details are visible showing Employee A as the requester"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to trigger a notification for this request to Employee B (unauthorized user) either through API call, system manipulation, or notification service directly using POST /api/notifications endpoint",
+            "expectedResult": "System validates the recipient against the request and blocks the notification attempt with error message 'Unauthorized recipient' or similar"
+          },
+          {
+            "step": 3,
+            "action": "Check Employee B's email inbox and in-app notifications",
+            "expectedResult": "No notification related to Employee A's schedule change request is received by Employee B"
+          },
+          {
+            "step": 4,
+            "action": "Review notification logs or security audit logs for the blocked notification attempt",
+            "expectedResult": "Blocked notification attempt is logged with timestamp, attempted recipient (Employee B), request ID, reason for blocking (unauthorized user), and security event details"
+          },
+          {
+            "step": 5,
+            "action": "Trigger a legitimate notification for the same request to Employee A (the actual requester) by having an approver approve or reject the request",
+            "expectedResult": "Notification is successfully sent to Employee A via email and in-app channels"
+          },
+          {
+            "step": 6,
+            "action": "Verify Employee A receives the notification while Employee B does not",
+            "expectedResult": "Employee A has the notification in email and in-app, Employee B has no notifications related to this request"
+          },
+          {
+            "step": 7,
+            "action": "Check notification logs to confirm proper delivery",
+            "expectedResult": "Notification log shows successful delivery to Employee A only, with no delivery attempts to Employee B for legitimate notifications"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized user (Employee B) did not receive any notifications for requests they are not associated with",
+          "Blocked notification attempt is logged in security audit trail",
+          "Authorized user (Employee A) received notifications successfully",
+          "System security controls for notification delivery are validated",
+          "Notification service maintains authorization integrity"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-17",
+    "storyTitle": "As Manager, I want to view reports on schedule change approvals to monitor workflow efficiency",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "View schedule change approval dashboard with filters",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Manager role credentials",
+          "Schedule change approval data exists in the system",
+          "User has network connectivity",
+          "Browser is supported (Chrome, Firefox, Safari, Edge)",
+          "Manager has authorization to access reporting portal"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Manager navigates to the reporting portal by clicking on 'Reports' menu option",
+            "expectedResult": "Reporting portal page loads successfully"
+          },
+          {
+            "step": 2,
+            "action": "Manager selects 'Schedule Change Approval Reports' from the available report types",
+            "expectedResult": "Dashboard with metrics and charts is displayed showing approval times, pending requests, volumes, and outcomes with visual representations"
+          },
+          {
+            "step": 3,
+            "action": "Manager clicks on the date range filter and selects a custom date range (e.g., last 30 days)",
+            "expectedResult": "Date range filter is applied and displayed in the filter section"
+          },
+          {
+            "step": 4,
+            "action": "Manager selects a specific department from the department dropdown filter",
+            "expectedResult": "Department filter is applied and displayed in the filter section"
+          },
+          {
+            "step": 5,
+            "action": "Manager clicks 'Apply Filters' button",
+            "expectedResult": "Dashboard updates to reflect filtered data showing only schedule change approvals for the selected date range and department. Charts and tables refresh with filtered metrics"
+          },
+          {
+            "step": 6,
+            "action": "Manager clicks on 'Export' button and selects 'CSV' format from the export options",
+            "expectedResult": "CSV file is downloaded to the default download location with correct filtered data including all visible metrics, properly formatted columns, and accurate values matching the dashboard display"
+          }
+        ],
+        "postconditions": [
+          "Dashboard remains in filtered state",
+          "CSV file is saved locally on manager's device",
+          "Export action is logged in system audit trail",
+          "User session remains active"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify dashboard load time under normal load",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Manager role credentials",
+          "System is under normal load conditions (peak hours)",
+          "Network connection is stable with normal bandwidth",
+          "Schedule change approval data exists in the system",
+          "Performance monitoring tools are available to measure load time"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Manager navigates to the reporting portal during peak business hours (e.g., 9 AM - 11 AM)",
+            "expectedResult": "Reporting portal navigation is initiated"
+          },
+          {
+            "step": 2,
+            "action": "Manager selects 'Schedule Change Approval Reports' and starts timer to measure load time",
+            "expectedResult": "Dashboard loads completely with all metrics, charts, and tables displayed within 3 seconds. All visual elements are rendered properly and data is fully populated"
+          },
+          {
+            "step": 3,
+            "action": "Verify all dashboard components are interactive and responsive",
+            "expectedResult": "All filters, buttons, charts, and tables are functional and respond to user interactions without delay"
+          }
+        ],
+        "postconditions": [
+          "Dashboard is fully loaded and functional",
+          "Performance metrics are recorded",
+          "User session remains active",
+          "System maintains normal load performance"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure unauthorized users cannot access reports",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with non-manager role (e.g., Employee, Contractor)",
+          "Role-based access control is configured in the system",
+          "User does not have managerial permissions",
+          "Reporting portal exists and is accessible to authorized users"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Non-manager user attempts to navigate to the reporting dashboard by entering the URL directly or clicking on Reports menu (if visible)",
+            "expectedResult": "Access denied message is displayed with text similar to 'You do not have permission to access this resource' or 'Access Restricted to Managers Only'"
+          },
+          {
+            "step": 2,
+            "action": "Verify that no report data or dashboard elements are visible to the unauthorized user",
+            "expectedResult": "No sensitive data, metrics, charts, or tables are displayed. User remains on access denied page or is redirected to their authorized home page"
+          },
+          {
+            "step": 3,
+            "action": "Check system logs for the unauthorized access attempt",
+            "expectedResult": "Unauthorized access attempt is logged in security audit trail with timestamp, user ID, and attempted resource"
+          }
+        ],
+        "postconditions": [
+          "User remains logged in with their original role",
+          "No unauthorized access to reporting data occurred",
+          "Security event is logged",
+          "User is redirected to appropriate authorized page"
+        ],
+        "estimatedTime": "4 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-18",
+    "storyTitle": "As Approver, I want to escalate pending schedule change approvals to ensure timely decisions",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Automatic escalation of overdue approvals",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Escalation rules and thresholds are configured in the system (e.g., 48 hours)",
+          "Schedule change request exists and is pending approval",
+          "Higher-level approver is designated in the escalation hierarchy",
+          "Email/notification service is operational",
+          "System monitoring service is running and checking for overdue approvals"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Create a schedule change request and submit it for approval",
+            "expectedResult": "Schedule change request is created successfully and status is set to 'Pending Approval'"
+          },
+          {
+            "step": 2,
+            "action": "Wait for the configured threshold period to elapse without approval action (or simulate time passage in test environment)",
+            "expectedResult": "System detects that the approval is overdue based on the configured threshold. Approval status shows as 'Overdue' or 'Escalated'"
+          },
+          {
+            "step": 3,
+            "action": "System automatically triggers escalation process and sends notification to higher-level approver",
+            "expectedResult": "Escalation notification is sent to the designated higher-level approver via email/system notification containing request details, original approver information, and escalation reason. Notification is received within 5 minutes of threshold breach"
+          },
+          {
+            "step": 4,
+            "action": "Higher-level approver logs in and views the escalated request in their approval queue",
+            "expectedResult": "Escalated request appears in the higher-level approver's queue with 'Escalated' indicator and shows escalation timestamp"
+          },
+          {
+            "step": 5,
+            "action": "Escalated approver reviews and approves the schedule change request",
+            "expectedResult": "Approval status updates to 'Approved'. Original requester receives approval notification. Escalation is marked as resolved in the system"
+          },
+          {
+            "step": 6,
+            "action": "Verify escalation history log for the request",
+            "expectedResult": "Escalation history shows complete audit trail including: original submission time, threshold breach time, escalation trigger time, escalated approver details, and resolution time with timestamps"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request is approved",
+          "Escalation is logged in system history",
+          "All stakeholders are notified of approval",
+          "Escalation metrics are updated in reporting dashboard",
+          "Request is removed from pending escalation queue"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Manual escalation by approver",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Approver role credentials",
+          "Schedule change request is pending approval and assigned to the approver",
+          "Approver has permission to perform manual escalations",
+          "Higher-level approver is designated in escalation hierarchy",
+          "Manual escalation feature is enabled in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Approver navigates to their pending approvals queue",
+            "expectedResult": "List of pending schedule change requests is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Approver selects a specific pending request that requires urgent attention",
+            "expectedResult": "Request details page opens showing full information about the schedule change"
+          },
+          {
+            "step": 3,
+            "action": "Approver clicks on 'Escalate' button or selects 'Manual Escalation' option from the actions menu",
+            "expectedResult": "Escalation dialog or form appears prompting for escalation reason and designated approver selection"
+          },
+          {
+            "step": 4,
+            "action": "Approver enters escalation reason (e.g., 'Requires senior management review') and confirms the escalation",
+            "expectedResult": "Manual escalation is processed successfully. Escalation notification is sent to the designated higher-level approver with the reason provided. Confirmation message is displayed to the approver"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to escalation history or audit log for the request",
+            "expectedResult": "Escalation history shows the manual escalation entry with timestamp, escalating approver name, escalated-to approver name, escalation reason, and 'Manual' escalation type indicator"
+          },
+          {
+            "step": 6,
+            "action": "Verify the designated higher-level approver receives the escalation notification",
+            "expectedResult": "Higher-level approver receives notification with request details, manual escalation indicator, and reason provided by the original approver"
+          }
+        ],
+        "postconditions": [
+          "Request is escalated to higher-level approver",
+          "Manual escalation is logged with complete details",
+          "Original approver is notified of escalation confirmation",
+          "Request appears in escalated approver's queue",
+          "Escalation metrics are updated"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Prevent unauthorized manual escalation",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in without Approver role or escalation permissions (e.g., Employee, Requester)",
+          "Schedule change request exists in the system",
+          "Authorization controls are configured for escalation actions",
+          "User does not have escalation privileges in their role permissions"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Unauthorized user attempts to access a schedule change request details page",
+            "expectedResult": "Request details page loads with limited view permissions (if allowed) or access is denied"
+          },
+          {
+            "step": 2,
+            "action": "Unauthorized user attempts to locate and click on 'Escalate' button or manual escalation option",
+            "expectedResult": "Escalate button is either not visible/hidden for unauthorized users, or is disabled/grayed out"
+          },
+          {
+            "step": 3,
+            "action": "If escalation option is visible, unauthorized user attempts to click it or attempts to access escalation API endpoint directly",
+            "expectedResult": "Access denied error is displayed with message such as 'You do not have permission to escalate approvals' or 'Unauthorized action'. No escalation is processed"
+          },
+          {
+            "step": 4,
+            "action": "Verify system security logs for the unauthorized escalation attempt",
+            "expectedResult": "Unauthorized escalation attempt is logged in security audit trail with timestamp, user ID, attempted action, and denial reason"
+          },
+          {
+            "step": 5,
+            "action": "Verify that no escalation notification was sent and escalation history remains unchanged",
+            "expectedResult": "No escalation notifications are sent. Escalation history for the request shows no new entries. Request status remains unchanged"
+          }
+        ],
+        "postconditions": [
+          "No unauthorized escalation occurred",
+          "Request status and assignment remain unchanged",
+          "Security violation is logged",
+          "User remains on current page or is redirected appropriately",
+          "System security integrity is maintained"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-21",
+    "storyTitle": "As Manager, I want to receive alerts for failed schedule change approval processes to promptly address issues",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Detect and alert on approval workflow failure",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Manager user account is active and has proper authorization",
+          "Manager email address is configured in the system",
+          "Alert settings are properly configured for the manager",
+          "Schedule change approval workflow is operational",
+          "WorkflowLogs database is accessible",
+          "Email and in-app notification services are running",
+          "Manager has access to the alert history interface"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the test environment and access the workflow simulation tool",
+            "expectedResult": "Workflow simulation tool loads successfully"
+          },
+          {
+            "step": 2,
+            "action": "Simulate a failure in the schedule change approval workflow by triggering a test failure event (e.g., invalid approver, system timeout, or data validation error)",
+            "expectedResult": "System detects the failure event and logs it in WorkflowLogs with timestamp and failure type"
+          },
+          {
+            "step": 3,
+            "action": "Wait for the system to process the failure event and trigger the alert mechanism",
+            "expectedResult": "Alert is generated and queued for delivery to the designated manager"
+          },
+          {
+            "step": 4,
+            "action": "Check the manager's email inbox for the alert notification",
+            "expectedResult": "Manager receives an email alert containing failure details including workflow ID, failure type, timestamp, affected schedule, and recommended actions"
+          },
+          {
+            "step": 5,
+            "action": "Log in to the system as the manager and check the in-app notification center",
+            "expectedResult": "Manager sees an in-app notification with the same detailed failure information including workflow ID, failure type, timestamp, affected schedule, and recommended actions"
+          },
+          {
+            "step": 6,
+            "action": "As the manager, navigate to the alert history section in the application",
+            "expectedResult": "Alert history page loads successfully showing all historical alerts"
+          },
+          {
+            "step": 7,
+            "action": "Search for the recently triggered alert in the alert history",
+            "expectedResult": "Alert is logged in the history with correct details including timestamp, recipient name, failure type, workflow ID, delivery status (email and in-app), and alert content"
+          },
+          {
+            "step": 8,
+            "action": "Verify the alert details match the simulated failure event",
+            "expectedResult": "All alert details accurately reflect the simulated failure including correct workflow ID, failure reason, and timestamp"
+          }
+        ],
+        "postconditions": [
+          "Alert is successfully logged in the alert history database",
+          "Manager has received both email and in-app notifications",
+          "Failure event is properly recorded in WorkflowLogs",
+          "Alert delivery status is marked as successful",
+          "System is ready to detect and alert on subsequent failures"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify alert delivery within SLA",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Manager user account is active with proper authorization",
+          "Alert settings are configured for the manager",
+          "Email and in-app notification services are operational",
+          "System clock is synchronized and accurate",
+          "WorkflowLogs database is accessible",
+          "Performance monitoring tools are available to track timing",
+          "Schedule change approval workflow is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Prepare timing measurement tools and note the current system time",
+            "expectedResult": "Timing tools are ready and baseline time is recorded"
+          },
+          {
+            "step": 2,
+            "action": "Trigger a failure event in the schedule change approval workflow and record the exact timestamp of the failure",
+            "expectedResult": "Failure event is triggered and timestamp is captured (T0)"
+          },
+          {
+            "step": 3,
+            "action": "Monitor the system logs and alert queue for alert generation",
+            "expectedResult": "System detects the failure and generates an alert entry in the queue"
+          },
+          {
+            "step": 4,
+            "action": "Check the manager's email inbox and record the timestamp when the email alert is received",
+            "expectedResult": "Email alert is received and timestamp is recorded (T1)"
+          },
+          {
+            "step": 5,
+            "action": "Log in as the manager and check the in-app notification center, recording the timestamp when the notification appears",
+            "expectedResult": "In-app notification is displayed and timestamp is recorded (T2)"
+          },
+          {
+            "step": 6,
+            "action": "Calculate the time difference between failure trigger (T0) and email delivery (T1)",
+            "expectedResult": "Time difference is less than or equal to 2 minutes (120 seconds)"
+          },
+          {
+            "step": 7,
+            "action": "Calculate the time difference between failure trigger (T0) and in-app notification delivery (T2)",
+            "expectedResult": "Time difference is less than or equal to 2 minutes (120 seconds)"
+          },
+          {
+            "step": 8,
+            "action": "Review the alert history log to verify the recorded delivery timestamps",
+            "expectedResult": "Alert history shows delivery timestamps that confirm SLA compliance (within 2 minutes of failure detection)"
+          }
+        ],
+        "postconditions": [
+          "Alert delivery time is documented and meets SLA requirements",
+          "Performance metrics are recorded for reporting",
+          "Alert is logged with accurate delivery timestamps",
+          "System demonstrates compliance with 2-minute SLA requirement"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Prevent unauthorized access to alert management",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Unauthorized user account exists in the system (non-manager role)",
+          "Unauthorized user has valid login credentials",
+          "Alert configuration interface is deployed and accessible",
+          "Security and access control mechanisms are active",
+          "Manager role permissions are properly configured in the system",
+          "Alert management features are protected by role-based access control"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in to the system using unauthorized user credentials (user without manager role)",
+            "expectedResult": "User successfully logs in to the system with limited permissions"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to the alert configuration page by entering the URL directly or through navigation menu",
+            "expectedResult": "Access is denied and an error message is displayed stating 'Access Denied: You do not have permission to access alert configuration' or similar authorization error"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to access the alert configuration API endpoint directly using POST /api/alerts with unauthorized credentials",
+            "expectedResult": "API returns 403 Forbidden status code with error message indicating insufficient permissions"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to view the alert history page as an unauthorized user",
+            "expectedResult": "Access is denied with appropriate error message indicating the feature is restricted to authorized managers only"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to modify alert settings by manipulating request parameters or using browser developer tools",
+            "expectedResult": "All modification attempts are blocked and security logs record the unauthorized access attempt"
+          },
+          {
+            "step": 6,
+            "action": "Verify that no alert configuration data or sensitive information is exposed in the error response",
+            "expectedResult": "Error messages do not reveal system architecture, database structure, or sensitive configuration details"
+          },
+          {
+            "step": 7,
+            "action": "Check security audit logs for the unauthorized access attempts",
+            "expectedResult": "All unauthorized access attempts are logged with user ID, timestamp, attempted action, and denial reason"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized user remains unable to access alert management features",
+          "No unauthorized changes were made to alert configurations",
+          "Security audit logs contain records of all access attempts",
+          "System security integrity is maintained",
+          "Alert configuration remains protected and unchanged"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  }
+]
