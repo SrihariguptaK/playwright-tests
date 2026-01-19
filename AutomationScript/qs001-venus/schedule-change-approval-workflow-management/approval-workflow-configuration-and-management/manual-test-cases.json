@@ -1,394 +1,536 @@
 [
   {
-    "storyId": "story-2",
-    "storyTitle": "As Administrator, I want to configure approval workflows to achieve flexible and compliant schedule change approvals",
+    "storyId": "story-14",
+    "storyTitle": "As Manager, I want to configure approval workflows to achieve compliant and flexible schedule change approvals",
     "testCases": [
       {
         "id": "tc-001",
-        "title": "Validate creation of multi-step approval workflow",
+        "title": "Validate creation of multi-level approval workflow",
         "type": "happy-path",
         "priority": "High",
         "preconditions": [
-          "User is logged in with Administrator role",
-          "ApprovalWorkflows and WorkflowSteps tables are accessible",
-          "At least three valid approver roles exist in the system",
-          "Network connectivity is stable"
+          "Manager user account exists with workflow configuration permissions",
+          "Manager is logged into the admin portal",
+          "ApprovalWorkflows and WorkflowRules tables are accessible",
+          "At least two potential approvers exist in the system"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Administrator navigates to workflow configuration page from the main menu",
-            "expectedResult": "Workflow configuration UI is displayed with options to create new workflow, view existing workflows, and configuration controls"
+            "action": "Manager navigates to workflow configuration page from the admin portal menu",
+            "expectedResult": "Workflow configuration UI is displayed with options to create new workflow, view existing workflows, and configure workflow settings"
           },
           {
             "step": 2,
-            "action": "Administrator clicks 'Create New Workflow' button",
-            "expectedResult": "New workflow creation form is displayed with fields for workflow name, description, and step configuration"
+            "action": "Manager clicks 'Create New Workflow' button",
+            "expectedResult": "Workflow creation form is displayed with fields for workflow name, description, and approval levels"
           },
           {
             "step": 3,
-            "action": "Administrator enters workflow name 'Schedule Change Approval Process' and description 'Three-tier approval for schedule modifications'",
-            "expectedResult": "Workflow name and description are accepted and displayed in the form"
+            "action": "Manager enters workflow name 'Schedule Change Approval - Level 2' and description 'Two-level approval for schedule changes'",
+            "expectedResult": "Workflow name and description are accepted and displayed in the form fields"
           },
           {
             "step": 4,
-            "action": "Administrator creates first workflow step with order number 1, step name 'Manager Approval', and assigns 'Manager' role as approver",
-            "expectedResult": "First workflow step is created and displayed with order 1, step name, and assigned approver role"
+            "action": "Manager adds first approval level by selecting 'Add Level' and assigns 'Team Lead' as Level 1 approver",
+            "expectedResult": "Level 1 approval is created and displayed with 'Team Lead' assigned as approver"
           },
           {
             "step": 5,
-            "action": "Administrator creates second workflow step with order number 2, step name 'Department Head Approval', and assigns 'Department Head' role as approver",
-            "expectedResult": "Second workflow step is created and displayed with order 2, step name, and assigned approver role in correct sequence"
+            "action": "Manager adds second approval level by selecting 'Add Level' and assigns 'Department Manager' as Level 2 approver",
+            "expectedResult": "Level 2 approval is created and displayed with 'Department Manager' assigned as approver, showing hierarchy: Level 1 → Level 2"
           },
           {
             "step": 6,
-            "action": "Administrator creates third workflow step with order number 3, step name 'HR Approval', and assigns 'HR Manager' role as approver",
-            "expectedResult": "Third workflow step is created and displayed with order 3, step name, and assigned approver role. All three steps are displayed in correct order (1, 2, 3)"
+            "action": "Manager clicks 'Save' button to save the workflow configuration",
+            "expectedResult": "Success message is displayed confirming 'Workflow saved successfully' and workflow appears in the workflow list with status 'Active'"
           },
           {
             "step": 7,
-            "action": "Administrator clicks 'Save and Activate' button",
-            "expectedResult": "Workflow is persisted to ApprovalWorkflows and WorkflowSteps tables, success message is displayed confirming 'Workflow activated successfully', and workflow appears in active workflows list"
-          },
-          {
-            "step": 8,
-            "action": "Administrator verifies the workflow appears in the active workflows list with all three steps visible",
-            "expectedResult": "Workflow 'Schedule Change Approval Process' is listed with status 'Active' and shows 3 steps in correct order with assigned approvers"
+            "action": "Manager navigates to the audit log section and filters by workflow configuration changes",
+            "expectedResult": "Audit log entry is displayed showing workflow creation with workflow name, creation timestamp, manager username, and action type 'CREATE'"
           }
         ],
         "postconditions": [
-          "New workflow is saved in ApprovalWorkflows table",
-          "Three workflow steps are saved in WorkflowSteps table with correct order",
-          "Workflow status is set to 'Active'",
-          "Configuration changes are reflected within 1 minute",
-          "Workflow is available for assignment to schedule change requests"
+          "New multi-level workflow is saved in ApprovalWorkflows table",
+          "Workflow is visible in the workflow list",
+          "Audit log contains complete record of workflow creation",
+          "Workflow is available for assignment to schedule change types"
         ],
         "estimatedTime": "8 mins"
       },
       {
         "id": "tc-002",
-        "title": "Verify validation prevents duplicate step orders",
+        "title": "Verify rejection of invalid workflow configuration",
         "type": "error-case",
         "priority": "High",
         "preconditions": [
-          "User is logged in with Administrator role",
+          "Manager user account exists with workflow configuration permissions",
+          "Manager is logged into the admin portal",
           "Workflow configuration page is accessible",
           "System validation rules are active"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Administrator navigates to workflow configuration page",
-            "expectedResult": "Workflow configuration UI is displayed"
+            "action": "Manager navigates to workflow configuration page and clicks 'Create New Workflow'",
+            "expectedResult": "Workflow creation form is displayed"
           },
           {
             "step": 2,
-            "action": "Administrator clicks 'Create New Workflow' button",
-            "expectedResult": "New workflow creation form is displayed"
+            "action": "Manager enters workflow name 'Invalid Circular Workflow' and creates Level 1 approver as 'Manager A'",
+            "expectedResult": "Level 1 is created with 'Manager A' as approver"
           },
           {
             "step": 3,
-            "action": "Administrator enters workflow name 'Test Duplicate Steps Workflow'",
-            "expectedResult": "Workflow name is accepted and displayed"
+            "action": "Manager creates Level 2 approver as 'Manager B' with escalation back to 'Manager A'",
+            "expectedResult": "Level 2 is created with 'Manager B' as approver and escalation path configured"
           },
           {
             "step": 4,
-            "action": "Administrator creates first workflow step with order number 1, step name 'First Approval', and assigns 'Manager' role",
-            "expectedResult": "First workflow step is created with order 1"
+            "action": "Manager creates Level 3 approver as 'Manager A', creating a circular hierarchy (Manager A → Manager B → Manager A)",
+            "expectedResult": "Level 3 is created with 'Manager A' selected"
           },
           {
             "step": 5,
-            "action": "Administrator attempts to create second workflow step with the same order number 1, step name 'Second Approval', and assigns 'Department Head' role",
-            "expectedResult": "Validation error is displayed with message 'Duplicate step order detected. Each step must have a unique order number.' and the step is not added to the workflow"
+            "action": "Manager clicks 'Save' button to attempt saving the workflow",
+            "expectedResult": "Validation error message is displayed: 'Invalid workflow configuration: Circular approval hierarchy detected. Approver cannot appear multiple times in the approval chain.' Save operation is prevented and workflow is not saved"
           },
           {
             "step": 6,
-            "action": "Administrator attempts to click 'Save' button",
-            "expectedResult": "Save operation is blocked and validation error message persists, preventing workflow from being saved with duplicate step orders"
+            "action": "Manager removes Level 3 from the workflow configuration",
+            "expectedResult": "Level 3 is removed and workflow now shows only Level 1 (Manager A) → Level 2 (Manager B)"
           },
           {
             "step": 7,
-            "action": "Administrator corrects the second step order number to 2",
-            "expectedResult": "Validation error clears and second step is successfully added with order 2"
+            "action": "Manager clicks 'Save' button again to save the corrected workflow",
+            "expectedResult": "Success message is displayed: 'Workflow saved successfully' and workflow appears in the workflow list with valid configuration"
           }
         ],
         "postconditions": [
-          "Workflow with duplicate step orders is not saved to database",
-          "Data integrity is maintained in WorkflowSteps table",
-          "Administrator is informed of validation error",
-          "Corrected workflow can be saved successfully"
+          "Invalid workflow with circular hierarchy is not saved in the database",
+          "Corrected workflow is successfully saved in ApprovalWorkflows table",
+          "System validation rules prevented data corruption",
+          "Audit log shows attempted save and successful save of corrected workflow"
         ],
-        "estimatedTime": "5 mins"
+        "estimatedTime": "7 mins"
       },
       {
         "id": "tc-003",
-        "title": "Ensure only administrators can access workflow configuration",
+        "title": "Test role-based access control for workflow configuration",
         "type": "error-case",
         "priority": "High",
         "preconditions": [
-          "Test user account exists with non-administrator role (e.g., 'Employee' or 'Manager')",
-          "User is logged in with non-admin credentials",
-          "Role-based access control is enabled",
-          "Workflow configuration module requires Admin role"
+          "Two user accounts exist: one unauthorized user (Employee role) and one authorized manager (Manager role)",
+          "Role-based access control is configured and active",
+          "Workflow configuration page requires Manager role or higher",
+          "Both users have valid login credentials"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Non-admin user attempts to navigate to workflow configuration page by entering the URL directly or clicking menu option (if visible)",
-            "expectedResult": "Access is denied immediately with HTTP 403 Forbidden status or appropriate error page is displayed"
+            "action": "Unauthorized user (Employee role) logs into the system with valid credentials",
+            "expectedResult": "User is successfully logged in and redirected to employee dashboard"
           },
           {
             "step": 2,
-            "action": "System displays error message to the user",
-            "expectedResult": "Error message states 'Access Denied: You do not have permission to access workflow configuration. Administrator role required.' or similar appropriate message"
+            "action": "Unauthorized user attempts to navigate to workflow configuration page by entering the URL directly or clicking menu option (if visible)",
+            "expectedResult": "Access is denied with error message: 'Access Denied: You do not have permission to access workflow configuration. Please contact your administrator.' User is redirected to their dashboard or error page"
           },
           {
             "step": 3,
-            "action": "Non-admin user attempts to access workflow configuration API endpoint directly (POST /api/approval-workflows)",
-            "expectedResult": "API returns 403 Forbidden status with error response indicating insufficient permissions"
+            "action": "Unauthorized user logs out of the system",
+            "expectedResult": "User is successfully logged out and redirected to login page"
           },
           {
             "step": 4,
-            "action": "Verify user is redirected to appropriate page (dashboard or previous page)",
-            "expectedResult": "User is redirected to their dashboard or previous authorized page, workflow configuration page remains inaccessible"
+            "action": "Authorized manager logs into the admin portal with valid manager credentials",
+            "expectedResult": "Manager is successfully logged in and redirected to admin dashboard"
           },
           {
             "step": 5,
-            "action": "Log out non-admin user and log in with Administrator credentials",
-            "expectedResult": "Administrator successfully logs in"
+            "action": "Authorized manager navigates to workflow configuration page from the admin menu",
+            "expectedResult": "Access is granted and workflow configuration UI is displayed with full functionality including create, edit, and delete options"
           },
           {
             "step": 6,
-            "action": "Administrator navigates to workflow configuration page",
-            "expectedResult": "Workflow configuration page loads successfully with full access to all configuration features"
+            "action": "Manager verifies all workflow configuration features are accessible (create, edit, view, delete)",
+            "expectedResult": "All workflow configuration features are available and functional for the authorized manager"
           }
         ],
         "postconditions": [
-          "Non-admin user access attempt is logged in security audit logs",
-          "No unauthorized changes are made to workflow configurations",
-          "System security integrity is maintained",
-          "Administrator can access workflow configuration without issues"
+          "Unauthorized user access attempt is logged in security audit log",
+          "Authorized manager has full access to workflow configuration",
+          "Role-based access control is functioning correctly",
+          "No unauthorized changes were made to workflow configurations"
         ],
         "estimatedTime": "6 mins"
       }
     ]
   },
   {
-    "storyId": "story-6",
-    "storyTitle": "As Administrator, I want to audit approval workflows and decisions to achieve compliance and accountability",
+    "storyId": "story-20",
+    "storyTitle": "As System Administrator, I want to manage user roles and permissions for schedule change approval workflows to ensure secure access",
     "testCases": [
       {
         "id": "tc-004",
-        "title": "Validate audit logs record workflow configuration changes",
+        "title": "Create and assign user roles successfully",
         "type": "happy-path",
         "priority": "High",
         "preconditions": [
-          "User is logged in with Administrator role",
-          "At least one active approval workflow exists in the system",
-          "AuditLogs table is accessible and functioning",
-          "Audit logging is enabled system-wide",
-          "System timestamp is accurate"
+          "System Administrator account exists with full role management permissions",
+          "Administrator is logged into the admin portal",
+          "UserRoles and Permissions tables are accessible",
+          "At least one user account exists for role assignment",
+          "Audit logging system is active"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Administrator navigates to workflow configuration page",
-            "expectedResult": "Workflow configuration page is displayed with list of existing workflows"
+            "action": "Administrator navigates to user management section from the admin portal main menu",
+            "expectedResult": "User management dashboard is displayed showing options for role management, user management, and permissions"
           },
           {
             "step": 2,
-            "action": "Administrator selects an existing workflow 'Schedule Change Approval Process' and clicks 'Edit'",
-            "expectedResult": "Workflow edit form is displayed with current configuration details"
+            "action": "Administrator clicks on 'Role Management' tab or menu option",
+            "expectedResult": "Role management interface is displayed showing existing roles list and 'Create New Role' button"
           },
           {
             "step": 3,
-            "action": "Administrator modifies the workflow by changing step 2 approver from 'Department Head' to 'Senior Manager' role",
-            "expectedResult": "Change is reflected in the workflow configuration form"
+            "action": "Administrator clicks 'Create New Role' button",
+            "expectedResult": "Role creation form is displayed with fields for role name, description, and permissions checkboxes"
           },
           {
             "step": 4,
-            "action": "Administrator clicks 'Save Changes' button",
-            "expectedResult": "Workflow modification is saved successfully and confirmation message is displayed"
+            "action": "Administrator enters role name 'Schedule Approver' and description 'Can approve schedule change requests'",
+            "expectedResult": "Role name and description are accepted and displayed in the form fields"
           },
           {
             "step": 5,
-            "action": "Administrator navigates to the audit log viewer module from the main menu",
-            "expectedResult": "Audit log viewer interface is displayed with search and filter options"
+            "action": "Administrator selects specific permissions: 'View Schedule Requests', 'Approve Schedule Requests', and 'Reject Schedule Requests' from the permissions list",
+            "expectedResult": "Selected permissions are checked and highlighted in the permissions list"
           },
           {
             "step": 6,
-            "action": "Administrator applies filter for 'Workflow Configuration' event type and current date",
-            "expectedResult": "Filter is applied and audit log entries matching the criteria are displayed"
+            "action": "Administrator clicks 'Save Role' button",
+            "expectedResult": "Success message is displayed: 'Role created successfully' and the new role 'Schedule Approver' appears in the role list with assigned permissions visible"
           },
           {
             "step": 7,
-            "action": "Administrator locates the most recent audit entry for 'Schedule Change Approval Process' workflow",
-            "expectedResult": "Audit log entry is displayed showing: Event Type: 'Workflow Modified', Workflow Name: 'Schedule Change Approval Process', User: current administrator username, Timestamp: current date and time (within last few minutes), Change Details: 'Step 2 approver changed from Department Head to Senior Manager'"
+            "action": "Administrator navigates to 'User Management' section and selects a user 'John Doe' from the user list",
+            "expectedResult": "User details page is displayed showing current roles and option to assign new roles"
           },
           {
             "step": 8,
-            "action": "Administrator clicks on the audit entry to view full details",
-            "expectedResult": "Detailed audit information is displayed including before/after values, IP address, session ID, and complete change history"
-          }
-        ],
-        "postconditions": [
-          "Audit log entry is permanently stored in AuditLogs table",
-          "Audit entry contains complete user identification and timestamp",
-          "Workflow modification is traceable through audit trail",
-          "Audit data is available for compliance reporting"
-        ],
-        "estimatedTime": "7 mins"
-      },
-      {
-        "id": "tc-005",
-        "title": "Verify audit logs record approval decisions and comments",
-        "type": "happy-path",
-        "priority": "High",
-        "preconditions": [
-          "User with Approver role is logged in",
-          "At least one pending approval request exists in the system",
-          "Approval workflow is active and assigned to the request",
-          "AuditLogs and ApprovalDecisions tables are accessible",
-          "Administrator account is available for audit log review"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "Approver navigates to pending approvals queue",
-            "expectedResult": "List of pending approval requests is displayed"
-          },
-          {
-            "step": 2,
-            "action": "Approver selects a pending schedule change request and clicks 'Review'",
-            "expectedResult": "Approval request details are displayed with options to Approve or Reject and comment field"
-          },
-          {
-            "step": 3,
-            "action": "Approver enters comment 'Approved due to business critical requirement. Verified with department head.' in the comments field",
-            "expectedResult": "Comment text is entered and displayed in the comment field"
-          },
-          {
-            "step": 4,
-            "action": "Approver clicks 'Approve' button",
-            "expectedResult": "Approval decision is submitted successfully, confirmation message is displayed, and request status is updated"
-          },
-          {
-            "step": 5,
-            "action": "Log out approver and log in with Administrator credentials",
-            "expectedResult": "Administrator is successfully logged in"
-          },
-          {
-            "step": 6,
-            "action": "Administrator navigates to audit log viewer module",
-            "expectedResult": "Audit log viewer interface is displayed"
-          },
-          {
-            "step": 7,
-            "action": "Administrator applies filter for 'Approval Decision' event type and selects the specific request ID",
-            "expectedResult": "Audit log entries for the approval decision are displayed"
-          },
-          {
-            "step": 8,
-            "action": "Administrator reviews the audit entry for the approval decision",
-            "expectedResult": "Audit log entry shows: Event Type: 'Approval Decision', Decision: 'Approved', Approver: approver username, Timestamp: decision submission time, Comments: 'Approved due to business critical requirement. Verified with department head.', Request ID: specific request identifier"
+            "action": "Administrator clicks 'Assign Role' button and selects 'Schedule Approver' role from the dropdown",
+            "expectedResult": "Role selection dropdown displays available roles including the newly created 'Schedule Approver' role"
           },
           {
             "step": 9,
-            "action": "Administrator selects 'Export' option and chooses 'PDF' format",
-            "expectedResult": "Export dialog is displayed with PDF format selected"
+            "action": "Administrator confirms the role assignment by clicking 'Assign' button",
+            "expectedResult": "Success message is displayed: 'Role assigned successfully' and 'Schedule Approver' role appears in user's assigned roles list with immediate effect indicator"
           },
           {
             "step": 10,
-            "action": "Administrator clicks 'Generate Report' button",
-            "expectedResult": "Audit report is generated in PDF format and download begins automatically or download link is provided"
+            "action": "Administrator verifies the role is effective by checking user permissions or having user test access",
+            "expectedResult": "User 'John Doe' immediately has access to schedule approval functions without requiring re-login"
           },
           {
             "step": 11,
-            "action": "Administrator opens the downloaded PDF file",
-            "expectedResult": "PDF audit report contains the approval decision entry with all details including user, timestamp, decision, and comments in readable format"
-          },
-          {
-            "step": 12,
-            "action": "Administrator returns to audit log viewer and selects 'Export' with 'CSV' format",
-            "expectedResult": "CSV export is generated and downloaded successfully"
-          },
-          {
-            "step": 13,
-            "action": "Administrator opens the CSV file in spreadsheet application",
-            "expectedResult": "CSV file contains audit log data in structured columns including Event Type, User, Timestamp, Decision, Comments, and Request ID"
+            "action": "Administrator navigates to audit log section and filters by role management activities",
+            "expectedResult": "Audit log displays two entries: 1) Role creation for 'Schedule Approver' with timestamp, administrator username, and action details, 2) Role assignment to 'John Doe' with timestamp, administrator username, role name, and user details"
           }
         ],
         "postconditions": [
-          "Approval decision is recorded in ApprovalDecisions table",
-          "Complete audit trail is stored in AuditLogs table",
-          "Audit reports are generated in both PDF and CSV formats",
-          "All approval comments are preserved in audit logs",
-          "Exported files are available for compliance review"
+          "New role 'Schedule Approver' is saved in UserRoles table",
+          "Role permissions are stored in Permissions table",
+          "User 'John Doe' has 'Schedule Approver' role assigned",
+          "Role assignment is effective immediately",
+          "Complete audit trail exists for both role creation and assignment",
+          "User can perform actions according to assigned permissions"
         ],
         "estimatedTime": "10 mins"
       },
       {
-        "id": "tc-006",
-        "title": "Ensure only administrators can access audit logs",
+        "id": "tc-005",
+        "title": "Prevent unauthorized access to role management",
         "type": "error-case",
         "priority": "High",
         "preconditions": [
-          "Test user account exists with non-administrator role (e.g., 'Employee', 'Manager', or 'Approver')",
-          "User is logged in with non-admin credentials",
-          "Audit logs contain data in the system",
-          "Role-based access control is enabled",
-          "Audit log viewer requires Admin role"
+          "Non-administrator user account exists (e.g., Employee or Manager role without admin privileges)",
+          "User has valid login credentials",
+          "Role management access is restricted to Administrator role only",
+          "Authentication and authorization systems are active"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Non-admin user attempts to navigate to audit log viewer module by entering URL directly or clicking menu option (if visible)",
-            "expectedResult": "Access is denied with HTTP 403 Forbidden status or error page is displayed"
+            "action": "Non-administrator user logs into the system with valid credentials",
+            "expectedResult": "User is successfully authenticated and redirected to their appropriate dashboard based on their role"
           },
           {
             "step": 2,
-            "action": "System displays error message to the user",
-            "expectedResult": "Error message states 'Access Denied: Audit logs are restricted to administrators only. You do not have sufficient permissions.' or similar appropriate message"
+            "action": "Non-administrator user attempts to access role management UI by entering the direct URL '/admin/role-management' in the browser",
+            "expectedResult": "Access is denied and error page is displayed with message: 'Access Denied: You do not have sufficient privileges to access role management. This function is restricted to System Administrators only.'"
           },
           {
             "step": 3,
-            "action": "Non-admin user attempts to access audit logs API endpoint directly (GET /api/audit-logs)",
-            "expectedResult": "API returns 403 Forbidden status with JSON error response indicating insufficient permissions and no audit data is returned"
+            "action": "Non-administrator user checks their navigation menu for role management options",
+            "expectedResult": "Role management menu option is not visible in the user's navigation menu"
           },
           {
             "step": 4,
-            "action": "Non-admin user attempts to access audit export functionality directly",
-            "expectedResult": "Access is denied and no audit data export is generated"
+            "action": "Non-administrator user attempts to access role management via API endpoint using browser developer tools or API client",
+            "expectedResult": "API returns 403 Forbidden status code with error message: 'Unauthorized access. Administrator privileges required.'"
           },
           {
             "step": 5,
-            "action": "Verify the access denial attempt is logged",
-            "expectedResult": "Security event is logged recording the unauthorized access attempt with user ID, timestamp, and attempted resource"
-          },
-          {
-            "step": 6,
-            "action": "Log out non-admin user and log in with Administrator credentials",
-            "expectedResult": "Administrator successfully logs in"
-          },
-          {
-            "step": 7,
-            "action": "Administrator navigates to audit log viewer module",
-            "expectedResult": "Audit log viewer loads successfully with full access to all audit logs and filtering options"
-          },
-          {
-            "step": 8,
-            "action": "Administrator verifies the unauthorized access attempt is logged in security audit",
-            "expectedResult": "Audit log contains entry showing non-admin user's failed access attempt to audit log viewer with timestamp and user details"
+            "action": "System logs the unauthorized access attempt",
+            "expectedResult": "Security audit log records the unauthorized access attempt with user details, timestamp, attempted resource, and denial reason"
           }
         ],
         "postconditions": [
-          "Non-admin user access attempt is logged in security audit",
-          "No audit data is exposed to unauthorized users",
-          "System security and data confidentiality is maintained",
-          "Administrator can access audit logs without restrictions",
-          "Compliance requirements for audit log access control are met"
+          "No unauthorized access to role management was granted",
+          "User roles and permissions remain unchanged",
+          "Security audit log contains record of access denial",
+          "System security integrity is maintained",
+          "No sensitive role or permission data was exposed"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Validate role and permission consistency",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "System Administrator is logged into the admin portal",
+          "Role management interface is accessible",
+          "Permission validation rules are configured and active",
+          "System has predefined conflicting permission rules (e.g., 'Submit Request' conflicts with 'Final Approval')"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Administrator navigates to role management section and clicks 'Create New Role'",
+            "expectedResult": "Role creation form is displayed with permissions list"
+          },
+          {
+            "step": 2,
+            "action": "Administrator enters role name 'Conflicting Role Test' and description 'Testing permission conflict validation'",
+            "expectedResult": "Role name and description are accepted in the form"
+          },
+          {
+            "step": 3,
+            "action": "Administrator selects permission 'Submit Schedule Change Request' from the permissions list",
+            "expectedResult": "Permission 'Submit Schedule Change Request' is checked and highlighted"
+          },
+          {
+            "step": 4,
+            "action": "Administrator attempts to also select conflicting permission 'Final Approval Authority' which conflicts with submission permission based on separation of duties principle",
+            "expectedResult": "Warning message is displayed: 'Permission conflict detected: Users with submission rights cannot have final approval authority due to separation of duties policy.' The conflicting permission is either not selectable or highlighted in red"
+          },
+          {
+            "step": 5,
+            "action": "Administrator ignores warning (if allowed) and clicks 'Save Role' button with both conflicting permissions selected",
+            "expectedResult": "Validation error is displayed: 'Cannot save role: Conflicting permissions detected. Please review and remove conflicting permissions: Submit Schedule Change Request and Final Approval Authority cannot be assigned to the same role.' Save operation is prevented and role is not created"
+          },
+          {
+            "step": 6,
+            "action": "Administrator deselects 'Final Approval Authority' permission, leaving only 'Submit Schedule Change Request' selected",
+            "expectedResult": "Conflict warning disappears and form shows valid state"
+          },
+          {
+            "step": 7,
+            "action": "Administrator clicks 'Save Role' button with valid permission set",
+            "expectedResult": "Success message is displayed: 'Role created successfully' and role appears in the role list with only the valid, non-conflicting permissions"
+          }
+        ],
+        "postconditions": [
+          "Role with conflicting permissions was not saved to database",
+          "Role with valid permissions was successfully created",
+          "Permission consistency rules are enforced",
+          "Audit log shows validation failure and successful creation attempts",
+          "Data integrity is maintained in UserRoles and Permissions tables"
         ],
         "estimatedTime": "7 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-22",
+    "storyTitle": "As System Administrator, I want to audit all schedule change approval workflow activities to ensure compliance and traceability",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify logging of schedule change workflow activities",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "System Administrator is logged in with valid credentials",
+          "Administrator has audit log access permissions",
+          "AuditLogs table is accessible and operational",
+          "At least one schedule change workflow exists in the system",
+          "Audit logging service is enabled and running"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule change request submission page",
+            "expectedResult": "Schedule change request form is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Submit a new schedule change request with all required details (schedule ID, change description, reason)",
+            "expectedResult": "Schedule change request is submitted successfully and confirmation message is displayed"
+          },
+          {
+            "step": 3,
+            "action": "Navigate to the approval workflow and approve the submitted schedule change request",
+            "expectedResult": "Schedule change request is approved successfully and status is updated"
+          },
+          {
+            "step": 4,
+            "action": "Navigate to the audit logs portal via secure access point",
+            "expectedResult": "Audit logs dashboard is displayed with search and filter options"
+          },
+          {
+            "step": 5,
+            "action": "Query audit logs without any filters to view all recent activities",
+            "expectedResult": "All workflow activities are displayed including the submission and approval actions performed in previous steps with user identity, timestamps, and action details"
+          },
+          {
+            "step": 6,
+            "action": "Verify that the schedule change request submission log entry contains: user ID, timestamp, action type (submission), request ID, and change details",
+            "expectedResult": "Log entry displays all required fields with correct and complete information"
+          },
+          {
+            "step": 7,
+            "action": "Verify that the schedule change approval log entry contains: approver user ID, timestamp, action type (approval), request ID, and approval details",
+            "expectedResult": "Log entry displays all required fields with correct and complete information"
+          },
+          {
+            "step": 8,
+            "action": "Apply filters to audit logs: filter by user (select the user who submitted the request), action type (submission), and date range (today's date)",
+            "expectedResult": "Filtered results are returned within 5 seconds showing only the submission activity by the selected user"
+          },
+          {
+            "step": 9,
+            "action": "Clear filters and apply new filters: filter by action type (approval) and date range (today's date)",
+            "expectedResult": "Filtered results are returned within 5 seconds showing only approval activities for today"
+          },
+          {
+            "step": 10,
+            "action": "Measure and record the query response time for the filtered results",
+            "expectedResult": "Query response time is 5 seconds or less"
+          },
+          {
+            "step": 11,
+            "action": "Select the export option and choose CSV format for audit logs",
+            "expectedResult": "Export dialog is displayed with CSV format selected"
+          },
+          {
+            "step": 12,
+            "action": "Confirm the export and download the audit log file",
+            "expectedResult": "CSV file is downloaded successfully to the local system"
+          },
+          {
+            "step": 13,
+            "action": "Open the exported CSV file and verify its contents",
+            "expectedResult": "CSV file contains all filtered audit log entries with correct columns: user ID, timestamp, action type, request ID, and details. Data matches the displayed logs in the portal"
+          },
+          {
+            "step": 14,
+            "action": "Select the export option again and choose JSON format for audit logs",
+            "expectedResult": "Export dialog is displayed with JSON format selected"
+          },
+          {
+            "step": 15,
+            "action": "Confirm the export and download the audit log file in JSON format",
+            "expectedResult": "JSON file is downloaded successfully and contains properly formatted audit log data matching the portal display"
+          }
+        ],
+        "postconditions": [
+          "All schedule change workflow activities are logged in AuditLogs table",
+          "Audit logs contain complete and accurate information for all performed actions",
+          "Exported audit log files are saved locally and contain correct data",
+          "System remains in stable state with audit logging continuing to function",
+          "No data integrity issues in audit logs"
+        ],
+        "estimatedTime": "15 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Ensure audit log access is restricted",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Audit logging system is operational",
+          "Role-based access control (RBAC) is configured and enabled",
+          "Test user account exists without audit log access permissions",
+          "Audit logs contain data from previous workflow activities",
+          "Security policies are enforced at application level"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log out from any existing administrator session",
+            "expectedResult": "User is successfully logged out and redirected to login page"
+          },
+          {
+            "step": 2,
+            "action": "Log in with an unauthorized user account (user without administrator or audit access role)",
+            "expectedResult": "User is successfully authenticated and logged into the system with limited permissions"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to navigate to the audit logs portal URL directly by entering the URL in the browser",
+            "expectedResult": "Access is denied and error message is displayed: 'Access Denied - You do not have permission to view audit logs' or similar message with HTTP 403 Forbidden status"
+          },
+          {
+            "step": 4,
+            "action": "Check if audit logs menu option is visible in the navigation menu for the unauthorized user",
+            "expectedResult": "Audit logs menu option is not visible or is disabled in the navigation menu"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to access audit logs via API endpoint GET /api/audit-logs using the unauthorized user's authentication token",
+            "expectedResult": "API request is rejected with HTTP 403 Forbidden status and error response: 'Insufficient permissions to access audit logs'"
+          },
+          {
+            "step": 6,
+            "action": "Verify that no audit log data is returned in the API response",
+            "expectedResult": "Response body contains error message only, no audit log data is exposed"
+          },
+          {
+            "step": 7,
+            "action": "Log out from the unauthorized user account",
+            "expectedResult": "User is successfully logged out"
+          },
+          {
+            "step": 8,
+            "action": "Log in with a System Administrator account that has audit log access permissions",
+            "expectedResult": "Administrator is successfully authenticated and logged in"
+          },
+          {
+            "step": 9,
+            "action": "Navigate to the audit logs portal",
+            "expectedResult": "Audit logs dashboard is displayed successfully with full access to all audit log features"
+          },
+          {
+            "step": 10,
+            "action": "Verify that the previous unauthorized access attempts are logged in the audit logs",
+            "expectedResult": "Audit logs contain entries showing the unauthorized access attempts with user ID, timestamp, action type (access denied), and resource (audit logs)"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized users remain unable to access audit logs",
+          "Security policies continue to be enforced",
+          "All access attempts (authorized and unauthorized) are logged",
+          "System security integrity is maintained",
+          "Administrator can verify all access attempts through audit logs"
+        ],
+        "estimatedTime": "10 mins"
       }
     ]
   }
