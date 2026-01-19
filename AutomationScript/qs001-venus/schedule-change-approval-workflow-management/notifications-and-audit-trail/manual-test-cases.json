@@ -1,0 +1,670 @@
+[
+  {
+    "storyId": "story-4",
+    "storyTitle": "As Employee, I want to receive notifications about my schedule change request status to stay informed",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify notification sent upon approval",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee has submitted a schedule change request",
+          "Request is in pending status",
+          "Approver has valid credentials and approval permissions",
+          "Email service is operational",
+          "Employee email address is valid and configured in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Login as an approver with valid credentials",
+            "expectedResult": "Approver successfully logs into the system and dashboard is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to pending schedule change requests",
+            "expectedResult": "List of pending requests is displayed with the submitted request visible"
+          },
+          {
+            "step": 3,
+            "action": "Select the employee's schedule change request",
+            "expectedResult": "Request details are displayed including employee information, requested changes, and approval options"
+          },
+          {
+            "step": 4,
+            "action": "Click approve button and submit the approval",
+            "expectedResult": "System displays confirmation message that request has been approved and notification is being sent"
+          },
+          {
+            "step": 5,
+            "action": "Verify system triggers notification by checking notification queue or logs",
+            "expectedResult": "Notification entry is created in the system with status 'Triggered' or 'Pending'"
+          },
+          {
+            "step": 6,
+            "action": "Wait up to 5 minutes and check employee email inbox",
+            "expectedResult": "Notification email is received within 5 minutes containing approval status, request details, and approval comments if any"
+          },
+          {
+            "step": 7,
+            "action": "Access NotificationLogs table or notification history interface",
+            "expectedResult": "Log entry shows successful delivery with timestamp, recipient email, delivery status as 'Delivered', and no errors"
+          },
+          {
+            "step": 8,
+            "action": "Verify email content includes all required information",
+            "expectedResult": "Email contains request ID, approval status, approver name, approval date/time, and any approval comments"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request status is updated to 'Approved'",
+          "Notification is logged in NotificationLogs table with successful delivery status",
+          "Employee has received email notification",
+          "Notification delivery timestamp is within 5 minutes of approval action"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify notification sent upon rejection with comments",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee has submitted a schedule change request",
+          "Request is in pending status",
+          "Approver has valid credentials and rejection permissions",
+          "Email service is operational",
+          "Employee email address is valid and configured in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Login as an approver with valid credentials",
+            "expectedResult": "Approver successfully logs into the system and dashboard is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to pending schedule change requests",
+            "expectedResult": "List of pending requests is displayed with the submitted request visible"
+          },
+          {
+            "step": 3,
+            "action": "Select the employee's schedule change request",
+            "expectedResult": "Request details are displayed including employee information, requested changes, and rejection options"
+          },
+          {
+            "step": 4,
+            "action": "Click reject button and enter rejection comments (e.g., 'Insufficient staffing coverage during requested period')",
+            "expectedResult": "Rejection comment field accepts the input and displays the entered text"
+          },
+          {
+            "step": 5,
+            "action": "Submit the rejection with comments",
+            "expectedResult": "System displays confirmation message that request has been rejected and notification is being sent"
+          },
+          {
+            "step": 6,
+            "action": "Verify system triggers notification by checking notification queue or logs",
+            "expectedResult": "Notification entry is created in the system with status 'Triggered' or 'Pending' and includes rejection comments"
+          },
+          {
+            "step": 7,
+            "action": "Wait up to 5 minutes and check employee email inbox",
+            "expectedResult": "Notification email is received within 5 minutes containing rejection status and the specific rejection comments entered by approver"
+          },
+          {
+            "step": 8,
+            "action": "Verify email content includes rejection comments",
+            "expectedResult": "Email clearly displays rejection comments: 'Insufficient staffing coverage during requested period' along with request details"
+          },
+          {
+            "step": 9,
+            "action": "Access NotificationLogs table or notification history interface",
+            "expectedResult": "Log entry shows successful delivery with timestamp, recipient email, delivery status as 'Delivered', rejection comments included, and no errors"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request status is updated to 'Rejected'",
+          "Rejection comments are stored with the request",
+          "Notification is logged in NotificationLogs table with successful delivery status",
+          "Employee has received email notification with rejection comments",
+          "Notification delivery timestamp is within 5 minutes of rejection action"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure notifications are sent only to request owners",
+        "type": "edge-case",
+        "priority": "High",
+        "preconditions": [
+          "Multiple employees exist in the system with valid email addresses",
+          "Employee A has submitted a schedule change request",
+          "Employee B exists in the system but did not submit this request",
+          "Request is in pending status",
+          "Approver has valid credentials",
+          "Email service is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Identify and record Employee A (request owner) email address",
+            "expectedResult": "Employee A email address is documented (e.g., employeeA@company.com)"
+          },
+          {
+            "step": 2,
+            "action": "Identify and record Employee B (non-owner) email address",
+            "expectedResult": "Employee B email address is documented (e.g., employeeB@company.com)"
+          },
+          {
+            "step": 3,
+            "action": "Login as approver and navigate to the schedule change request submitted by Employee A",
+            "expectedResult": "Request details show Employee A as the requester"
+          },
+          {
+            "step": 4,
+            "action": "Approve or reject the schedule change request to trigger notification",
+            "expectedResult": "System confirms the status change and triggers notification process"
+          },
+          {
+            "step": 5,
+            "action": "Check NotificationLogs table for notification entries related to this request",
+            "expectedResult": "Notification log shows only one entry with Employee A's email address as the recipient"
+          },
+          {
+            "step": 6,
+            "action": "Verify Employee A's email inbox within 5 minutes",
+            "expectedResult": "Employee A receives the notification email with status update"
+          },
+          {
+            "step": 7,
+            "action": "Verify Employee B's email inbox within 5 minutes",
+            "expectedResult": "Employee B does NOT receive any notification email for this request"
+          },
+          {
+            "step": 8,
+            "action": "Check system notification queue or delivery logs for Employee B",
+            "expectedResult": "No notification entries exist for Employee B related to this request"
+          },
+          {
+            "step": 9,
+            "action": "Verify notification contains correct employee identification",
+            "expectedResult": "Email sent to Employee A contains their name and request details specific to their submission"
+          }
+        ],
+        "postconditions": [
+          "Only Employee A (request owner) received the notification",
+          "Employee B did not receive any notification",
+          "NotificationLogs table contains entry only for Employee A",
+          "No unauthorized notification deliveries occurred",
+          "Employee contact information remains protected"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-5",
+    "storyTitle": "As System Administrator, I want to configure approval workflow roles to ensure correct approvers are assigned",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Create and assign approval roles successfully",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Administrator has valid credentials with role management permissions",
+          "System has at least 2-3 users available for role assignment",
+          "ApprovalRoles and UserRoles tables are accessible",
+          "Role management interface is operational",
+          "Administrator is logged into the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Login to the system as an administrator with valid credentials",
+            "expectedResult": "Administrator successfully logs in and admin dashboard is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the role management page from admin menu or configuration panel",
+            "expectedResult": "Role management page loads successfully displaying existing roles in a list or table format with columns for role name, description, and assigned users"
+          },
+          {
+            "step": 3,
+            "action": "Verify existing roles are displayed correctly",
+            "expectedResult": "All existing approval roles are listed with their current user assignments visible"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Create New Role' or 'Add Role' button",
+            "expectedResult": "Role creation form is displayed with fields for role name, description, and user assignment options"
+          },
+          {
+            "step": 5,
+            "action": "Enter role name (e.g., 'Department Manager Approver') in the role name field",
+            "expectedResult": "Role name is accepted and displayed in the input field"
+          },
+          {
+            "step": 6,
+            "action": "Enter role description (e.g., 'Approves schedule changes for department employees')",
+            "expectedResult": "Description is accepted and displayed in the description field"
+          },
+          {
+            "step": 7,
+            "action": "Select multiple users from available users list to assign to this role (e.g., select 2-3 users)",
+            "expectedResult": "Selected users are highlighted or moved to 'Assigned Users' section"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Save' or 'Create Role' button",
+            "expectedResult": "System displays success message confirming role and user assignments have been saved successfully"
+          },
+          {
+            "step": 9,
+            "action": "Verify the new role appears in the roles list",
+            "expectedResult": "New role 'Department Manager Approver' is displayed in the roles list with correct name and description"
+          },
+          {
+            "step": 10,
+            "action": "Click on the newly created role to view details",
+            "expectedResult": "Role details page shows the role with all assigned users listed correctly (2-3 users as assigned)"
+          },
+          {
+            "step": 11,
+            "action": "Verify data persistence by checking ApprovalRoles table",
+            "expectedResult": "New role entry exists in ApprovalRoles table with correct role name and description"
+          },
+          {
+            "step": 12,
+            "action": "Verify user assignments in UserRoles table",
+            "expectedResult": "UserRoles table contains entries linking the assigned users to the new role ID"
+          }
+        ],
+        "postconditions": [
+          "New approval role is created and saved in the system",
+          "Multiple users are successfully assigned to the new role",
+          "Role appears in the roles list with correct information",
+          "Changes are persisted in ApprovalRoles and UserRoles tables",
+          "Role is immediately available for use in approval workflows"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Validate role configuration errors",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Administrator has valid credentials with role management permissions",
+          "Administrator is logged into the system",
+          "Role management interface is operational",
+          "System has validation rules configured for role creation"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Login to the system as an administrator",
+            "expectedResult": "Administrator successfully logs in and admin dashboard is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to role management page",
+            "expectedResult": "Role management page loads successfully"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Create New Role' or 'Add Role' button",
+            "expectedResult": "Role creation form is displayed with empty fields"
+          },
+          {
+            "step": 4,
+            "action": "Leave the role name field empty and enter only description",
+            "expectedResult": "Description field accepts input while role name remains empty"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to save the role without entering required role name",
+            "expectedResult": "System prevents save operation and displays validation error message such as 'Role name is required' near the role name field"
+          },
+          {
+            "step": 6,
+            "action": "Verify the role was not saved by checking the roles list",
+            "expectedResult": "Incomplete role does not appear in the roles list"
+          },
+          {
+            "step": 7,
+            "action": "Enter a valid role name (e.g., 'Senior Approver') in the role name field",
+            "expectedResult": "Role name is accepted and validation error for role name is cleared"
+          },
+          {
+            "step": 8,
+            "action": "Leave other required fields empty if applicable (e.g., description or user assignment if mandatory)",
+            "expectedResult": "Fields remain empty"
+          },
+          {
+            "step": 9,
+            "action": "Attempt to save again with remaining missing required fields",
+            "expectedResult": "System displays appropriate validation errors for each missing required field and prevents save operation"
+          },
+          {
+            "step": 10,
+            "action": "Correct all validation errors by filling in all required fields with valid data",
+            "expectedResult": "All fields are populated with valid information and validation errors are cleared"
+          },
+          {
+            "step": 11,
+            "action": "Click 'Save' button after correcting all errors",
+            "expectedResult": "System successfully saves the role and displays success confirmation message"
+          },
+          {
+            "step": 12,
+            "action": "Verify the role now appears in the roles list",
+            "expectedResult": "New role 'Senior Approver' is displayed in the roles list with all correct information"
+          }
+        ],
+        "postconditions": [
+          "Invalid role configurations are rejected by the system",
+          "Appropriate validation error messages are displayed to the administrator",
+          "No incomplete or invalid roles are saved to the database",
+          "After correction, valid role is successfully saved",
+          "Data integrity is maintained in ApprovalRoles table"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure only authorized admins can access role management",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "System has role-based access control implemented",
+          "Non-admin user account exists with valid credentials but without admin privileges",
+          "Admin user account exists with proper role management permissions",
+          "Role management URL or navigation path is known"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Login to the system using non-admin user credentials",
+            "expectedResult": "Non-admin user successfully logs in and regular user dashboard is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Verify admin menu or configuration panel is not visible in navigation",
+            "expectedResult": "Admin-specific menu items and role management options are not displayed in the user interface"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to access role management page directly via URL or navigation path",
+            "expectedResult": "System denies access and displays appropriate error message such as 'Access Denied', 'Unauthorized Access', or '403 Forbidden'"
+          },
+          {
+            "step": 4,
+            "action": "Verify user is redirected to appropriate page (dashboard or error page)",
+            "expectedResult": "User is redirected away from role management page to either their dashboard or a dedicated access denied page"
+          },
+          {
+            "step": 5,
+            "action": "Check system logs for unauthorized access attempt",
+            "expectedResult": "Security log records the unauthorized access attempt with user ID, timestamp, and attempted resource"
+          },
+          {
+            "step": 6,
+            "action": "Logout from non-admin user account",
+            "expectedResult": "User is successfully logged out and returned to login page"
+          },
+          {
+            "step": 7,
+            "action": "Login using administrator credentials with role management permissions",
+            "expectedResult": "Administrator successfully logs in and admin dashboard is displayed"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to role management page using admin menu",
+            "expectedResult": "Role management page loads successfully with full access to all role configuration features"
+          },
+          {
+            "step": 9,
+            "action": "Verify all role management functions are accessible (create, edit, delete, assign)",
+            "expectedResult": "All role management buttons and features are visible and functional for the authorized administrator"
+          }
+        ],
+        "postconditions": [
+          "Non-admin users cannot access role management functionality",
+          "Appropriate error messages are displayed for unauthorized access attempts",
+          "Security logs contain records of unauthorized access attempts",
+          "Authorized administrators have full access to role management",
+          "System security and authorization controls are functioning correctly"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-6",
+    "storyTitle": "As Auditor, I want to view audit trails of schedule change approvals to ensure compliance and traceability",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "View and filter audit logs successfully",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Auditor account exists with valid credentials and read-only audit access permissions",
+          "Audit portal is accessible and operational",
+          "ApprovalLogs table contains audit trail data with various dates, users, and request IDs",
+          "Schedule change approval activities have been logged in the system",
+          "Network connectivity is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the audit portal login page",
+            "expectedResult": "Audit portal login page is displayed with username and password fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid auditor credentials (username and password)",
+            "expectedResult": "Credentials are accepted and input fields display masked password"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Login' button",
+            "expectedResult": "Auditor is successfully authenticated and redirected to the audit portal dashboard"
+          },
+          {
+            "step": 4,
+            "action": "Navigate to the 'Schedule Change Audit Trail' section from the main menu",
+            "expectedResult": "Audit trail page loads within 5 seconds displaying a list of audit log entries with columns for timestamp, user info, action type, request ID, and status"
+          },
+          {
+            "step": 5,
+            "action": "Locate the filter panel and select a date range filter (e.g., last 30 days)",
+            "expectedResult": "Date range picker is displayed and selected date range is highlighted"
+          },
+          {
+            "step": 6,
+            "action": "Select a specific user from the user filter dropdown",
+            "expectedResult": "User filter is applied and dropdown shows the selected user name"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Apply Filters' button",
+            "expectedResult": "Audit logs are refreshed and display only entries matching the selected date range and user within 5 seconds. Record count updates to reflect filtered results"
+          },
+          {
+            "step": 8,
+            "action": "Verify that displayed audit logs match the applied filter criteria by checking dates and user names",
+            "expectedResult": "All displayed audit log entries fall within the selected date range and are associated with the selected user"
+          },
+          {
+            "step": 9,
+            "action": "Click on a specific audit entry row to view detailed information",
+            "expectedResult": "Detailed audit information panel or modal opens displaying complete details including timestamp, user ID, user name, action performed, request ID, approval status, IP address, and any additional metadata"
+          },
+          {
+            "step": 10,
+            "action": "Review the detailed audit information for completeness",
+            "expectedResult": "All relevant audit details are displayed accurately and are readable"
+          }
+        ],
+        "postconditions": [
+          "Auditor remains logged into the audit portal",
+          "Filtered audit logs remain displayed on screen",
+          "No data has been modified in the ApprovalLogs table",
+          "Audit trail of auditor's viewing activity is logged in the system"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Export audit logs to CSV and PDF",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Auditor is logged into the audit portal with valid credentials",
+          "Auditor has read-only access permissions to audit logs",
+          "Audit trail page is loaded and displaying audit log entries",
+          "ApprovalLogs table contains exportable audit data",
+          "Browser allows file downloads",
+          "Sufficient disk space available for downloads"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the audit trail page if not already there",
+            "expectedResult": "Audit trail page is displayed with audit log entries and filter options"
+          },
+          {
+            "step": 2,
+            "action": "Apply desired filters (e.g., select date range of last 7 days and specific request ID)",
+            "expectedResult": "Filter criteria are applied and audit logs are filtered accordingly"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Apply Filters' button to confirm filter selection",
+            "expectedResult": "Filtered audit logs are displayed showing only entries matching the filter criteria. Record count reflects filtered results"
+          },
+          {
+            "step": 4,
+            "action": "Verify the filtered logs displayed on screen match the expected criteria",
+            "expectedResult": "All displayed entries match the applied filters (date range and request ID)"
+          },
+          {
+            "step": 5,
+            "action": "Locate and click the 'Export to CSV' button",
+            "expectedResult": "CSV file download is initiated. Browser shows download progress"
+          },
+          {
+            "step": 6,
+            "action": "Wait for CSV download to complete and open the downloaded CSV file",
+            "expectedResult": "CSV file is successfully downloaded with filename containing timestamp (e.g., audit_logs_YYYYMMDD_HHMMSS.csv). File opens in spreadsheet application showing all filtered audit log data with proper column headers (Timestamp, User ID, User Name, Action, Request ID, Status, IP Address)"
+          },
+          {
+            "step": 7,
+            "action": "Verify CSV file contains correct data matching the filtered results displayed on screen",
+            "expectedResult": "CSV file contains all filtered audit entries with accurate data. Number of rows matches the filtered record count. Data is properly formatted and readable"
+          },
+          {
+            "step": 8,
+            "action": "Return to the audit trail page and click the 'Export to PDF' button",
+            "expectedResult": "PDF file download is initiated. Browser shows download progress"
+          },
+          {
+            "step": 9,
+            "action": "Wait for PDF download to complete and open the downloaded PDF file",
+            "expectedResult": "PDF file is successfully downloaded with filename containing timestamp (e.g., audit_logs_YYYYMMDD_HHMMSS.pdf). File opens in PDF reader showing formatted audit log report with header, filter criteria applied, and tabular data"
+          },
+          {
+            "step": 10,
+            "action": "Verify PDF file contains correct data matching the filtered results with proper formatting",
+            "expectedResult": "PDF file contains all filtered audit entries with accurate data in a well-formatted table. Report includes header with export date/time, applied filters, and page numbers. Data matches the filtered record count and is clearly readable"
+          }
+        ],
+        "postconditions": [
+          "Two files are downloaded: one CSV and one PDF containing the same filtered audit data",
+          "Original audit logs in the database remain unchanged",
+          "Auditor remains logged into the audit portal",
+          "Export actions are logged in the audit trail",
+          "Downloaded files are stored in the browser's default download location"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure audit logs are immutable",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Auditor is logged into the audit portal with read-only access permissions",
+          "Audit trail page is loaded and displaying audit log entries",
+          "ApprovalLogs table contains existing audit entries",
+          "System has proper security controls to prevent unauthorized modifications",
+          "Audit logging for security events is enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the audit trail page and select a specific audit log entry",
+            "expectedResult": "Audit log entry is selected and detailed view is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Look for any edit, modify, or update buttons or options in the user interface",
+            "expectedResult": "No edit, modify, or update buttons are visible or available in the interface. Only read-only view options are present"
+          },
+          {
+            "step": 3,
+            "action": "Right-click on an audit log entry to check for context menu options",
+            "expectedResult": "Context menu either does not appear or shows only read-only options (e.g., View Details, Export). No edit or delete options are available"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to double-click on an audit log field to edit it inline",
+            "expectedResult": "Field does not become editable. No inline editing capability is available. Field remains in read-only state"
+          },
+          {
+            "step": 5,
+            "action": "Look for any delete, remove, or archive buttons in the audit log interface",
+            "expectedResult": "No delete, remove, or archive buttons are visible or accessible in the interface"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to use browser developer tools or inspect element to modify audit log data in the UI",
+            "expectedResult": "While UI elements may be temporarily modified in browser, any attempt to save or submit changes results in an error. System rejects the modification attempt"
+          },
+          {
+            "step": 7,
+            "action": "If API access is available, attempt to send a PUT or DELETE request to the audit logs endpoint (e.g., PUT /api/audit-logs/{id})",
+            "expectedResult": "API returns HTTP 403 Forbidden or 405 Method Not Allowed error. Error message indicates that modification or deletion of audit logs is not permitted"
+          },
+          {
+            "step": 8,
+            "action": "Check the system security logs or audit trail for the unauthorized attempt",
+            "expectedResult": "System logs the unauthorized modification/deletion attempt with details including timestamp, user ID, attempted action, and denial reason"
+          },
+          {
+            "step": 9,
+            "action": "Verify that the original audit log entry remains unchanged in the database",
+            "expectedResult": "Original audit log entry is intact with all original data unchanged. Timestamp and all fields remain exactly as they were before the attempt"
+          },
+          {
+            "step": 10,
+            "action": "Review the audit trail to confirm the unauthorized attempt was logged",
+            "expectedResult": "A new audit entry exists documenting the unauthorized modification/deletion attempt, including auditor's user ID, timestamp, and action attempted"
+          }
+        ],
+        "postconditions": [
+          "All audit log entries remain unchanged and intact",
+          "Unauthorized modification/deletion attempt is logged in the security audit trail",
+          "Auditor's session remains active without being terminated",
+          "System integrity is maintained",
+          "No data corruption or loss has occurred in the ApprovalLogs table"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  }
+]
