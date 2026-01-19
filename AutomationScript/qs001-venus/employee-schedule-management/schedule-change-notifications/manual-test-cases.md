@@ -1,177 +1,181 @@
 # Manual Test Cases
 
 ## Story: As Employee, I want to receive notifications of schedule changes to stay informed
-**Story ID:** story-16
+**Story ID:** story-10
 
-### Test Case: Validate real-time notification display on dashboard
+### Test Case: Validate real-time delivery of schedule change notifications
 - **ID:** tc-001
 - **Type:** happy-path
 - **Priority:** High
-- **Estimated Time:** 20 mins
+- **Estimated Time:** 8 mins
 
 **Preconditions:**
 - Employee account exists in the system with valid credentials
-- Employee is assigned to at least one shift in the schedule
-- Employee has access to the web portal
-- ScheduleChangeEvents table is accessible and functional
-- Notification service is running and operational
+- Employee has at least one scheduled shift in the system
+- Backend system is operational and accessible
+- ScheduleChangeEvents API is functioning correctly
+- Employee is not currently logged into the web interface
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Log in to the employee portal using valid credentials | Employee successfully logs in and is redirected to the dashboard |
-| 2 | Manager or system administrator creates a schedule change event for the employee (modify shift time, date, or location) | Schedule change event is created and saved in ScheduleChangeEvents table |
-| 3 | Wait and monitor the employee dashboard for notification appearance (maximum 15 minutes) | Notification appears on employee dashboard within 15 minutes displaying the schedule change details |
-| 4 | Verify notification content includes change type, old schedule details, new schedule details, and timestamp | Notification displays complete and accurate schedule change information |
-| 5 | Click on the notification to view full details | Notification expands or opens to show comprehensive schedule change information |
-| 6 | Click the 'Acknowledge' button on the notification | Acknowledgment is recorded in the system and notification is marked as read with visual indicator (e.g., color change, checkmark) |
-| 7 | Verify the notification status changes from unread to read/acknowledged | Notification displays acknowledged status with timestamp of acknowledgment |
+| 1 | Access the backend system with administrator privileges | Administrator is successfully logged into the backend system |
+| 2 | Navigate to the employee schedule management section | Schedule management interface is displayed with list of employees and their schedules |
+| 3 | Locate the target employee's schedule and modify a shift (change time, date, or location) | Schedule modification form is displayed and accepts the changes |
+| 4 | Save the schedule changes and note the exact timestamp | Schedule is updated successfully and confirmation message is displayed |
+| 5 | Wait for up to 1 minute and monitor the notification generation | Notification is generated and sent to the employee within 1 minute of the schedule update |
+| 6 | Employee logs into the web interface using valid credentials | Employee is successfully authenticated and redirected to the dashboard |
+| 7 | Navigate to the notifications section or view the notification indicator | Notifications section is accessible and displays a notification badge or count indicating new notifications |
+| 8 | Click on the notifications section to view all notifications | New schedule change notification is visible with details of the schedule modification, timestamp, and unread status |
+| 9 | Click on the acknowledge button or mark as read option for the notification | Notification status changes to 'read' or 'acknowledged' with visual confirmation (e.g., color change, checkmark icon) |
+| 10 | Refresh the notifications page | Notification remains marked as read and is moved to the read notifications section or displays read status |
 
 **Postconditions:**
-- Notification is marked as acknowledged in the database
-- Acknowledgment timestamp is recorded in NotificationStatus table
-- Employee remains logged in to the portal
-- Notification remains visible in notification history
+- Schedule change is saved in the system
+- Notification is marked as read in the database
+- Employee is aware of the schedule change
+- Notification delivery time is logged and within 1 minute threshold
 
 ---
 
-### Test Case: Verify email alert delivery for schedule changes
+### Test Case: Verify notification visibility and security
 - **ID:** tc-002
-- **Type:** happy-path
-- **Priority:** High
-- **Estimated Time:** 20 mins
-
-**Preconditions:**
-- Employee account exists with valid email address configured
-- Email notification service is enabled and operational
-- Employee has opted in for email notifications (if applicable)
-- SMTP server is configured and accessible
-- Employee has access to their email inbox
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | Manager or system administrator creates a schedule change event for the employee | Schedule change event is saved and triggers email alert process |
-| 2 | Monitor the email delivery system logs for email dispatch confirmation | System logs show email queued and sent to employee's email address |
-| 3 | Check employee's email inbox within 15 minutes of schedule change | Employee receives email alert within 15 minutes of the schedule change event |
-| 4 | Open the email and verify sender address matches system notification address | Email is from official system notification address and not marked as spam |
-| 5 | Review email subject line for clarity and relevance | Subject line clearly indicates schedule change notification (e.g., 'Schedule Change Alert - [Date]') |
-| 6 | Verify email content includes original schedule details, new schedule details, change type, and effective date | Email content matches schedule change details exactly as stored in the system |
-| 7 | Check for any links in the email to view full details or acknowledge in the portal | Email contains working link to employee portal for acknowledgment |
-| 8 | Compare email content with the notification displayed on the dashboard | Email content matches dashboard notification content exactly |
-
-**Postconditions:**
-- Email is delivered and accessible in employee's inbox
-- Email delivery is logged in system
-- Employee can access portal link from email
-- Schedule change remains active in the system
-
----
-
-### Test Case: Test notification history access
-- **ID:** tc-003
-- **Type:** happy-path
-- **Priority:** Medium
-- **Estimated Time:** 15 mins
-
-**Preconditions:**
-- Employee account exists with valid credentials
-- Employee has received at least 3-5 schedule change notifications in the past
-- Some notifications are acknowledged and some are unacknowledged
-- Employee is logged into the web portal
-- Notification history feature is enabled
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | From the employee dashboard, locate and click on 'Notification History' or 'View All Notifications' link/button | System navigates to the notification history page |
-| 2 | Verify the notification history page loads completely | Notification history page displays with all UI elements loaded (headers, filters, notification list) |
-| 3 | Review the list of notifications displayed on the history page | All past schedule change notifications for the employee are displayed in chronological order (newest first) |
-| 4 | Verify each notification entry shows key information: date/time of change, change type, old schedule, new schedule, and acknowledgment status | Each notification displays complete information with clear visual distinction between acknowledged and unacknowledged notifications |
-| 5 | Check for acknowledgment timestamps on acknowledged notifications | Acknowledged notifications display the date and time when they were acknowledged |
-| 6 | Verify unacknowledged notifications are clearly marked and allow acknowledgment from history page | Unacknowledged notifications show 'Acknowledge' button and are visually distinct (e.g., bold, highlighted) |
-| 7 | Test pagination or scrolling if more than 10-20 notifications exist | All notifications are accessible through pagination or infinite scroll functionality |
-| 8 | Apply any available filters (date range, acknowledged/unacknowledged status) | Filters work correctly and display only notifications matching the filter criteria |
-| 9 | Click on a specific notification to view full details | Notification expands or opens detail view showing complete schedule change information |
-
-**Postconditions:**
-- Employee remains on notification history page or returns to dashboard
-- All notifications remain accessible for future reference
-- No data is modified unless employee acknowledges an unacknowledged notification
-- Employee session remains active
-
----
-
-## Story: As Employee, I want to acknowledge schedule change notifications to confirm awareness
-**Story ID:** story-17
-
-### Test Case: Validate acknowledgment of schedule change notification
-- **ID:** tc-004
-- **Type:** happy-path
+- **Type:** error-case
 - **Priority:** High
 - **Estimated Time:** 10 mins
 
 **Preconditions:**
-- Employee account exists with valid credentials
-- Employee is logged into the web portal
-- At least one unacknowledged schedule change notification exists for the employee
-- NotificationStatus table is accessible and functional
-- POST /api/notifications/acknowledge endpoint is operational
+- Two employee accounts exist: Employee A and Employee B with valid credentials
+- Both employees have different schedules in the system
+- Schedule changes have been made for both Employee A and Employee B
+- Notifications have been generated for both employees
+- Role-based access control is configured correctly
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Navigate to the employee dashboard where notifications are displayed | Dashboard loads successfully showing unacknowledged notification(s) with visual indicator (e.g., badge, highlight) |
-| 2 | Identify an unacknowledged schedule change notification in the notification list | Unacknowledged notification is clearly visible with 'Acknowledge' button enabled |
-| 3 | Click the 'Acknowledge' button on the notification | System processes the acknowledgment request within 1 second |
-| 4 | Verify notification status updates visually on the UI | Notification status changes to 'Acknowledged' with visual confirmation (checkmark, color change, or status label) |
-| 5 | Check for confirmation message displayed to the employee | System displays confirmation message such as 'Notification acknowledged successfully' or similar positive feedback |
-| 6 | Verify the 'Acknowledge' button is disabled or removed from the acknowledged notification | 'Acknowledge' button is no longer available for the acknowledged notification |
-| 7 | Refresh the page or navigate away and return to the dashboard | Notification remains in acknowledged state after page refresh |
-| 8 | Locate the same notification and attempt to click 'Acknowledge' again (if button is still visible) | System prevents duplicate acknowledgment and displays message such as 'This notification has already been acknowledged' |
-| 9 | Attempt to send duplicate acknowledgment via direct API call using POST /api/notifications/acknowledge with same notification ID | API returns error response (e.g., 400 Bad Request or 409 Conflict) with message indicating notification already acknowledged |
+| 1 | Log into the web interface using Employee A's credentials | Employee A is successfully authenticated and redirected to their dashboard |
+| 2 | Navigate to the notifications section | Notifications page is displayed for Employee A |
+| 3 | Review all visible notifications and verify the content | Only notifications relevant to Employee A are visible, showing schedule changes specific to Employee A's shifts |
+| 4 | Verify that no notifications belonging to Employee B or any other employee are displayed | No notifications for other employees are visible in Employee A's notification list |
+| 5 | Log out from Employee A's account | Employee A is successfully logged out and redirected to the login page |
+| 6 | Log into the web interface using Employee B's credentials | Employee B is successfully authenticated and redirected to their dashboard |
+| 7 | Navigate to the notifications section | Notifications page is displayed for Employee B |
+| 8 | Review all visible notifications and verify the content | Only notifications relevant to Employee B are visible, showing schedule changes specific to Employee B's shifts |
+| 9 | Verify that Employee A's notifications are not visible to Employee B | Employee B does not see any of Employee A's notifications, confirming proper data isolation |
+| 10 | Attempt to access Employee A's notification directly via URL manipulation (if notification IDs are predictable) | Access is denied with appropriate error message (403 Forbidden or similar) and Employee B cannot view Employee A's notification |
 
 **Postconditions:**
-- Notification status is updated to 'Acknowledged' in NotificationStatus table
-- Acknowledgment timestamp is recorded in database
-- Employee ID is logged with the acknowledgment
-- Notification cannot be acknowledged again
-- Employee remains logged in to the portal
+- Employee A can only access their own notifications
+- Employee B can only access their own notifications
+- Data privacy is maintained between employee accounts
+- Security logs record any unauthorized access attempts
 
 ---
 
-### Test Case: Verify acknowledgment logging
-- **ID:** tc-005
+### Test Case: Test notification history accessibility
+- **ID:** tc-003
 - **Type:** happy-path
-- **Priority:** High
-- **Estimated Time:** 12 mins
+- **Priority:** Medium
+- **Estimated Time:** 6 mins
 
 **Preconditions:**
-- Employee account exists with valid credentials and known employee ID
-- Employee is logged into the web portal
-- At least one unacknowledged schedule change notification exists for the employee
-- Database access is available to verify NotificationStatus table
-- System timestamp is accurate and synchronized
+- Employee account exists with valid credentials
+- Employee has received multiple schedule change notifications over time
+- Notification history includes both read and unread notifications
+- At least 5 notifications exist in the system for the employee
+- Employee is logged into the web interface
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Record the current system timestamp before performing acknowledgment | Current timestamp is noted for comparison (e.g., 2024-01-15 10:30:00) |
-| 2 | Navigate to employee dashboard and identify the notification ID of an unacknowledged notification | Notification ID is visible or retrievable from UI/API (e.g., notification-12345) |
-| 3 | Click the 'Acknowledge' button on the selected notification | System displays confirmation message that acknowledgment was successful |
-| 4 | Query the NotificationStatus table in the database for the specific notification ID | Database record exists for the notification with updated status |
-| 5 | Verify the acknowledgment status field is set to 'Acknowledged' or equivalent value | Status field shows 'Acknowledged' or boolean value TRUE |
-| 6 | Verify the acknowledgment timestamp is recorded in the database | Timestamp field contains the date and time of acknowledgment, matching the time when 'Acknowledge' was clicked (within 1-2 seconds tolerance) |
-| 7 | Verify the employee ID/user ID is recorded with the acknowledgment | Employee ID field matches the logged-in employee's ID who performed the acknowledgment |
-| 8 | Check for any additional audit fields (created_by, modified_by, IP address if applicable) | All relevant audit fields are populated with correct information |
-| 9 | Verify the acknowledgment timestamp format is consistent with system standards (ISO 8601 or configured format) | Timestamp is stored in correct format and timezone |
+| 1 | From the employee dashboard, locate and click on the notifications section or notification history link | Notifications page or notification history section is displayed |
+| 2 | Verify that the notification history section is accessible and loads properly | Notification history page loads successfully without errors |
+| 3 | Review the list of notifications displayed in the history | All past notifications are listed in chronological order (newest first or oldest first based on design) |
+| 4 | Verify that each notification displays its read/unread status clearly | Each notification shows a clear visual indicator of read status (e.g., bold text for unread, different background color, read/unread icon) |
+| 5 | Check that unread notifications are visually distinct from read notifications | Unread notifications are clearly distinguishable from read notifications through visual styling |
+| 6 | Verify that each notification includes relevant details (schedule change details, timestamp, notification type) | Each notification displays complete information including what changed, when it was sent, and the affected schedule |
+| 7 | Scroll through the notification history to verify all notifications are accessible | All historical notifications are accessible through scrolling or pagination |
+| 8 | Click on an individual notification to view full details | Notification expands or opens to show complete details of the schedule change |
+| 9 | Verify that the notification count matches the total number of notifications received | The total count of notifications in history matches the expected number of schedule changes |
 
 **Postconditions:**
-- NotificationStatus table contains complete acknowledgment record
-- Acknowledgment timestamp is accurately recorded
-- Employee ID is correctly associated with the acknowledgment
-- Database integrity is maintained
-- Acknowledgment data is available for reporting and audit purposes
+- Employee has viewed their complete notification history
+- All notifications remain in the system for future reference
+- Read/unread status is accurately reflected for all notifications
+
+---
+
+## Story: As Employee, I want to acknowledge schedule change notifications to confirm awareness
+**Story ID:** story-12
+
+### Test Case: Validate acknowledgment of a notification
+- **ID:** tc-004
+- **Type:** happy-path
+- **Priority:** High
+- **Estimated Time:** 7 mins
+
+**Preconditions:**
+- Employee account exists with valid credentials
+- Employee is logged into the web interface
+- At least one unacknowledged schedule change notification exists for the employee
+- POST /api/notifications/{id}/acknowledge endpoint is operational
+- Employee has proper role-based access permissions
+
+**Steps:**
+| Step | Action | Expected Result |
+|------|--------|------------------|
+| 1 | Navigate to the notifications section from the employee dashboard | Notifications page is displayed with list of schedule change notifications |
+| 2 | Locate an unacknowledged schedule change notification in the list | Unacknowledged notification is visible with schedule change details and unacknowledged status |
+| 3 | Verify that the notification displays an acknowledge button or checkbox | Acknowledge button is clearly visible and enabled on the notification |
+| 4 | Review the notification content to ensure it contains schedule change information | Notification displays complete schedule change details including date, time, and nature of change |
+| 5 | Click the acknowledge button on the notification | System processes the acknowledgment request and sends POST request to /api/notifications/{id}/acknowledge |
+| 6 | Observe the system response and visual feedback | Immediate visual confirmation is displayed (e.g., success message, checkmark icon, color change) within 1 second |
+| 7 | Verify that the notification status has updated to acknowledged | Notification status changes to 'acknowledged' with visual indicator (e.g., different background, acknowledged badge) |
+| 8 | Check that the acknowledge button is no longer available or is disabled | Acknowledge button is either removed, disabled, or replaced with 'Acknowledged' label |
+| 9 | Attempt to click the acknowledge button or area again | System prevents duplicate acknowledgment - button is disabled or no action occurs |
+| 10 | Refresh the notifications page | Notification remains in acknowledged status and duplicate acknowledgment is still prevented |
+| 11 | Verify in the notification history that the acknowledgment timestamp is recorded | Notification shows acknowledgment timestamp and acknowledged status is persisted |
+
+**Postconditions:**
+- Notification status is updated to acknowledged in the database
+- Acknowledgment timestamp is recorded
+- Employee cannot acknowledge the same notification again
+- Management can track that the employee has acknowledged the schedule change
+
+---
+
+### Test Case: Verify acknowledgment access control
+- **ID:** tc-005
+- **Type:** error-case
+- **Priority:** High
+- **Estimated Time:** 6 mins
+
+**Preconditions:**
+- At least one schedule change notification exists in the system
+- User is not currently authenticated in the web interface
+- Login page is accessible
+- Role-based access control is properly configured
+- Session management is functioning correctly
+
+**Steps:**
+| Step | Action | Expected Result |
+|------|--------|------------------|
+| 1 | Open a web browser and ensure no user is currently logged in (clear session/cookies if necessary) | Browser session is cleared and no authentication tokens are present |
+| 2 | Attempt to directly access the notifications page URL without logging in | System detects unauthenticated access and redirects to the login page |
+| 3 | Attempt to send a POST request to /api/notifications/{id}/acknowledge endpoint without authentication token | API returns 401 Unauthorized error and rejects the acknowledgment request |
+| 4 | Verify that the error response includes appropriate message indicating authentication is required | Error message clearly states that authentication is required to perform this action |
+| 5 | Navigate to the login page | Login page is displayed with username and password fields |
+| 6 | Verify that the user is prompted to log in before accessing notifications | Login form is presented and user cannot proceed without valid credentials |
+| 7 | Attempt to use an invalid or expired authentication token to acknowledge a notification | System rejects the request with 401 Unauthorized or 403 Forbidden error |
+| 8 | Verify that the system redirects unauthenticated users to the login page | User is automatically redirected to login page with appropriate message |
+| 9 | Check that no notification data is exposed to unauthenticated users | No notification content or details are visible without proper authentication |
+
+**Postconditions:**
+- Unauthenticated access attempts are logged for security monitoring
+- No notifications are acknowledged without proper authentication
+- User is redirected to login page
+- System security is maintained and unauthorized actions are prevented
 
 ---
 
