@@ -1,0 +1,1046 @@
+[
+  {
+    "storyId": "story-1",
+    "storyTitle": "As Administrator, I want to define multi-level approval workflows to achieve flexible schedule change approvals",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful creation of multi-level approval workflow",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Administrator is logged into the system with valid credentials",
+          "Administrator has role-based access permissions to configure workflows",
+          "Workflow configuration database is accessible and operational",
+          "At least two potential approvers exist in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Administrator navigates to workflow configuration page by clicking on 'Workflow Management' menu option",
+            "expectedResult": "Workflow configuration UI is displayed with options to create new workflow, view existing workflows, and workflow management tools are visible"
+          },
+          {
+            "step": 2,
+            "action": "Administrator clicks 'Create New Workflow' button",
+            "expectedResult": "New workflow creation form is displayed with fields for workflow name, description, and approval levels"
+          },
+          {
+            "step": 3,
+            "action": "Administrator enters workflow name 'Schedule Change Approval - Level 2' and description 'Two-level approval for schedule modifications'",
+            "expectedResult": "Workflow name and description are accepted and displayed in the form fields"
+          },
+          {
+            "step": 4,
+            "action": "Administrator clicks 'Add Approval Level' button to create first approval level",
+            "expectedResult": "First approval level section is displayed with fields for level name and approver assignment"
+          },
+          {
+            "step": 5,
+            "action": "Administrator enters level name 'Manager Approval' and assigns approver 'John Smith' from the approver dropdown list",
+            "expectedResult": "Level 1 is configured with name 'Manager Approval' and approver 'John Smith' is displayed as assigned"
+          },
+          {
+            "step": 6,
+            "action": "Administrator clicks 'Add Approval Level' button to create second approval level",
+            "expectedResult": "Second approval level section is displayed below the first level with fields for level name and approver assignment"
+          },
+          {
+            "step": 7,
+            "action": "Administrator enters level name 'Director Approval' and assigns approver 'Jane Doe' from the approver dropdown list",
+            "expectedResult": "Level 2 is configured with name 'Director Approval' and approver 'Jane Doe' is displayed as assigned. Both workflow levels and approvers are displayed correctly in hierarchical order"
+          },
+          {
+            "step": 8,
+            "action": "Administrator reviews the complete workflow configuration and clicks 'Save Workflow' button",
+            "expectedResult": "System validates the workflow configuration, processes the save request, and displays confirmation message 'Workflow created successfully' with workflow ID"
+          }
+        ],
+        "postconditions": [
+          "New workflow is saved in the workflow configuration database",
+          "Workflow appears in the list of available workflows",
+          "Workflow is available for assignment to schedule change requests",
+          "Audit log records workflow creation with administrator details and timestamp"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Prevent saving workflow with circular dependencies",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Administrator is logged into the system with valid credentials",
+          "Administrator has role-based access permissions to configure workflows",
+          "Workflow configuration page is accessible",
+          "System has circular dependency validation logic enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Administrator navigates to workflow configuration page and clicks 'Create New Workflow' button",
+            "expectedResult": "New workflow creation form is displayed with empty fields ready for input"
+          },
+          {
+            "step": 2,
+            "action": "Administrator enters workflow name 'Circular Test Workflow' and adds three approval levels",
+            "expectedResult": "Three approval level sections are displayed and ready for configuration"
+          },
+          {
+            "step": 3,
+            "action": "Administrator configures Level 1 with approver 'User A' and sets conditional routing to Level 2",
+            "expectedResult": "Level 1 is configured with User A and routing to Level 2 is displayed"
+          },
+          {
+            "step": 4,
+            "action": "Administrator configures Level 2 with approver 'User B' and sets conditional routing to Level 3",
+            "expectedResult": "Level 2 is configured with User B and routing to Level 3 is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Administrator configures Level 3 with approver 'User C' and attempts to set conditional routing back to Level 1, creating a circular dependency",
+            "expectedResult": "Level 3 configuration shows routing back to Level 1"
+          },
+          {
+            "step": 6,
+            "action": "Administrator clicks 'Save Workflow' button",
+            "expectedResult": "System detects circular dependency in the approval routing (Level 1 → Level 2 → Level 3 → Level 1) and displays error message 'Cannot save workflow: Circular dependency detected in approval routing. Please review and correct the workflow configuration.'"
+          },
+          {
+            "step": 7,
+            "action": "Administrator reviews the error message and removes the circular routing by changing Level 3 routing to 'End Workflow' instead of Level 1",
+            "expectedResult": "Level 3 configuration is updated to end the workflow without circular routing"
+          },
+          {
+            "step": 8,
+            "action": "Administrator clicks 'Save Workflow' button again",
+            "expectedResult": "System validates the corrected workflow configuration, detects no circular dependencies, and displays confirmation message 'Workflow created successfully'. The corrected workflow is saved to the database"
+          }
+        ],
+        "postconditions": [
+          "Workflow with corrected configuration is saved in the database",
+          "No circular dependencies exist in the saved workflow",
+          "Workflow is available for use in schedule change approvals",
+          "Error and correction actions are logged in the audit trail"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Validate mandatory approver per level before saving",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Administrator is logged into the system with valid credentials",
+          "Administrator has permissions to create and configure workflows",
+          "Workflow configuration page is accessible",
+          "System has mandatory field validation enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Administrator navigates to workflow configuration page and clicks 'Create New Workflow' button",
+            "expectedResult": "New workflow creation form is displayed with all required fields empty"
+          },
+          {
+            "step": 2,
+            "action": "Administrator enters workflow name 'Incomplete Workflow Test' and description 'Testing mandatory approver validation'",
+            "expectedResult": "Workflow name and description are accepted and displayed in the form"
+          },
+          {
+            "step": 3,
+            "action": "Administrator clicks 'Add Approval Level' button to create first approval level",
+            "expectedResult": "First approval level section is displayed with fields for level name and approver assignment"
+          },
+          {
+            "step": 4,
+            "action": "Administrator enters level name 'Manager Review' but leaves the approver field empty without selecting any approver",
+            "expectedResult": "Level name 'Manager Review' is displayed but approver field remains empty with no selection"
+          },
+          {
+            "step": 5,
+            "action": "Administrator clicks 'Save Workflow' button without assigning an approver to the level",
+            "expectedResult": "System performs validation and displays error message 'Cannot save workflow: Each approval level must have at least one approver assigned. Please assign an approver to Level 1.' The workflow is not saved and the form remains in edit mode"
+          },
+          {
+            "step": 6,
+            "action": "Administrator reviews the validation error and clicks on the approver dropdown for Level 1",
+            "expectedResult": "Approver dropdown list is displayed showing available approvers in the system"
+          },
+          {
+            "step": 7,
+            "action": "Administrator selects 'Sarah Johnson' as the approver for Level 1",
+            "expectedResult": "Approver 'Sarah Johnson' is assigned to Level 1 and displayed in the approver field"
+          },
+          {
+            "step": 8,
+            "action": "Administrator clicks 'Save Workflow' button again",
+            "expectedResult": "System validates the workflow configuration, confirms all mandatory fields are completed, and displays success message 'Workflow saved successfully' with the workflow ID"
+          }
+        ],
+        "postconditions": [
+          "Workflow is successfully saved with all required approvers assigned",
+          "Workflow appears in the active workflows list",
+          "All approval levels have at least one approver assigned",
+          "Validation error and successful save are recorded in the system audit log"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-4",
+    "storyTitle": "As Administrator, I want to configure notification settings to achieve timely communication for schedule change approvals",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Create and save notification template successfully",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Administrator is logged into the system with valid administrator credentials",
+          "Administrator has admin-only access to notification configuration",
+          "Notification configuration database is accessible and operational",
+          "Notification settings page is available in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Administrator clicks on 'Settings' menu and selects 'Notification Configuration' option",
+            "expectedResult": "Notification configuration UI is displayed showing list of notification events (submission, approval, rejection, escalation) and existing templates"
+          },
+          {
+            "step": 2,
+            "action": "Administrator clicks 'Create New Template' button",
+            "expectedResult": "Template creation form is displayed with fields for template name, event type, subject line, message body, and recipient configuration"
+          },
+          {
+            "step": 3,
+            "action": "Administrator selects 'Approval' from the event type dropdown",
+            "expectedResult": "Event type is set to 'Approval' and relevant template variables for approval events are displayed"
+          },
+          {
+            "step": 4,
+            "action": "Administrator enters template name 'Schedule Change Approved Notification'",
+            "expectedResult": "Template name is accepted and displayed in the template name field"
+          },
+          {
+            "step": 5,
+            "action": "Administrator enters subject line 'Your Schedule Change Request Has Been Approved'",
+            "expectedResult": "Subject line is accepted and displayed in the subject field"
+          },
+          {
+            "step": 6,
+            "action": "Administrator enters message body in the template editor: 'Dear {{requester_name}}, Your schedule change request #{{request_id}} has been approved by {{approver_name}} on {{approval_date}}. The changes will be effective from {{effective_date}}.'",
+            "expectedResult": "Template editor accepts the input with template variables properly formatted and syntax highlighting is displayed for variables"
+          },
+          {
+            "step": 7,
+            "action": "Administrator configures recipients by selecting 'Requester' and 'Manager' roles from the recipient list",
+            "expectedResult": "Selected recipient roles are displayed in the recipients section"
+          },
+          {
+            "step": 8,
+            "action": "Administrator selects notification delivery method as 'Email' from the delivery options",
+            "expectedResult": "Email delivery method is selected and displayed as the active delivery channel"
+          },
+          {
+            "step": 9,
+            "action": "Administrator clicks 'Save Template' button",
+            "expectedResult": "System validates the template configuration, saves the template to the notification configuration database, and displays confirmation message 'Notification template saved successfully' with template ID"
+          }
+        ],
+        "postconditions": [
+          "New notification template is saved in the notification configuration database",
+          "Template appears in the list of available notification templates",
+          "Template is available for selection in workflow notification settings",
+          "Template creation is logged in the audit trail with administrator details and timestamp"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Prevent saving notification template with invalid syntax",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Administrator is logged into the system with administrator privileges",
+          "Notification settings page is accessible",
+          "Template syntax validation is enabled in the system",
+          "Notification configuration database is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Administrator navigates to notification settings page and clicks 'Create New Template' button",
+            "expectedResult": "Template creation form is displayed with empty fields ready for input"
+          },
+          {
+            "step": 2,
+            "action": "Administrator enters template name 'Invalid Syntax Test Template' and selects event type 'Rejection'",
+            "expectedResult": "Template name and event type are set and displayed in the form"
+          },
+          {
+            "step": 3,
+            "action": "Administrator enters subject line 'Schedule Change Request Rejected'",
+            "expectedResult": "Subject line is accepted and displayed"
+          },
+          {
+            "step": 4,
+            "action": "Administrator enters message body with invalid template syntax: 'Dear {{requester_name, Your request {{request_id} has been rejected by {{approver_name on {{rejection_date}}.' (missing closing braces and commas in wrong places)",
+            "expectedResult": "Message body with invalid syntax is entered in the template editor"
+          },
+          {
+            "step": 5,
+            "action": "Administrator configures recipients as 'Requester' and selects 'Email' as delivery method",
+            "expectedResult": "Recipients and delivery method are configured and displayed"
+          },
+          {
+            "step": 6,
+            "action": "Administrator clicks 'Save Template' button",
+            "expectedResult": "System performs syntax validation and displays validation error message 'Cannot save template: Invalid template syntax detected. Error at line 1: Missing closing brace for variable {{requester_name. Error at line 1: Missing closing brace for variable {{request_id. Error at line 1: Missing closing brace for variable {{approver_name.' The template is not saved and remains in edit mode"
+          },
+          {
+            "step": 7,
+            "action": "Administrator reviews the validation errors and corrects the message body to: 'Dear {{requester_name}}, Your request {{request_id}} has been rejected by {{approver_name}} on {{rejection_date}}.'",
+            "expectedResult": "Corrected message body with proper syntax is displayed in the template editor with all variables properly closed"
+          },
+          {
+            "step": 8,
+            "action": "Administrator clicks 'Save Template' button again",
+            "expectedResult": "System validates the corrected template syntax, confirms no syntax errors, saves the template successfully, and displays confirmation message 'Template saved successfully' with template ID"
+          }
+        ],
+        "postconditions": [
+          "Template with corrected syntax is saved in the notification configuration database",
+          "Template is available for use in notification workflows",
+          "All template variables are properly formatted and validated",
+          "Validation error and successful save are recorded in the system audit log"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Test notification delivery",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "Administrator is logged into the system with valid credentials",
+          "At least one notification template is configured and saved in the system",
+          "Test notification functionality is enabled",
+          "Administrator has a valid email address configured in their profile",
+          "Email notification service is operational and accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Administrator navigates to notification settings page",
+            "expectedResult": "Notification settings page is displayed with list of configured notification templates"
+          },
+          {
+            "step": 2,
+            "action": "Administrator selects an existing notification template 'Schedule Change Approved Notification' from the template list",
+            "expectedResult": "Selected template details are displayed including template name, event type, subject, message body, and recipient configuration"
+          },
+          {
+            "step": 3,
+            "action": "Administrator clicks 'Test Notification' button",
+            "expectedResult": "Test notification dialog is displayed with options to enter test recipient email address and preview the notification content"
+          },
+          {
+            "step": 4,
+            "action": "Administrator enters test recipient email address 'admin.test@company.com' in the recipient field",
+            "expectedResult": "Test recipient email address is accepted and displayed in the recipient field"
+          },
+          {
+            "step": 5,
+            "action": "Administrator reviews the notification preview showing sample data populated in template variables",
+            "expectedResult": "Notification preview displays the template with sample values: 'Dear John Doe, Your schedule change request #12345 has been approved by Jane Smith on 2024-01-15. The changes will be effective from 2024-01-20.'"
+          },
+          {
+            "step": 6,
+            "action": "Administrator clicks 'Send Test Notification' button",
+            "expectedResult": "System processes the test notification request, sends the notification to the configured recipient email address, and displays progress indicator 'Sending notification...'"
+          },
+          {
+            "step": 7,
+            "action": "System completes notification delivery and administrator observes the result",
+            "expectedResult": "Notification is sent to configured recipient 'admin.test@company.com' successfully"
+          },
+          {
+            "step": 8,
+            "action": "Administrator views the delivery confirmation on screen",
+            "expectedResult": "System displays success message 'Test notification sent successfully to admin.test@company.com. Delivery confirmed at 2024-01-15 10:30:45 AM' with timestamp and delivery status"
+          },
+          {
+            "step": 9,
+            "action": "Administrator checks the test recipient email inbox",
+            "expectedResult": "Test notification email is received in the inbox with correct subject line, message body with populated variables, and proper formatting"
+          }
+        ],
+        "postconditions": [
+          "Test notification is successfully delivered to the specified recipient",
+          "Delivery confirmation is recorded in the notification logs",
+          "Template functionality is verified as working correctly",
+          "Test notification activity is logged in the audit trail with delivery status and timestamp"
+        ],
+        "estimatedTime": "4 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-8",
+    "storyTitle": "As Administrator, I want to manage user roles and permissions for approval workflows to achieve secure access control",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Create and assign user roles successfully",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Administrator is logged into the system with admin privileges",
+          "User management module is accessible",
+          "At least 2 test users exist in the system for role assignment",
+          "Database connection is active and stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the user management module from the admin dashboard",
+            "expectedResult": "User management module loads successfully displaying existing roles and users"
+          },
+          {
+            "step": 2,
+            "action": "Click on 'Create New Role' button",
+            "expectedResult": "Role creation form is displayed with fields for role name, description, and permissions"
+          },
+          {
+            "step": 3,
+            "action": "Enter role name as 'Workflow Manager' and description as 'Manages approval workflows'",
+            "expectedResult": "Role name and description are accepted and displayed in the form fields"
+          },
+          {
+            "step": 4,
+            "action": "Select specific permissions: 'Configure Workflows', 'View Submissions', 'Manage Approvers'",
+            "expectedResult": "Selected permissions are highlighted and marked as active for this role"
+          },
+          {
+            "step": 5,
+            "action": "Click 'Save Role' button",
+            "expectedResult": "Success message is displayed, and the new role 'Workflow Manager' appears in the role list with assigned permissions"
+          },
+          {
+            "step": 6,
+            "action": "Select the newly created 'Workflow Manager' role from the role list",
+            "expectedResult": "Role details page opens showing role name, description, permissions, and user assignment section"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Assign Users' button and select 2 test users from the available user list",
+            "expectedResult": "Selected users are displayed in the assignment preview section"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Confirm Assignment' button",
+            "expectedResult": "Success message is displayed, and the 2 users are now listed under the 'Workflow Manager' role with assigned permissions applied"
+          },
+          {
+            "step": 9,
+            "action": "Log out as Administrator and log in as one of the assigned users",
+            "expectedResult": "User successfully logs in and can access workflow configuration features as per assigned permissions"
+          }
+        ],
+        "postconditions": [
+          "New role 'Workflow Manager' exists in the system with defined permissions",
+          "2 users are assigned to the 'Workflow Manager' role",
+          "Assigned users have active permissions for workflow configuration",
+          "Role creation and assignment are logged in audit trail"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Enforce permissions across approval modules",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Multiple user roles exist with different permission levels",
+          "Test user 'User A' exists without 'Approve Requests' permission",
+          "Test user 'User B' exists with 'Approver' role having 'Approve Requests' permission",
+          "At least one approval request is pending in the system",
+          "Both users have valid login credentials"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in to the system as 'User A' who does not have 'Approve Requests' permission",
+            "expectedResult": "User A successfully logs in and is directed to the dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the approval workflow module",
+            "expectedResult": "Approval workflow module loads showing limited view based on user permissions"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to access the pending approval request and click 'Approve' button",
+            "expectedResult": "Access is denied with error message: 'You do not have permission to approve requests. Please contact your administrator.'"
+          },
+          {
+            "step": 4,
+            "action": "Verify that the approval action was not executed by checking the request status",
+            "expectedResult": "Request status remains 'Pending' and no approval action is recorded"
+          },
+          {
+            "step": 5,
+            "action": "Log out as 'User A' and log in as 'User B' with 'Approver' role",
+            "expectedResult": "User B successfully logs in with approver privileges"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to the approval workflow module and access the same pending approval request",
+            "expectedResult": "Approval request details are displayed with active 'Approve' and 'Reject' buttons"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Approve' button and add approval comments",
+            "expectedResult": "Approval action succeeds, success message is displayed, and request status changes to 'Approved'"
+          },
+          {
+            "step": 8,
+            "action": "Verify the approval is recorded with User B's name and timestamp",
+            "expectedResult": "Approval history shows User B as approver with correct timestamp and comments"
+          }
+        ],
+        "postconditions": [
+          "User A's unauthorized access attempt is blocked and logged",
+          "User B's approval action is successfully completed",
+          "Request status is updated to 'Approved'",
+          "Permission enforcement is validated across the approval module",
+          "All actions are recorded in system audit logs"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Audit logging of role and user assignment changes",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Administrator is logged into the system",
+          "Existing role 'Manager' is available in the system",
+          "Test user 'John Doe' exists and is assigned to 'Manager' role",
+          "Audit logging functionality is enabled",
+          "Administrator has access to audit log viewer"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to user management module and select the 'Manager' role",
+            "expectedResult": "Manager role details are displayed with current permissions and assigned users"
+          },
+          {
+            "step": 2,
+            "action": "Click 'Edit Permissions' and add new permission 'Delete Workflows'",
+            "expectedResult": "Permission is added to the role's permission list"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Save Changes' button",
+            "expectedResult": "Success message is displayed confirming permission update for 'Manager' role"
+          },
+          {
+            "step": 4,
+            "action": "Navigate to user assignment section and remove user 'John Doe' from 'Manager' role",
+            "expectedResult": "Confirmation dialog appears asking to confirm user removal"
+          },
+          {
+            "step": 5,
+            "action": "Confirm the removal action",
+            "expectedResult": "Success message is displayed and 'John Doe' is no longer listed under 'Manager' role"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to the audit log viewer from the admin menu",
+            "expectedResult": "Audit log interface loads displaying recent system activities"
+          },
+          {
+            "step": 7,
+            "action": "Filter audit logs by 'Role Management' category and today's date",
+            "expectedResult": "Filtered audit logs display only role and permission related changes"
+          },
+          {
+            "step": 8,
+            "action": "Locate the log entry for 'Manager' role permission change",
+            "expectedResult": "Log entry shows: Action='Permission Added', Role='Manager', Permission='Delete Workflows', Changed By='Administrator', Timestamp=current date/time"
+          },
+          {
+            "step": 9,
+            "action": "Locate the log entry for user assignment change",
+            "expectedResult": "Log entry shows: Action='User Removed from Role', User='John Doe', Role='Manager', Changed By='Administrator', Timestamp=current date/time"
+          },
+          {
+            "step": 10,
+            "action": "Export audit logs to CSV format and verify data integrity",
+            "expectedResult": "CSV file is downloaded containing all logged changes with complete and accurate information"
+          }
+        ],
+        "postconditions": [
+          "Manager role has updated permissions including 'Delete Workflows'",
+          "User 'John Doe' is removed from 'Manager' role",
+          "All changes are logged in audit trail with administrator details and timestamps",
+          "Audit logs are accessible and exportable for compliance review",
+          "System maintains complete audit history for security compliance"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-10",
+    "storyTitle": "As Administrator, I want to validate approval workflow configurations to achieve error-free setups",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Detect circular dependencies in workflow",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Administrator is logged into the system with workflow configuration privileges",
+          "Workflow configuration module is accessible",
+          "System validation engine is active and functional",
+          "No existing workflows with circular dependencies exist"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the workflow configuration module from the admin dashboard",
+            "expectedResult": "Workflow configuration interface loads displaying options to create or edit workflows"
+          },
+          {
+            "step": 2,
+            "action": "Click 'Create New Workflow' button",
+            "expectedResult": "Workflow creation form is displayed with fields for workflow name, description, and approval routing"
+          },
+          {
+            "step": 3,
+            "action": "Enter workflow name as 'Purchase Approval' and description as 'Multi-level purchase approval process'",
+            "expectedResult": "Workflow name and description are accepted and displayed in the form"
+          },
+          {
+            "step": 4,
+            "action": "Add approval level 'Level 1' with approver 'Manager A' and set routing to 'Level 2'",
+            "expectedResult": "Level 1 is created with Manager A assigned and routing configured to Level 2"
+          },
+          {
+            "step": 5,
+            "action": "Add approval level 'Level 2' with approver 'Manager B' and set routing to 'Level 3'",
+            "expectedResult": "Level 2 is created with Manager B assigned and routing configured to Level 3"
+          },
+          {
+            "step": 6,
+            "action": "Add approval level 'Level 3' with approver 'Director C' and set routing back to 'Level 1' creating a circular loop",
+            "expectedResult": "Level 3 is created with Director C assigned and routing configured back to Level 1"
+          },
+          {
+            "step": 7,
+            "action": "Click 'Save Workflow' button",
+            "expectedResult": "System displays validation error message: 'Circular dependency detected: Level 1 → Level 2 → Level 3 → Level 1. Please correct the approval routing to prevent infinite loops.'"
+          },
+          {
+            "step": 8,
+            "action": "Verify that the workflow is not saved by checking the workflow list",
+            "expectedResult": "Workflow 'Purchase Approval' does not appear in the saved workflows list"
+          },
+          {
+            "step": 9,
+            "action": "Edit Level 3 routing and change it from 'Level 1' to 'End Workflow'",
+            "expectedResult": "Level 3 routing is updated to terminate the workflow instead of looping back"
+          },
+          {
+            "step": 10,
+            "action": "Click 'Save Workflow' button again",
+            "expectedResult": "Success message is displayed: 'Workflow saved successfully', and 'Purchase Approval' workflow appears in the workflow list with valid routing"
+          }
+        ],
+        "postconditions": [
+          "Circular dependency validation is confirmed to be working correctly",
+          "Invalid workflow with circular routing is prevented from being saved",
+          "Corrected workflow without circular dependencies is successfully saved",
+          "Workflow 'Purchase Approval' exists with valid linear approval routing",
+          "Validation error and successful save are logged in system logs"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Prevent saving workflow with missing approvers",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Administrator is logged into the system",
+          "Workflow configuration module is accessible",
+          "At least one user with approver role exists in the system",
+          "Validation rules for mandatory approvers are configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to workflow configuration module and click 'Create New Workflow'",
+            "expectedResult": "Workflow creation form is displayed with empty approval level configuration"
+          },
+          {
+            "step": 2,
+            "action": "Enter workflow name as 'Expense Approval' and description as 'Employee expense approval workflow'",
+            "expectedResult": "Workflow name and description are entered successfully"
+          },
+          {
+            "step": 3,
+            "action": "Add approval level 'Level 1 - Team Lead' and assign approver 'Sarah Johnson'",
+            "expectedResult": "Level 1 is created with Sarah Johnson assigned as approver"
+          },
+          {
+            "step": 4,
+            "action": "Add approval level 'Level 2 - Department Manager' but leave the approver field empty",
+            "expectedResult": "Level 2 is created but approver field remains empty with no selection"
+          },
+          {
+            "step": 5,
+            "action": "Add approval level 'Level 3 - Finance Director' and assign approver 'Michael Chen'",
+            "expectedResult": "Level 3 is created with Michael Chen assigned as approver"
+          },
+          {
+            "step": 6,
+            "action": "Click 'Save Workflow' button",
+            "expectedResult": "System displays validation error message: 'Approval level 'Level 2 - Department Manager' requires at least one approver. Please assign an approver before saving.' Save action is blocked."
+          },
+          {
+            "step": 7,
+            "action": "Verify the error indicator is displayed on Level 2 approval section",
+            "expectedResult": "Red error indicator or highlight appears on Level 2 section showing missing approver"
+          },
+          {
+            "step": 8,
+            "action": "Attempt to navigate away from the workflow configuration page",
+            "expectedResult": "Warning message appears: 'You have unsaved changes. Are you sure you want to leave?'"
+          },
+          {
+            "step": 9,
+            "action": "Cancel navigation and return to Level 2 configuration, then assign approver 'David Martinez'",
+            "expectedResult": "David Martinez is successfully assigned to Level 2, and error indicator is removed"
+          },
+          {
+            "step": 10,
+            "action": "Click 'Save Workflow' button",
+            "expectedResult": "Success message is displayed: 'Workflow saved successfully', and 'Expense Approval' workflow appears in the workflow list with all approvers assigned"
+          }
+        ],
+        "postconditions": [
+          "Workflow with missing approvers is prevented from being saved",
+          "Validation error clearly identifies the approval level with missing approver",
+          "Corrected workflow with all approvers assigned is successfully saved",
+          "Workflow 'Expense Approval' exists with complete approver assignments at all levels",
+          "Validation enforcement is logged for audit purposes"
+        ],
+        "estimatedTime": "9 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Validate conditional routing logic",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Administrator is logged into the system",
+          "Workflow configuration module supports conditional routing",
+          "Conditional logic syntax rules are documented and available",
+          "Test approvers exist in the system for assignment"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to workflow configuration module and click 'Create New Workflow'",
+            "expectedResult": "Workflow creation form is displayed with conditional routing options"
+          },
+          {
+            "step": 2,
+            "action": "Enter workflow name as 'Invoice Approval' and description as 'Conditional invoice approval based on amount'",
+            "expectedResult": "Workflow name and description are entered successfully"
+          },
+          {
+            "step": 3,
+            "action": "Add approval level 'Level 1 - Supervisor' with approver 'Alice Brown'",
+            "expectedResult": "Level 1 is created with Alice Brown assigned"
+          },
+          {
+            "step": 4,
+            "action": "Enable conditional routing for Level 1 and enter invalid condition: 'IF amount > $5000 THEN goto Level 2 ELSE goto'",
+            "expectedResult": "Conditional routing field accepts the input and displays it in the configuration"
+          },
+          {
+            "step": 5,
+            "action": "Add approval level 'Level 2 - Finance Manager' with approver 'Robert Lee'",
+            "expectedResult": "Level 2 is created with Robert Lee assigned"
+          },
+          {
+            "step": 6,
+            "action": "Click 'Save Workflow' button",
+            "expectedResult": "System displays validation error: 'Invalid conditional routing logic at Level 1: ELSE clause is incomplete. Please specify a valid routing destination or action.'"
+          },
+          {
+            "step": 7,
+            "action": "Verify that the error message highlights the specific syntax issue in the conditional logic",
+            "expectedResult": "Error message includes details about the incomplete ELSE clause and suggests correction"
+          },
+          {
+            "step": 8,
+            "action": "Click 'View Syntax Help' link in the error message",
+            "expectedResult": "Help panel opens displaying conditional routing syntax examples and valid operators"
+          },
+          {
+            "step": 9,
+            "action": "Correct the conditional routing logic to: 'IF amount > $5000 THEN goto Level 2 ELSE end workflow'",
+            "expectedResult": "Corrected conditional logic is entered and displayed in the routing configuration"
+          },
+          {
+            "step": 10,
+            "action": "Click 'Validate Logic' button to test the condition syntax",
+            "expectedResult": "System displays validation success message: 'Conditional routing logic is valid'"
+          },
+          {
+            "step": 11,
+            "action": "Click 'Save Workflow' button",
+            "expectedResult": "Success message is displayed: 'Workflow saved successfully', and 'Invoice Approval' workflow appears in the workflow list with valid conditional routing"
+          }
+        ],
+        "postconditions": [
+          "Invalid conditional routing logic is detected and prevented from being saved",
+          "Clear validation error messages guide administrator to correct syntax issues",
+          "Corrected workflow with valid conditional routing is successfully saved",
+          "Workflow 'Invoice Approval' exists with properly configured conditional logic",
+          "Validation results are logged for troubleshooting and audit purposes"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-11",
+    "storyTitle": "As Manager, I want to receive notifications on schedule change request status updates to achieve timely awareness",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Receive notification upon request submission",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Manager is logged into the system",
+          "Manager has valid notification preferences configured",
+          "Manager has at least one notification channel (email/SMS) enabled",
+          "Email/SMS gateway services are operational",
+          "Manager has permission to submit schedule change requests"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Manager navigates to the schedule change request form",
+            "expectedResult": "Schedule change request form is displayed with all required fields"
+          },
+          {
+            "step": 2,
+            "action": "Manager fills in all required fields (date, time, reason, etc.) for the schedule change request",
+            "expectedResult": "All fields are populated correctly and validation passes"
+          },
+          {
+            "step": 3,
+            "action": "Manager clicks the 'Submit' button to submit the schedule change request",
+            "expectedResult": "System displays success message confirming request submission and generates a unique request ID"
+          },
+          {
+            "step": 4,
+            "action": "System processes the submission and triggers notification service",
+            "expectedResult": "System sends submission confirmation notification to manager's preferred channel within 1 minute"
+          },
+          {
+            "step": 5,
+            "action": "Manager checks their preferred notification channel (email or SMS)",
+            "expectedResult": "Manager receives notification via preferred channel"
+          },
+          {
+            "step": 6,
+            "action": "Manager reviews the notification content",
+            "expectedResult": "Notification contains correct request details including request ID, date, time, reason, submission timestamp, and current status as 'Submitted'"
+          },
+          {
+            "step": 7,
+            "action": "Verify notification delivery is logged in the system",
+            "expectedResult": "System logs show successful notification delivery with timestamp and delivery status"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request is saved in the system with 'Submitted' status",
+          "Notification is successfully delivered to manager",
+          "Notification delivery is logged in the system",
+          "Request is visible in manager's request history"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Receive notification on approval and rejection",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Manager has submitted a schedule change request",
+          "Request is in 'Pending Approval' status",
+          "Approver is logged into the system",
+          "Approver has permission to approve/reject requests",
+          "Manager has valid notification preferences configured",
+          "Email/SMS gateway services are operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Approver navigates to the pending requests queue",
+            "expectedResult": "List of pending schedule change requests is displayed including the manager's request"
+          },
+          {
+            "step": 2,
+            "action": "Approver selects the manager's schedule change request to review",
+            "expectedResult": "Request details are displayed with all submitted information"
+          },
+          {
+            "step": 3,
+            "action": "Approver adds comments in the comments field (e.g., 'Approved due to valid business reason')",
+            "expectedResult": "Comments are entered successfully in the comments field"
+          },
+          {
+            "step": 4,
+            "action": "Approver clicks 'Approve' button to approve the request",
+            "expectedResult": "System updates request status to 'Approved' and displays confirmation message"
+          },
+          {
+            "step": 5,
+            "action": "System triggers notification service for status update",
+            "expectedResult": "System sends status update notification to manager within 1 minute"
+          },
+          {
+            "step": 6,
+            "action": "Manager receives notification via preferred channel",
+            "expectedResult": "Manager receives notification containing request ID, updated status 'Approved', approver comments, and approval timestamp"
+          },
+          {
+            "step": 7,
+            "action": "Verify notification is accurate and timely",
+            "expectedResult": "Notification contains accurate information and is received within 1 minute of approval action"
+          },
+          {
+            "step": 8,
+            "action": "Repeat steps 1-7 for rejection scenario: Approver selects another pending request and clicks 'Reject' with rejection reason",
+            "expectedResult": "System updates status to 'Rejected', sends notification to manager with rejection status and comments within 1 minute"
+          },
+          {
+            "step": 9,
+            "action": "Manager receives rejection notification and reviews content",
+            "expectedResult": "Notification contains request ID, status 'Rejected', rejection reason, and timestamp"
+          },
+          {
+            "step": 10,
+            "action": "Verify both approval and rejection notifications are logged",
+            "expectedResult": "System logs show successful delivery of both notifications with timestamps and delivery status"
+          }
+        ],
+        "postconditions": [
+          "Request status is updated to 'Approved' or 'Rejected' in the system",
+          "Manager receives accurate status update notification",
+          "Notification includes approver comments",
+          "Notification delivery is logged with success status",
+          "Request history reflects the status change with timestamp"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Manage notification preferences",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "Manager is logged into the system",
+          "Manager has access to notification preferences settings",
+          "Manager has at least one notification channel configured (email or SMS)",
+          "System supports multiple notification channels (email and SMS)",
+          "Manager has valid email address and/or phone number in profile"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Manager navigates to user profile or settings section",
+            "expectedResult": "User profile/settings page is displayed with navigation menu"
+          },
+          {
+            "step": 2,
+            "action": "Manager clicks on 'Notification Preferences' or 'Notification Settings' option",
+            "expectedResult": "Notification preferences page is displayed showing current settings"
+          },
+          {
+            "step": 3,
+            "action": "Manager reviews current notification channel preferences (email, SMS, or both)",
+            "expectedResult": "Current preferences are displayed correctly showing enabled/disabled channels"
+          },
+          {
+            "step": 4,
+            "action": "Manager updates notification channel preferences by selecting/deselecting email and SMS options",
+            "expectedResult": "Checkboxes or toggles respond to manager's selections"
+          },
+          {
+            "step": 5,
+            "action": "Manager selects specific notification types to receive (submission confirmation, approval, rejection, escalation)",
+            "expectedResult": "Notification type preferences are updated according to selections"
+          },
+          {
+            "step": 6,
+            "action": "Manager clicks 'Save' or 'Update Preferences' button",
+            "expectedResult": "System displays success message confirming preferences are saved successfully"
+          },
+          {
+            "step": 7,
+            "action": "Manager verifies updated preferences are displayed correctly on the preferences page",
+            "expectedResult": "Updated preferences are reflected accurately on the screen"
+          },
+          {
+            "step": 8,
+            "action": "Manager submits a new schedule change request to test updated preferences",
+            "expectedResult": "Request is submitted successfully"
+          },
+          {
+            "step": 9,
+            "action": "System sends notification according to updated preferences",
+            "expectedResult": "Notification is sent only to the newly selected channels (email, SMS, or both)"
+          },
+          {
+            "step": 10,
+            "action": "Manager checks the selected notification channels",
+            "expectedResult": "Notifications are received only via the channels specified in updated preferences"
+          },
+          {
+            "step": 11,
+            "action": "Manager verifies no notifications are received on disabled channels",
+            "expectedResult": "No notifications are sent to channels that were disabled in preferences"
+          },
+          {
+            "step": 12,
+            "action": "Verify preference changes are logged in the system",
+            "expectedResult": "System audit log shows preference update with timestamp and changed values"
+          }
+        ],
+        "postconditions": [
+          "Notification preferences are updated and saved in the system",
+          "Future notifications are sent according to new preferences",
+          "Manager receives notifications only via selected channels",
+          "Preference changes are logged in system audit trail",
+          "No notifications are sent to disabled channels"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  }
+]
