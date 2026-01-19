@@ -1,233 +1,217 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('HR Synchronization Conflict Detection', () => {
-  const baseURL = process.env.BASE_URL || 'http://localhost:3000';
-  const apiURL = process.env.API_URL || 'http://localhost:3000/api';
+  const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
+  const SYNC_ENDPOINT = `${API_BASE_URL}/api/hr/sync`;
 
   test.beforeEach(async ({ page }) => {
     // Navigate to HR synchronization dashboard
-    await page.goto(`${baseURL}/hr-sync`);
-    await page.waitForLoadState('networkidle');
+    await page.goto(`${API_BASE_URL}/hr/sync-dashboard`);
+    await expect(page.locator('[data-testid="sync-dashboard"]')).toBeVisible();
   });
 
   test('Verify detection and logging of data conflicts', async ({ page, request }) => {
-    // Step 1: Simulate conflicting employee data during synchronization
-    
-    // Prepare conflicting employee data
-    const conflictingEmployeeData = {
+    // Step 1: Prepare conflicting employee data
+    const conflictingEmployee = {
       employeeId: 'EMP001',
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@company.com',
-      department: 'Engineering',
-      position: 'Senior Developer',
-      salary: 95000,
-      lastModified: new Date().toISOString()
+      name: 'John Doe',
+      department: 'Finance',
+      salary: 85000
     };
 
-    // Create existing record with different data to cause conflict
-    await request.post(`${apiURL}/hr/employees`, {
+    // Prepare source HR system with conflicting data
+    await request.post(`${API_BASE_URL}/api/hr/test-data/source`, {
+      data: conflictingEmployee
+    });
+
+    // Prepare target database with original values
+    await request.post(`${API_BASE_URL}/api/hr/test-data/target`, {
       data: {
         employeeId: 'EMP001',
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@company.com',
-        department: 'Marketing',
-        position: 'Manager',
-        salary: 85000,
-        lastModified: new Date(Date.now() - 86400000).toISOString()
+        name: 'John Doe',
+        department: 'IT',
+        salary: 75000
       }
     });
 
-    // Trigger synchronization with conflicting data
-    await page.click('[data-testid="sync-trigger-button"]');
-    
-    // Upload or input conflicting employee data
-    await page.click('[data-testid="manual-sync-option"]');
-    await page.fill('[data-testid="employee-id-input"]', conflictingEmployeeData.employeeId);
-    await page.fill('[data-testid="department-input"]', conflictingEmployeeData.department);
-    await page.fill('[data-testid="position-input"]', conflictingEmployeeData.position);
-    await page.fill('[data-testid="salary-input"]', conflictingEmployeeData.salary.toString());
-    
-    await page.click('[data-testid="start-sync-button"]');
+    // Step 2: Trigger HR synchronization job
+    await page.click('[data-testid="trigger-sync-button"]');
+    await expect(page.locator('[data-testid="sync-status"]')).toContainText('Running', { timeout: 10000 });
 
-    // Expected Result: System detects conflict and logs details
-    await page.waitForSelector('[data-testid="sync-status"]', { timeout: 10000 });
-    
-    const syncStatus = await page.locator('[data-testid="sync-status"]').textContent();
-    expect(syncStatus).toContain('Conflict Detected');
+    // Step 3: Monitor synchronization process
+    await page.waitForSelector('[data-testid="sync-progress"]', { state: 'visible' });
+    await expect(page.locator('[data-testid="sync-progress"]')).toBeVisible();
 
-    // Verify conflict is logged
-    await page.click('[data-testid="view-logs-button"]');
-    await page.waitForSelector('[data-testid="conflict-log-entry"]');
-    
-    const conflictLogEntry = page.locator('[data-testid="conflict-log-entry"]').first();
-    await expect(conflictLogEntry).toBeVisible();
-    
-    const logDetails = await conflictLogEntry.textContent();
-    expect(logDetails).toContain('EMP001');
-    expect(logDetails).toContain('department');
-    expect(logDetails).toContain('Engineering');
-    expect(logDetails).toContain('Marketing');
+    // Step 4: Wait for conflict detection
+    await page.waitForSelector('[data-testid="conflict-detected-alert"]', { timeout: 30000 });
+    await expect(page.locator('[data-testid="conflict-detected-alert"]')).toBeVisible();
 
-    // Verify timestamp is present
-    const timestamp = await conflictLogEntry.locator('[data-testid="conflict-timestamp"]').textContent();
+    // Step 5: Access conflict log and verify details
+    await page.click('[data-testid="view-conflict-logs"]');
+    await expect(page.locator('[data-testid="conflict-log-table"]')).toBeVisible();
+
+    const conflictRow = page.locator('[data-testid="conflict-row-EMP001"]');
+    await expect(conflictRow).toBeVisible();
+    await expect(conflictRow.locator('[data-testid="employee-id"]')).toContainText('EMP001');
+    await expect(conflictRow.locator('[data-testid="conflict-field"]')).toContainText('department');
+    await expect(conflictRow.locator('[data-testid="source-value"]')).toContainText('Finance');
+    await expect(conflictRow.locator('[data-testid="target-value"]')).toContainText('IT');
+
+    // Verify salary conflict is also logged
+    await expect(conflictRow.locator('[data-testid="conflict-field"]').nth(1)).toContainText('salary');
+    await expect(conflictRow.locator('[data-testid="source-value"]').nth(1)).toContainText('85000');
+    await expect(conflictRow.locator('[data-testid="target-value"]').nth(1)).toContainText('75000');
+
+    // Step 6: Verify timestamp in conflict log
+    const timestamp = await conflictRow.locator('[data-testid="conflict-timestamp"]').textContent();
     expect(timestamp).toBeTruthy();
-    expect(timestamp).toMatch(/\d{4}-\d{2}-\d{2}/);
+    const logTime = new Date(timestamp!);
+    const currentTime = new Date();
+    const timeDifference = Math.abs(currentTime.getTime() - logTime.getTime()) / 60000;
+    expect(timeDifference).toBeLessThan(10); // Within 10 minutes
 
-    // Step 2: Check notification system for alert
+    // Step 7: Check notification system for alert
     await page.click('[data-testid="notifications-icon"]');
-    await page.waitForSelector('[data-testid="notification-panel"]');
+    await expect(page.locator('[data-testid="notification-panel"]')).toBeVisible();
     
-    // Expected Result: Support team receives conflict notification
-    const notificationPanel = page.locator('[data-testid="notification-panel"]');
-    await expect(notificationPanel).toBeVisible();
-    
-    const conflictNotification = notificationPanel.locator('[data-testid="conflict-notification"]').first();
+    const conflictNotification = page.locator('[data-testid="notification-item"]').filter({ hasText: 'Conflict detected for employee EMP001' });
     await expect(conflictNotification).toBeVisible();
-    
-    const notificationText = await conflictNotification.textContent();
-    expect(notificationText).toContain('Data Conflict Detected');
-    expect(notificationText).toContain('EMP001');
-    
-    // Verify notification timestamp is within 5 minutes
-    const notificationTime = await conflictNotification.locator('[data-testid="notification-time"]').textContent();
-    expect(notificationTime).toMatch(/\d+ (second|minute)s? ago/);
+    await expect(conflictNotification).toContainText('Support team');
 
-    // Verify support team email notification via API
-    const notificationResponse = await request.get(`${apiURL}/hr/sync/notifications/latest`);
-    expect(notificationResponse.ok()).toBeTruthy();
-    
-    const notificationData = await notificationResponse.json();
-    expect(notificationData.type).toBe('conflict');
-    expect(notificationData.employeeId).toBe('EMP001');
-    expect(notificationData.recipients).toContain('support@company.com');
+    // Step 8: Verify conflicting record was not overwritten
+    const targetDataResponse = await request.get(`${API_BASE_URL}/api/hr/employees/EMP001`);
+    expect(targetDataResponse.ok()).toBeTruthy();
+    const targetData = await targetDataResponse.json();
+    expect(targetData.department).toBe('IT'); // Original value preserved
+    expect(targetData.salary).toBe(75000); // Original value preserved
   });
 
   test('Verify synchronization continues for non-conflicting data', async ({ page, request }) => {
-    // Step 1: Run synchronization with mixed conflicting and non-conflicting records
-    
-    // Prepare mixed dataset
-    const mixedEmployeeData = [
+    // Step 1: Prepare test dataset with mixed records
+    const testDataset = [
+      {
+        employeeId: 'EMP001',
+        name: 'John Doe',
+        department: 'Finance', // Conflicting - target has 'IT'
+        salary: 75000,
+        phone: '555-0001',
+        address: '123 Main St'
+      },
       {
         employeeId: 'EMP002',
-        firstName: 'Jane',
-        lastName: 'Smith',
-        email: 'jane.smith@company.com',
-        department: 'Sales',
-        position: 'Sales Manager',
-        salary: 78000,
-        conflicting: false
+        name: 'Jane Smith',
+        department: 'HR',
+        salary: 85000, // Conflicting - target has 65000
+        phone: '555-0002',
+        address: '456 Oak Ave'
       },
       {
         employeeId: 'EMP003',
-        firstName: 'Bob',
-        lastName: 'Johnson',
-        email: 'bob.johnson@company.com',
-        department: 'Engineering',
-        position: 'Developer',
-        salary: 72000,
-        conflicting: true // This will have conflicting data in target
+        name: 'Bob Johnson',
+        department: 'IT',
+        salary: 70000,
+        phone: '555-9999', // Non-conflicting update
+        address: '789 Pine Rd'
       },
       {
         employeeId: 'EMP004',
-        firstName: 'Alice',
-        lastName: 'Williams',
-        email: 'alice.williams@company.com',
-        department: 'HR',
-        position: 'HR Specialist',
-        salary: 65000,
-        conflicting: false
+        name: 'Alice Williams',
+        department: 'Sales',
+        salary: 60000,
+        phone: '555-0004',
+        address: '321 Elm St' // New employee - non-conflicting
+      },
+      {
+        employeeId: 'EMP005',
+        name: 'Charlie Brown',
+        department: 'Marketing',
+        salary: 72000,
+        phone: '555-0005',
+        address: '654 Maple Dr' // Non-conflicting address update
       }
     ];
 
-    // Create existing conflicting record for EMP003
-    await request.post(`${apiURL}/hr/employees`, {
-      data: {
-        employeeId: 'EMP003',
-        firstName: 'Bob',
-        lastName: 'Johnson',
-        email: 'bob.johnson@company.com',
-        department: 'Marketing',
-        position: 'Marketing Specialist',
-        salary: 68000,
-        lastModified: new Date(Date.now() - 86400000).toISOString()
-      }
+    // Prepare source data
+    await request.post(`${API_BASE_URL}/api/hr/test-data/source/bulk`, {
+      data: { employees: testDataset }
     });
 
-    // Trigger batch synchronization
-    await page.click('[data-testid="sync-trigger-button"]');
-    await page.click('[data-testid="batch-sync-option"]');
-    
-    // Upload batch file or use API to trigger sync
-    await page.click('[data-testid="upload-batch-button"]');
-    
-    // Simulate file upload with mixed data
-    const fileInput = page.locator('[data-testid="batch-file-input"]');
-    await fileInput.setInputFiles({
-      name: 'employees.json',
-      mimeType: 'application/json',
-      buffer: Buffer.from(JSON.stringify(mixedEmployeeData))
+    // Prepare target data with conflicts
+    const targetDataset = [
+      { employeeId: 'EMP001', name: 'John Doe', department: 'IT', salary: 75000, phone: '555-0001', address: '123 Main St' },
+      { employeeId: 'EMP002', name: 'Jane Smith', department: 'HR', salary: 65000, phone: '555-0002', address: '456 Oak Ave' },
+      { employeeId: 'EMP003', name: 'Bob Johnson', department: 'IT', salary: 70000, phone: '555-0003', address: '789 Pine Rd' },
+      { employeeId: 'EMP005', name: 'Charlie Brown', department: 'Marketing', salary: 72000, phone: '555-0005', address: '999 Old Address' }
+    ];
+
+    await request.post(`${API_BASE_URL}/api/hr/test-data/target/bulk`, {
+      data: { employees: targetDataset }
     });
 
-    await page.click('[data-testid="start-batch-sync-button"]');
+    // Step 2: Initiate HR synchronization job
+    await page.click('[data-testid="trigger-sync-button"]');
+    await expect(page.locator('[data-testid="sync-status"]')).toContainText('Running', { timeout: 10000 });
 
-    // Wait for synchronization to complete
-    await page.waitForSelector('[data-testid="sync-complete-status"]', { timeout: 60000 });
+    // Step 3-8: Monitor synchronization progress for each record
+    await page.waitForSelector('[data-testid="sync-progress-details"]', { state: 'visible' });
+    
+    // Wait for processing of all records
+    await page.waitForSelector('[data-testid="sync-status"]', { timeout: 60000 });
+    await expect(page.locator('[data-testid="sync-status"]')).toContainText('Completed', { timeout: 60000 });
 
-    // Expected Result: Non-conflicting records are updated successfully
+    // Step 9: Verify completion status
     const syncSummary = page.locator('[data-testid="sync-summary"]');
     await expect(syncSummary).toBeVisible();
+    await expect(syncSummary.locator('[data-testid="total-records"]')).toContainText('5');
+    await expect(syncSummary.locator('[data-testid="conflicts-detected"]')).toContainText('2');
+    await expect(syncSummary.locator('[data-testid="successful-updates"]')).toContainText('3');
 
-    // Verify sync summary shows successful updates for non-conflicting records
-    const successCount = await syncSummary.locator('[data-testid="success-count"]').textContent();
-    expect(parseInt(successCount || '0')).toBeGreaterThanOrEqual(2);
-
-    const conflictCount = await syncSummary.locator('[data-testid="conflict-count"]').textContent();
-    expect(parseInt(conflictCount || '0')).toBe(1);
-
-    // Verify non-conflicting records were updated
-    await page.click('[data-testid="view-sync-details-button"]');
-    await page.waitForSelector('[data-testid="sync-details-table"]');
-
-    // Check EMP002 was updated successfully
-    const emp002Row = page.locator('[data-testid="employee-row-EMP002"]');
-    await expect(emp002Row).toBeVisible();
-    const emp002Status = await emp002Row.locator('[data-testid="sync-status"]').textContent();
-    expect(emp002Status).toBe('Success');
-
-    // Check EMP004 was updated successfully
-    const emp004Row = page.locator('[data-testid="employee-row-EMP004"]');
-    await expect(emp004Row).toBeVisible();
-    const emp004Status = await emp004Row.locator('[data-testid="sync-status"]').textContent();
-    expect(emp004Status).toBe('Success');
-
-    // Check EMP003 has conflict status
-    const emp003Row = page.locator('[data-testid="employee-row-EMP003"]');
-    await expect(emp003Row).toBeVisible();
-    const emp003Status = await emp003Row.locator('[data-testid="sync-status"]').textContent();
-    expect(emp003Status).toBe('Conflict');
-
-    // Verify via API that non-conflicting records were actually updated in database
-    const emp002Response = await request.get(`${apiURL}/hr/employees/EMP002`);
-    expect(emp002Response.ok()).toBeTruthy();
-    const emp002Data = await emp002Response.json();
-    expect(emp002Data.department).toBe('Sales');
-    expect(emp002Data.position).toBe('Sales Manager');
-    expect(emp002Data.salary).toBe(78000);
-
-    const emp004Response = await request.get(`${apiURL}/hr/employees/EMP004`);
-    expect(emp004Response.ok()).toBeTruthy();
-    const emp004Data = await emp004Response.json();
-    expect(emp004Data.department).toBe('HR');
-    expect(emp004Data.position).toBe('HR Specialist');
-    expect(emp004Data.salary).toBe(65000);
-
-    // Verify conflicting record was NOT overwritten
-    const emp003Response = await request.get(`${apiURL}/hr/employees/EMP003`);
+    // Step 10: Query target database to verify non-conflicting records were updated
+    const emp003Response = await request.get(`${API_BASE_URL}/api/hr/employees/EMP003`);
     expect(emp003Response.ok()).toBeTruthy();
     const emp003Data = await emp003Response.json();
-    expect(emp003Data.department).toBe('Marketing'); // Original value preserved
-    expect(emp003Data.position).toBe('Marketing Specialist'); // Original value preserved
+    expect(emp003Data.phone).toBe('555-9999'); // Updated successfully
+
+    const emp004Response = await request.get(`${API_BASE_URL}/api/hr/employees/EMP004`);
+    expect(emp004Response.ok()).toBeTruthy();
+    const emp004Data = await emp004Response.json();
+    expect(emp004Data.name).toBe('Alice Williams'); // New employee inserted
+    expect(emp004Data.department).toBe('Sales');
+
+    const emp005Response = await request.get(`${API_BASE_URL}/api/hr/employees/EMP005`);
+    expect(emp005Response.ok()).toBeTruthy();
+    const emp005Data = await emp005Response.json();
+    expect(emp005Data.address).toBe('654 Maple Dr'); // Address updated successfully
+
+    // Step 11: Verify conflicting records were not overwritten
+    const emp001Response = await request.get(`${API_BASE_URL}/api/hr/employees/EMP001`);
+    expect(emp001Response.ok()).toBeTruthy();
+    const emp001Data = await emp001Response.json();
+    expect(emp001Data.department).toBe('IT'); // Original value preserved
+
+    const emp002Response = await request.get(`${API_BASE_URL}/api/hr/employees/EMP002`);
+    expect(emp002Response.ok()).toBeTruthy();
+    const emp002Data = await emp002Response.json();
+    expect(emp002Data.salary).toBe(65000); // Original value preserved
+
+    // Step 12: Review conflict logs to confirm both conflicts were logged
+    await page.click('[data-testid="view-conflict-logs"]');
+    await expect(page.locator('[data-testid="conflict-log-table"]')).toBeVisible();
+
+    const conflictRows = page.locator('[data-testid^="conflict-row-"]');
+    await expect(conflictRows).toHaveCount(2);
+
+    await expect(page.locator('[data-testid="conflict-row-EMP001"]')).toBeVisible();
+    await expect(page.locator('[data-testid="conflict-row-EMP002"]')).toBeVisible();
+
+    // Step 13: Check notification system for alerts
+    await page.click('[data-testid="notifications-icon"]');
+    await expect(page.locator('[data-testid="notification-panel"]')).toBeVisible();
+
+    const notifications = page.locator('[data-testid="notification-item"]').filter({ hasText: 'Conflict detected' });
+    await expect(notifications).toHaveCount(2);
+
+    await expect(notifications.nth(0)).toContainText('EMP001');
+    await expect(notifications.nth(1)).toContainText('EMP002');
   });
 });
