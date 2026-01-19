@@ -1,0 +1,205 @@
+[
+  {
+    "storyId": "story-12",
+    "storyTitle": "As Employee, I want to receive notifications for schedule changes to stay informed",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate notification generation and display for schedule changes",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee account exists in the system with valid credentials",
+          "Employee has at least one scheduled shift in the system",
+          "Manager/Admin has permissions to modify employee schedules",
+          "Notification system is operational and configured",
+          "Employee is not currently logged into the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as Manager/Admin with valid credentials",
+            "expectedResult": "Manager/Admin successfully logs in and dashboard is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the schedule management section",
+            "expectedResult": "Schedule management interface loads with current employee schedules visible"
+          },
+          {
+            "step": 3,
+            "action": "Select the target employee's existing shift and modify the schedule (change time, date, or location)",
+            "expectedResult": "Schedule modification form is displayed with current shift details"
+          },
+          {
+            "step": 4,
+            "action": "Save the schedule change",
+            "expectedResult": "System confirms schedule change is saved successfully and notification is generated in the system"
+          },
+          {
+            "step": 5,
+            "action": "Log out as Manager/Admin",
+            "expectedResult": "Manager/Admin is successfully logged out"
+          },
+          {
+            "step": 6,
+            "action": "Log in as the affected employee using valid credentials",
+            "expectedResult": "Employee successfully logs in and dashboard is displayed"
+          },
+          {
+            "step": 7,
+            "action": "Navigate to the notifications section in the web interface",
+            "expectedResult": "Notifications page loads displaying all notifications for the employee"
+          },
+          {
+            "step": 8,
+            "action": "Verify the new schedule change notification is displayed with details of the change",
+            "expectedResult": "New notification is visible showing schedule change details (date, time, shift information) with unread status indicator"
+          },
+          {
+            "step": 9,
+            "action": "Click on the notification to mark it as read",
+            "expectedResult": "Notification is marked as read and visual indicator changes (e.g., bold text becomes normal, unread badge disappears)"
+          },
+          {
+            "step": 10,
+            "action": "Refresh the notifications page",
+            "expectedResult": "Notification status remains as read and the updated status persists in the UI"
+          },
+          {
+            "step": 11,
+            "action": "Log out as employee",
+            "expectedResult": "Employee is successfully logged out"
+          }
+        ],
+        "postconditions": [
+          "Notification is generated and stored in the database",
+          "Notification status is marked as read in the system",
+          "Schedule change is reflected in employee's schedule",
+          "Employee is logged out of the system"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify notification access control",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Two employee accounts exist in the system (Employee A and Employee B)",
+          "Employee A has valid login credentials",
+          "Employee B has at least one notification in the system",
+          "Authentication and authorization mechanisms are properly configured",
+          "API endpoint GET /api/notifications is secured with authentication"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as Employee A with valid credentials",
+            "expectedResult": "Employee A successfully logs in and dashboard is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the notifications section",
+            "expectedResult": "Notifications page loads displaying only Employee A's notifications"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to access Employee B's notifications by manipulating the URL or API request (e.g., changing employee ID parameter)",
+            "expectedResult": "System denies access and displays an error message indicating 'Access Denied' or 'Unauthorized' (HTTP 403 or 401)"
+          },
+          {
+            "step": 4,
+            "action": "Verify that no notification data from Employee B is visible or accessible",
+            "expectedResult": "No notifications belonging to Employee B are displayed or returned in the response"
+          },
+          {
+            "step": 5,
+            "action": "Check browser console or network tab for error response",
+            "expectedResult": "Error response confirms authorization failure with appropriate error code and message"
+          },
+          {
+            "step": 6,
+            "action": "Log out as Employee A",
+            "expectedResult": "Employee A is successfully logged out"
+          }
+        ],
+        "postconditions": [
+          "Employee A remains unable to access Employee B's notifications",
+          "Security audit log records the unauthorized access attempt",
+          "Employee A is logged out of the system",
+          "No data breach or unauthorized data access occurred"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Test notification delivery timing",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "Employee account exists with valid credentials",
+          "Employee has at least one scheduled shift",
+          "Manager/Admin has permissions to modify schedules",
+          "System clock is synchronized and accurate",
+          "Notification delivery system is operational",
+          "Employee is logged into the system with notifications page open"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as Employee and navigate to the notifications section",
+            "expectedResult": "Employee successfully logs in and notifications page is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Note the current timestamp and number of existing notifications",
+            "expectedResult": "Current time is recorded and baseline notification count is established"
+          },
+          {
+            "step": 3,
+            "action": "In a separate browser session, log in as Manager/Admin and navigate to schedule management",
+            "expectedResult": "Manager/Admin successfully accesses schedule management interface"
+          },
+          {
+            "step": 4,
+            "action": "Record the exact timestamp and make a schedule change for the logged-in employee",
+            "expectedResult": "Schedule change is saved with timestamp recorded (T0)"
+          },
+          {
+            "step": 5,
+            "action": "Return to the employee's browser session and refresh the notifications page every 10 seconds",
+            "expectedResult": "Notifications page refreshes and displays updated notification list"
+          },
+          {
+            "step": 6,
+            "action": "Record the timestamp when the new notification appears in the employee's interface",
+            "expectedResult": "New notification is visible with timestamp recorded (T1)"
+          },
+          {
+            "step": 7,
+            "action": "Calculate the time difference between schedule change (T0) and notification delivery (T1)",
+            "expectedResult": "Time difference is calculated: (T1 - T0)"
+          },
+          {
+            "step": 8,
+            "action": "Verify that the notification delivery time is within 1 minute (60 seconds) of the schedule change",
+            "expectedResult": "Notification delivery time (T1 - T0) is less than or equal to 60 seconds, meeting the performance requirement"
+          },
+          {
+            "step": 9,
+            "action": "Log out from both employee and manager sessions",
+            "expectedResult": "Both users are successfully logged out"
+          }
+        ],
+        "postconditions": [
+          "Notification was delivered within the 1-minute SLA",
+          "Schedule change is reflected in the system",
+          "Performance metric is recorded for monitoring",
+          "Both users are logged out of the system"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  }
+]
