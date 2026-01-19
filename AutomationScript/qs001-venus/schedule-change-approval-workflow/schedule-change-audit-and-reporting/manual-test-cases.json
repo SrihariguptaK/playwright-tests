@@ -1,0 +1,442 @@
+[
+  {
+    "storyId": "story-16",
+    "storyTitle": "As System Administrator, I want to audit schedule change approvals to achieve compliance and traceability",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify audit log records approval actions accurately",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Administrator account with audit log access permissions is available",
+          "At least one approver account exists in the system",
+          "At least one pending schedule change request exists",
+          "Audit logging service is enabled and operational",
+          "ApprovalActions audit table is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as an approver user with valid credentials",
+            "expectedResult": "Approver is successfully authenticated and redirected to the dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the schedule change requests list and select a pending request",
+            "expectedResult": "Schedule change request details are displayed with approval options"
+          },
+          {
+            "step": 3,
+            "action": "Add approval comments in the comments field (e.g., 'Approved for operational requirements')",
+            "expectedResult": "Comments are entered successfully in the text field"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Approve' button to perform the approval action",
+            "expectedResult": "Approval action is processed successfully, request status changes to 'Approved', and confirmation message is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Note the exact timestamp of the approval action",
+            "expectedResult": "Current timestamp is recorded for verification purposes"
+          },
+          {
+            "step": 6,
+            "action": "Log out from the approver account",
+            "expectedResult": "User is successfully logged out and redirected to login page"
+          },
+          {
+            "step": 7,
+            "action": "Log in as an administrator user with audit log access permissions",
+            "expectedResult": "Administrator is successfully authenticated and redirected to the admin dashboard"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to the audit portal/audit logs section",
+            "expectedResult": "Audit logs interface is displayed with search and filter options"
+          },
+          {
+            "step": 9,
+            "action": "Search for the approval action using the approver username and timestamp",
+            "expectedResult": "Search results display the audit log entry for the approval action performed in previous steps"
+          },
+          {
+            "step": 10,
+            "action": "Click on the audit log entry to view detailed information",
+            "expectedResult": "Audit entry details are displayed including: approver username, exact timestamp, action type (Approval), schedule change request ID, and approval comments"
+          },
+          {
+            "step": 11,
+            "action": "Verify all metadata fields are complete and accurate (user, timestamp, comments, action type)",
+            "expectedResult": "All metadata fields match the approval action performed: correct approver name, accurate timestamp, complete comments text, and correct action type"
+          },
+          {
+            "step": 12,
+            "action": "Click on 'Export' or 'Generate Report' button and select CSV format",
+            "expectedResult": "Export dialog appears with CSV format selected"
+          },
+          {
+            "step": 13,
+            "action": "Confirm the CSV export and download the file",
+            "expectedResult": "CSV file is generated and downloaded successfully to local system"
+          },
+          {
+            "step": 14,
+            "action": "Open the downloaded CSV file and verify the audit log entry is present with all metadata",
+            "expectedResult": "CSV file contains the audit entry with all fields correctly formatted: user, timestamp, action type, request ID, and comments"
+          },
+          {
+            "step": 15,
+            "action": "Return to audit logs interface and click 'Export' button, this time selecting PDF format",
+            "expectedResult": "Export dialog appears with PDF format selected"
+          },
+          {
+            "step": 16,
+            "action": "Confirm the PDF export and download the file",
+            "expectedResult": "PDF file is generated and downloaded successfully to local system"
+          },
+          {
+            "step": 17,
+            "action": "Open the downloaded PDF file and verify the audit log entry is present with all metadata in readable format",
+            "expectedResult": "PDF file contains the audit entry with all fields properly formatted and readable, including user, timestamp, action type, request ID, and comments"
+          }
+        ],
+        "postconditions": [
+          "Audit log entry exists in the ApprovalActions audit table",
+          "Audit log entry contains complete and accurate metadata",
+          "CSV and PDF export files are generated and contain the audit entry",
+          "No data integrity issues are present in audit logs",
+          "Administrator remains logged in to the system"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Restrict audit log access to administrators",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Administrator account with audit log access permissions exists",
+          "Non-administrator user account exists (e.g., regular employee or approver without admin rights)",
+          "Audit logging system is operational",
+          "Role-based access control (RBAC) is configured and enforced",
+          "Audit logs contain at least one entry for testing"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as a non-administrator user (regular employee or approver without admin privileges)",
+            "expectedResult": "Non-admin user is successfully authenticated and redirected to their standard dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to the audit logs section by entering the audit portal URL directly (e.g., /admin/audit-logs)",
+            "expectedResult": "Access is denied with error message 'Access Denied: You do not have permission to view audit logs' or similar, user is redirected to unauthorized access page or their dashboard"
+          },
+          {
+            "step": 3,
+            "action": "Check the main navigation menu for any audit log or audit portal links",
+            "expectedResult": "No audit log links or menu items are visible in the navigation for non-admin users"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to access audit logs via API endpoint directly (GET /api/audit-logs) using the non-admin user's authentication token",
+            "expectedResult": "API returns 403 Forbidden status code with error message indicating insufficient permissions"
+          },
+          {
+            "step": 5,
+            "action": "Log out from the non-administrator account",
+            "expectedResult": "User is successfully logged out and redirected to login page"
+          },
+          {
+            "step": 6,
+            "action": "Log in as an administrator user with proper audit log access permissions",
+            "expectedResult": "Administrator is successfully authenticated and redirected to the admin dashboard"
+          },
+          {
+            "step": 7,
+            "action": "Check the main navigation menu for audit log or audit portal links",
+            "expectedResult": "Audit log links or menu items are visible and accessible in the administrator's navigation menu"
+          },
+          {
+            "step": 8,
+            "action": "Click on the audit logs link to navigate to the audit portal",
+            "expectedResult": "Audit logs interface is displayed successfully with full functionality including search, filter, and export options"
+          },
+          {
+            "step": 9,
+            "action": "Verify all audit log features are accessible: search functionality, filter options, and view details",
+            "expectedResult": "All audit log features are fully functional and accessible to the administrator"
+          },
+          {
+            "step": 10,
+            "action": "Perform a search operation on audit logs using date filter",
+            "expectedResult": "Search executes successfully and returns filtered audit log entries matching the date criteria"
+          },
+          {
+            "step": 11,
+            "action": "Click on an audit log entry to view detailed information",
+            "expectedResult": "Detailed audit log information is displayed including all metadata fields"
+          },
+          {
+            "step": 12,
+            "action": "Test export functionality by clicking 'Export' button and selecting CSV format",
+            "expectedResult": "Export dialog appears and CSV file is generated and downloaded successfully"
+          },
+          {
+            "step": 13,
+            "action": "Verify administrator can access audit logs via API endpoint (GET /api/audit-logs) using admin authentication token",
+            "expectedResult": "API returns 200 OK status code with audit log data in JSON format"
+          }
+        ],
+        "postconditions": [
+          "Non-administrator users cannot access audit logs through any method",
+          "Administrator retains full access to audit log functionality",
+          "Access control policies are enforced correctly",
+          "Security audit trail records the access attempts",
+          "No unauthorized data exposure has occurred"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-20",
+    "storyTitle": "As System Administrator, I want to generate reports on schedule change approvals to achieve operational insights",
+    "testCases": [
+      {
+        "id": "tc-003",
+        "title": "Generate approval summary report with filters",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Administrator account with reporting access permissions exists",
+          "Multiple schedule change requests with various statuses exist in the system",
+          "Approval actions have been recorded across different dates, departments, and approvers",
+          "Reporting service is operational and connected to ScheduleChangeRequests and ApprovalActions data sources",
+          "At least 10 approval records exist spanning multiple departments and date ranges"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as an administrator user with reporting access permissions",
+            "expectedResult": "Administrator is successfully authenticated and redirected to the admin dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the reporting portal or reports section from the main menu",
+            "expectedResult": "Reporting interface is displayed with available report types and filter options"
+          },
+          {
+            "step": 3,
+            "action": "Select 'Approval Summary Report' from the report type dropdown menu",
+            "expectedResult": "Approval Summary Report is selected and relevant filter options are displayed (date range, department, approver)"
+          },
+          {
+            "step": 4,
+            "action": "Set the date range filter to cover the last 30 days by selecting start and end dates",
+            "expectedResult": "Date range filter is applied showing start date as 30 days ago and end date as today"
+          },
+          {
+            "step": 5,
+            "action": "Select a specific department from the department filter dropdown (e.g., 'Engineering')",
+            "expectedResult": "Department filter is applied with 'Engineering' selected"
+          },
+          {
+            "step": 6,
+            "action": "Select a specific approver from the approver filter dropdown",
+            "expectedResult": "Approver filter is applied with the selected approver name displayed"
+          },
+          {
+            "step": 7,
+            "action": "Click the 'Generate Report' button to create the filtered report",
+            "expectedResult": "Report generation process initiates with loading indicator displayed"
+          },
+          {
+            "step": 8,
+            "action": "Wait for report generation to complete (should be within 10 seconds per SLA)",
+            "expectedResult": "Report is generated successfully within 10 seconds and displays filtered approval data including approval volumes, average approval times, and outcomes"
+          },
+          {
+            "step": 9,
+            "action": "Verify the report data matches the applied filters (date range, department, approver)",
+            "expectedResult": "All displayed records fall within the specified date range, belong to the Engineering department, and are associated with the selected approver"
+          },
+          {
+            "step": 10,
+            "action": "Scroll down to view the visual dashboard section with charts and statistics",
+            "expectedResult": "Visual dashboard is displayed showing charts such as approval volume trends, approval time distribution, and approval outcome pie chart"
+          },
+          {
+            "step": 11,
+            "action": "Verify the bar chart showing approval volumes over time reflects the filtered data accurately",
+            "expectedResult": "Bar chart displays approval volumes for each day/week within the selected date range, with values matching the filtered dataset"
+          },
+          {
+            "step": 12,
+            "action": "Verify the pie chart showing approval outcomes (approved, rejected, pending) reflects accurate percentages",
+            "expectedResult": "Pie chart displays correct percentages for each outcome category based on the filtered data, with percentages summing to 100%"
+          },
+          {
+            "step": 13,
+            "action": "Verify the average approval time statistic is calculated correctly",
+            "expectedResult": "Average approval time displayed matches the calculated average from the filtered approval records"
+          },
+          {
+            "step": 14,
+            "action": "Click the 'Export' button and select 'CSV' format from the export options",
+            "expectedResult": "Export dialog appears with CSV format selected and file name suggestion displayed"
+          },
+          {
+            "step": 15,
+            "action": "Confirm the CSV export and download the file",
+            "expectedResult": "CSV file is generated and downloaded successfully to local system with filename indicating report type and date"
+          },
+          {
+            "step": 16,
+            "action": "Open the downloaded CSV file in a spreadsheet application",
+            "expectedResult": "CSV file opens successfully and contains all report data in tabular format with proper column headers (Request ID, Date, Department, Approver, Outcome, Approval Time)"
+          },
+          {
+            "step": 17,
+            "action": "Verify CSV file contains complete data matching the filtered report results",
+            "expectedResult": "All rows in CSV match the filtered report data, with no missing records or truncated data"
+          },
+          {
+            "step": 18,
+            "action": "Return to the reporting interface and click 'Export' button again, this time selecting 'PDF' format",
+            "expectedResult": "Export dialog appears with PDF format selected"
+          },
+          {
+            "step": 19,
+            "action": "Confirm the PDF export and download the file",
+            "expectedResult": "PDF file is generated and downloaded successfully to local system"
+          },
+          {
+            "step": 20,
+            "action": "Open the downloaded PDF file in a PDF reader",
+            "expectedResult": "PDF file opens successfully and displays the report with professional formatting including header, filters applied, data table, and visual charts"
+          },
+          {
+            "step": 21,
+            "action": "Verify PDF contains all report elements: summary statistics, data table, and visual charts",
+            "expectedResult": "PDF includes complete report with all sections properly formatted: filter criteria summary, approval statistics, detailed data table, and embedded chart visualizations"
+          },
+          {
+            "step": 22,
+            "action": "Verify the visual charts in the PDF match the charts displayed in the web interface",
+            "expectedResult": "Charts in PDF are identical to web interface charts with same data values and visual representation"
+          }
+        ],
+        "postconditions": [
+          "Approval summary report is generated with accurate filtered data",
+          "Visual charts and statistics correctly reflect the filtered dataset",
+          "CSV export file contains complete and correctly formatted data",
+          "PDF export file contains complete report with visualizations",
+          "Report generation completed within 10-second SLA",
+          "Administrator remains logged in to the reporting portal"
+        ],
+        "estimatedTime": "15 mins"
+      },
+      {
+        "id": "tc-004",
+        "title": "Restrict report access to administrators",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Administrator account with reporting access permissions exists",
+          "Non-administrator user account exists (e.g., regular employee or approver without admin rights)",
+          "Reporting system is operational with available reports",
+          "Role-based access control (RBAC) is configured for reporting features",
+          "At least one report type is available in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as a non-administrator user (regular employee or approver without admin privileges)",
+            "expectedResult": "Non-admin user is successfully authenticated and redirected to their standard dashboard"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to the reporting portal by entering the reports URL directly (e.g., /admin/reports)",
+            "expectedResult": "Access is denied with error message 'Access Denied: You do not have permission to access reporting features' or similar, user is redirected to unauthorized access page or their dashboard"
+          },
+          {
+            "step": 3,
+            "action": "Check the main navigation menu for any reporting or reports links",
+            "expectedResult": "No reporting links or menu items are visible in the navigation for non-admin users"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to access the approval summary report API endpoint directly (GET /api/reports/approval-summary) using the non-admin user's authentication token",
+            "expectedResult": "API returns 403 Forbidden status code with error message indicating insufficient permissions to access reporting data"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to access report export functionality via API (GET /api/reports/export) using the non-admin user's authentication token",
+            "expectedResult": "API returns 403 Forbidden status code with error message indicating insufficient permissions"
+          },
+          {
+            "step": 6,
+            "action": "Log out from the non-administrator account",
+            "expectedResult": "User is successfully logged out and redirected to login page"
+          },
+          {
+            "step": 7,
+            "action": "Log in as an administrator user with proper reporting access permissions",
+            "expectedResult": "Administrator is successfully authenticated and redirected to the admin dashboard"
+          },
+          {
+            "step": 8,
+            "action": "Check the main navigation menu for reporting or reports links",
+            "expectedResult": "Reporting links or menu items are visible and accessible in the administrator's navigation menu"
+          },
+          {
+            "step": 9,
+            "action": "Click on the reports link to navigate to the reporting portal",
+            "expectedResult": "Reporting interface is displayed successfully with full functionality including report type selection, filters, and export options"
+          },
+          {
+            "step": 10,
+            "action": "Verify all reporting features are accessible: report type dropdown, filter options, generate button, and export functionality",
+            "expectedResult": "All reporting features are fully functional and accessible to the administrator"
+          },
+          {
+            "step": 11,
+            "action": "Select 'Approval Summary Report' from the report type dropdown",
+            "expectedResult": "Report type is selected successfully and filter options are displayed"
+          },
+          {
+            "step": 12,
+            "action": "Apply a date range filter and click 'Generate Report' button",
+            "expectedResult": "Report is generated successfully with filtered data and visual charts displayed"
+          },
+          {
+            "step": 13,
+            "action": "Test export functionality by clicking 'Export' and selecting CSV format",
+            "expectedResult": "CSV file is generated and downloaded successfully"
+          },
+          {
+            "step": 14,
+            "action": "Verify administrator can access reporting API endpoint (GET /api/reports/approval-summary) using admin authentication token",
+            "expectedResult": "API returns 200 OK status code with report data in JSON format"
+          },
+          {
+            "step": 15,
+            "action": "Verify administrator can access export API endpoint (GET /api/reports/export) using admin authentication token",
+            "expectedResult": "API returns 200 OK status code and generates export file successfully"
+          }
+        ],
+        "postconditions": [
+          "Non-administrator users cannot access reporting features through any method",
+          "Administrator retains full access to all reporting functionality",
+          "Access control policies are enforced correctly for reporting features",
+          "Security audit trail records the access attempts",
+          "No unauthorized access to report data has occurred"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  }
+]
