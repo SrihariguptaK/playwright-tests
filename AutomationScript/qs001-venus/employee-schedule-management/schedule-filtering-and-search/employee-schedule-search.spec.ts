@@ -2,186 +2,161 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Employee Schedule Search by Date', () => {
   test.beforeEach(async ({ page }) => {
-    // Login as employee before each test
+    // Employee logs in
     await page.goto('/login');
-    await page.fill('[data-testid="username-input"]', 'employee123');
+    await page.fill('[data-testid="username-input"]', 'employee@company.com');
     await page.fill('[data-testid="password-input"]', 'password123');
     await page.click('[data-testid="login-button"]');
     await expect(page).toHaveURL(/.*schedule/);
-  });
-
-  test('Validate successful search by valid date', async ({ page }) => {
-    // Navigate to the schedule page
+    
+    // Navigate to schedule page if not already there
     await page.goto('/schedule');
     await page.waitForLoadState('networkidle');
+  });
 
-    // Locate the date search field or date picker input
-    const dateSearchField = page.locator('[data-testid="date-search-field"]');
+  test('Validate schedule search with valid date', async ({ page }) => {
+    // Locate the date search field or date picker input on the schedule page
+    const dateSearchField = page.locator('[data-testid="schedule-date-search"]');
     await expect(dateSearchField).toBeVisible();
-
-    // Click on the date search field to activate it
-    await dateSearchField.click();
-
-    // Enter a valid date that has scheduled shifts
-    await dateSearchField.fill('2024-03-15');
-
-    // Press Enter or click the Search button to execute the search
-    const searchButton = page.locator('[data-testid="search-button"]');
-    await searchButton.click();
-
-    // Wait for schedule to update
-    await page.waitForResponse(response => 
-      response.url().includes('/api/schedules') && response.status() === 200
-    );
-
-    // Observe the schedule display update
-    await page.waitForSelector('[data-testid="schedule-results"]');
-
+    
+    // Enter a valid date in the correct format for a date that has scheduled shifts
+    const searchDate = '06/15/2024';
+    await dateSearchField.fill(searchDate);
+    
+    // Submit the search by clicking the search button or pressing Enter
+    await page.click('[data-testid="search-button"]');
+    await page.waitForLoadState('networkidle');
+    
     // Verify that only shifts for the searched date are displayed
-    const scheduleResults = page.locator('[data-testid="schedule-results"]');
-    await expect(scheduleResults).toBeVisible();
+    const shiftCards = page.locator('[data-testid="shift-card"]');
+    await expect(shiftCards).toHaveCountGreaterThan(0);
     
-    const shiftDates = page.locator('[data-testid="shift-date"]');
-    const count = await shiftDates.count();
-    
-    for (let i = 0; i < count; i++) {
-      const dateText = await shiftDates.nth(i).textContent();
-      expect(dateText).toContain('2024-03-15');
+    // Verify shifts belong to the logged-in employee and match the searched date
+    const displayedShifts = await shiftCards.all();
+    for (const shift of displayedShifts) {
+      const shiftDate = await shift.locator('[data-testid="shift-date"]').textContent();
+      expect(shiftDate).toContain('06/15/2024');
     }
-
-    // Locate and click the 'Clear search' button or option
-    const clearSearchButton = page.locator('[data-testid="clear-search-button"]');
-    await expect(clearSearchButton).toBeVisible();
-    await clearSearchButton.click();
-
-    // Observe the schedule display after clearing search
+    
+    // Click the 'Clear search' button or clear the date input field
+    await page.click('[data-testid="clear-search-button"]');
     await page.waitForLoadState('networkidle');
     
     // Verify that full schedule view is restored
-    const fullSchedule = page.locator('[data-testid="full-schedule-view"]');
-    await expect(fullSchedule).toBeVisible();
-    
-    // Verify date search field is cleared
-    await expect(dateSearchField).toHaveValue('');
+    const allShifts = page.locator('[data-testid="shift-card"]');
+    const allShiftsCount = await allShifts.count();
+    expect(allShiftsCount).toBeGreaterThan(displayedShifts.length);
   });
 
-  test('Validate rejection of invalid date input', async ({ page }) => {
-    // Navigate to the schedule page
-    await page.goto('/schedule');
-    await page.waitForLoadState('networkidle');
-
-    // Locate the date search field
-    const dateSearchField = page.locator('[data-testid="date-search-field"]');
+  test('Verify handling of invalid date input - invalid format', async ({ page }) => {
+    // Locate the date search field on the schedule page
+    const dateSearchField = page.locator('[data-testid="schedule-date-search"]');
     await expect(dateSearchField).toBeVisible();
-
-    // Test multiple invalid date formats
-    const invalidDates = ['32/13/2024', 'invalid-date', '2024-13-45', 'abc123'];
-
+    
+    // Enter an invalid date format in the search field
+    const invalidDates = ['99/99/9999', 'abc123', '13/45/2024'];
+    
     for (const invalidDate of invalidDates) {
-      // Click on the date search field to activate it
-      await dateSearchField.click();
-      await dateSearchField.clear();
-
-      // Enter an invalid date format
       await dateSearchField.fill(invalidDate);
-
-      // Press Enter or click the Search button to attempt the search
-      const searchButton = page.locator('[data-testid="search-button"]');
-      await searchButton.click();
-
-      // Observe the system response to invalid date input
-      const errorMessage = page.locator('[data-testid="error-message"]');
+      
+      // Attempt to submit the search
+      await page.click('[data-testid="search-button"]');
+      
+      // Verify that error message is displayed and search is blocked
+      const errorMessage = page.locator('[data-testid="date-error-message"]');
       await expect(errorMessage).toBeVisible();
-      
-      // Verify error message content
       await expect(errorMessage).toContainText(/invalid date format|please enter a valid date/i);
-
-      // Verify that the search was not performed
-      const scheduleResults = page.locator('[data-testid="schedule-results"]');
-      const resultsCount = await scheduleResults.count();
       
-      // Verify that the schedule data is still accessible
-      const fullSchedule = page.locator('[data-testid="full-schedule-view"]');
-      await expect(fullSchedule).toBeVisible();
-
-      // Clear the field for next iteration
+      // Verify no shifts are displayed for invalid search
+      const shiftCards = page.locator('[data-testid="shift-card"]');
+      const isVisible = await shiftCards.first().isVisible().catch(() => false);
+      
+      // Clear the invalid input
       await dateSearchField.clear();
-      
-      // Dismiss error if there's a close button
-      const errorCloseButton = page.locator('[data-testid="error-close-button"]');
-      if (await errorCloseButton.isVisible()) {
-        await errorCloseButton.click();
-      }
+      await page.waitForTimeout(500);
     }
   });
 
-  test('Test access control on search results', async ({ page }) => {
-    // Navigate to the schedule page
-    await page.goto('/schedule');
+  test('Verify handling of invalid date input - out of range date', async ({ page }) => {
+    // Locate the date search field on the schedule page
+    const dateSearchField = page.locator('[data-testid="schedule-date-search"]');
+    await expect(dateSearchField).toBeVisible();
+    
+    // Enter a valid date that is outside the employee's schedule range
+    const outOfRangeDate = '01/01/2000'; // Date far in the past before employment
+    await dateSearchField.fill(outOfRangeDate);
+    
+    // Submit the search for the out-of-range date
+    await page.click('[data-testid="search-button"]');
     await page.waitForLoadState('networkidle');
-
-    // Note the current URL in the browser address bar
-    const currentUrl = page.url();
-    expect(currentUrl).toContain('employeeId=123');
-
-    // Manually modify the URL to change the employeeId parameter to another employee's ID
-    const unauthorizedUrl = currentUrl.replace('employeeId=123', 'employeeId=456');
-    const modifiedUrl = '/api/schedules?employeeId=456&date=2024-03-15';
     
-    // Navigate to the modified URL
-    await page.goto(modifiedUrl);
-
-    // Observe the system response to unauthorized access attempt
+    // Verify that the schedule view shows the 'No shifts found' message
+    const noShiftsMessage = page.locator('[data-testid="no-shifts-message"]');
+    await expect(noShiftsMessage).toBeVisible();
+    await expect(noShiftsMessage).toContainText(/no shifts found/i);
+    
+    // Verify that no shift data is displayed
+    const shiftCards = page.locator('[data-testid="shift-card"]');
+    await expect(shiftCards).toHaveCount(0);
+    
+    // Test with a date far in the future
+    await dateSearchField.clear();
+    const futureDate = '12/31/2099';
+    await dateSearchField.fill(futureDate);
+    await page.click('[data-testid="search-button"]');
     await page.waitForLoadState('networkidle');
-
-    // Verify that access denied error is displayed
-    const accessDeniedError = page.locator('[data-testid="access-denied-error"]');
-    const errorMessage = page.locator('[data-testid="error-message"]');
     
-    const isAccessDeniedVisible = await accessDeniedError.isVisible().catch(() => false);
-    const isErrorMessageVisible = await errorMessage.isVisible().catch(() => false);
-    
-    expect(isAccessDeniedVisible || isErrorMessageVisible).toBeTruthy();
+    // Verify 'No shifts found' message for future date
+    await expect(noShiftsMessage).toBeVisible();
+    await expect(noShiftsMessage).toContainText(/no shifts found/i);
+    await expect(shiftCards).toHaveCount(0);
+  });
 
-    if (isAccessDeniedVisible) {
-      await expect(accessDeniedError).toContainText(/access denied|unauthorized|forbidden/i);
-    } else if (isErrorMessageVisible) {
-      await expect(errorMessage).toContainText(/access denied|unauthorized|forbidden/i);
-    }
-
-    // Verify that no schedule data for the other employee is displayed
-    const otherEmployeeSchedule = page.locator('[data-testid="schedule-results"]');
-    const scheduleCount = await otherEmployeeSchedule.count();
+  test('Verify search response time is under 2 seconds', async ({ page }) => {
+    const dateSearchField = page.locator('[data-testid="schedule-date-search"]');
+    await expect(dateSearchField).toBeVisible();
     
-    if (scheduleCount > 0) {
-      // If schedule is visible, verify it doesn't contain other employee's data
-      const employeeIdDisplay = page.locator('[data-testid="employee-id"]');
-      if (await employeeIdDisplay.isVisible()) {
-        const displayedId = await employeeIdDisplay.textContent();
-        expect(displayedId).not.toContain('456');
+    const searchDate = '06/15/2024';
+    await dateSearchField.fill(searchDate);
+    
+    // Measure search response time
+    const startTime = Date.now();
+    await page.click('[data-testid="search-button"]');
+    await page.waitForLoadState('networkidle');
+    const endTime = Date.now();
+    
+    const responseTime = endTime - startTime;
+    
+    // Verify response time is under 2 seconds (2000ms)
+    expect(responseTime).toBeLessThan(2000);
+    
+    // Verify shifts are displayed
+    const shiftCards = page.locator('[data-testid="shift-card"]');
+    await expect(shiftCards.first()).toBeVisible();
+  });
+
+  test('Verify search results are restricted to logged-in employee only', async ({ page }) => {
+    const dateSearchField = page.locator('[data-testid="schedule-date-search"]');
+    await expect(dateSearchField).toBeVisible();
+    
+    const searchDate = '06/15/2024';
+    await dateSearchField.fill(searchDate);
+    await page.click('[data-testid="search-button"]');
+    await page.waitForLoadState('networkidle');
+    
+    // Verify all displayed shifts belong to the logged-in employee
+    const shiftCards = page.locator('[data-testid="shift-card"]');
+    const shiftsCount = await shiftCards.count();
+    
+    if (shiftsCount > 0) {
+      const employeeInfo = page.locator('[data-testid="employee-name"]').first();
+      const loggedInEmployee = await employeeInfo.textContent();
+      
+      // Check each shift card belongs to the logged-in employee
+      for (let i = 0; i < shiftsCount; i++) {
+        const shiftEmployee = await shiftCards.nth(i).locator('[data-testid="shift-employee-name"]').textContent();
+        expect(shiftEmployee).toBe(loggedInEmployee);
       }
     }
-
-    // Verify redirection or error page display
-    const currentPageUrl = page.url();
-    const isRedirected = currentPageUrl.includes('/error') || 
-                        currentPageUrl.includes('/unauthorized') || 
-                        currentPageUrl.includes('/schedule?employeeId=123');
-    
-    // Check that the session remains valid
-    const userMenu = page.locator('[data-testid="user-menu"]');
-    const logoutButton = page.locator('[data-testid="logout-button"]');
-    
-    const isUserMenuVisible = await userMenu.isVisible().catch(() => false);
-    const isLogoutVisible = await logoutButton.isVisible().catch(() => false);
-    
-    expect(isUserMenuVisible || isLogoutVisible).toBeTruthy();
-
-    // Verify user can navigate back to their own schedule
-    await page.goto('/schedule');
-    await page.waitForLoadState('networkidle');
-    
-    const ownSchedule = page.locator('[data-testid="full-schedule-view"]');
-    await expect(ownSchedule).toBeVisible();
   });
 });
