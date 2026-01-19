@@ -7,27 +7,29 @@
 - **ID:** tc-001
 - **Type:** happy-path
 - **Priority:** High
-- **Estimated Time:** 3 mins
+- **Estimated Time:** 5 mins
 
 **Preconditions:**
 - User is logged in as HR Manager with valid credentials
 - User has role-based access to Attendance Reporting module
 - Attendance data exists in the system for the selected date range
-- Time-tracking system is integrated and operational
-- At least one department exists in the system
+- Time-tracking system is operational and integrated
+- At least one department exists in the system with employee attendance records
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Navigate to Attendance Reporting section from the main dashboard | Attendance report UI is displayed with filter options including date range, department, and employee selectors |
+| 1 | Navigate to Attendance Reporting section from the main dashboard | Attendance report UI is displayed with filter options including date range picker, department dropdown, and employee selector |
 | 2 | Select a valid date range (e.g., last 30 days) using the date picker | Date range is selected and displayed in the filter field without validation errors |
-| 3 | Select a department from the department dropdown filter | Department is selected and displayed in the filter field without errors |
-| 4 | Click the 'Generate Report' button to submit the report generation request | Attendance report is generated and displayed on screen within 5 seconds showing employee names, timestamps, attendance status, and summary statistics |
+| 3 | Select a department from the department dropdown filter | Department is selected and filters are accepted without errors |
+| 4 | Click the 'Generate Report' button to submit report generation request | System processes the request and attendance report is generated and displayed within 5 seconds showing employee names, timestamps, attendance status, and summary statistics |
+| 5 | Verify the report contains accurate attendance data with timestamps | Report displays complete attendance records with check-in/check-out timestamps, total hours, and attendance status for all employees in the selected department and date range |
 
 **Postconditions:**
-- Attendance report is displayed with accurate data matching the applied filters
-- Report generation is logged in the system audit trail
-- User remains on the Attendance Reporting page with filters intact
+- Attendance report is successfully generated and displayed on screen
+- Report data matches the applied filters
+- System logs the report generation activity
+- Report is available for export or further analysis
 
 ---
 
@@ -35,29 +37,32 @@
 - **ID:** tc-002
 - **Type:** happy-path
 - **Priority:** High
-- **Estimated Time:** 5 mins
+- **Estimated Time:** 7 mins
 
 **Preconditions:**
 - User is logged in as HR Manager with valid credentials
 - User has role-based access to Attendance Reporting module
 - Attendance report has been successfully generated with valid filters
-- Report data is displayed on screen
+- Report is currently displayed on screen
 - Browser allows file downloads
+- User has sufficient storage space for downloaded files
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Generate attendance report by selecting date range and department filters, then clicking 'Generate Report' | Report is displayed on screen with complete attendance data including timestamps, employee details, and attendance status |
-| 2 | Click the 'Export to PDF' button | PDF file is downloaded to the default download location with filename format 'Attendance_Report_[DateRange].pdf' containing all report data with proper formatting, headers, and absenteeism highlights |
-| 3 | Open the downloaded PDF file | PDF opens successfully and displays all report data accurately matching the on-screen report |
-| 4 | Return to the attendance report screen and click the 'Export to Excel' button | Excel file is downloaded to the default download location with filename format 'Attendance_Report_[DateRange].xlsx' containing all report data in spreadsheet format |
-| 5 | Open the downloaded Excel file | Excel file opens successfully with properly formatted columns, headers, and all attendance data matching the on-screen report |
+| 1 | Generate attendance report by selecting date range and department filters, then clicking 'Generate Report' | Attendance report is displayed on screen with complete data including employee attendance records, timestamps, and summary information |
+| 2 | Locate and click the 'Export to PDF' button in the report toolbar | PDF file is generated and automatically downloaded to the default download location with filename format 'Attendance_Report_[Department]_[DateRange].pdf' |
+| 3 | Open the downloaded PDF file using a PDF reader | PDF opens successfully and displays the complete attendance report with correct formatting, all data fields, timestamps, headers, footers, and matches the on-screen report data |
+| 4 | Return to the attendance report screen and click the 'Export to Excel' button | Excel file is generated and automatically downloaded to the default download location with filename format 'Attendance_Report_[Department]_[DateRange].xlsx' |
+| 5 | Open the downloaded Excel file using spreadsheet software | Excel file opens successfully with properly formatted data in columns, including headers, all attendance records, timestamps, formulas for calculations, and data matches the on-screen report |
+| 6 | Verify data integrity by comparing a sample of records between PDF, Excel, and on-screen report | All three formats contain identical data with no discrepancies in employee names, dates, timestamps, or attendance status |
 
 **Postconditions:**
-- Both PDF and Excel files are successfully downloaded and saved
-- Export actions are logged in the system audit trail
-- User remains on the Attendance Reporting page
-- Original report remains displayed on screen
+- PDF file is successfully downloaded and contains accurate report data
+- Excel file is successfully downloaded and contains accurate report data
+- Both exported files are accessible and readable
+- Export activity is logged in the system
+- Original report remains displayed on screen unchanged
 
 ---
 
@@ -65,30 +70,34 @@
 - **ID:** tc-003
 - **Type:** happy-path
 - **Priority:** High
-- **Estimated Time:** 7 mins
+- **Estimated Time:** 10 mins
 
 **Preconditions:**
 - User is logged in as HR Manager with valid credentials
 - User has role-based access to Attendance Reporting module
 - Attendance data exists with known absenteeism and punctuality issues
-- Time-tracking system is integrated and contains source data
-- Test department has employees with documented absences and late arrivals
+- Time-tracking system is operational and accessible for verification
+- Test data includes employees with various attendance patterns (present, absent, late arrivals)
+- Department has at least 5 employees with mixed attendance records
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Navigate to Attendance Reporting section and select a department known to have absenteeism issues | Attendance report UI is displayed with filter options |
-| 2 | Select date range covering the period with known absenteeism and click 'Generate Report' | Report is displayed with complete attendance data including employee names, dates, timestamps, and attendance status |
-| 3 | Review the report for visual indicators of absenteeism trends such as color coding, icons, or highlighted rows | Absenteeism trends are clearly indicated with visual highlights (e.g., red indicators for absences, yellow for late arrivals) and summary statistics showing absenteeism patterns |
-| 4 | Review the report for punctuality issue indicators | Punctuality issues are clearly marked with distinct visual indicators showing late arrivals and their frequency |
-| 5 | Cross-reference report data with source data from the time-tracking system | Report data matches source data with 98% accuracy including timestamps, attendance status, and employee records |
-| 6 | Verify that absenteeism percentage calculations are correct | Absenteeism percentages and statistics are calculated correctly based on the attendance data |
+| 1 | Navigate to Attendance Reporting section and select a department with known absenteeism cases | Attendance report UI is displayed with filter options |
+| 2 | Select a date range that includes days with absenteeism and punctuality issues, then click 'Generate Report' | Attendance report is generated and displayed within 5 seconds showing complete attendance data for the selected department and date range |
+| 3 | Review the report for visual indicators of absenteeism (e.g., highlighted rows, color coding, icons, or special markers) | Absenteeism cases are clearly indicated with visual highlights such as red color coding or warning icons, making them easily distinguishable from normal attendance |
+| 4 | Review the report for punctuality issue indicators (e.g., late arrivals, early departures) | Punctuality issues are clearly indicated with visual highlights such as yellow/orange color coding or clock icons, showing late check-ins or early check-outs with time differences |
+| 5 | Identify the absenteeism trends section or summary statistics in the report | Report displays absenteeism trends including total absent days, percentage of absenteeism, patterns by day of week, and comparison to previous periods |
+| 6 | Access the time-tracking system independently and retrieve raw attendance data for the same department and date range | Time-tracking system provides source attendance data including timestamps, attendance status, and employee records |
+| 7 | Compare the attendance report data with the time-tracking system source data for accuracy | Report data matches source data with 98% or higher accuracy including employee names, dates, timestamps, attendance status, and absenteeism counts |
+| 8 | Verify that all highlighted absenteeism cases in the report correspond to actual absences in the source system | 100% of highlighted absenteeism cases are verified as accurate against the time-tracking system with no false positives |
 
 **Postconditions:**
-- Absenteeism and punctuality issues are accurately identified and highlighted
-- Report data accuracy is verified against source system
-- User has confidence in report reliability
-- Report remains available for export or further analysis
+- Absenteeism and punctuality issues are accurately identified and highlighted in the report
+- Report data accuracy is verified at 98% or higher against source system
+- Visual indicators are clear and easily interpretable
+- Report is ready for management review and decision-making
+- Data integrity is confirmed between reporting system and time-tracking system
 
 ---
 
@@ -99,35 +108,40 @@
 - **ID:** tc-004
 - **Type:** happy-path
 - **Priority:** High
-- **Estimated Time:** 8 mins
+- **Estimated Time:** 12 mins
 
 **Preconditions:**
 - User is logged in as HR Manager with valid credentials
-- User has role-based access to Attendance Reporting module with trend analysis
-- Attendance data exists with identifiable absenteeism patterns
+- User has role-based access to Attendance Reporting module with trend analysis features
+- Attendance data exists spanning multiple weeks/months to establish trends
+- System has sufficient historical data to perform trend analysis (minimum 30 days)
+- Test data includes departments with varying absenteeism patterns
 - Trend analysis algorithm is configured and operational
-- Test data includes multiple employees with varying absenteeism patterns
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Navigate to Attendance Reporting section from the main dashboard | Attendance report UI is displayed with filter options and trend analysis features enabled |
-| 2 | Select a time period filter (e.g., last 3 months) using the date range picker | Time period is selected and displayed in the filter field without validation errors |
-| 3 | Select a department from the department dropdown filter | Department is selected and filter is applied successfully |
-| 4 | Click 'Generate Report' button to request report with trend analysis | Report is generated within 5 seconds and displayed with attendance data and absenteeism trend analysis |
-| 5 | Review the report for visual absenteeism trend highlights such as graphs, charts, color-coded patterns, or trend indicators | Absenteeism trends are clearly indicated visually with graphical representations (e.g., trend lines, heat maps, or highlighted patterns) showing patterns over the selected time period |
-| 6 | Verify that trend highlights include metrics such as increasing/decreasing absenteeism, peak absence periods, and repeat offenders | Trend analysis displays comprehensive metrics including absenteeism rate changes, peak absence days/periods, and employees with recurring absences |
-| 7 | Click 'Export to PDF' button | PDF file is downloaded containing the report with all absenteeism trend highlights, graphs, and visual indicators intact |
-| 8 | Open the downloaded PDF and verify trend highlights are preserved | PDF displays all absenteeism trend highlights including charts, color coding, and visual indicators exactly as shown in the on-screen report |
-| 9 | Return to report screen and click 'Export to Excel' button | Excel file is downloaded containing the report data with absenteeism trend indicators and supporting data |
-| 10 | Open the downloaded Excel file and verify trend data is included | Excel file contains all trend data, calculations, and conditional formatting to represent absenteeism highlights |
+| 1 | Navigate to Attendance Reporting section from the main dashboard | Attendance report UI is displayed with filter options including date range, department selector, and trend analysis toggle |
+| 2 | Select a time period filter of at least 30 days to enable trend analysis | Time period is selected and accepted without validation errors |
+| 3 | Select a department from the department dropdown filter | Department is selected successfully and filter is applied |
+| 4 | Enable the absenteeism trend analysis option if available as a separate toggle | Trend analysis option is enabled and system prepares to include trend data in the report |
+| 5 | Click 'Generate Report' button to request report generation with trend analysis | System processes the request and generates attendance report with absenteeism trend analysis within 5 seconds |
+| 6 | Review the report for visual absenteeism trend indicators such as graphs, charts, trend lines, or heat maps | Absenteeism trends are clearly indicated visually using charts (line graphs showing trends over time, bar charts comparing periods, or heat maps showing high-absence days) with color coding and clear legends |
+| 7 | Examine specific trend highlights including increasing/decreasing patterns, peak absence days, and recurring patterns | Report displays specific trend insights such as 'Absenteeism increased by X% in the last 2 weeks', 'Highest absence rate on Mondays', or 'Recurring pattern detected' with visual emphasis |
+| 8 | Verify that individual employees with concerning absenteeism trends are highlighted or flagged | Employees with absenteeism rates above threshold are highlighted with visual indicators and trend statistics showing their absence frequency and pattern |
+| 9 | Check the accuracy of trend detection by comparing identified trends with actual attendance data patterns | Trend analysis achieves 90% or higher accuracy in detecting actual absenteeism patterns with minimal false positives |
+| 10 | Click 'Export to PDF' button to export the report with trend highlights | PDF file is generated and downloaded successfully with filename format 'Attendance_Trends_Report_[Department]_[DateRange].pdf' |
+| 11 | Open the exported PDF file and verify that all absenteeism trend visualizations are included | PDF contains all trend charts, graphs, visual highlights, color coding, and trend analysis data exactly as displayed in the on-screen report with proper formatting |
+| 12 | Return to report screen and click 'Export to Excel' button | Excel file is generated and downloaded successfully with filename format 'Attendance_Trends_Report_[Department]_[DateRange].xlsx' |
+| 13 | Open the exported Excel file and verify that trend data and highlights are preserved | Excel file includes trend data in tabular format, conditional formatting for highlights, embedded charts if supported, and all trend analysis metrics are intact and readable |
 
 **Postconditions:**
-- Absenteeism trends are accurately detected and highlighted with 90% accuracy
-- Exported reports (PDF and Excel) contain all trend highlights
-- Export actions are logged in the system audit trail
-- User can take proactive workforce management actions based on identified trends
-- Report data is available for further analysis
+- Attendance report with absenteeism trends is successfully generated and displayed
+- Trend analysis is accurate at 90% or higher
+- Visual trend highlights are clear and actionable for HR management
+- Report is exported successfully in both PDF and Excel formats with trends intact
+- HR Manager can identify absenteeism patterns for proactive workforce management
+- Export activity is logged in the system
 
 ---
 
@@ -152,25 +166,26 @@
 |------|--------|------------------|
 | 1 | Navigate to the attendance reports section from the main dashboard | Attendance reports page is displayed with report generation options |
 | 2 | Select the desired date range for the attendance report (e.g., current month) | Date range is selected and highlighted in the date picker |
-| 3 | Select department or employee filters if needed | Selected filters are applied and displayed |
+| 3 | Select department or employee filters if applicable | Filters are applied and displayed in the filter section |
 | 4 | Click on 'Generate Report' button | Attendance report is generated and displayed on screen with all attendance data including employee names, dates, check-in/check-out times, and status |
-| 5 | Verify the report data is accurate and complete on screen | Report displays correct attendance information matching the selected criteria |
-| 6 | Click on 'Export to PDF' button | PDF export process initiates, loading indicator appears, and export completes within 5 seconds |
-| 7 | Observe the browser download notification or downloads folder | PDF file is successfully downloaded with a meaningful filename (e.g., 'Attendance_Report_YYYY-MM-DD.pdf') |
-| 8 | Navigate to the downloads folder and locate the downloaded PDF file | PDF file is present in the downloads folder with correct file size (not 0 KB) |
-| 9 | Open the PDF file using a PDF reader application | PDF file opens successfully without errors |
+| 5 | Verify the displayed report contains accurate attendance data | Report shows correct attendance information matching the selected filters and date range |
+| 6 | Locate and click on 'Export to PDF' button | Export process initiates and a loading indicator appears |
+| 7 | Wait for the PDF export to complete | PDF file is generated and automatically downloaded to the default downloads folder within 5 seconds |
+| 8 | Navigate to the downloads folder and locate the downloaded PDF file | PDF file is present with a meaningful filename (e.g., 'Attendance_Report_YYYY-MM-DD.pdf') |
+| 9 | Open the downloaded PDF file using a PDF reader application | PDF file opens successfully without errors |
 | 10 | Verify the PDF contains all attendance data from the generated report | PDF displays complete attendance data including all employee records, dates, times, and status information |
 | 11 | Check the formatting and readability of the PDF document | PDF maintains proper formatting with clear headers, aligned columns, readable fonts, proper spacing, and professional layout |
-| 12 | Verify PDF includes report metadata (generation date, date range, filters applied) | PDF header or footer contains report generation timestamp and selected criteria |
-| 13 | Test PDF printability by sending to printer or print preview | PDF is print-ready with proper page breaks and margins |
+| 12 | Verify all table columns are visible and not cut off | All data columns fit within the page boundaries and are fully visible |
+| 13 | Check if company logo, report title, and date range are displayed in the PDF header | PDF header contains company branding, report title 'Attendance Report', and the selected date range |
+| 14 | Scroll through multiple pages if applicable to verify pagination | Page numbers are displayed correctly and data flows properly across pages without data loss |
 
 **Postconditions:**
-- PDF file is successfully downloaded and saved to local system
-- PDF file contains accurate and complete attendance data
-- PDF maintains formatting and is readable
-- Original report remains displayed on screen
+- PDF file is successfully downloaded and saved in the downloads folder
+- PDF file is readable and printable
+- Original attendance report remains displayed on screen
 - User session remains active
-- Export action is logged in system audit trail
+- No data corruption or loss occurred during export
+- System logs the export activity for audit purposes
 
 ---
 
