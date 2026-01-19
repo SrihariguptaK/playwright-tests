@@ -1,0 +1,538 @@
+[
+  {
+    "storyId": "story-3",
+    "storyTitle": "As Scheduler, I want to assign shift templates to employees to create their work schedules",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful schedule assignment with valid inputs",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one employee exists in the system",
+          "At least one shift template is available",
+          "Database is accessible and operational",
+          "No existing schedules conflict with the test date range"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to schedule assignment page by clicking on 'Schedule Management' menu and selecting 'Create Schedule'",
+            "expectedResult": "Schedule assignment form is displayed with fields for employee selection, date range, and shift template selection"
+          },
+          {
+            "step": 2,
+            "action": "Select an employee from the employee dropdown list",
+            "expectedResult": "Employee is selected and displayed in the employee field without errors"
+          },
+          {
+            "step": 3,
+            "action": "Enter a valid start date in the 'From Date' field (e.g., current date + 7 days)",
+            "expectedResult": "Start date is accepted and displayed in the correct format"
+          },
+          {
+            "step": 4,
+            "action": "Enter a valid end date in the 'To Date' field (e.g., start date + 5 days)",
+            "expectedResult": "End date is accepted and displayed in the correct format, no validation errors shown"
+          },
+          {
+            "step": 5,
+            "action": "Select one or more shift templates from the available shift templates list",
+            "expectedResult": "Selected shift templates are highlighted and added to the assignment queue"
+          },
+          {
+            "step": 6,
+            "action": "Click the 'Submit' or 'Save Schedule' button",
+            "expectedResult": "System processes the request, validates the data, and displays a success confirmation message (e.g., 'Schedule successfully assigned')"
+          },
+          {
+            "step": 7,
+            "action": "Verify the schedule appears in the employee's schedule view",
+            "expectedResult": "Assigned shifts are visible in the employee's schedule with correct dates and shift details"
+          }
+        ],
+        "postconditions": [
+          "Schedule is saved in the EmployeeSchedules database",
+          "Employee has assigned shifts for the specified date range",
+          "Confirmation message is displayed to the scheduler",
+          "Response time is under 3 seconds"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Reject schedule assignment with overlapping shifts",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "An employee exists in the system",
+          "Employee already has a shift assigned for a specific date and time (e.g., 9:00 AM - 5:00 PM on a specific date)",
+          "Shift templates with overlapping times are available",
+          "Database is accessible and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to schedule assignment page",
+            "expectedResult": "Schedule assignment form is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Select the employee who already has an existing shift assignment",
+            "expectedResult": "Employee is selected successfully"
+          },
+          {
+            "step": 3,
+            "action": "Select a date range that includes the date with the existing shift",
+            "expectedResult": "Date range is accepted"
+          },
+          {
+            "step": 4,
+            "action": "Assign a shift template that overlaps with the existing shift time (e.g., 8:00 AM - 4:00 PM on the same date)",
+            "expectedResult": "Shift template is selected and added to assignment queue"
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Submit' or 'Save Schedule' button",
+            "expectedResult": "System validates the assignment and displays a validation error message indicating overlapping shifts (e.g., 'Error: Shift overlaps with existing assignment on [date]')"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to save the schedule again without resolving the conflict",
+            "expectedResult": "Save operation is blocked, error message persists, and schedule is not saved to the database"
+          },
+          {
+            "step": 7,
+            "action": "Remove or modify the overlapping shift template to resolve the conflict",
+            "expectedResult": "Validation error is cleared and the form allows submission"
+          }
+        ],
+        "postconditions": [
+          "No schedule is saved with overlapping shifts",
+          "Original schedule remains unchanged",
+          "Error message is displayed to the scheduler",
+          "System maintains data integrity"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure unauthorized users cannot assign schedules",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "A user account exists with a non-Scheduler role (e.g., Employee, Manager, or Viewer role)",
+          "Authentication system is operational",
+          "Schedule assignment page requires Scheduler role authorization",
+          "API endpoint POST /api/schedules has role-based access control enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Login to the system using credentials of a non-Scheduler user (e.g., Employee role)",
+            "expectedResult": "User is successfully authenticated and logged into the system"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to the schedule assignment page by entering the URL directly or clicking on the menu option (if visible)",
+            "expectedResult": "Access is denied with an authorization error message (e.g., 'Access Denied: You do not have permission to access this page') or the page is not accessible/visible"
+          },
+          {
+            "step": 3,
+            "action": "Using an API testing tool (e.g., Postman, cURL), attempt to call POST /api/schedules endpoint with valid schedule data and the non-Scheduler user's authentication token",
+            "expectedResult": "API returns a 403 Forbidden or 401 Unauthorized status code with an error message (e.g., 'Authorization error: Insufficient permissions')"
+          },
+          {
+            "step": 4,
+            "action": "Verify that no schedule data is created or modified in the database",
+            "expectedResult": "Database query confirms no new schedule records were created by the unauthorized user"
+          },
+          {
+            "step": 5,
+            "action": "Logout and login with a user having Scheduler role",
+            "expectedResult": "Scheduler user can successfully access the schedule assignment page and API endpoint"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized users cannot access schedule assignment functionality",
+          "No unauthorized schedule modifications are made",
+          "Security logs record the unauthorized access attempts",
+          "Role-based access control is enforced"
+        ],
+        "estimatedTime": "7 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-4",
+    "storyTitle": "As Scheduler, I want to modify assigned employee schedules to correct or update shifts",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate successful schedule modification with audit trail",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "An employee exists with at least one assigned schedule",
+          "Database is accessible and operational",
+          "Audit logging system is enabled and functional",
+          "No conflicting shifts exist for the modification time"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to employee schedule view by selecting 'Schedule Management' and then 'View Schedules'",
+            "expectedResult": "Employee schedule list page is displayed showing all employees with schedules"
+          },
+          {
+            "step": 2,
+            "action": "Select an employee from the list to view their schedule details",
+            "expectedResult": "Employee's schedule details are displayed with all assigned shifts, dates, and times"
+          },
+          {
+            "step": 3,
+            "action": "Click on a specific shift to open the edit mode or click 'Edit' button",
+            "expectedResult": "Shift details are displayed in editable format with fields for start time, end time, and shift template"
+          },
+          {
+            "step": 4,
+            "action": "Modify the shift start time (e.g., change from 9:00 AM to 10:00 AM)",
+            "expectedResult": "New start time is accepted and displayed in the input field without errors"
+          },
+          {
+            "step": 5,
+            "action": "Modify the shift end time (e.g., change from 5:00 PM to 6:00 PM)",
+            "expectedResult": "New end time is accepted and displayed in the input field without errors"
+          },
+          {
+            "step": 6,
+            "action": "Click 'Save' or 'Update Schedule' button",
+            "expectedResult": "System validates the changes, updates the schedule, and displays a confirmation message (e.g., 'Schedule successfully updated')"
+          },
+          {
+            "step": 7,
+            "action": "Verify the updated shift is displayed with the new times in the employee schedule view",
+            "expectedResult": "Modified shift shows the updated start and end times correctly"
+          },
+          {
+            "step": 8,
+            "action": "Access the audit trail or change history for this schedule",
+            "expectedResult": "Audit trail displays the modification record with scheduler username, timestamp, old values, and new values"
+          },
+          {
+            "step": 9,
+            "action": "Verify the audit trail contains all required information (user, timestamp, changes made)",
+            "expectedResult": "Audit record shows: modified by [Scheduler name], timestamp [date and time], changes: start time 9:00 AM → 10:00 AM, end time 5:00 PM → 6:00 PM"
+          }
+        ],
+        "postconditions": [
+          "Schedule is updated in the EmployeeSchedules database",
+          "Audit trail record is created with complete modification details",
+          "Confirmation message is displayed to the scheduler",
+          "Update response time is under 3 seconds",
+          "Modified schedule is visible to authorized users"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Reject schedule modification with overlapping shifts",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "An employee exists with multiple assigned shifts",
+          "Employee has at least two shifts on the same day or consecutive days that could potentially overlap",
+          "Database is accessible and operational",
+          "Validation rules for overlapping shifts are configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to employee schedule view",
+            "expectedResult": "Employee schedule list is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Select an employee who has multiple shifts assigned",
+            "expectedResult": "Employee's schedule details are displayed showing all assigned shifts"
+          },
+          {
+            "step": 3,
+            "action": "Identify two shifts: one existing shift (e.g., 2:00 PM - 10:00 PM) and another shift to modify (e.g., 9:00 AM - 5:00 PM on the same date)",
+            "expectedResult": "Both shifts are visible in the schedule view"
+          },
+          {
+            "step": 4,
+            "action": "Click to edit the second shift (9:00 AM - 5:00 PM)",
+            "expectedResult": "Shift details open in edit mode"
+          },
+          {
+            "step": 5,
+            "action": "Modify the shift end time to create an overlap (e.g., change end time from 5:00 PM to 8:00 PM, which overlaps with the 2:00 PM - 10:00 PM shift)",
+            "expectedResult": "Modified time is entered in the field"
+          },
+          {
+            "step": 6,
+            "action": "Click 'Save' or 'Update Schedule' button",
+            "expectedResult": "System validates the modification and displays a validation error message (e.g., 'Error: Modified shift overlaps with existing shift from 2:00 PM - 10:00 PM')"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to save the changes again without resolving the overlap",
+            "expectedResult": "Save operation is blocked, error message persists, and the schedule modification is not saved to the database"
+          },
+          {
+            "step": 8,
+            "action": "Verify the original schedule remains unchanged in the database",
+            "expectedResult": "Employee schedule still shows the original shift times without the conflicting modification"
+          },
+          {
+            "step": 9,
+            "action": "Modify the shift to a non-overlapping time (e.g., change end time to 1:00 PM)",
+            "expectedResult": "Validation error is cleared and the system allows the modification to be saved"
+          }
+        ],
+        "postconditions": [
+          "No schedule is saved with overlapping shifts",
+          "Original schedule remains intact",
+          "Validation error message is displayed",
+          "Data integrity is maintained",
+          "No audit trail entry is created for the rejected modification"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Verify notification sent upon schedule update",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "An employee exists with at least one assigned schedule",
+          "Employee has a valid email address or notification contact configured",
+          "A manager is assigned to the employee with valid notification contact",
+          "Notification system is operational and configured",
+          "Database is accessible and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to employee schedule view",
+            "expectedResult": "Employee schedule list is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Select an employee and open their schedule for editing",
+            "expectedResult": "Employee's schedule details are displayed in editable format"
+          },
+          {
+            "step": 3,
+            "action": "Modify a shift (e.g., change shift time from 9:00 AM - 5:00 PM to 10:00 AM - 6:00 PM)",
+            "expectedResult": "Modified shift times are accepted in the input fields"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Save' or 'Update Schedule' button",
+            "expectedResult": "Schedule is updated successfully and confirmation message is displayed (e.g., 'Schedule updated and notifications sent')"
+          },
+          {
+            "step": 5,
+            "action": "Check the notification queue or notification log in the system",
+            "expectedResult": "Two notification entries are created: one for the employee and one for the manager"
+          },
+          {
+            "step": 6,
+            "action": "Verify the notification content for the employee includes schedule change details",
+            "expectedResult": "Employee notification shows: 'Your schedule has been updated. New shift: [Date] 10:00 AM - 6:00 PM (previously 9:00 AM - 5:00 PM)'"
+          },
+          {
+            "step": 7,
+            "action": "Verify the notification content for the manager includes schedule change details",
+            "expectedResult": "Manager notification shows: 'Schedule updated for [Employee Name]. New shift: [Date] 10:00 AM - 6:00 PM'"
+          },
+          {
+            "step": 8,
+            "action": "Check notification delivery status in the system or notification service dashboard",
+            "expectedResult": "Notification delivery status shows 'Delivered' or 'Sent' for both employee and manager notifications"
+          },
+          {
+            "step": 9,
+            "action": "Verify notification delivery timestamp is recorded",
+            "expectedResult": "Delivery timestamp is displayed and is within acceptable time frame (within 1 minute of schedule update)"
+          },
+          {
+            "step": 10,
+            "action": "Optionally, check the employee's and manager's email inbox or notification center",
+            "expectedResult": "Both recipients have received the notification with correct schedule change information"
+          }
+        ],
+        "postconditions": [
+          "Schedule is successfully updated in the database",
+          "Notifications are sent to both employee and manager",
+          "Notification delivery status is confirmed and logged",
+          "Notification delivery success rate meets the 98% threshold",
+          "Audit trail includes notification delivery information"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-7",
+    "storyTitle": "As Scheduler, I want to delete assigned employee schedules to remove outdated or incorrect shifts",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful schedule deletion with confirmation",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one assigned schedule exists in the system",
+          "User has delete permissions for schedules",
+          "Database is accessible and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the assigned schedules list page",
+            "expectedResult": "Assigned schedules list page loads successfully and displays all existing schedules with employee names, shift times, and dates"
+          },
+          {
+            "step": 2,
+            "action": "Select one or more schedule(s) for deletion by clicking the checkbox next to the schedule entry",
+            "expectedResult": "Selected schedule(s) are highlighted and checkbox is marked, delete button becomes enabled"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Delete' button",
+            "expectedResult": "Confirmation dialog appears with warning message asking 'Are you sure you want to delete the selected schedule(s)?' with 'Confirm' and 'Cancel' options"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Confirm' button in the confirmation dialog",
+            "expectedResult": "Deletion process executes within 2 seconds, confirmation message 'Schedule(s) deleted successfully' is displayed, and deleted schedule(s) are removed from the list"
+          },
+          {
+            "step": 5,
+            "action": "Verify the schedule list is updated",
+            "expectedResult": "Deleted schedule(s) no longer appear in the assigned schedules list"
+          }
+        ],
+        "postconditions": [
+          "Selected schedule(s) are permanently deleted from the database",
+          "Deletion action is logged in audit trail with user ID and timestamp",
+          "Schedule list reflects the updated state without deleted entries",
+          "Confirmation message is cleared after user acknowledgment"
+        ],
+        "estimatedTime": "3 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Prevent deletion when dependencies exist",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one assigned schedule exists that is linked to active tasks or dependencies",
+          "User has delete permissions for schedules",
+          "Database contains schedule with active dependencies"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the assigned schedules list page",
+            "expectedResult": "Assigned schedules list page loads successfully displaying all schedules including those with dependencies"
+          },
+          {
+            "step": 2,
+            "action": "Select a schedule that is linked to active tasks or has dependencies",
+            "expectedResult": "Schedule is selected and highlighted, delete button becomes enabled"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Delete' button",
+            "expectedResult": "Confirmation dialog appears asking for deletion confirmation"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Confirm' button in the confirmation dialog",
+            "expectedResult": "System validates dependencies and displays error message 'Cannot delete schedule: Active dependencies exist. Please remove linked tasks before deletion.' Deletion is blocked and schedule remains in the list"
+          },
+          {
+            "step": 5,
+            "action": "Verify the schedule still exists in the list",
+            "expectedResult": "Schedule with dependencies remains unchanged in the assigned schedules list"
+          }
+        ],
+        "postconditions": [
+          "Schedule with dependencies is not deleted",
+          "Error message is displayed to the user",
+          "Schedule remains in the database unchanged",
+          "Attempted deletion is logged in audit trail with failure reason"
+        ],
+        "estimatedTime": "3 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure audit log records deletion actions",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role",
+          "At least one assigned schedule exists without dependencies",
+          "Audit logging system is enabled and operational",
+          "User has access to view audit logs or admin has access to verify logs"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the assigned schedules list page",
+            "expectedResult": "Assigned schedules list page loads successfully with available schedules"
+          },
+          {
+            "step": 2,
+            "action": "Note the schedule ID and details of the schedule to be deleted",
+            "expectedResult": "Schedule ID, employee name, shift date and time are recorded for verification"
+          },
+          {
+            "step": 3,
+            "action": "Select the schedule for deletion and click 'Delete' button",
+            "expectedResult": "Confirmation dialog appears"
+          },
+          {
+            "step": 4,
+            "action": "Click 'Confirm' button to complete the deletion",
+            "expectedResult": "Schedule is deleted successfully and confirmation message is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to the audit log section or access audit log database",
+            "expectedResult": "Audit log interface or database is accessible"
+          },
+          {
+            "step": 6,
+            "action": "Search for the deletion action using the schedule ID or timestamp",
+            "expectedResult": "Audit log entry is found containing: action type 'DELETE', schedule ID, user ID of the scheduler who performed deletion, timestamp of deletion, and status 'SUCCESS'"
+          },
+          {
+            "step": 7,
+            "action": "Verify all required audit information is present and accurate",
+            "expectedResult": "Audit log entry contains complete information: user ID matches logged-in scheduler, timestamp is accurate, schedule ID matches deleted schedule, and all mandatory fields are populated"
+          }
+        ],
+        "postconditions": [
+          "Audit log contains complete deletion record",
+          "Audit entry includes user ID, timestamp, schedule ID, and action type",
+          "Audit trail maintains 100% accuracy for deletion actions",
+          "Audit log is immutable and cannot be modified"
+        ],
+        "estimatedTime": "5 mins"
+      }
+    ]
+  }
+]
