@@ -1,64 +1,73 @@
 [
   {
-    "storyId": "story-1",
-    "storyTitle": "As Employee, I want to submit schedule change requests to achieve timely updates to my work schedule",
+    "storyId": "story-23",
+    "storyTitle": "As Employee, I want to submit schedule change requests to achieve formal processing and approval",
     "testCases": [
       {
         "id": "tc-001",
-        "title": "Validate successful schedule change request submission with valid input",
+        "title": "Validate successful schedule change request submission with valid data",
         "type": "happy-path",
         "priority": "High",
         "preconditions": [
           "Employee has valid login credentials",
-          "Employee is logged into the scheduling system",
-          "Schedule change request page is accessible",
-          "Test file (PDF/DOC) under 5MB is available for attachment",
-          "Database connection is active and ScheduleChangeRequests table is accessible"
+          "Employee is authenticated in the scheduling system",
+          "Employee has permission to submit schedule change requests",
+          "Supporting document (PDF/DOC) under 10MB is available for upload",
+          "Network connectivity is stable"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Navigate to schedule change request page from the main dashboard",
-            "expectedResult": "Schedule change request form is displayed with all mandatory fields visible: Date, Time, Reason, and optional file attachment field. All fields are empty and ready for input"
+            "action": "Navigate to schedule change request submission page",
+            "expectedResult": "Submission form is displayed with all mandatory fields including employee name, current schedule, requested schedule, reason for change, effective date, and attachment option"
           },
           {
             "step": 2,
-            "action": "Enter a valid future date in the Date field (e.g., tomorrow's date)",
-            "expectedResult": "Date is accepted and displayed in the correct format without validation errors"
+            "action": "Enter valid employee name in the employee name field",
+            "expectedResult": "Employee name is accepted and displayed in the field without validation errors"
           },
           {
             "step": 3,
-            "action": "Enter a valid time in the Time field (e.g., 09:00 AM)",
-            "expectedResult": "Time is accepted and displayed in the correct format without validation errors"
+            "action": "Enter current schedule details (e.g., Monday-Friday, 9:00 AM - 5:00 PM)",
+            "expectedResult": "Current schedule details are accepted and displayed correctly"
           },
           {
             "step": 4,
-            "action": "Enter a valid reason in the Reason field (e.g., 'Medical appointment')",
-            "expectedResult": "Reason text is accepted and displayed in the field without validation errors"
+            "action": "Enter requested schedule details (e.g., Tuesday-Saturday, 10:00 AM - 6:00 PM)",
+            "expectedResult": "Requested schedule details are accepted and displayed correctly"
           },
           {
             "step": 5,
-            "action": "Click on the file attachment button and select a valid file (PDF/DOC) under 5MB",
-            "expectedResult": "File is successfully attached, file name is displayed, and no error messages appear"
+            "action": "Enter a valid reason for the schedule change (e.g., 'Personal commitment requiring schedule adjustment')",
+            "expectedResult": "Reason is accepted and displayed in the text field"
           },
           {
             "step": 6,
-            "action": "Click the 'Submit' button",
-            "expectedResult": "Form is submitted successfully, confirmation message is displayed (e.g., 'Your schedule change request has been submitted successfully'), and the page shows submission timestamp"
+            "action": "Select a valid effective date (future date) using the date picker",
+            "expectedResult": "Date is selected and displayed in correct format (MM/DD/YYYY or DD/MM/YYYY based on locale)"
           },
           {
             "step": 7,
-            "action": "Verify the request is logged in the system by checking the submission history or database",
-            "expectedResult": "Request appears in the submission log with correct timestamp, employee ID, and all submitted data including attached file"
+            "action": "Click on the attachment button and select a valid document (e.g., medical certificate, 2MB PDF)",
+            "expectedResult": "Document is uploaded successfully, file name and size are displayed, no error messages appear"
+          },
+          {
+            "step": 8,
+            "action": "Review all entered data for accuracy",
+            "expectedResult": "All fields display the entered information correctly"
+          },
+          {
+            "step": 9,
+            "action": "Click the Submit button",
+            "expectedResult": "Request is saved to ScheduleChangeRequests table, approval workflow is initiated automatically, confirmation message is displayed with unique request ID (e.g., 'Your request #SCR-12345 has been submitted successfully'), response time is under 2 seconds"
           }
         ],
         "postconditions": [
-          "Schedule change request is saved in ScheduleChangeRequests table",
-          "Request has a unique ID and timestamp",
-          "Request status is set to 'Submitted'",
-          "Request is forwarded to approval workflow",
-          "Employee can view the submitted request in their request history",
-          "System response time is under 2 seconds"
+          "Schedule change request is saved in the database with status 'Pending Approval'",
+          "Approval workflow is initiated and assigned to appropriate approver",
+          "Attached document is stored in DocumentStorage and linked to the request",
+          "Request ID is generated and associated with the submission",
+          "Employee can view the submitted request in their request history"
         ],
         "estimatedTime": "5 mins"
       },
@@ -69,134 +78,127 @@
         "priority": "High",
         "preconditions": [
           "Employee has valid login credentials",
-          "Employee is logged into the scheduling system",
-          "Schedule change request page is accessible",
-          "Form validation rules are configured correctly"
+          "Employee is authenticated in the scheduling system",
+          "Employee has navigated to the schedule change request submission page",
+          "All mandatory fields are clearly marked with asterisks or 'required' labels"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Navigate to schedule change request page from the main dashboard",
-            "expectedResult": "Schedule change request form is displayed with all mandatory fields visible and empty"
+            "action": "Navigate to submission page",
+            "expectedResult": "Form is displayed with all mandatory fields marked as required (employee name, current schedule, requested schedule, reason, effective date)"
           },
           {
             "step": 2,
-            "action": "Leave the Date field empty and click outside the field or tab to the next field",
-            "expectedResult": "Real-time validation triggers and highlights the Date field with a red border or indicator, displaying error message 'Date is required'"
+            "action": "Leave the employee name field empty",
+            "expectedResult": "Field remains empty, no data is entered"
           },
           {
             "step": 3,
-            "action": "Leave the Time field empty and click outside the field or tab to the next field",
-            "expectedResult": "Real-time validation triggers and highlights the Time field with a red border or indicator, displaying error message 'Time is required'"
+            "action": "Enter valid data in current schedule field",
+            "expectedResult": "Current schedule data is accepted"
           },
           {
             "step": 4,
-            "action": "Leave the Reason field empty and click outside the field",
-            "expectedResult": "Real-time validation triggers and highlights the Reason field with a red border or indicator, displaying error message 'Reason is required'"
+            "action": "Leave the requested schedule field empty",
+            "expectedResult": "Field remains empty, no data is entered"
           },
           {
             "step": 5,
-            "action": "Click the 'Submit' button with all mandatory fields still empty",
-            "expectedResult": "Form submission is blocked and prevented. Descriptive error messages are displayed at the top of the form and/or next to each empty mandatory field stating 'Please complete all required fields before submitting'"
+            "action": "Enter valid reason for change",
+            "expectedResult": "Reason is accepted and displayed"
           },
           {
             "step": 6,
-            "action": "Verify that no data is saved to the database",
-            "expectedResult": "No new record is created in the ScheduleChangeRequests table and no submission log entry exists"
+            "action": "Leave the effective date field empty",
+            "expectedResult": "Field remains empty, no date is selected"
           },
           {
             "step": 7,
-            "action": "Fill in only the Date field with a valid date and attempt to submit again",
-            "expectedResult": "Submission is still blocked with error messages displayed for the remaining empty mandatory fields (Time and Reason)"
-          }
-        ],
-        "postconditions": [
-          "No schedule change request is created in the database",
-          "Form remains on the screen with entered data preserved",
-          "Error messages are clearly visible to the user",
-          "User can correct the errors and resubmit",
-          "No partial or incomplete data is logged"
-        ],
-        "estimatedTime": "6 mins"
-      },
-      {
-        "id": "tc-003",
-        "title": "Ensure draft save functionality works correctly",
-        "type": "happy-path",
-        "priority": "Medium",
-        "preconditions": [
-          "Employee has valid login credentials",
-          "Employee is logged into the scheduling system",
-          "Schedule change request page is accessible",
-          "Draft save functionality is enabled",
-          "Database supports draft storage"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "Navigate to schedule change request page from the main dashboard",
-            "expectedResult": "Schedule change request form is displayed with all fields empty and ready for input"
-          },
-          {
-            "step": 2,
-            "action": "Enter a valid future date in the Date field (e.g., next week's date)",
-            "expectedResult": "Date is accepted and displayed without validation errors"
-          },
-          {
-            "step": 3,
-            "action": "Enter a valid time in the Time field (e.g., 02:00 PM)",
-            "expectedResult": "Time is accepted and displayed without validation errors"
-          },
-          {
-            "step": 4,
-            "action": "Leave the Reason field empty (partial data entry)",
-            "expectedResult": "Reason field remains empty without triggering validation errors since draft save does not require all mandatory fields"
-          },
-          {
-            "step": 5,
-            "action": "Click the 'Save Draft' button",
-            "expectedResult": "Draft is saved successfully and a confirmation notification is displayed (e.g., 'Draft saved successfully' or 'Your changes have been saved as draft')"
-          },
-          {
-            "step": 6,
-            "action": "Verify the draft timestamp is displayed on the form",
-            "expectedResult": "Last saved timestamp is visible on the form (e.g., 'Draft saved at 10:30 AM')"
-          },
-          {
-            "step": 7,
-            "action": "Navigate away from the schedule change request page to another section of the application",
-            "expectedResult": "User successfully navigates to another page without losing draft data"
+            "action": "Click outside the empty mandatory fields or tab to next field",
+            "expectedResult": "Real-time validation highlights missing fields with red borders or error icons, inline error messages appear (e.g., 'This field is required')"
           },
           {
             "step": 8,
-            "action": "Return to the schedule change request page",
-            "expectedResult": "Form is displayed and automatically loads the previously saved draft data"
+            "action": "Attempt to submit the form by clicking the Submit button",
+            "expectedResult": "Submission is blocked, form does not submit, error summary message is displayed at the top of the form (e.g., 'Please complete all required fields'), focus is set to the first missing mandatory field"
           },
           {
             "step": 9,
-            "action": "Verify that the Date field contains the previously entered date",
-            "expectedResult": "Date field displays the exact date that was entered before saving the draft"
-          },
-          {
-            "step": 10,
-            "action": "Verify that the Time field contains the previously entered time",
-            "expectedResult": "Time field displays the exact time that was entered before saving the draft"
-          },
-          {
-            "step": 11,
-            "action": "Verify that the Reason field is still empty as it was not filled",
-            "expectedResult": "Reason field remains empty, confirming partial data was correctly saved and restored"
+            "action": "Verify that all empty mandatory fields are highlighted with error messages",
+            "expectedResult": "All missing mandatory fields (employee name, requested schedule, effective date) display individual error messages and visual indicators"
           }
         ],
         "postconditions": [
-          "Draft is saved in the database with status 'Draft'",
-          "Draft has a unique ID and timestamp",
-          "Previously entered data is preserved and retrievable",
-          "User can continue editing the draft or submit it after completion",
-          "Draft does not appear in the approval workflow until submitted",
-          "User can have multiple drafts if system allows"
+          "No request is saved to the database",
+          "No approval workflow is initiated",
+          "Form remains on the submission page with entered data preserved",
+          "Error messages are clearly visible to guide user correction"
         ],
-        "estimatedTime": "7 mins"
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Test attachment upload size limit enforcement",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "Employee has valid login credentials",
+          "Employee is authenticated in the scheduling system",
+          "Test file larger than 10MB (e.g., 12MB PDF) is prepared",
+          "Test file within size limit (e.g., 5MB PDF) is prepared",
+          "Employee has navigated to the schedule change request submission page"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to submission form",
+            "expectedResult": "Form is displayed with all fields including attachment upload option, size limit information is visible (e.g., 'Maximum file size: 10MB')"
+          },
+          {
+            "step": 2,
+            "action": "Click on the attachment upload button",
+            "expectedResult": "File browser dialog opens allowing file selection"
+          },
+          {
+            "step": 3,
+            "action": "Select a document larger than 10MB (e.g., 12MB PDF file)",
+            "expectedResult": "File selection dialog closes and system begins validation"
+          },
+          {
+            "step": 4,
+            "action": "Observe the upload attempt",
+            "expectedResult": "Upload is rejected immediately, error message is displayed (e.g., 'File size exceeds maximum limit of 10MB. Please select a smaller file'), no file is attached to the form, attachment field remains empty"
+          },
+          {
+            "step": 5,
+            "action": "Click on the attachment upload button again",
+            "expectedResult": "File browser dialog opens again for new selection"
+          },
+          {
+            "step": 6,
+            "action": "Select a valid size document (e.g., 5MB PDF file)",
+            "expectedResult": "File is uploaded successfully, file name and size are displayed in the attachment field (e.g., 'medical_certificate.pdf (5MB)'), no error messages appear"
+          },
+          {
+            "step": 7,
+            "action": "Complete all other mandatory fields with valid data (employee name, current schedule, requested schedule, reason, effective date)",
+            "expectedResult": "All fields accept valid data without errors"
+          },
+          {
+            "step": 8,
+            "action": "Click the Submit button",
+            "expectedResult": "Submission succeeds, request is saved with attachment linked, approval workflow is initiated, confirmation message with request ID is displayed, attached document is stored in DocumentStorage API"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request is saved in the database with valid attachment",
+          "Attachment file is stored in DocumentStorage and associated with the request ID",
+          "Approval workflow is initiated successfully",
+          "Employee receives confirmation with request ID",
+          "Oversized file is not stored in the system"
+        ],
+        "estimatedTime": "6 mins"
       }
     ]
   }
