@@ -1,167 +1,171 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Filter Schedule by Shift Type', () => {
+test.describe('Story-14: Filter Schedule by Shift Type', () => {
   test.beforeEach(async ({ page }) => {
-    // Employee logs in
+    // Navigate to login page and authenticate as employee
     await page.goto('/login');
     await page.fill('[data-testid="username-input"]', 'employee@company.com');
     await page.fill('[data-testid="password-input"]', 'password123');
     await page.click('[data-testid="login-button"]');
+    
+    // Wait for successful login and navigation to dashboard
+    await expect(page).toHaveURL(/.*dashboard/);
+    
+    // Navigate to schedule view
+    await page.click('[data-testid="schedule-nav-link"]');
     await expect(page).toHaveURL(/.*schedule/);
+    await page.waitForLoadState('networkidle');
   });
 
-  test('Validate filtering by single shift type', async ({ page }) => {
-    // Navigate to the schedule view page
-    await page.goto('/schedule');
-    await page.waitForSelector('[data-testid="schedule-container"]');
-
-    // Locate and click on the shift type filter dropdown/option
-    await page.click('[data-testid="shift-type-filter-dropdown"]');
-    await page.waitForSelector('[data-testid="shift-type-filter-options"]');
-
-    // Select 'Morning' shift type from the filter options
-    await page.click('[data-testid="shift-type-option-morning"]');
-
-    // Wait for schedule display to update
-    await page.waitForResponse(response => 
-      response.url().includes('/api/schedules') && 
-      response.url().includes('shiftType=Morning') &&
-      response.status() === 200
-    );
-
-    // Verify that only Morning shifts are displayed in the schedule
+  test('Validate shift type filter application', async ({ page }) => {
+    // Verify initial schedule is displayed with all shifts
     await expect(page.locator('[data-testid="schedule-container"]')).toBeVisible();
-    const shiftElements = await page.locator('[data-testid="shift-item"]').all();
+    const initialShiftCount = await page.locator('[data-testid="shift-item"]').count();
+    expect(initialShiftCount).toBeGreaterThan(0);
+
+    // Step 1: Employee selects 'Morning' shift filter
+    await page.click('[data-testid="shift-type-filter-dropdown"]');
+    await page.click('[data-testid="filter-option-morning"]');
     
-    for (const shift of shiftElements) {
+    // Wait for schedule to update
+    await page.waitForResponse(response => 
+      response.url().includes('/api/schedules') && response.status() === 200
+    );
+    await page.waitForTimeout(500);
+
+    // Expected Result: Schedule updates to show only morning shifts
+    const morningShifts = await page.locator('[data-testid="shift-item"]').all();
+    expect(morningShifts.length).toBeGreaterThan(0);
+    
+    for (const shift of morningShifts) {
       const shiftType = await shift.getAttribute('data-shift-type');
-      expect(shiftType).toBe('Morning');
+      expect(shiftType).toBe('morning');
     }
+    
+    // Verify filter badge or indicator is displayed
+    await expect(page.locator('[data-testid="active-filter-morning"]')).toBeVisible();
 
-    // Verify at least one morning shift is displayed
-    await expect(page.locator('[data-testid="shift-item"][data-shift-type="Morning"]')).toHaveCount(await page.locator('[data-testid="shift-item"]').count());
+    // Step 2: Employee selects 'Night' shift filter in addition
+    await page.click('[data-testid="shift-type-filter-dropdown"]');
+    await page.click('[data-testid="filter-option-night"]');
+    
+    // Wait for schedule to update with multiple filters
+    await page.waitForResponse(response => 
+      response.url().includes('/api/schedules') && response.status() === 200
+    );
+    await page.waitForTimeout(500);
 
-    // Click the 'Clear filter' button or option
-    await page.click('[data-testid="clear-filter-button"]');
+    // Expected Result: Schedule shows morning and night shifts
+    const filteredShifts = await page.locator('[data-testid="shift-item"]').all();
+    expect(filteredShifts.length).toBeGreaterThan(0);
+    
+    let hasMorning = false;
+    let hasNight = false;
+    
+    for (const shift of filteredShifts) {
+      const shiftType = await shift.getAttribute('data-shift-type');
+      expect(['morning', 'night']).toContain(shiftType);
+      if (shiftType === 'morning') hasMorning = true;
+      if (shiftType === 'night') hasNight = true;
+    }
+    
+    // Verify both filter badges are displayed
+    await expect(page.locator('[data-testid="active-filter-morning"]')).toBeVisible();
+    await expect(page.locator('[data-testid="active-filter-night"]')).toBeVisible();
 
+    // Step 3: Employee clears filters
+    await page.click('[data-testid="clear-filters-button"]');
+    
     // Wait for schedule to reload with all shifts
     await page.waitForResponse(response => 
-      response.url().includes('/api/schedules') && 
-      !response.url().includes('shiftType=') &&
-      response.status() === 200
+      response.url().includes('/api/schedules') && response.status() === 200
     );
+    await page.waitForTimeout(500);
 
-    // Verify full schedule is displayed
-    const allShifts = await page.locator('[data-testid="shift-item"]').all();
-    expect(allShifts.length).toBeGreaterThan(0);
+    // Expected Result: Full schedule is displayed
+    const allShifts = await page.locator('[data-testid="shift-item"]').count();
+    expect(allShifts).toBe(initialShiftCount);
     
-    // Verify different shift types are present
-    const shiftTypes = new Set();
-    for (const shift of allShifts) {
-      const shiftType = await shift.getAttribute('data-shift-type');
-      shiftTypes.add(shiftType);
-    }
-    expect(shiftTypes.size).toBeGreaterThan(1);
+    // Verify filter badges are removed
+    await expect(page.locator('[data-testid="active-filter-morning"]')).not.toBeVisible();
+    await expect(page.locator('[data-testid="active-filter-night"]')).not.toBeVisible();
+    
+    // Verify shifts of all types are present
+    const allShiftTypes = await page.locator('[data-testid="shift-item"]').evaluateAll(
+      elements => elements.map(el => el.getAttribute('data-shift-type'))
+    );
+    const uniqueShiftTypes = [...new Set(allShiftTypes)];
+    expect(uniqueShiftTypes.length).toBeGreaterThan(1);
   });
 
-  test('Validate filtering by multiple shift types', async ({ page }) => {
-    // Navigate to the schedule view page
-    await page.goto('/schedule');
-    await page.waitForSelector('[data-testid="schedule-container"]');
-
-    // Locate and click on the shift type filter dropdown/option
+  test('Test filter persistence during navigation', async ({ page }) => {
+    // Step 1: Employee applies shift type filter
     await page.click('[data-testid="shift-type-filter-dropdown"]');
-    await page.waitForSelector('[data-testid="shift-type-filter-options"]');
-
-    // Select 'Morning' shift type from the filter options
-    await page.click('[data-testid="shift-type-option-morning"]');
+    await page.click('[data-testid="filter-option-morning"]');
     
-    // Keep dropdown open or reopen if it closes
-    const isDropdownVisible = await page.locator('[data-testid="shift-type-filter-options"]').isVisible();
-    if (!isDropdownVisible) {
-      await page.click('[data-testid="shift-type-filter-dropdown"]');
-    }
-
-    // Select 'Evening' shift type from the filter options while Morning is still selected
-    await page.click('[data-testid="shift-type-option-evening"]');
-
-    // Wait for schedule display to update with multiple filters
+    // Wait for filtered schedule to load
     await page.waitForResponse(response => 
-      response.url().includes('/api/schedules') && 
-      (response.url().includes('shiftType=Morning') || response.url().includes('shiftType=Evening')) &&
-      response.status() === 200
+      response.url().includes('/api/schedules') && response.status() === 200
     );
+    await page.waitForTimeout(500);
 
-    // Verify that only Morning and Evening shifts are displayed
-    await expect(page.locator('[data-testid="schedule-container"]')).toBeVisible();
-    const shiftElements = await page.locator('[data-testid="shift-item"]').all();
+    // Expected Result: Filtered schedule is displayed
+    await expect(page.locator('[data-testid="active-filter-morning"]')).toBeVisible();
     
-    expect(shiftElements.length).toBeGreaterThan(0);
-
-    for (const shift of shiftElements) {
+    const filteredShiftsWeek1 = await page.locator('[data-testid="shift-item"]').all();
+    expect(filteredShiftsWeek1.length).toBeGreaterThan(0);
+    
+    for (const shift of filteredShiftsWeek1) {
       const shiftType = await shift.getAttribute('data-shift-type');
-      expect(['Morning', 'Evening']).toContain(shiftType);
+      expect(shiftType).toBe('morning');
     }
-
-    // Count the total number of shifts displayed and verify against expected count
-    const morningShifts = await page.locator('[data-testid="shift-item"][data-shift-type="Morning"]').count();
-    const eveningShifts = await page.locator('[data-testid="shift-item"][data-shift-type="Evening"]').count();
-    const totalFilteredShifts = morningShifts + eveningShifts;
     
-    expect(totalFilteredShifts).toBe(shiftElements.length);
-    expect(totalFilteredShifts).toBeGreaterThan(0);
-  });
+    // Capture current week identifier for comparison
+    const currentWeekText = await page.locator('[data-testid="current-week-label"]').textContent();
 
-  test('Test handling of invalid shift type filter', async ({ page }) => {
-    // Navigate to the schedule view page
-    await page.goto('/schedule');
-    await page.waitForSelector('[data-testid="schedule-container"]');
-
-    // Note the current URL in the browser address bar
-    const originalUrl = page.url();
-    expect(originalUrl).toContain('/schedule');
-
-    // Get employee ID from page context or use test data
-    const employeeId = await page.evaluate(() => {
-      return window.localStorage.getItem('employeeId') || '123';
-    });
-
-    // Manually modify the URL to include an invalid shift type parameter
-    const invalidUrl = `/api/schedules?employeeId=${employeeId}&shiftType=InvalidType`;
-    await page.goto(invalidUrl);
-
-    // Observe the system response and error handling
-    await page.waitForLoadState('networkidle');
-
-    // Verify validation error is displayed or handled
-    const errorMessage = page.locator('[data-testid="error-message"]');
-    const isErrorVisible = await errorMessage.isVisible().catch(() => false);
+    // Step 2: Employee navigates to next week
+    await page.click('[data-testid="next-week-button"]');
     
-    if (isErrorVisible) {
-      await expect(errorMessage).toContainText(/invalid|error|validation/i);
+    // Wait for next week's schedule to load
+    await page.waitForResponse(response => 
+      response.url().includes('/api/schedules') && response.status() === 200
+    );
+    await page.waitForTimeout(500);
+
+    // Expected Result: Filter remains applied and schedule updates accordingly
+    const nextWeekText = await page.locator('[data-testid="current-week-label"]').textContent();
+    expect(nextWeekText).not.toBe(currentWeekText);
+    
+    // Verify filter is still active
+    await expect(page.locator('[data-testid="active-filter-morning"]')).toBeVisible();
+    
+    // Verify only morning shifts are displayed for the new week
+    const filteredShiftsWeek2 = await page.locator('[data-testid="shift-item"]').all();
+    expect(filteredShiftsWeek2.length).toBeGreaterThan(0);
+    
+    for (const shift of filteredShiftsWeek2) {
+      const shiftType = await shift.getAttribute('data-shift-type');
+      expect(shiftType).toBe('morning');
     }
-
-    // Navigate back to schedule view to verify default state
-    await page.goto('/schedule');
-    await page.waitForSelector('[data-testid="schedule-container"]');
-
-    // Verify the schedule display shows full schedule after validation error
-    const scheduleContainer = page.locator('[data-testid="schedule-container"]');
-    await expect(scheduleContainer).toBeVisible();
     
-    const allShifts = await page.locator('[data-testid="shift-item"]').all();
-    expect(allShifts.length).toBeGreaterThan(0);
-
-    // Verify that the filter interface is in default state
-    const filterDropdown = page.locator('[data-testid="shift-type-filter-dropdown"]');
-    await expect(filterDropdown).toBeVisible();
+    // Verify URL contains filter parameter
+    const currentUrl = page.url();
+    expect(currentUrl).toContain('shiftType=morning');
     
-    const filterText = await filterDropdown.textContent();
-    expect(filterText).toMatch(/all|select|filter/i);
-
-    // Verify no active filters are applied
-    const activeFilters = page.locator('[data-testid="active-filter-tag"]');
-    const activeFilterCount = await activeFilters.count();
-    expect(activeFilterCount).toBe(0);
+    // Additional verification: Navigate to previous week and verify filter persists
+    await page.click('[data-testid="previous-week-button"]');
+    await page.waitForResponse(response => 
+      response.url().includes('/api/schedules') && response.status() === 200
+    );
+    await page.waitForTimeout(500);
+    
+    // Verify filter is still active after navigating back
+    await expect(page.locator('[data-testid="active-filter-morning"]')).toBeVisible();
+    
+    const filteredShiftsBack = await page.locator('[data-testid="shift-item"]').all();
+    for (const shift of filteredShiftsBack) {
+      const shiftType = await shift.getAttribute('data-shift-type');
+      expect(shiftType).toBe('morning');
+    }
   });
 });
