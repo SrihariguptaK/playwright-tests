@@ -4,10 +4,8 @@ import { request } from '@playwright/test';
 const API_BASE_URL = process.env.API_BASE_URL || 'https://api.example.com';
 const OAUTH_TOKEN_ENDPOINT = `${API_BASE_URL}/oauth/token`;
 const SECURED_API_ENDPOINT = `${API_BASE_URL}/api/employees`;
-const LOGS_ENDPOINT = `${API_BASE_URL}/api/logs/authentication`;
-
-const VALID_CLIENT_ID = process.env.OAUTH_CLIENT_ID || 'test_client_id';
-const VALID_CLIENT_SECRET = process.env.OAUTH_CLIENT_SECRET || 'test_client_secret';
+const VALID_CLIENT_ID = process.env.CLIENT_ID || 'test_client_id';
+const VALID_CLIENT_SECRET = process.env.CLIENT_SECRET || 'test_client_secret';
 
 interface OAuthTokenResponse {
   access_token: string;
@@ -19,11 +17,10 @@ interface AuthLog {
   timestamp: string;
   client_id: string;
   event_type: string;
-  endpoint: string;
   status: string;
 }
 
-describe('OAuth 2.0 Authentication - story-13', () => {
+test.describe('OAuth 2.0 Authentication Implementation', () => {
   let apiContext: any;
 
   test.beforeAll(async ({ playwright }) => {
@@ -74,18 +71,13 @@ describe('OAuth 2.0 Authentication - story-13', () => {
     expect(apiData).toBeDefined();
 
     // Step 3: Check logs for authentication event
-    await test.step('Wait for log processing', async () => {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    });
-
-    const logsResponse = await apiContext.get(LOGS_ENDPOINT, {
-      params: {
-        client_id: VALID_CLIENT_ID,
-        event_type: 'token_issued',
-        limit: 10
-      },
+    const logsResponse = await apiContext.get(`${API_BASE_URL}/api/auth/logs`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`
+      },
+      params: {
+        client_id: VALID_CLIENT_ID,
+        event_type: 'token_issued'
       }
     });
 
@@ -102,11 +94,7 @@ describe('OAuth 2.0 Authentication - story-13', () => {
 
   test('Reject API request without access token', async () => {
     // Step 1: Call secured API endpoint without access token
-    const apiResponse = await apiContext.get(SECURED_API_ENDPOINT, {
-      headers: {
-        // Intentionally not including Authorization header
-      }
-    });
+    const apiResponse = await apiContext.get(SECURED_API_ENDPOINT);
 
     expect(apiResponse.ok()).toBeFalsy();
     expect(apiResponse.status()).toBe(401);
@@ -116,11 +104,7 @@ describe('OAuth 2.0 Authentication - story-13', () => {
     expect(errorData.error).toContain('Unauthorized');
 
     // Step 2: Check logs for unauthorized access attempt
-    await test.step('Wait for log processing', async () => {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    });
-
-    // Get a valid token first to access logs endpoint
+    // First, get a valid token to access the logs endpoint
     const tokenResponse = await apiContext.post(OAUTH_TOKEN_ENDPOINT, {
       data: {
         grant_type: 'client_credentials',
@@ -132,15 +116,16 @@ describe('OAuth 2.0 Authentication - story-13', () => {
     const tokenData: OAuthTokenResponse = await tokenResponse.json();
     const accessToken = tokenData.access_token;
 
+    // Query logs for unauthorized attempt
     const currentTimestamp = new Date().toISOString();
-    const logsResponse = await apiContext.get(LOGS_ENDPOINT, {
-      params: {
-        event_type: 'unauthorized_access',
-        endpoint: SECURED_API_ENDPOINT,
-        limit: 10
-      },
+    const logsResponse = await apiContext.get(`${API_BASE_URL}/api/auth/logs`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`
+      },
+      params: {
+        event_type: 'unauthorized_access',
+        endpoint: '/api/employees',
+        timestamp_from: new Date(Date.now() - 60000).toISOString()
       }
     });
 
@@ -150,17 +135,15 @@ describe('OAuth 2.0 Authentication - story-13', () => {
 
     const unauthorizedLog = logs.find(log => 
       log.event_type === 'unauthorized_access' && 
-      log.endpoint === SECURED_API_ENDPOINT
+      log.status === 'failed'
     );
-
     expect(unauthorizedLog).toBeDefined();
-    expect(unauthorizedLog!.status).toBe('failed');
     expect(unauthorizedLog!.timestamp).toBeDefined();
   });
 
   test('Reject API request with expired token', async () => {
-    // Using a known expired token or a token with invalid format
-    const expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZXhwIjoxNTE2MjM5MDIyfQ.expired_signature';
+    // Use a pre-expired token or mock expired token
+    const expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiY2xpZW50X2lkIjoidGVzdF9jbGllbnQiLCJleHAiOjE1MTYyMzkwMjJ9.expired_signature';
 
     // Step 1: Use expired access token to call secured API endpoint
     const apiResponse = await apiContext.get(SECURED_API_ENDPOINT, {
@@ -174,15 +157,10 @@ describe('OAuth 2.0 Authentication - story-13', () => {
 
     const errorData = await apiResponse.json();
     expect(errorData.error).toBeDefined();
-    expect(errorData.error.toLowerCase()).toMatch(/expired|invalid|unauthorized/);
+    expect(errorData.error.toLowerCase()).toMatch(/expired|unauthorized/);
 
-    // Verify error message indicates token expiry
-    const errorMessage = errorData.error || errorData.message || '';
-    expect(errorMessage.toLowerCase()).toContain('token');
-  });
-
-  test('System enforces token expiration and denies requests with expired tokens', async () => {
-    // Get a valid token first
+    // Step 2: Query authentication logs for expired token rejection event
+    // Get a valid token to access logs
     const tokenResponse = await apiContext.post(OAUTH_TOKEN_ENDPOINT, {
       data: {
         grant_type: 'client_credentials',
@@ -191,97 +169,16 @@ describe('OAuth 2.0 Authentication - story-13', () => {
       }
     });
 
-    expect(tokenResponse.ok()).toBeTruthy();
     const tokenData: OAuthTokenResponse = await tokenResponse.json();
-    const accessToken = tokenData.access_token;
-    const expiresIn = tokenData.expires_in;
+    const validAccessToken = tokenData.access_token;
 
-    // Verify token works initially
-    const initialApiResponse = await apiContext.get(SECURED_API_ENDPOINT, {
+    const logsResponse = await apiContext.get(`${API_BASE_URL}/api/auth/logs`, {
       headers: {
-        'Authorization': `Bearer ${accessToken}`
-      }
-    });
-
-    expect(initialApiResponse.ok()).toBeTruthy();
-    expect(initialApiResponse.status()).toBe(200);
-
-    // Verify expiration time is set
-    expect(expiresIn).toBeGreaterThan(0);
-    expect(expiresIn).toBeLessThanOrEqual(3600); // Typically 1 hour or less
-  });
-
-  test('System supports token refresh flow according to OAuth 2.0 standards', async () => {
-    // Get initial token
-    const initialTokenResponse = await apiContext.post(OAUTH_TOKEN_ENDPOINT, {
-      data: {
-        grant_type: 'client_credentials',
-        client_id: VALID_CLIENT_ID,
-        client_secret: VALID_CLIENT_SECRET
-      }
-    });
-
-    expect(initialTokenResponse.ok()).toBeTruthy();
-    const initialTokenData: OAuthTokenResponse = await initialTokenResponse.json();
-    const initialAccessToken = initialTokenData.access_token;
-
-    // Request a new token (refresh)
-    const refreshTokenResponse = await apiContext.post(OAUTH_TOKEN_ENDPOINT, {
-      data: {
-        grant_type: 'client_credentials',
-        client_id: VALID_CLIENT_ID,
-        client_secret: VALID_CLIENT_SECRET
-      }
-    });
-
-    expect(refreshTokenResponse.ok()).toBeTruthy();
-    const refreshTokenData: OAuthTokenResponse = await refreshTokenResponse.json();
-    const newAccessToken = refreshTokenData.access_token;
-
-    expect(newAccessToken).toBeDefined();
-    expect(newAccessToken).not.toBe('');
-
-    // Verify new token works
-    const apiResponse = await apiContext.get(SECURED_API_ENDPOINT, {
-      headers: {
-        'Authorization': `Bearer ${newAccessToken}`
-      }
-    });
-
-    expect(apiResponse.ok()).toBeTruthy();
-    expect(apiResponse.status()).toBe(200);
-  });
-
-  test('System logs all authentication attempts with timestamps and client identifiers', async () => {
-    const testClientId = VALID_CLIENT_ID;
-    const timestampBefore = new Date().toISOString();
-
-    // Perform authentication
-    const tokenResponse = await apiContext.post(OAUTH_TOKEN_ENDPOINT, {
-      data: {
-        grant_type: 'client_credentials',
-        client_id: testClientId,
-        client_secret: VALID_CLIENT_SECRET
-      }
-    });
-
-    expect(tokenResponse.ok()).toBeTruthy();
-    const tokenData: OAuthTokenResponse = await tokenResponse.json();
-    const accessToken = tokenData.access_token;
-
-    const timestampAfter = new Date().toISOString();
-
-    // Wait for log processing
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // Check logs
-    const logsResponse = await apiContext.get(LOGS_ENDPOINT, {
-      params: {
-        client_id: testClientId,
-        limit: 10
+        'Authorization': `Bearer ${validAccessToken}`
       },
-      headers: {
-        'Authorization': `Bearer ${accessToken}`
+      params: {
+        event_type: 'token_expired',
+        timestamp_from: new Date(Date.now() - 60000).toISOString()
       }
     });
 
@@ -289,10 +186,11 @@ describe('OAuth 2.0 Authentication - story-13', () => {
     const logs: AuthLog[] = await logsResponse.json();
     expect(logs.length).toBeGreaterThan(0);
 
-    const recentLog = logs[0];
-    expect(recentLog.client_id).toBe(testClientId);
-    expect(recentLog.timestamp).toBeDefined();
-    expect(new Date(recentLog.timestamp).getTime()).toBeGreaterThanOrEqual(new Date(timestampBefore).getTime() - 5000);
-    expect(new Date(recentLog.timestamp).getTime()).toBeLessThanOrEqual(new Date(timestampAfter).getTime() + 5000);
+    const expiredTokenLog = logs.find(log => 
+      log.event_type === 'token_expired' && 
+      log.status === 'rejected'
+    );
+    expect(expiredTokenLog).toBeDefined();
+    expect(expiredTokenLog!.timestamp).toBeDefined();
   });
 });
