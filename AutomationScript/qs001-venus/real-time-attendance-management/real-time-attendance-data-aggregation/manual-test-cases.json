@@ -1,923 +1,635 @@
 [
   {
-    "storyId": "story-13",
-    "storyTitle": "As Attendance System Administrator, I want to integrate biometric devices to achieve real-time attendance data collection",
+    "storyId": "story-1",
+    "storyTitle": "As Attendance System Administrator, I want to integrate biometric device data to achieve real-time attendance data aggregation",
     "testCases": [
       {
         "id": "tc-001",
-        "title": "Validate successful connection and data reception from biometric devices",
+        "title": "Validate successful biometric data ingestion",
         "type": "happy-path",
         "priority": "High",
         "preconditions": [
-          "Admin user has valid credentials and access to admin interface",
-          "Biometric device is powered on and network accessible",
-          "Biometric device API credentials are available",
-          "Attendance database is operational and accessible",
-          "System has network connectivity to biometric device"
+          "Admin user has valid credentials and access to admin dashboard",
+          "Biometric device is operational and accessible",
+          "Attendance database is available and has sufficient storage",
+          "Network connectivity between system and biometric device is stable",
+          "Test biometric device API credentials are available"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Log into the admin interface with valid administrator credentials",
-            "expectedResult": "Admin dashboard is displayed successfully"
+            "action": "Log into the admin dashboard using valid administrator credentials",
+            "expectedResult": "Admin dashboard loads successfully and displays configuration options"
           },
           {
             "step": 2,
-            "action": "Navigate to biometric device configuration section",
-            "expectedResult": "Device configuration page is displayed with connection settings form"
+            "action": "Navigate to biometric device configuration section in admin dashboard",
+            "expectedResult": "Biometric device configuration page is displayed with input fields for connection settings"
           },
           {
             "step": 3,
-            "action": "Enter biometric device API endpoint, authentication credentials, and device identifier",
-            "expectedResult": "Configuration fields accept input and display entered values"
+            "action": "Enter biometric device connection details including API endpoint, authentication credentials, and polling interval",
+            "expectedResult": "All configuration fields accept input and display entered values correctly"
           },
           {
             "step": 4,
-            "action": "Click 'Test Connection' button to verify device connectivity",
-            "expectedResult": "System displays 'Connection Successful' message with device status as 'Connected'"
+            "action": "Click 'Save' or 'Apply' button to save the biometric device connection settings",
+            "expectedResult": "Success message is displayed confirming connection settings saved successfully, and settings are persisted in the system"
           },
           {
             "step": 5,
-            "action": "Save the biometric device configuration",
-            "expectedResult": "Configuration is saved successfully and confirmation message is displayed"
+            "action": "Simulate a biometric attendance event by having a test employee scan their biometric credential on the connected device",
+            "expectedResult": "Biometric device registers the attendance event and makes data available via API"
           },
           {
             "step": 6,
-            "action": "Simulate an attendance event on the biometric device by scanning a registered employee fingerprint",
-            "expectedResult": "Biometric device registers the scan and sends event data to the system"
+            "action": "Wait for system to retrieve the attendance event data and monitor the data ingestion process",
+            "expectedResult": "System retrieves event data from biometric device within 1 minute of the event occurrence"
           },
           {
             "step": 7,
-            "action": "Monitor the admin dashboard real-time data feed for the attendance event",
-            "expectedResult": "Attendance event appears in the dashboard within 1 minute showing employee ID, timestamp, and device ID"
+            "action": "Query the attendance database to verify the newly ingested attendance record",
+            "expectedResult": "Attendance record exists in database with correct employee ID, timestamp matching the biometric event time (within acceptable margin), and device identifier"
           },
           {
             "step": 8,
-            "action": "Navigate to attendance database query interface or run database query to retrieve the latest attendance record",
-            "expectedResult": "Database query returns the attendance record successfully"
-          },
-          {
-            "step": 9,
-            "action": "Compare the database record fields (employee ID, timestamp, device ID, event type) with the original biometric device output",
-            "expectedResult": "All event data fields match exactly between biometric device output and database record"
-          },
-          {
-            "step": 10,
-            "action": "Verify the timestamp difference between event occurrence and database storage",
-            "expectedResult": "Time difference is less than 1 minute, confirming real-time data collection"
+            "action": "Compare the stored data fields with the original biometric event details",
+            "expectedResult": "All data fields match exactly including employee ID, timestamp, location, and event type (check-in/check-out)"
           }
         ],
         "postconditions": [
-          "Biometric device remains connected and operational",
-          "Valid attendance event is stored in database",
-          "Admin dashboard shows active device status",
-          "System is ready to receive subsequent attendance events"
+          "Biometric device connection remains active and configured",
+          "Test attendance record is stored in the database",
+          "System continues to monitor and ingest subsequent biometric events",
+          "Admin dashboard reflects successful connection status"
         ],
         "estimatedTime": "8 mins"
       },
       {
         "id": "tc-002",
-        "title": "Verify system handles corrupted attendance data",
+        "title": "Verify retry mechanism on connection failure",
         "type": "error-case",
         "priority": "High",
         "preconditions": [
-          "Biometric device is connected and configured in the system",
-          "Admin has access to admin dashboard",
-          "Error logging mechanism is enabled",
-          "Database contains existing valid attendance records for comparison",
-          "Test environment allows simulation of corrupted data transmission"
+          "Biometric device connection is already configured and operational",
+          "Admin has access to system logs and monitoring dashboard",
+          "System retry mechanism is enabled with configured retry intervals",
+          "Ability to control biometric device API availability for testing"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Access the test data simulation tool or API endpoint for sending attendance events",
-            "expectedResult": "Test tool or API endpoint is accessible and ready to accept test data"
+            "action": "Access the biometric device API control panel or test environment",
+            "expectedResult": "API control interface is accessible and shows current API status as active"
           },
           {
             "step": 2,
-            "action": "Prepare corrupted attendance event data with missing employee ID field",
-            "expectedResult": "Corrupted test payload is created with incomplete data structure"
+            "action": "Disable or stop the biometric device API service temporarily to simulate connection failure",
+            "expectedResult": "Biometric device API becomes unavailable and returns connection errors"
           },
           {
             "step": 3,
-            "action": "Send the corrupted attendance event data to the system via biometric device API endpoint",
-            "expectedResult": "System receives the corrupted data transmission"
+            "action": "Wait for the system to attempt its next scheduled data pull from the biometric device",
+            "expectedResult": "System attempts connection and fails due to unavailable API"
           },
           {
             "step": 4,
-            "action": "Observe system response and check for error response code (e.g., 400 Bad Request)",
-            "expectedResult": "System rejects the data with appropriate error response code and validation error message"
+            "action": "Access system logs and search for connection failure entries related to biometric device",
+            "expectedResult": "System logs contain clear connection failure messages with timestamp, device identifier, and error details"
           },
           {
             "step": 5,
-            "action": "Navigate to system error logs or logging dashboard",
-            "expectedResult": "Error log interface displays recent error entries"
+            "action": "Monitor system behavior and logs for automatic retry attempts",
+            "expectedResult": "System automatically initiates retry attempts according to configured retry policy without manual intervention"
           },
           {
             "step": 6,
-            "action": "Search for the error entry corresponding to the corrupted data submission with timestamp and error details",
-            "expectedResult": "Error log contains entry with timestamp, error type 'Data Validation Failed', details about missing employee ID, and source device information"
+            "action": "Review system logs to verify retry attempts are being logged",
+            "expectedResult": "Each retry attempt is logged with accurate timestamps, attempt number, and failure reason"
           },
           {
             "step": 7,
-            "action": "Access the admin dashboard and navigate to error notifications section",
-            "expectedResult": "Admin dashboard displays error notifications panel"
+            "action": "Re-enable or restart the biometric device API service to restore availability",
+            "expectedResult": "Biometric device API becomes available and responds to connection requests successfully"
           },
           {
             "step": 8,
-            "action": "Verify the error notification displays details including timestamp, device ID, error type, and description",
-            "expectedResult": "Error notification is visible with complete details: 'Corrupted data rejected - Missing employee ID from Device [device-id] at [timestamp]'"
+            "action": "Monitor system logs and data ingestion status for successful reconnection",
+            "expectedResult": "System successfully reconnects to biometric device on next retry attempt"
           },
           {
             "step": 9,
-            "action": "Query the attendance database for records matching the timestamp of the corrupted data submission",
-            "expectedResult": "Database query returns no record for the corrupted event timestamp"
+            "action": "Verify that system resumes normal data ingestion operations",
+            "expectedResult": "System resumes pulling attendance data from biometric device and processes new events successfully"
           },
           {
             "step": 10,
-            "action": "Verify database integrity by checking that only valid records exist and record count has not increased",
-            "expectedResult": "Database contains only valid attendance records with complete required fields, confirming corrupted data was not stored"
-          },
-          {
-            "step": 11,
-            "action": "Send additional corrupted data with invalid timestamp format",
-            "expectedResult": "System rejects data and logs error with description 'Invalid timestamp format'"
-          },
-          {
-            "step": 12,
-            "action": "Confirm no corrupted records from any test iteration are present in the database",
-            "expectedResult": "Final database verification shows zero corrupted records and all existing records are valid"
+            "action": "Check admin dashboard for connection status update",
+            "expectedResult": "Admin dashboard shows connection restored and displays successful data ingestion status"
           }
         ],
         "postconditions": [
-          "No corrupted data exists in the attendance database",
-          "All error events are logged with complete details",
-          "Admin dashboard displays all error notifications",
-          "System continues to accept valid attendance events normally",
-          "Data integrity is maintained"
+          "Biometric device connection is restored and operational",
+          "All connection failures and retry attempts are logged in system logs",
+          "System resumes normal data ingestion operations",
+          "No data loss occurred during the connection failure period"
         ],
-        "estimatedTime": "10 mins"
+        "estimatedTime": "12 mins"
       },
       {
         "id": "tc-003",
-        "title": "Test device disconnection and automatic reconnection",
-        "type": "error-case",
-        "priority": "High",
-        "preconditions": [
-          "Biometric device is connected and actively sending attendance data",
-          "Admin is logged into the admin dashboard",
-          "System has automatic reconnection feature enabled",
-          "Network connectivity can be controlled for testing",
-          "Alert notification system is configured and operational"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "Verify biometric device status on admin dashboard shows 'Connected' with green indicator",
-            "expectedResult": "Dashboard displays device status as 'Connected' with last heartbeat timestamp within the last minute"
-          },
-          {
-            "step": 2,
-            "action": "Note the current timestamp and number of attendance events received",
-            "expectedResult": "Baseline metrics are recorded for comparison after reconnection"
-          },
-          {
-            "step": 3,
-            "action": "Simulate biometric device disconnection by disabling network connection or stopping the device service",
-            "expectedResult": "Network connection to biometric device is interrupted"
-          },
-          {
-            "step": 4,
-            "action": "Monitor the admin dashboard for device status change",
-            "expectedResult": "Within 30 seconds, device status changes to 'Disconnected' with red indicator and timestamp of disconnection"
-          },
-          {
-            "step": 5,
-            "action": "Check for admin alert notification regarding device disconnection",
-            "expectedResult": "Alert notification is displayed on dashboard and/or sent via configured channel (email/SMS) with message 'Biometric Device [device-id] disconnected at [timestamp]'"
-          },
-          {
-            "step": 6,
-            "action": "Verify system logs contain disconnection event entry",
-            "expectedResult": "System log shows entry with severity 'Warning', message 'Device disconnection detected', device ID, and timestamp"
-          },
-          {
-            "step": 7,
-            "action": "Observe system behavior during disconnection period for 2 minutes",
-            "expectedResult": "System continues normal operation for other connected devices and displays disconnection status for affected device"
-          },
-          {
-            "step": 8,
-            "action": "Restore the biometric device connection by re-enabling network or restarting device service",
-            "expectedResult": "Network connection to biometric device is restored"
-          },
-          {
-            "step": 9,
-            "action": "Monitor admin dashboard for automatic reconnection attempt",
-            "expectedResult": "Within 1 minute, system detects device availability and initiates reconnection automatically without manual intervention"
-          },
-          {
-            "step": 10,
-            "action": "Verify device status changes to 'Connected' on admin dashboard",
-            "expectedResult": "Device status indicator turns green showing 'Connected' with reconnection timestamp"
-          },
-          {
-            "step": 11,
-            "action": "Check for reconnection success notification on admin dashboard",
-            "expectedResult": "Notification displays 'Biometric Device [device-id] reconnected successfully at [timestamp]'"
-          },
-          {
-            "step": 12,
-            "action": "Simulate a new attendance event on the reconnected biometric device",
-            "expectedResult": "Attendance event is captured and transmitted to the system successfully"
-          },
-          {
-            "step": 13,
-            "action": "Verify the new attendance event is received and stored in the database within 1 minute",
-            "expectedResult": "Database contains the new attendance record confirming data collection has resumed"
-          },
-          {
-            "step": 14,
-            "action": "Review system logs for the disconnection period",
-            "expectedResult": "Logs contain entries documenting: disconnection timestamp, disconnection duration, reconnection timestamp, and confirmation that no data was received during disconnection period"
-          },
-          {
-            "step": 15,
-            "action": "Verify no data loss by confirming that system properly logged the disconnection period and resumed normal operation",
-            "expectedResult": "System logs clearly indicate the disconnection window, no corrupted data was stored, and normal operation resumed immediately after reconnection"
-          }
-        ],
-        "postconditions": [
-          "Biometric device is reconnected and operational",
-          "System is actively receiving attendance events",
-          "Disconnection period is logged with start and end timestamps",
-          "Admin dashboard shows current connected status",
-          "No data corruption occurred during disconnection/reconnection cycle",
-          "System is ready to handle future disconnection events"
-        ],
-        "estimatedTime": "12 mins"
-      }
-    ]
-  },
-  {
-    "storyId": "story-14",
-    "storyTitle": "As Attendance System Administrator, I want to integrate badge scan systems to achieve comprehensive attendance data aggregation",
-    "testCases": [
-      {
-        "id": "tc-004",
-        "title": "Validate successful badge scan data ingestion",
-        "type": "happy-path",
-        "priority": "High",
-        "preconditions": [
-          "Admin user has valid credentials and access to admin interface",
-          "Badge scan system is operational and network accessible",
-          "Badge scan system API credentials are available",
-          "Attendance database is operational",
-          "At least one employee badge is registered in the system",
-          "System supports 5000 events per minute throughput"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "Log into the admin interface using valid administrator credentials",
-            "expectedResult": "Admin dashboard is displayed with navigation menu and system status overview"
-          },
-          {
-            "step": 2,
-            "action": "Navigate to badge scan system integration configuration section",
-            "expectedResult": "Badge scan system configuration page is displayed with connection settings form"
-          },
-          {
-            "step": 3,
-            "action": "Enter badge scan system API endpoint URL in the configuration field",
-            "expectedResult": "API endpoint URL is accepted and displayed in the input field"
-          },
-          {
-            "step": 4,
-            "action": "Enter authentication credentials (API key or username/password) for badge scan system",
-            "expectedResult": "Authentication credentials are accepted and masked appropriately for security"
-          },
-          {
-            "step": 5,
-            "action": "Enter badge scan system identifier and location information",
-            "expectedResult": "System identifier and location fields are populated correctly"
-          },
-          {
-            "step": 6,
-            "action": "Click 'Test Connection' button to verify connectivity to badge scan system",
-            "expectedResult": "System establishes connection and displays 'Connection Successful' message with badge scan system status as 'Active'"
-          },
-          {
-            "step": 7,
-            "action": "Save the badge scan system configuration by clicking 'Save' button",
-            "expectedResult": "Configuration is saved successfully, confirmation message is displayed, and badge scan system appears in the list of connected systems"
-          },
-          {
-            "step": 8,
-            "action": "Navigate to the real-time data monitoring dashboard",
-            "expectedResult": "Monitoring dashboard displays with badge scan system listed as active data source"
-          },
-          {
-            "step": 9,
-            "action": "Simulate a badge scan event by scanning a registered employee badge at the badge reader",
-            "expectedResult": "Badge reader registers the scan with visual/audio confirmation and transmits event data to the system"
-          },
-          {
-            "step": 10,
-            "action": "Monitor the real-time data feed on the admin dashboard for the badge scan event",
-            "expectedResult": "Badge scan event appears in the dashboard within 1 minute displaying employee ID, badge ID, timestamp, location, and scan type (entry/exit)"
-          },
-          {
-            "step": 11,
-            "action": "Record the exact timestamp when the event appears on the dashboard",
-            "expectedResult": "Timestamp is recorded for latency verification"
-          },
-          {
-            "step": 12,
-            "action": "Calculate the time difference between badge scan occurrence and dashboard display",
-            "expectedResult": "Time difference is less than 1 minute, confirming real-time ingestion requirement"
-          },
-          {
-            "step": 13,
-            "action": "Open database query interface or execute SQL query to retrieve the badge scan attendance record",
-            "expectedResult": "Database query interface returns the attendance record successfully"
-          },
-          {
-            "step": 14,
-            "action": "Verify the database record contains all required fields: employee ID, badge ID, timestamp, location, scan type, and system identifier",
-            "expectedResult": "All required fields are present and populated with data"
-          },
-          {
-            "step": 15,
-            "action": "Compare database record values with the original badge scan event data (employee ID, badge ID, timestamp, location)",
-            "expectedResult": "All data fields match exactly between badge scan event and database record, confirming data integrity"
-          },
-          {
-            "step": 16,
-            "action": "Verify the record timestamp in database matches the badge scan event timestamp",
-            "expectedResult": "Timestamps match precisely, confirming accurate data capture"
-          }
-        ],
-        "postconditions": [
-          "Badge scan system remains connected and operational",
-          "Valid badge scan event is stored in attendance database",
-          "Admin dashboard shows active badge scan system status",
-          "System is ready to receive subsequent badge scan events",
-          "Data integrity is maintained between source and database"
-        ],
-        "estimatedTime": "10 mins"
-      },
-      {
-        "id": "tc-005",
-        "title": "Verify duplicate badge scan event filtering",
+        "title": "Ensure secure data transmission",
         "type": "edge-case",
         "priority": "High",
         "preconditions": [
-          "Badge scan system is connected and configured",
-          "Admin has access to admin dashboard",
-          "Duplicate detection mechanism is enabled",
-          "Database contains existing attendance records",
-          "Test environment allows simulation of duplicate events",
-          "Duplicate detection rules are configured (e.g., same employee, same location, within 5 seconds)"
+          "Biometric device connection is configured and active",
+          "Network traffic inspection tools are available (e.g., Wireshark, Fiddler)",
+          "Test environment allows network traffic monitoring",
+          "Invalid API credentials are available for unauthorized access testing",
+          "Admin has access to system audit logs"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Log into admin dashboard and navigate to badge scan data monitoring section",
-            "expectedResult": "Badge scan monitoring interface is displayed with real-time event feed"
+            "action": "Start network traffic monitoring tool and configure it to capture traffic between the system and biometric device",
+            "expectedResult": "Network monitoring tool is active and capturing packets on the relevant network interface"
           },
           {
             "step": 2,
-            "action": "Query the database to get the current count of attendance records for baseline",
-            "expectedResult": "Current record count is retrieved and documented"
+            "action": "Trigger a biometric attendance event to initiate data transmission from device to system",
+            "expectedResult": "Data transmission occurs and network traffic is captured by monitoring tool"
           },
           {
             "step": 3,
-            "action": "Prepare a badge scan event with specific employee ID, badge ID, timestamp, and location",
-            "expectedResult": "Test badge scan event data is prepared with all required fields"
+            "action": "Analyze captured network packets to inspect the data transmission protocol and encryption",
+            "expectedResult": "Data is transmitted using secure protocol (HTTPS/TLS) and payload is encrypted, not readable in plain text"
           },
           {
             "step": 4,
-            "action": "Send the first badge scan event to the system via badge scan API endpoint",
-            "expectedResult": "System receives and processes the event successfully, returns HTTP 200 status"
+            "action": "Verify authentication headers and tokens in the captured traffic",
+            "expectedResult": "Authentication credentials are present, properly formatted, and transmitted securely (not in plain text)"
           },
           {
             "step": 5,
-            "action": "Verify the first event is stored in the database by querying for the specific employee ID and timestamp",
-            "expectedResult": "Database query returns one record matching the event details"
+            "action": "Attempt to access the biometric device API endpoint using invalid or missing authentication credentials",
+            "expectedResult": "API request is rejected immediately without processing"
           },
           {
             "step": 6,
-            "action": "Immediately send an identical duplicate badge scan event with the same employee ID, badge ID, timestamp, and location",
-            "expectedResult": "System receives the duplicate event transmission"
+            "action": "Review the error response returned by the API for unauthorized access attempt",
+            "expectedResult": "API returns proper HTTP 401 Unauthorized or 403 Forbidden status code with appropriate error message indicating authentication failure"
           },
           {
             "step": 7,
-            "action": "Observe system response to the duplicate event submission",
-            "expectedResult": "System detects duplicate and returns HTTP 200 status with message 'Duplicate event detected and filtered'"
+            "action": "Attempt to access the API using expired authentication tokens",
+            "expectedResult": "Access is denied with proper error message indicating token expiration"
           },
           {
             "step": 8,
-            "action": "Query the database again for records matching the employee ID and timestamp",
-            "expectedResult": "Database query returns only one record, confirming duplicate was not stored"
+            "action": "Navigate to system audit logs section in admin dashboard",
+            "expectedResult": "Audit logs interface is accessible and displays recent access attempts"
           },
           {
             "step": 9,
-            "action": "Verify the total record count in database has increased by only one since baseline",
-            "expectedResult": "Record count shows increment of 1, confirming only the first event was stored"
+            "action": "Search audit logs for entries related to the unauthorized access attempts made in previous steps",
+            "expectedResult": "All unauthorized access attempts are logged with timestamp, source IP, attempted credentials, and failure reason"
           },
           {
             "step": 10,
-            "action": "Send a third duplicate event with the same details",
-            "expectedResult": "System receives the third duplicate event"
-          },
-          {
-            "step": 11,
-            "action": "Check system logs for duplicate event entries",
-            "expectedResult": "System logs contain entries for both duplicate events with severity 'Info', message 'Duplicate badge scan event filtered', employee ID, timestamp, and badge ID"
-          },
-          {
-            "step": 12,
-            "action": "Navigate to admin dashboard duplicate event alerts section",
-            "expectedResult": "Dashboard displays duplicate event alerts panel"
-          },
-          {
-            "step": 13,
-            "action": "Verify duplicate event alerts show the number of duplicates detected and details",
-            "expectedResult": "Alert displays '2 duplicate events detected for Employee [employee-id] at [timestamp] from Location [location]'"
-          },
-          {
-            "step": 14,
-            "action": "Check the duplicate events report or statistics section on dashboard",
-            "expectedResult": "Dashboard shows duplicate event statistics including count, affected employees, and time range"
-          },
-          {
-            "step": 15,
-            "action": "Send a valid non-duplicate badge scan event with different timestamp (6 seconds later) for the same employee",
-            "expectedResult": "System accepts and stores the new event as it falls outside duplicate detection window"
-          },
-          {
-            "step": 16,
-            "action": "Verify the new event is stored in database as a separate record",
-            "expectedResult": "Database now contains two records for the employee with different timestamps, confirming duplicate filtering only affects true duplicates"
+            "action": "Verify that successful authentication attempts are also logged in audit logs",
+            "expectedResult": "Successful access attempts are logged with timestamp, authenticated user/service, and action performed"
           }
         ],
         "postconditions": [
-          "Only unique badge scan events are stored in database",
-          "All duplicate events are logged with complete details",
-          "Admin dashboard displays duplicate event alerts and statistics",
-          "System continues to accept valid non-duplicate events",
-          "Data integrity is maintained without duplicate records"
-        ],
-        "estimatedTime": "12 mins"
-      },
-      {
-        "id": "tc-006",
-        "title": "Test automatic reconnection on badge scan system failure",
-        "type": "error-case",
-        "priority": "High",
-        "preconditions": [
-          "Badge scan system is connected and actively sending data",
-          "Admin is logged into admin dashboard",
-          "Automatic reconnection feature is enabled with retry configuration",
-          "Network connectivity can be controlled for testing",
-          "Alert notification system is operational",
-          "System has retry interval configured (e.g., retry every 30 seconds)"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "Access admin dashboard and navigate to badge scan system status monitoring page",
-            "expectedResult": "Status monitoring page displays badge scan system with 'Connected' status and green indicator"
-          },
-          {
-            "step": 2,
-            "action": "Verify the last successful data transmission timestamp is recent (within last minute)",
-            "expectedResult": "Dashboard shows last data received timestamp within the last 60 seconds"
-          },
-          {
-            "step": 3,
-            "action": "Document the current connection status, uptime, and number of events received",
-            "expectedResult": "Baseline metrics are recorded: status 'Connected', uptime duration, event count"
-          },
-          {
-            "step": 4,
-            "action": "Simulate badge scan system disconnection by disabling network connection, stopping the badge scan service, or blocking API endpoint",
-            "expectedResult": "Network connection to badge scan system is interrupted and system becomes unreachable"
-          },
-          {
-            "step": 5,
-            "action": "Monitor the admin dashboard for system detection of the failure",
-            "expectedResult": "Within 30-60 seconds, dashboard detects connection failure and updates status"
-          },
-          {
-            "step": 6,
-            "action": "Verify badge scan system status changes to 'Disconnected' or 'Failed' with red indicator",
-            "expectedResult": "Status indicator turns red, displays 'Disconnected', and shows timestamp of failure detection"
-          },
-          {
-            "step": 7,
-            "action": "Check for admin alert notification regarding badge scan system failure",
-            "expectedResult": "Alert notification appears on dashboard with message 'Badge Scan System [system-id] at [location] disconnected at [timestamp]' and severity level 'Critical'"
-          },
-          {
-            "step": 8,
-            "action": "Verify alert is sent through configured notification channels (email, SMS, or in-app)",
-            "expectedResult": "Alert notification is delivered through all configured channels with failure details"
-          },
-          {
-            "step": 9,
-            "action": "Check system logs for failure detection entry",
-            "expectedResult": "System log contains entry with timestamp, severity 'Error', message 'Badge scan system connection failed', system ID, and error details"
-          },
-          {
-            "step": 10,
-            "action": "Observe dashboard for automatic reconnection attempts indicator",
-            "expectedResult": "Dashboard shows 'Attempting to reconnect...' message with retry counter or progress indicator"
-          },
-          {
-            "step": 11,
-            "action": "Wait for one retry interval (e.g., 30 seconds) and verify system attempts reconnection",
-            "expectedResult": "System log shows reconnection attempt with timestamp and attempt number"
-          },
-          {
-            "step": 12,
-            "action": "Allow system to continue retry attempts while badge scan system remains disconnected for 2 minutes",
-            "expectedResult": "System continues automatic retry attempts at configured intervals without manual intervention"
-          },
-          {
-            "step": 13,
-            "action": "Restore the badge scan system connection by re-enabling network, restarting service, or unblocking API endpoint",
-            "expectedResult": "Badge scan system becomes reachable and operational again"
-          },
-          {
-            "step": 14,
-            "action": "Monitor dashboard for successful automatic reconnection",
-            "expectedResult": "Within one retry interval (30-60 seconds), system detects availability and successfully reconnects"
-          },
-          {
-            "step": 15,
-            "action": "Verify badge scan system status changes to 'Connected' with green indicator",
-            "expectedResult": "Status indicator turns green, displays 'Connected', and shows reconnection timestamp"
-          },
-          {
-            "step": 16,
-            "action": "Check for reconnection success notification on admin dashboard",
-            "expectedResult": "Success notification displays 'Badge Scan System [system-id] reconnected successfully at [timestamp]' with severity 'Info'"
-          },
-          {
-            "step": 17,
-            "action": "Verify system logs contain reconnection success entry",
-            "expectedResult": "Log entry shows timestamp, message 'Badge scan system reconnected successfully', system ID, downtime duration, and number of retry attempts"
-          },
-          {
-            "step": 18,
-            "action": "Simulate a new badge scan event by scanning an employee badge",
-            "expectedResult": "Badge reader captures the scan and transmits event to the system"
-          },
-          {
-            "step": 19,
-            "action": "Verify the new badge scan event is received and displayed on the dashboard within 1 minute",
-            "expectedResult": "Event appears on dashboard with all details confirming data ingestion has resumed"
-          },
-          {
-            "step": 20,
-            "action": "Query the database to confirm the new event is stored successfully",
-            "expectedResult": "Database contains the new badge scan record with correct timestamp and details, confirming full operational recovery"
-          },
-          {
-            "step": 21,
-            "action": "Review complete system logs for the entire disconnection and reconnection cycle",
-            "expectedResult": "Logs provide complete audit trail: failure detection, retry attempts, reconnection success, and resumption of data ingestion"
-          }
-        ],
-        "postconditions": [
-          "Badge scan system is reconnected and fully operational",
-          "System is actively receiving and storing badge scan events",
-          "Disconnection period is logged with start time, end time, and duration",
-          "Admin dashboard shows current connected status",
-          "All reconnection attempts are logged",
-          "System is ready to handle future connection failures with automatic recovery",
-          "No data corruption occurred during failure and recovery cycle"
+          "Network monitoring tool is stopped and traffic capture is saved for review",
+          "All unauthorized access attempts are documented in audit logs",
+          "System security remains intact with no unauthorized access granted",
+          "Biometric device connection continues to operate securely"
         ],
         "estimatedTime": "15 mins"
       }
     ]
   },
   {
-    "storyId": "story-19",
-    "storyTitle": "As Attendance System Administrator, I want to monitor data ingestion health to achieve reliable attendance data availability",
+    "storyId": "story-2",
+    "storyTitle": "As Attendance System Administrator, I want to aggregate manual attendance entries to achieve comprehensive real-time attendance data",
     "testCases": [
       {
-        "id": "tc-019-001",
-        "title": "Validate ingestion health dashboard updates",
+        "id": "tc-004",
+        "title": "Validate ingestion of manual attendance data",
         "type": "happy-path",
         "priority": "High",
         "preconditions": [
-          "User is logged in with admin credentials",
-          "Ingestion system is running and processing data",
-          "Dashboard monitoring service is active",
-          "Test environment has access to ingestion health dashboard URL",
-          "At least one data source is configured for ingestion"
+          "Admin user has valid credentials and access to manual data upload interface",
+          "Sample manual attendance CSV file is prepared with valid data format",
+          "Biometric attendance data already exists in the system for comparison",
+          "Attendance database is operational and accessible",
+          "Admin monitoring interface is available and functional"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Navigate to the ingestion health dashboard URL (GET /monitoring/ingestion)",
-            "expectedResult": "Dashboard loads successfully and displays current ingestion status with recent metrics including timestamp, data source status, records processed, and last update time within the last minute"
+            "action": "Log into the admin dashboard using valid administrator credentials",
+            "expectedResult": "Admin dashboard loads successfully and displays manual data upload options"
           },
           {
             "step": 2,
-            "action": "Observe the dashboard for 2 minutes without any interaction",
-            "expectedResult": "Dashboard automatically refreshes every minute showing updated metrics and timestamps reflecting the refresh cycle"
+            "action": "Navigate to the manual attendance data upload section",
+            "expectedResult": "Manual data upload interface is displayed with file upload controls and format instructions"
           },
           {
             "step": 3,
-            "action": "Simulate an ingestion failure by stopping the data ingestion service or disconnecting a data source",
-            "expectedResult": "Within 1-2 minutes, dashboard status changes to 'Failed' or 'Error' state with red indicator, error message is displayed, and timestamp shows when failure was detected"
+            "action": "Click 'Browse' or 'Choose File' button and select the prepared sample manual attendance CSV file",
+            "expectedResult": "File selection dialog opens and selected file name is displayed in the upload interface"
           },
           {
             "step": 4,
-            "action": "Check the alerts section or notification panel on the dashboard",
-            "expectedResult": "Alert is generated and displayed showing failure details including affected data source, failure time, and error type"
+            "action": "Click 'Upload' or 'Import' button to initiate the manual attendance data ingestion",
+            "expectedResult": "File upload begins and progress indicator is displayed"
           },
           {
             "step": 5,
-            "action": "Navigate to the historical logs section from the dashboard menu",
-            "expectedResult": "Historical logs page loads displaying a chronological list of ingestion events"
+            "action": "Wait for the system to process and ingest the uploaded CSV file",
+            "expectedResult": "System completes ingestion within 5 minutes and displays success message with number of records processed"
           },
           {
             "step": 6,
-            "action": "Review the historical logs for the simulated failure event",
-            "expectedResult": "Logs show detailed ingestion events including the failure event with timestamp, data source name, error message, stack trace or error details, and event severity level"
+            "action": "Verify that system normalizes the manual attendance records to match the standard database schema",
+            "expectedResult": "All manual attendance records are converted to standard format with consistent field names, date/time formats, and data types"
           },
           {
             "step": 7,
-            "action": "Filter logs by date range to view events from the last hour",
-            "expectedResult": "Logs are filtered correctly showing only events within the specified time range including the recent failure"
+            "action": "Query the attendance database to retrieve both biometric and manual attendance records for the same time period",
+            "expectedResult": "Database query returns combined results showing both biometric and manual attendance entries"
+          },
+          {
+            "step": 8,
+            "action": "Verify that manual entries are merged with biometric data without creating duplicate records",
+            "expectedResult": "No duplicate attendance records exist for the same employee at the same timestamp; manual entries supplement biometric data appropriately"
+          },
+          {
+            "step": 9,
+            "action": "Check that attendance records are accurate by comparing uploaded CSV data with database entries",
+            "expectedResult": "All fields match exactly including employee ID, date, time, attendance type, and any additional metadata"
+          },
+          {
+            "step": 10,
+            "action": "Navigate to the admin monitoring interface for manual data ingestion",
+            "expectedResult": "Monitoring interface loads and displays recent ingestion activities"
+          },
+          {
+            "step": 11,
+            "action": "Review the ingestion status for the recently uploaded CSV file",
+            "expectedResult": "Ingestion status shows successful completion with timestamp, file name, number of records processed, and any warnings or errors"
+          },
+          {
+            "step": 12,
+            "action": "Verify that any errors or validation warnings are clearly displayed in the monitoring interface",
+            "expectedResult": "Errors and warnings are displayed with specific details including row numbers, field names, and error descriptions"
           }
         ],
         "postconditions": [
-          "Dashboard continues to display real-time status",
-          "Alert remains visible until acknowledged or issue is resolved",
-          "Historical logs are preserved and accessible",
-          "Simulated failure is documented in the system",
-          "Test data source can be restored to normal operation"
+          "Manual attendance data is successfully stored in the database",
+          "Manual and biometric attendance data are merged without duplicates",
+          "Ingestion status is recorded in the monitoring interface",
+          "System is ready to accept additional manual data uploads"
         ],
         "estimatedTime": "10 mins"
       },
       {
-        "id": "tc-019-002",
-        "title": "Verify admin access control",
+        "id": "tc-005",
+        "title": "Verify conflict detection for duplicate entries",
         "type": "error-case",
         "priority": "High",
         "preconditions": [
-          "Test environment has both admin and non-admin user accounts configured",
-          "Non-admin user credentials are available (username and password)",
-          "Admin user credentials are available (username and password)",
-          "Ingestion health dashboard URL is accessible",
-          "Authentication system is functioning properly"
+          "Admin user has access to manual data upload interface",
+          "Test CSV file with intentional duplicate attendance records is prepared",
+          "Existing attendance data is present in the database for conflict testing",
+          "Admin monitoring interface is accessible",
+          "Conflict resolution workflow is configured in the system"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Log out from any existing session and clear browser cache/cookies",
-            "expectedResult": "User is logged out successfully and session is cleared"
+            "action": "Log into the admin dashboard using valid administrator credentials",
+            "expectedResult": "Admin dashboard loads successfully"
           },
           {
             "step": 2,
-            "action": "Log in to the system using non-admin user credentials",
-            "expectedResult": "Login is successful and user is redirected to the default landing page for non-admin users"
+            "action": "Navigate to the manual attendance data upload section",
+            "expectedResult": "Manual data upload interface is displayed"
           },
           {
             "step": 3,
-            "action": "Attempt to access the ingestion health dashboard by navigating to GET /monitoring/ingestion URL",
-            "expectedResult": "Access is denied with HTTP 403 Forbidden error or user is redirected to an 'Access Denied' page with message indicating insufficient permissions"
+            "action": "Select and upload the test CSV file containing duplicate attendance records (same employee, same date/time)",
+            "expectedResult": "File is uploaded and system begins processing"
           },
           {
             "step": 4,
-            "action": "Verify that no dashboard data or metrics are visible in the response",
-            "expectedResult": "No sensitive ingestion data, metrics, or dashboard components are displayed or accessible in the page source"
+            "action": "Wait for system to complete validation and ingestion process",
+            "expectedResult": "System completes processing and displays summary of results including detected conflicts"
           },
           {
             "step": 5,
-            "action": "Log out from the non-admin account",
-            "expectedResult": "User is logged out successfully and redirected to login page"
+            "action": "Verify that system identifies and flags duplicate records during ingestion",
+            "expectedResult": "System detects duplicate entries and flags them as conflicts without automatically overwriting existing data"
           },
           {
             "step": 6,
-            "action": "Log in to the system using admin user credentials",
-            "expectedResult": "Login is successful and admin user is authenticated"
+            "action": "Check system logs for conflict detection entries",
+            "expectedResult": "System logs contain detailed conflict entries with employee ID, timestamp, conflicting values, and conflict type"
           },
           {
             "step": 7,
-            "action": "Navigate to the ingestion health dashboard URL (GET /monitoring/ingestion)",
-            "expectedResult": "Access is granted and dashboard loads successfully displaying all ingestion health metrics, status indicators, alerts, and navigation options"
+            "action": "Navigate to the admin monitoring interface to view flagged conflicts",
+            "expectedResult": "Monitoring interface displays a conflicts section or tab with list of detected conflicts"
           },
           {
             "step": 8,
-            "action": "Verify all dashboard features are accessible including real-time metrics, historical logs, and alert configurations",
-            "expectedResult": "All admin-level features are visible and functional with no access restrictions"
+            "action": "Review the conflict details displayed in the monitoring interface",
+            "expectedResult": "Each conflict is clearly identified with employee name/ID, date/time, existing value, new value, and conflict reason"
+          },
+          {
+            "step": 9,
+            "action": "Verify that conflicts are presented in a user-friendly format for admin review",
+            "expectedResult": "Conflicts are displayed in a table or list format with clear labels, color coding, and action options"
+          },
+          {
+            "step": 10,
+            "action": "Select a flagged conflict and choose resolution option (e.g., keep existing, use new, or merge)",
+            "expectedResult": "Resolution options are available and selectable for each conflict"
+          },
+          {
+            "step": 11,
+            "action": "Apply the selected resolution to resolve the conflict",
+            "expectedResult": "System accepts the resolution choice and updates the conflict status"
+          },
+          {
+            "step": 12,
+            "action": "Trigger reprocessing of the resolved conflicts",
+            "expectedResult": "System reprocesses the data according to the resolution choices made"
+          },
+          {
+            "step": 13,
+            "action": "Verify that attendance records are updated in the database according to the resolution",
+            "expectedResult": "Database records reflect the resolved conflicts with correct data based on admin's resolution choices"
+          },
+          {
+            "step": 14,
+            "action": "Check that resolved conflicts are marked as completed in the monitoring interface",
+            "expectedResult": "Resolved conflicts show updated status with resolution timestamp and admin user who resolved them"
           }
         ],
         "postconditions": [
-          "Non-admin user remains unable to access monitoring dashboard",
-          "Admin user retains full access to all monitoring features",
-          "Access control logs record both denied and successful access attempts",
-          "No security vulnerabilities are exposed during testing",
-          "User sessions are properly managed"
+          "All duplicate conflicts are detected and logged",
+          "Conflicts are resolved according to admin decisions",
+          "Attendance database contains accurate, deduplicated records",
+          "Conflict resolution history is maintained in system logs",
+          "Monitoring interface reflects current conflict status"
         ],
-        "estimatedTime": "8 mins"
+        "estimatedTime": "12 mins"
       }
     ]
   },
   {
-    "storyId": "story-21",
-    "storyTitle": "As Attendance System Administrator, I want to validate incoming attendance data to achieve data integrity",
+    "storyId": "story-5",
+    "storyTitle": "As Attendance System Administrator, I want to monitor data ingestion health to achieve reliable real-time attendance data",
     "testCases": [
       {
-        "id": "tc-021-001",
-        "title": "Validate acceptance of correct attendance data",
+        "id": "tc-001",
+        "title": "Validate ingestion health dashboard displays accurate status",
         "type": "happy-path",
         "priority": "High",
         "preconditions": [
-          "User has admin or system-level access to submit attendance events",
-          "Attendance validation API endpoint (POST /attendance/validate) is accessible",
-          "Database is running and accepting connections",
-          "Valid employee IDs exist in the system database",
-          "System clock is synchronized for accurate timestamp validation"
+          "User is logged in as Attendance System Administrator",
+          "Ingestion health monitoring dashboard is accessible",
+          "Data ingestion system is operational",
+          "Test environment has capability to simulate ingestion scenarios",
+          "Alert notification system is configured and active"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Prepare a valid attendance event JSON payload with all required fields: employee ID (existing in system), timestamp (current date/time in ISO 8601 format), event type (e.g., 'check-in' or 'check-out'), and location",
-            "expectedResult": "Valid JSON payload is created with proper schema structure and all mandatory fields populated with correct data types"
+            "action": "Navigate to the ingestion health monitoring dashboard",
+            "expectedResult": "Dashboard loads successfully and displays current ingestion status overview"
           },
           {
             "step": 2,
-            "action": "Send POST request to /attendance/validate endpoint with the valid attendance event payload",
-            "expectedResult": "API accepts the request and returns HTTP 200 OK status code"
+            "action": "Simulate normal data ingestion by triggering a standard data feed from attendance sources",
+            "expectedResult": "Dashboard shows healthy status with green indicators, displays current metrics including ingestion rate, records processed, and last successful ingestion timestamp"
           },
           {
             "step": 3,
-            "action": "Review the API response body for validation confirmation",
-            "expectedResult": "Response contains success message indicating event passed validation with details such as validation_status: 'passed', event_id, and timestamp of validation"
+            "action": "Verify all metrics on the dashboard are updating in real-time",
+            "expectedResult": "Metrics refresh automatically showing live data, ingestion count increments, and status remains healthy"
           },
           {
             "step": 4,
-            "action": "Measure and record the response time from request submission to response receipt",
-            "expectedResult": "Validation process completes in under 500 milliseconds as indicated by response time metrics"
+            "action": "Simulate ingestion failure by stopping the data source or introducing a connection error",
+            "expectedResult": "Dashboard status changes to failure state with red indicators, error message is displayed, and failure timestamp is recorded"
           },
           {
             "step": 5,
-            "action": "Query the attendance database to verify the event was stored",
-            "expectedResult": "Attendance event is successfully stored in the database with all field values matching the submitted payload including employee ID, timestamp, event type, and location"
+            "action": "Check for alert notification sent to administrators",
+            "expectedResult": "Alert is sent immediately via configured channels (email/SMS/in-app) with details of the ingestion failure including timestamp and error type"
           },
           {
             "step": 6,
-            "action": "Check validation logs for the processed event",
-            "expectedResult": "Validation log entry exists showing successful validation with event details, validation timestamp, and 'accepted' status"
-          }
-        ],
-        "postconditions": [
-          "Valid attendance event is persisted in the database",
-          "Validation log contains successful validation entry",
-          "System remains ready to process subsequent events",
-          "No error notifications are generated",
-          "Database integrity is maintained"
-        ],
-        "estimatedTime": "5 mins"
-      },
-      {
-        "id": "tc-021-002",
-        "title": "Verify rejection of invalid attendance data",
-        "type": "error-case",
-        "priority": "High",
-        "preconditions": [
-          "User has admin or system-level access to submit attendance events",
-          "Attendance validation API endpoint (POST /attendance/validate) is accessible",
-          "Validation error logging system is active",
-          "Admin notification system is configured and operational",
-          "Database is running and accessible"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "Prepare an invalid attendance event JSON payload with missing employee ID field but including other fields like timestamp and event type",
-            "expectedResult": "Invalid JSON payload is created with employee ID field intentionally omitted or set to null"
-          },
-          {
-            "step": 2,
-            "action": "Send POST request to /attendance/validate endpoint with the invalid attendance event payload",
-            "expectedResult": "API receives the request and processes it through validation logic"
-          },
-          {
-            "step": 3,
-            "action": "Review the API response status code",
-            "expectedResult": "API returns HTTP 400 Bad Request status code indicating validation failure"
-          },
-          {
-            "step": 4,
-            "action": "Examine the API response body for error details",
-            "expectedResult": "Response contains error message clearly stating 'Missing required field: employee_id' or similar, with validation_status: 'failed' and list of validation errors"
-          },
-          {
-            "step": 5,
-            "action": "Query the attendance database to confirm the invalid event was not stored",
-            "expectedResult": "Database does not contain the invalid attendance event, confirming rejection prevented data storage"
-          },
-          {
-            "step": 6,
-            "action": "Check the validation error logs for the rejected event",
-            "expectedResult": "Error log entry exists with details including timestamp, rejected payload, specific validation error (missing employee_id), and rejection reason"
+            "action": "Navigate to the logs section from the dashboard",
+            "expectedResult": "Logs section opens displaying recent ingestion events"
           },
           {
             "step": 7,
-            "action": "Verify admin notification system for validation error alert",
-            "expectedResult": "Admin receives notification (email, dashboard alert, or system message) containing validation error details including event timestamp, error type, missing field information, and payload summary"
+            "action": "Review logs for the simulated failure event",
+            "expectedResult": "Detailed logs are available showing failure timestamp, error description, affected data source, stack trace if applicable, and troubleshooting information"
           },
           {
             "step": 8,
-            "action": "Measure the validation response time",
-            "expectedResult": "Validation and rejection process completes within 500 milliseconds"
-          }
-        ],
-        "postconditions": [
-          "Invalid attendance event is not stored in the database",
-          "Error log contains detailed rejection entry",
-          "Admin is notified of validation failure",
-          "System continues to operate normally and accept subsequent valid events",
-          "Data integrity is preserved"
-        ],
-        "estimatedTime": "7 mins"
-      },
-      {
-        "id": "tc-021-003",
-        "title": "Test duplicate event detection",
-        "type": "edge-case",
-        "priority": "High",
-        "preconditions": [
-          "User has admin or system-level access to submit attendance events",
-          "Attendance validation API endpoint (POST /attendance/validate) is accessible",
-          "Database contains at least one existing attendance event for testing",
-          "Duplicate detection mechanism is enabled in the validation system",
-          "Validation logs are accessible and recording events"
-        ],
-        "steps": [
-          {
-            "step": 1,
-            "action": "Prepare a valid attendance event JSON payload with all required fields: employee ID, timestamp, event type, and location",
-            "expectedResult": "Valid JSON payload is created with complete and correct data"
-          },
-          {
-            "step": 2,
-            "action": "Send POST request to /attendance/validate endpoint with the attendance event payload for the first time",
-            "expectedResult": "API returns HTTP 200 OK and event is accepted, validated, and stored successfully in the database"
-          },
-          {
-            "step": 3,
-            "action": "Verify the first event is stored by querying the database using employee ID and timestamp",
-            "expectedResult": "Database query returns the stored attendance event with all field values matching the submitted payload"
-          },
-          {
-            "step": 4,
-            "action": "Immediately send another POST request to /attendance/validate endpoint with the exact same attendance event payload (duplicate)",
-            "expectedResult": "API receives the duplicate request and processes it through validation and duplicate detection logic"
-          },
-          {
-            "step": 5,
-            "action": "Review the API response status code for the duplicate submission",
-            "expectedResult": "API returns HTTP 409 Conflict or HTTP 200 OK with duplicate detection message indicating the event was identified as a duplicate"
-          },
-          {
-            "step": 6,
-            "action": "Examine the API response body for duplicate detection details",
-            "expectedResult": "Response contains message such as 'Duplicate event detected and discarded' with details including original event timestamp and duplicate detection criteria (matching employee_id, timestamp, event_type)"
-          },
-          {
-            "step": 7,
-            "action": "Query the database to confirm only one instance of the event exists",
-            "expectedResult": "Database query returns only one record for the specific employee ID and timestamp combination, confirming duplicate was not stored"
-          },
-          {
-            "step": 8,
-            "action": "Check validation logs for duplicate detection entry",
-            "expectedResult": "Log entry exists showing duplicate detection with details including original event ID, duplicate submission timestamp, and 'discarded' status"
+            "action": "Filter logs by failure events only",
+            "expectedResult": "Logs are filtered successfully showing only failure events with complete details for troubleshooting"
           },
           {
             "step": 9,
-            "action": "Measure the duplicate detection response time",
-            "expectedResult": "Duplicate detection and rejection process completes within 500 milliseconds"
+            "action": "Restore normal data ingestion",
+            "expectedResult": "Dashboard status returns to healthy state, metrics resume normal updates, and recovery event is logged"
           }
         ],
         "postconditions": [
-          "Only one instance of the attendance event exists in the database",
-          "Duplicate event is logged but not stored",
-          "System maintains data integrity without duplicate records",
-          "Validation logs contain both acceptance and duplicate detection entries",
-          "System remains operational for processing new unique events"
+          "Dashboard accurately reflects current ingestion health status",
+          "All simulated events are logged in the system",
+          "Alert notifications were successfully delivered",
+          "Data ingestion is restored to normal operational state",
+          "Test data from simulation is cleaned up or marked as test data"
         ],
-        "estimatedTime": "8 mins"
+        "estimatedTime": "15 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-9",
+    "storyTitle": "As Attendance System Administrator, I want to handle data discrepancies to achieve accurate attendance aggregation",
+    "testCases": [
+      {
+        "id": "tc-002",
+        "title": "Validate detection of duplicate attendance records",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Attendance System Administrator",
+          "Attendance data processing system is operational",
+          "Discrepancy detection algorithms are enabled",
+          "Admin notification system is configured",
+          "Test attendance records are prepared for injection",
+          "Admin interface for discrepancy management is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Prepare duplicate attendance records with identical employee ID, date, and timestamp",
+            "expectedResult": "Test duplicate records are ready for injection with matching key fields"
+          },
+          {
+            "step": 2,
+            "action": "Inject duplicate attendance records into the system through the data ingestion pipeline",
+            "expectedResult": "Records are successfully ingested into the system for processing"
+          },
+          {
+            "step": 3,
+            "action": "Wait for the system to process the ingested records",
+            "expectedResult": "System completes processing and runs discrepancy detection algorithms"
+          },
+          {
+            "step": 4,
+            "action": "Check the discrepancy detection system for flagged duplicates",
+            "expectedResult": "System automatically flags the duplicate records and marks them as discrepancies with duplicate type classification"
+          },
+          {
+            "step": 5,
+            "action": "Verify that admin notification was sent",
+            "expectedResult": "Administrator receives notification via configured channels indicating duplicate records detected with count and affected employee IDs"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to the admin interface for discrepancy management",
+            "expectedResult": "Discrepancy management interface loads showing list of flagged discrepancies"
+          },
+          {
+            "step": 7,
+            "action": "Admin reviews the flagged duplicate records in the interface",
+            "expectedResult": "Duplicates are clearly identified with side-by-side comparison showing matching fields, timestamp details, and source information for easy resolution"
+          },
+          {
+            "step": 8,
+            "action": "Admin selects the duplicate records and chooses resolution action (keep one, merge, or delete)",
+            "expectedResult": "Resolution options are available and clearly presented with preview of outcome"
+          },
+          {
+            "step": 9,
+            "action": "Admin resolves duplicates by selecting to keep the first record and remove the duplicate",
+            "expectedResult": "System processes the resolution request successfully"
+          },
+          {
+            "step": 10,
+            "action": "Verify attendance data is updated after resolution",
+            "expectedResult": "Attendance data reflects the resolution with duplicate removed, only one valid record remains, and discrepancy status is cleared"
+          },
+          {
+            "step": 11,
+            "action": "Check that the discrepancy no longer appears in the flagged items list",
+            "expectedResult": "Resolved discrepancy is removed from active discrepancies list and marked as resolved"
+          }
+        ],
+        "postconditions": [
+          "Duplicate attendance records are successfully detected and flagged",
+          "Administrator was notified of the discrepancy",
+          "Discrepancy is resolved and attendance data is accurate",
+          "Resolution action is recorded in the system",
+          "No duplicate records remain in active attendance data"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Verify logging of discrepancy events",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Attendance System Administrator",
+          "Discrepancy detection system is operational",
+          "Logging system is enabled and configured",
+          "Test data is available to generate various discrepancy types",
+          "Log viewing interface is accessible to administrators"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Generate multiple discrepancy events by injecting duplicate records into the system",
+            "expectedResult": "Duplicate records are processed and flagged as discrepancies"
+          },
+          {
+            "step": 2,
+            "action": "Generate conflicting timestamp discrepancy by injecting records with same employee but overlapping time periods",
+            "expectedResult": "Conflicting timestamp records are processed and flagged as discrepancies"
+          },
+          {
+            "step": 3,
+            "action": "Generate anomaly discrepancy by injecting unusual attendance pattern (e.g., multiple check-ins without check-out)",
+            "expectedResult": "Anomaly records are processed and flagged as discrepancies"
+          },
+          {
+            "step": 4,
+            "action": "Navigate to the discrepancy logs section in the admin interface",
+            "expectedResult": "Discrepancy logs interface loads successfully"
+          },
+          {
+            "step": 5,
+            "action": "Review the logs for all generated discrepancy events",
+            "expectedResult": "All discrepancy events are logged with accurate timestamps, discrepancy type, affected employee IDs, record details, and detection time"
+          },
+          {
+            "step": 6,
+            "action": "Verify each log entry contains complete information including event ID, timestamp, discrepancy type, affected records, and detection details",
+            "expectedResult": "Each log entry displays comprehensive information with all required fields populated accurately"
+          },
+          {
+            "step": 7,
+            "action": "Filter logs by discrepancy type (duplicate)",
+            "expectedResult": "Logs are filtered successfully showing only duplicate discrepancy events"
+          },
+          {
+            "step": 8,
+            "action": "Filter logs by date range covering the test period",
+            "expectedResult": "Logs are filtered to show only events within the specified date range"
+          },
+          {
+            "step": 9,
+            "action": "Search logs by specific employee ID involved in discrepancies",
+            "expectedResult": "Logs are filtered to show only discrepancies related to the searched employee ID"
+          },
+          {
+            "step": 10,
+            "action": "Export discrepancy logs for audit purposes",
+            "expectedResult": "Logs are exported successfully in a standard format (CSV/PDF) with complete and accurate discrepancy history"
+          },
+          {
+            "step": 11,
+            "action": "Verify the exported file contains all log entries with timestamps and details",
+            "expectedResult": "Exported file contains complete and accurate discrepancy history matching the displayed logs"
+          },
+          {
+            "step": 12,
+            "action": "Resolve one of the discrepancies and check if resolution is logged",
+            "expectedResult": "Resolution action is logged with timestamp, admin user who resolved it, resolution method, and outcome"
+          }
+        ],
+        "postconditions": [
+          "All discrepancy events are logged in the system",
+          "Logs contain complete and accurate information for audit purposes",
+          "Log filtering and search functionality is verified",
+          "Discrepancy history is available for compliance and troubleshooting",
+          "Resolution actions are tracked in the logs"
+        ],
+        "estimatedTime": "10 mins"
       }
     ]
   }
