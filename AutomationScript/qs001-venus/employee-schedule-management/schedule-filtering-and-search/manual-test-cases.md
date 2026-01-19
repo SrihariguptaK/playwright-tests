@@ -1,212 +1,129 @@
 # Manual Test Cases
 
-## Story: As Employee, I want to filter my schedule by shift type to focus on relevant work periods
-**Story ID:** story-9
+## Story: As Employee, I want to filter my schedule by shift type to focus on relevant shifts
+**Story ID:** story-14
 
-### Test Case: Validate filtering by single shift type
+### Test Case: Validate shift type filter application
 - **ID:** tc-001
 - **Type:** happy-path
 - **Priority:** High
 - **Estimated Time:** 5 mins
 
 **Preconditions:**
-- Employee is logged into the system with valid credentials
-- Employee has an active schedule with multiple shift types (Morning, Evening, Night)
+- Employee account exists and is active in the system
+- Employee is logged into the portal with valid credentials
+- Employee has multiple shifts assigned with different shift types (morning, afternoon, night)
 - Employee is on the schedule view page
-- Schedule contains at least one Morning shift and one non-Morning shift
-- Browser supports dynamic content updates
+- Shift type filter options are visible and accessible
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Navigate to the schedule view page | Schedule view page loads successfully displaying all shifts for the employee |
-| 2 | Locate and click on the shift type filter dropdown/option | Filter options panel opens showing available shift types (Morning, Evening, Night) |
-| 3 | Select 'Morning' shift type from the filter options | Morning shift type is selected and highlighted in the filter interface |
-| 4 | Observe the schedule display update | Schedule updates dynamically without page reload to show only Morning shifts. All Evening and Night shifts are hidden. Filter response time is under 2 seconds |
-| 5 | Verify that only Morning shifts are displayed in the schedule | All displayed shifts have shift type 'Morning'. No Evening or Night shifts are visible |
-| 6 | Click the 'Clear filter' button or option | Clear filter action is triggered and filter selection is removed |
-| 7 | Observe the schedule display after clearing filter | Full schedule is displayed showing all shift types (Morning, Evening, Night). Schedule returns to default view without page reload |
+| 1 | Locate the shift type filter dropdown/checkbox section on the schedule view | Shift type filter options (Morning, Afternoon, Night) are displayed and available for selection |
+| 2 | Click or select the 'Morning' shift filter option | The 'Morning' filter is visually marked as selected (checked/highlighted) and the schedule view updates within 2 seconds to display only shifts with shift type 'Morning'. All other shift types are hidden from view |
+| 3 | While 'Morning' filter is still active, click or select the 'Night' shift filter option in addition to the existing selection | Both 'Morning' and 'Night' filters are visually marked as selected. The schedule view updates within 2 seconds to display shifts with shift types 'Morning' and 'Night' only. Afternoon shifts remain hidden |
+| 4 | Click the 'Clear filters' button or deselect all active shift type filters | All shift type filters are deselected/unchecked. The schedule view updates within 2 seconds to display the full schedule showing all shift types (Morning, Afternoon, and Night shifts) |
 
 **Postconditions:**
-- Schedule view displays all shifts without any filters applied
-- Filter interface is reset to default state
-- Employee remains logged in and on the schedule view page
+- All filters are cleared and the full schedule is displayed
+- The schedule view shows all shift types without any active filters
+- The system is ready for the next filter operation
 - No error messages are displayed
 
 ---
 
-### Test Case: Validate filtering by multiple shift types
+### Test Case: Test filter persistence during navigation
 - **ID:** tc-002
 - **Type:** happy-path
-- **Priority:** High
-- **Estimated Time:** 6 mins
-
-**Preconditions:**
-- Employee is logged into the system with valid credentials
-- Employee has an active schedule with multiple shift types (Morning, Evening, Night)
-- Employee is on the schedule view page
-- Schedule contains at least one Morning shift, one Evening shift, and one Night shift
-- Multi-select filter functionality is enabled
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | Navigate to the schedule view page | Schedule view page loads successfully displaying all shifts for the employee |
-| 2 | Locate and click on the shift type filter dropdown/option | Filter options panel opens showing available shift types with multi-select capability |
-| 3 | Select 'Morning' shift type from the filter options | Morning shift type is selected and highlighted. Filter remains open for additional selections |
-| 4 | Select 'Evening' shift type from the filter options while Morning is still selected | Both Morning and Evening shift types are selected and highlighted in the filter interface |
-| 5 | Apply the filter or observe automatic update | Schedule updates dynamically without page reload to show shifts matching either Morning or Evening type |
-| 6 | Verify that only Morning and Evening shifts are displayed | All displayed shifts have shift type 'Morning' or 'Evening'. Night shifts are hidden. Filter response time is under 2 seconds |
-| 7 | Count the total number of shifts displayed and verify against expected count | Total number of displayed shifts equals the sum of Morning and Evening shifts in the employee's schedule |
-
-**Postconditions:**
-- Schedule view displays only Morning and Evening shifts
-- Filter interface shows both Morning and Evening as selected
-- Employee remains logged in and on the schedule view page
-- Night shifts remain in the database but are filtered from view
-
----
-
-### Test Case: Test handling of invalid shift type filter
-- **ID:** tc-003
-- **Type:** error-case
-- **Priority:** Medium
-- **Estimated Time:** 5 mins
-
-**Preconditions:**
-- Employee is logged into the system with valid credentials
-- Employee has an active schedule with shifts
-- Employee has access to browser URL bar or developer tools
-- System has validation rules for shift type parameters
-- Valid shift types are: Morning, Evening, Night
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | Navigate to the schedule view page | Schedule view page loads successfully displaying all shifts for the employee |
-| 2 | Note the current URL in the browser address bar | URL is visible and follows the pattern /api/schedules?employeeId={id} |
-| 3 | Manually modify the URL to include an invalid shift type parameter (e.g., /api/schedules?employeeId={id}&shiftType=InvalidType) | Modified URL is entered in the address bar |
-| 4 | Press Enter to navigate to the modified URL | System processes the request with invalid shift type parameter |
-| 5 | Observe the system response and error handling | System returns a validation error message indicating invalid shift type. Error message is clear and user-friendly (e.g., 'Invalid shift type. Please select from: Morning, Evening, Night') |
-| 6 | Verify the schedule display after validation error | System defaults to full schedule view showing all shifts without any filter applied. No shifts are incorrectly filtered or hidden |
-| 7 | Verify that the filter interface is in default state | No shift type filters are selected. Filter dropdown shows default/unselected state |
-
-**Postconditions:**
-- Schedule displays all shifts in default view
-- Validation error message is displayed to the user
-- No invalid data is processed or stored
-- Employee remains logged in and can continue using the system
-- System logs the validation error for security monitoring
-
----
-
-## Story: As Employee, I want to search my schedule by date to quickly find shifts on specific days
-**Story ID:** story-10
-
-### Test Case: Validate successful search by valid date
-- **ID:** tc-004
-- **Type:** happy-path
-- **Priority:** High
-- **Estimated Time:** 5 mins
-
-**Preconditions:**
-- Employee is logged into the system with valid credentials
-- Employee has an active schedule with shifts on multiple dates
-- Employee is on the schedule page
-- At least one shift exists for the date to be searched
-- Date picker or search field is visible and functional
-- System accepts date format YYYY-MM-DD or MM/DD/YYYY
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | Navigate to the schedule page | Schedule page loads successfully displaying the employee's full schedule |
-| 2 | Locate the date search field or date picker input | Date search field is visible and enabled for input |
-| 3 | Click on the date search field to activate it | Date search field is focused and ready for input. Date picker calendar may appear if applicable |
-| 4 | Enter a valid date that has scheduled shifts (e.g., 2024-03-15 or 03/15/2024) | Date is entered successfully in the search field. Date format is accepted by the system |
-| 5 | Press Enter or click the Search button to execute the search | Search request is submitted to the system |
-| 6 | Observe the schedule display update | Schedule updates dynamically without page reload to show only shifts for the searched date. Search response time is under 2 seconds |
-| 7 | Verify that only shifts for the searched date are displayed | All displayed shifts have the date matching the searched date. Shifts from other dates are hidden. Shift details (time, type, location) are accurate |
-| 8 | Locate and click the 'Clear search' button or option | Clear search action is triggered |
-| 9 | Observe the schedule display after clearing search | Full schedule view is restored showing all shifts across all dates. Schedule updates dynamically without page reload. Date search field is cleared |
-
-**Postconditions:**
-- Schedule view displays all shifts without any search filters applied
-- Date search field is empty and ready for new input
-- Employee remains logged in and on the schedule page
-- No error messages are displayed
-- System state is reset to default schedule view
-
----
-
-### Test Case: Validate rejection of invalid date input
-- **ID:** tc-005
-- **Type:** error-case
 - **Priority:** High
 - **Estimated Time:** 4 mins
 
 **Preconditions:**
-- Employee is logged into the system with valid credentials
-- Employee is on the schedule page
-- Date search field is visible and functional
-- System has date format validation rules in place
-- Expected valid date formats are documented (e.g., YYYY-MM-DD, MM/DD/YYYY)
+- Employee account exists and is active in the system
+- Employee is logged into the portal with valid credentials
+- Employee has shifts scheduled across multiple weeks
+- Employee is on the schedule view page showing the current week
+- Shift type filter options are visible and accessible
+- Schedule navigation controls (next week/previous week) are available
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Navigate to the schedule page | Schedule page loads successfully displaying the employee's full schedule |
-| 2 | Locate the date search field | Date search field is visible and enabled for input |
-| 3 | Click on the date search field to activate it | Date search field is focused and ready for input |
-| 4 | Enter an invalid date format (e.g., '32/13/2024', 'invalid-date', '2024-13-45', or 'abc123') | Invalid date string is entered in the search field |
-| 5 | Press Enter or click the Search button to attempt the search | System validates the date input |
-| 6 | Observe the system response to invalid date input | System displays a clear error message indicating invalid date format (e.g., 'Invalid date format. Please use YYYY-MM-DD or MM/DD/YYYY'). Error message is displayed near the search field or in a notification area |
-| 7 | Verify that the search was not performed | Schedule display remains unchanged showing the full schedule. No API call is made to search with invalid date. Search field retains the invalid input for user correction |
-| 8 | Verify that the schedule data is still accessible | Full schedule remains visible and functional. No data loss or corruption occurred |
+| 1 | Select the 'Morning' shift type filter from the available filter options | The 'Morning' filter is marked as selected and the schedule view updates within 2 seconds to display only morning shifts for the current week |
+| 2 | Verify the filtered schedule is displaying correctly with only morning shifts visible | Only shifts with shift type 'Morning' are displayed in the schedule view. Other shift types are not visible |
+| 3 | Click the 'Next Week' navigation button or arrow to move to the following week's schedule | The schedule view navigates to the next week and the 'Morning' filter remains active (still visually selected). The schedule displays only morning shifts for the next week within 2 seconds |
+| 4 | Verify the filter state is maintained and the correct filtered data is displayed for the new week | The 'Morning' filter indicator remains selected/highlighted. Only morning shifts for the next week are displayed. The filter has persisted through the navigation action |
 
 **Postconditions:**
-- Error message is displayed to the user
-- Schedule displays full schedule without any search applied
-- Invalid date input remains in the search field for correction
-- Employee remains logged in and can continue using the system
-- No invalid search is logged or processed
-- System is ready to accept corrected date input
+- The shift type filter remains active after navigation
+- The schedule displays the next week with the filter still applied
+- The filter state is maintained in the system session
+- The employee can continue navigating with the filter active or clear it as needed
 
 ---
 
-### Test Case: Test access control on search results
-- **ID:** tc-006
+## Story: As Employee, I want to search my schedule by date to quickly find specific shifts
+**Story ID:** story-15
+
+### Test Case: Validate schedule search with valid date
+- **ID:** tc-003
+- **Type:** happy-path
+- **Priority:** High
+- **Estimated Time:** 5 mins
+
+**Preconditions:**
+- Employee account exists and is active in the system
+- Employee is logged into the portal with valid credentials
+- Employee has shifts scheduled on various dates
+- Employee is on the schedule view page
+- Date search field/date picker is visible and accessible
+- At least one shift exists on the date that will be searched
+
+**Steps:**
+| Step | Action | Expected Result |
+|------|--------|------------------|
+| 1 | Locate the date search field or date picker input on the schedule page | The date search field or date picker is displayed and ready for input |
+| 2 | Enter a valid date in the correct format (e.g., MM/DD/YYYY or select from date picker) for a date that has scheduled shifts | The date is accepted and displayed in the search field without any validation errors |
+| 3 | Submit the search by clicking the search button or pressing Enter | The system processes the search within 2 seconds and displays only the shifts scheduled for the entered date. The schedule view updates to show the search results with shift details (time, type, location) for that specific date |
+| 4 | Verify that only shifts for the searched date are displayed and belong to the logged-in employee | All displayed shifts match the searched date and are assigned to the logged-in employee only. No shifts from other dates or other employees are shown |
+| 5 | Click the 'Clear search' button or clear the date input field | The date search field is cleared and the schedule view returns to the full schedule display showing all upcoming shifts across all dates |
+
+**Postconditions:**
+- The search is cleared and the full schedule view is restored
+- The date search field is empty and ready for a new search
+- All employee shifts are visible in the default schedule view
+- No error messages are displayed
+
+---
+
+### Test Case: Verify handling of invalid date input
+- **ID:** tc-004
 - **Type:** error-case
 - **Priority:** High
 - **Estimated Time:** 6 mins
 
 **Preconditions:**
-- Employee is logged into the system with valid credentials
-- Employee has a known employee ID (e.g., employeeId=123)
-- Another employee exists in the system with a different ID (e.g., employeeId=456)
-- Employee is on the schedule page
-- Employee has access to browser URL bar or developer tools
-- System has authentication and authorization controls in place
+- Employee account exists and is active in the system
+- Employee is logged into the portal with valid credentials
+- Employee is on the schedule view page
+- Date search field/date picker is visible and accessible
+- System has defined valid date format requirements
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Navigate to the schedule page | Schedule page loads successfully displaying the logged-in employee's schedule |
-| 2 | Note the current URL in the browser address bar (e.g., /api/schedules?employeeId=123&date=2024-03-15) | URL is visible and contains the logged-in employee's ID |
-| 3 | Manually modify the URL to change the employeeId parameter to another employee's ID (e.g., /api/schedules?employeeId=456&date=2024-03-15) | Modified URL with different employee ID is entered in the address bar |
-| 4 | Press Enter to navigate to the modified URL | System processes the request with unauthorized employee ID |
-| 5 | Observe the system response to unauthorized access attempt | System detects authorization violation and denies access. Access denied error message is displayed (e.g., 'Access Denied: You are not authorized to view this employee's schedule' or HTTP 403 Forbidden) |
-| 6 | Verify that no schedule data for the other employee is displayed | No shifts or schedule information for the unauthorized employee ID is shown. Other employee's data remains protected and inaccessible |
-| 7 | Verify redirection or error page display | User is either redirected back to their own schedule page or shown an error page. Logged-in employee's own schedule may be displayed, or a blank schedule with error message |
-| 8 | Check that the session remains valid | Employee remains logged in. Session is not terminated due to authorization failure |
+| 1 | Locate the date search field on the schedule page | The date search field is displayed and ready for input |
+| 2 | Enter an invalid date format in the search field (e.g., '99/99/9999', 'abc123', '13/45/2024', or other malformed date) | The system detects the invalid date format |
+| 3 | Attempt to submit the search by clicking the search button or pressing Enter | The search is blocked and not executed. A clear error message is displayed indicating 'Invalid date format. Please enter a valid date (MM/DD/YYYY)' or similar. The schedule view remains unchanged |
+| 4 | Clear the invalid input and enter a valid date that is outside the employee's schedule range (e.g., a date far in the past before employment or far in the future beyond scheduled shifts) | The date format is accepted as valid |
+| 5 | Submit the search for the out-of-range date | The system processes the search within 2 seconds and displays an informative message 'No shifts found for the selected date' or similar. The message is clear and non-technical. No error styling is shown, just an informational message |
+| 6 | Verify that the schedule view shows the 'No shifts found' message without displaying any shift data | The schedule area displays only the informative message. No shifts are shown. The interface remains functional and the employee can perform another search |
 
 **Postconditions:**
-- Access denied error is displayed to the user
-- No unauthorized schedule data is exposed
-- Employee is redirected to their own schedule or error page
-- Employee remains logged in with valid session
-- Security event is logged for audit purposes
-- System maintains data privacy and access control integrity
+- The system has properly validated and handled invalid date inputs
+- Appropriate error or informational messages were displayed
+- The schedule view remains stable without crashes or unexpected behavior
+- The date search field is ready for new valid input
 
 ---
 
