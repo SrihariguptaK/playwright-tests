@@ -1,40 +1,44 @@
 # Manual Test Cases
 
-## Story: As Manager, I want to receive alerts for excessive absences to achieve proactive workforce management
-**Story ID:** story-17
+## Story: As Manager, I want to receive attendance alerts to achieve timely awareness of attendance anomalies
+**Story ID:** story-4
 
-### Test Case: Validate alert generation on absence threshold breach
+### Test Case: Validate alert configuration and delivery
 - **ID:** tc-001
 - **Type:** happy-path
 - **Priority:** High
 - **Estimated Time:** 15 mins
 
 **Preconditions:**
-- Manager user is logged in with valid credentials
+- Manager is logged into the system with valid credentials
 - Manager has appropriate role-based permissions to configure alerts
-- Attendance database is accessible and populated with employee data
-- Email and in-app notification services are operational
-- At least one department exists in the system
+- Alert configuration interface is accessible
+- Email notification service is operational
+- Dashboard notification center is functional
+- Real-time attendance monitoring system is active
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Navigate to the alert configuration page from the main dashboard | Alert configuration page loads successfully with all configuration options visible |
-| 2 | Select a department from the department dropdown list | Department is selected and displayed in the configuration form |
-| 3 | Enter a valid absence threshold value (e.g., 3 absences in 30 days) in the threshold input field | Threshold value is accepted and displayed in the input field without validation errors |
-| 4 | Click the 'Save' or 'Submit' button to save the threshold configuration | Success message is displayed confirming 'Threshold saved successfully' and configuration is persisted in the system |
-| 5 | Simulate employee absences exceeding the configured threshold by updating attendance records in the system | Attendance records are updated successfully in the database |
-| 6 | Wait and monitor the system for alert generation (maximum 5 minutes) | System automatically generates an alert within 5 minutes of threshold breach being detected |
-| 7 | Check the manager's email inbox for alert notification | Email notification is received containing alert details including employee information and absence metrics |
-| 8 | Check the in-app notification center or dashboard for alert notification | In-app notification is displayed showing the same alert with employee information and absence metrics |
-| 9 | Verify that both email and in-app notifications contain consistent information | Both notification channels display identical alert information including employee name, department, absence count, and threshold details |
+| 1 | Navigate to alert configuration settings page | Alert configuration page loads successfully displaying available alert types and notification channel options |
+| 2 | Select 'Late Arrivals' as the alert type from the available options | Late Arrivals alert type is selected and threshold configuration fields are displayed |
+| 3 | Set the threshold value for late arrivals (e.g., 15 minutes) | Threshold value is accepted and displayed in the configuration field |
+| 4 | Select 'Email' as the notification channel | Email notification channel is selected and email address field is displayed with manager's email pre-populated |
+| 5 | Click 'Save' button to save the alert configuration | Configuration is saved successfully with confirmation message displayed: 'Alert configuration saved successfully' |
+| 6 | Simulate a late arrival event by creating a test attendance record where an employee arrives 20 minutes late (exceeding the 15-minute threshold) | System detects the late arrival anomaly and triggers alert generation process |
+| 7 | Wait and monitor for alert delivery (maximum 5 minutes) | Alert email is received in manager's inbox within 5 minutes containing late arrival details (employee name, arrival time, threshold exceeded) |
+| 8 | Navigate to the dashboard notification center | Dashboard loads successfully and notification center displays the late arrival alert with unacknowledged status |
+| 9 | Click on the late arrival alert in the dashboard notification center | Alert details panel opens showing complete information: employee name, event type, timestamp, threshold value, and acknowledge/resolve options |
+| 10 | Click 'Acknowledge' button on the alert | Alert status is updated to 'Acknowledged' with timestamp and manager's name recorded, confirmation message displayed |
+| 11 | Refresh the dashboard notification center | Alert now displays 'Acknowledged' status with acknowledgment timestamp and manager details visible |
 
 **Postconditions:**
-- Alert threshold configuration is saved in the system
+- Alert configuration is saved in the system
 - Alert is generated and logged in the system
-- Manager has received notifications via both email and in-app channels
-- Attendance records reflect the simulated absences
-- Alert is available in alert history for future review
+- Email notification is sent and delivered
+- Alert appears in dashboard with acknowledged status
+- Alert acknowledgment is recorded with timestamp and manager information
+- System is ready for subsequent alert monitoring
 
 ---
 
@@ -42,174 +46,127 @@
 - **ID:** tc-002
 - **Type:** happy-path
 - **Priority:** High
-- **Estimated Time:** 12 mins
+- **Estimated Time:** 20 mins
 
 **Preconditions:**
-- Manager user is logged in with valid credentials
-- Alert configuration is already set up for at least one department
-- System has the capability to generate alerts
-- Alert history UI is accessible to the manager
-- Database logging functionality is operational
+- Manager is logged into the system with valid credentials
+- Manager has permissions to view audit logs
+- Alert system is configured and operational
+- Audit logging functionality is enabled
+- Multiple alert types are configured (absences, late arrivals, threshold breaches)
+- Database has sufficient storage for audit logs
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Simulate multiple employee absences exceeding thresholds for different employees or departments | Multiple attendance threshold breaches are created in the system |
-| 2 | Wait for the system to generate alerts for each threshold breach (within 5 minutes each) | System generates multiple alerts corresponding to each threshold breach |
-| 3 | Verify that all generated alerts are logged in the database with timestamps | All alerts are logged with accurate timestamps, employee IDs, department information, and alert type |
-| 4 | Navigate to the alert history UI from the main dashboard or alerts section | Alert history page loads successfully displaying a list or table of alerts |
-| 5 | Review the displayed alerts in the alert history UI | All generated alerts are displayed with complete details including employee name, department, absence count, threshold value, timestamp, and alert status |
-| 6 | Verify the chronological order of alerts based on timestamps | Alerts are displayed in chronological order (newest first or oldest first based on default sorting) |
-| 7 | Click on individual alert entries to view detailed information | Detailed alert view opens showing comprehensive information including full employee details, absence history, and alert generation timestamp |
-| 8 | Verify that the audit trail includes all necessary information for compliance and review | Audit trail contains complete information including who was alerted, when the alert was generated, what triggered it, and current status |
+| 1 | Simulate an absence event by creating an attendance record with an employee marked as absent | System detects absence anomaly and generates an absence alert |
+| 2 | Simulate a late arrival event by creating an attendance record with employee arriving late beyond threshold | System detects late arrival anomaly and generates a late arrival alert |
+| 3 | Simulate a threshold breach event by creating multiple consecutive late arrivals for the same employee | System detects threshold breach and generates a threshold breach alert |
+| 4 | Navigate to the audit logs section in the system | Audit logs page loads successfully with search and filter options available |
+| 5 | Filter audit logs to display alert generation events for the current date | All three generated alerts (absence, late arrival, threshold breach) are displayed in the audit log with complete details: alert ID, type, timestamp, employee details, and generation status |
+| 6 | Verify each alert log entry contains required information: alert ID, alert type, timestamp, employee name, threshold value, and generation timestamp | All alert entries contain complete and accurate information with precise timestamps in chronological order |
+| 7 | Navigate to the dashboard notification center and view the generated alerts | All three alerts are displayed in the notification center with 'Unresolved' status |
+| 8 | Select the absence alert and click 'Resolve' button, adding resolution notes: 'Employee on approved leave' | Alert status changes to 'Resolved' with resolution notes saved and timestamp recorded |
+| 9 | Select the late arrival alert and click 'Resolve' button, adding resolution notes: 'Discussed with employee' | Alert status changes to 'Resolved' with resolution notes saved and timestamp recorded |
+| 10 | Select the threshold breach alert and click 'Resolve' button, adding resolution notes: 'Performance improvement plan initiated' | Alert status changes to 'Resolved' with resolution notes saved and timestamp recorded |
+| 11 | Return to the audit logs section and filter for alert resolution actions | Audit trail displays all three resolution actions with complete details: alert ID, resolution timestamp, manager name, resolution notes, and previous status |
+| 12 | Review the complete audit log history for one specific alert from generation to resolution | Complete and accurate alert history is available showing: initial generation event, acknowledgment (if any), resolution action, all timestamps, manager actions, and status transitions in chronological order |
+| 13 | Export audit logs to verify data completeness | Audit log export contains all alert events with complete information in structured format |
 
 **Postconditions:**
-- Multiple alerts are logged in the system database
-- Alert history is accessible and displays all generated alerts
-- Audit trail is complete and available for compliance review
-- No alerts are missing from the history log
+- All generated alerts are logged in the audit trail
+- All resolution actions are recorded with complete details
+- Audit logs contain complete history from alert generation to resolution
+- Alert statuses are updated to 'Resolved'
+- Resolution notes are saved and associated with respective alerts
+- Audit trail is available for compliance and reporting purposes
 
 ---
 
-### Test Case: Test alert configuration validation
+## Story: As Manager, I want to customize alert thresholds to achieve personalized attendance monitoring
+**Story ID:** story-10
+
+### Test Case: Validate alert threshold customization and application
 - **ID:** tc-003
-- **Type:** error-case
+- **Type:** happy-path
 - **Priority:** High
-- **Estimated Time:** 10 mins
+- **Estimated Time:** 18 mins
 
 **Preconditions:**
-- Manager user is logged in with valid credentials
-- Manager has permissions to access alert configuration
-- Alert configuration page is accessible
-- Validation rules are implemented in the system
+- Manager is logged into the system with valid credentials
+- Manager has role-based permissions to customize alert thresholds
+- Alert threshold settings interface is accessible
+- Default threshold values are configured in the system
+- Alert generation system is operational
+- Preview functionality is enabled
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Navigate to the alert configuration page | Alert configuration page loads successfully with input fields visible |
-| 2 | Enter a negative number (e.g., -5) in the absence threshold field | System displays validation error message such as 'Threshold value must be a positive number' and prevents saving |
-| 3 | Clear the threshold field and enter zero (0) as the threshold value | System displays validation error message such as 'Threshold value must be greater than zero' and prevents saving |
-| 4 | Enter an excessively large number (e.g., 99999) in the threshold field | System displays validation error message such as 'Threshold value exceeds maximum allowed limit' and prevents saving |
-| 5 | Enter non-numeric characters (e.g., 'abc' or special characters) in the threshold field | System displays validation error message such as 'Please enter a valid numeric value' and prevents saving |
-| 6 | Leave the threshold field empty and attempt to save the configuration | System displays validation error message such as 'Threshold value is required' and prevents saving |
-| 7 | Enter a decimal number (e.g., 3.5) in the threshold field if only integers are allowed | System either rounds to nearest integer or displays validation error message 'Please enter a whole number' based on business rules |
-| 8 | Attempt to save configuration without selecting a department | System displays validation error message such as 'Please select a department' and prevents saving |
-| 9 | Verify that all validation messages are clear, user-friendly, and displayed near the relevant input fields | All validation messages are displayed in red or highlighted format near the corresponding input fields with clear instructions |
+| 1 | Navigate to the alert settings page from the main dashboard menu | Alert settings page loads successfully displaying navigation options for threshold configuration |
+| 2 | Click on 'Alert Threshold Settings' option | Alert threshold configuration interface is displayed showing all available alert types (absences, late arrivals, early departures, threshold breaches) |
+| 3 | Review the current threshold values displayed for each alert type | Current thresholds are displayed correctly: Late Arrivals (default: 15 minutes), Absences (default: 1 occurrence), Early Departures (default: 10 minutes), Consecutive Late Arrivals (default: 3 occurrences) |
+| 4 | Click on the 'Late Arrivals' threshold field to edit | Late Arrivals threshold field becomes editable with current value highlighted and input cursor active |
+| 5 | Enter a new valid threshold value of '20' minutes for Late Arrivals | New value '20' is accepted and displayed in the threshold field without validation errors |
+| 6 | Click on the 'Consecutive Late Arrivals' threshold field to edit | Consecutive Late Arrivals threshold field becomes editable with current value highlighted |
+| 7 | Enter a new valid threshold value of '5' occurrences for Consecutive Late Arrivals | New value '5' is accepted and displayed in the threshold field without validation errors |
+| 8 | Click on the 'Early Departures' threshold field to edit | Early Departures threshold field becomes editable with current value highlighted |
+| 9 | Enter a new valid threshold value of '15' minutes for Early Departures | New value '15' is accepted and displayed in the threshold field without validation errors |
+| 10 | Click 'Save' button to save the modified threshold settings | System validates all inputs, saves the new threshold values, and displays confirmation message: 'Alert thresholds saved and applied successfully' |
+| 11 | Verify the saved values by refreshing the alert threshold settings page | Page reloads and displays the updated threshold values: Late Arrivals (20 minutes), Consecutive Late Arrivals (5 occurrences), Early Departures (15 minutes) |
+| 12 | Click on 'Preview Alert Impact' button | Preview interface opens displaying a simulation panel with options to view expected alerts based on new thresholds |
+| 13 | Select a date range for preview (e.g., last 7 days) and click 'Generate Preview' | System processes historical attendance data and displays preview results showing: number of alerts that would have been generated with new thresholds vs. old thresholds, breakdown by alert type, and comparison metrics |
+| 14 | Review the preview results to verify new threshold settings impact | Preview accurately reflects new threshold settings: Late Arrivals alerts reduced (threshold increased from 15 to 20 minutes), Consecutive Late Arrivals alerts reduced (threshold increased from 3 to 5), Early Departures alerts increased (threshold increased from 10 to 15 minutes) |
+| 15 | Simulate a new late arrival event with employee arriving 18 minutes late | No alert is generated because 18 minutes is below the new threshold of 20 minutes |
+| 16 | Simulate a new late arrival event with employee arriving 25 minutes late | Alert is generated immediately because 25 minutes exceeds the new threshold of 20 minutes, confirming new thresholds are applied in real-time |
 
 **Postconditions:**
-- No invalid threshold configurations are saved in the system
-- System maintains data integrity by rejecting invalid inputs
-- User is informed of validation errors with clear messages
-- Alert configuration page remains in editable state for correction
+- Custom threshold values are saved in the system database
+- New thresholds are immediately applied to alert generation logic
+- Preview results are available for manager review
+- Alert generation uses updated threshold values for all subsequent monitoring
+- System logs threshold changes for audit purposes
+- Manager can verify threshold changes are effective
 
 ---
 
-## Story: As Manager, I want to receive notifications for late arrivals to achieve timely corrective actions
-**Story ID:** story-18
-
-### Test Case: Validate late arrival detection and notification
+### Test Case: Verify validation prevents invalid threshold inputs
 - **ID:** tc-004
-- **Type:** happy-path
-- **Priority:** High
-- **Estimated Time:** 15 mins
-
-**Preconditions:**
-- Manager user is logged in with valid credentials
-- Manager has appropriate permissions to configure notifications
-- Employee schedules are defined in the system with specific start times
-- Attendance monitoring system is operational
-- Email and in-app notification services are functional
-- At least one employee with a defined schedule exists in the system
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | Navigate to the notification preferences or settings page from the main dashboard | Notification preferences page loads successfully with configuration options displayed |
-| 2 | Enable late arrival notifications by toggling the notification switch or checkbox | Late arrival notification option is enabled and visually indicated as active |
-| 3 | Configure notification channels by selecting both email and in-app notification options | Both email and in-app notification channels are selected and highlighted |
-| 4 | Set the late arrival threshold (e.g., 15 minutes after scheduled start time) if configurable | Late arrival threshold is set and displayed in the configuration |
-| 5 | Click 'Save' or 'Apply' button to save the notification preferences | Success message is displayed confirming 'Preferences saved successfully' and settings are persisted |
-| 6 | Simulate an employee late arrival by recording attendance after the scheduled start time plus threshold (e.g., employee scheduled for 9:00 AM arrives at 9:20 AM) | Attendance record is created in the system with timestamp indicating late arrival |
-| 7 | Wait and monitor the system for late arrival detection and notification generation (maximum 5 minutes) | System detects the late arrival within 5 minutes and generates a notification |
-| 8 | Check the manager's email inbox for late arrival notification | Email notification is received containing employee name, scheduled time, actual arrival time, and lateness duration |
-| 9 | Check the in-app notification center or dashboard for late arrival notification | In-app notification is displayed showing the same late arrival information with employee details |
-| 10 | Verify that both notifications contain consistent and accurate information | Both email and in-app notifications display identical information including employee name, department, scheduled time, actual arrival time, and lateness duration |
-| 11 | Verify the timestamp of notification delivery | Notifications are delivered within 5 minutes of late arrival detection as per performance requirements |
-
-**Postconditions:**
-- Late arrival notification preferences are saved in the system
-- Late arrival is detected and logged in the system
-- Manager has received notifications via both email and in-app channels
-- Notification is logged in notification history
-- Attendance record reflects the late arrival with accurate timestamp
-
----
-
-### Test Case: Verify notification history accessibility
-- **ID:** tc-005
-- **Type:** happy-path
-- **Priority:** Medium
-- **Estimated Time:** 10 mins
-
-**Preconditions:**
-- Manager user is logged in with valid credentials
-- Late arrival notification preferences are already configured
-- System is capable of generating late arrival notifications
-- Notification history UI is accessible
-- Database logging for notifications is operational
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | Simulate multiple employee late arrivals by recording attendance for different employees after their scheduled start times | Multiple late arrival attendance records are created in the system |
-| 2 | Wait for the system to detect late arrivals and generate notifications for each instance | System generates multiple late arrival notifications within 5 minutes of each detection |
-| 3 | Verify that all notifications are logged in the database with complete information | All notifications are logged with timestamps, employee IDs, scheduled times, actual arrival times, and notification status |
-| 4 | Navigate to the notification history page from the main dashboard or notifications section | Notification history page loads successfully displaying a list or table of notifications |
-| 5 | Review the displayed notifications in the notification history UI | All generated late arrival notifications are displayed with details including employee name, date, scheduled time, actual arrival time, lateness duration, and timestamp |
-| 6 | Verify that notifications are displayed in chronological order | Notifications are sorted by timestamp in descending order (most recent first) or ascending order based on default settings |
-| 7 | Use filter or search functionality to find specific notifications by employee name or date | Filter/search functionality works correctly and displays relevant notifications matching the search criteria |
-| 8 | Click on individual notification entries to view detailed information | Detailed notification view opens showing comprehensive information including full employee details, schedule information, and notification delivery status |
-| 9 | Verify that notification history includes delivery status for both email and in-app channels | Each notification entry shows delivery status indicating whether it was successfully sent via email and in-app channels |
-
-**Postconditions:**
-- Multiple late arrival notifications are logged in the system
-- Notification history is accessible and displays all notifications
-- Notification data is complete and accurate for review purposes
-- Manager can access historical notification data for analysis
-
----
-
-### Test Case: Test notification preference validation
-- **ID:** tc-006
 - **Type:** error-case
-- **Priority:** Medium
+- **Priority:** High
 - **Estimated Time:** 12 mins
 
 **Preconditions:**
-- Manager user is logged in with valid credentials
-- Manager has permissions to configure notification preferences
-- Notification preferences page is accessible
-- Validation rules are implemented for notification settings
+- Manager is logged into the system with valid credentials
+- Manager has permissions to access alert threshold settings
+- Alert threshold settings interface is accessible
+- Input validation rules are configured in the system
+- Current valid threshold values are set
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Navigate to the notification preferences configuration page | Notification preferences page loads successfully with all configuration fields visible |
-| 2 | Attempt to save notification preferences without selecting any notification channel (neither email nor in-app) | System displays validation error message such as 'Please select at least one notification channel' and prevents saving |
-| 3 | If late arrival threshold is configurable, enter a negative value (e.g., -10 minutes) in the threshold field | System displays validation error message such as 'Threshold must be a positive value' and prevents saving |
-| 4 | Enter an excessively large threshold value (e.g., 500 minutes) that exceeds business logic limits | System displays validation error message such as 'Threshold value exceeds maximum allowed limit' and prevents saving |
-| 5 | Enter non-numeric characters (e.g., 'abc' or special characters) in the threshold field if applicable | System displays validation error message such as 'Please enter a valid numeric value' and prevents saving |
-| 6 | If email notification is selected, enter an invalid email address format in the email field | System displays validation error message such as 'Please enter a valid email address' and prevents saving |
-| 7 | Leave required fields empty and attempt to save the configuration | System displays validation error messages for all required fields such as 'This field is required' and prevents saving |
-| 8 | Enter a threshold value of zero (0) if not allowed by business rules | System displays validation error message such as 'Threshold must be greater than zero' and prevents saving |
-| 9 | Verify that all validation error messages are clear, specific, and displayed near the relevant input fields | All validation messages are displayed in red or highlighted format near the corresponding fields with clear, actionable instructions |
-| 10 | Verify that the form does not submit when validation errors are present | Save/Submit button either remains disabled or form submission is prevented until all validation errors are resolved |
+| 1 | Navigate to the alert threshold settings page | Alert threshold settings page loads successfully displaying current threshold values and editable fields |
+| 2 | Click on the 'Late Arrivals' threshold field and enter a negative value '-10' | System detects invalid input and displays validation error message: 'Threshold value must be a positive number' in red text near the field |
+| 3 | Attempt to click 'Save' button with the negative value still in the field | Save button is disabled or clicking it triggers validation error preventing save action, error message remains visible |
+| 4 | Clear the negative value and enter zero '0' in the 'Late Arrivals' threshold field | System detects invalid input and displays validation error message: 'Threshold value must be greater than zero' |
+| 5 | Clear the zero value and enter a non-numeric value 'abc' in the 'Late Arrivals' threshold field | System detects invalid input type and displays validation error message: 'Please enter a valid numeric value' |
+| 6 | Clear the non-numeric value and enter a decimal value '15.5' in the 'Late Arrivals' threshold field | System detects invalid format and displays validation error message: 'Threshold value must be a whole number' (if decimals are not allowed) or accepts the value (if decimals are allowed per business rules) |
+| 7 | Clear the field and enter an extremely large value '999999' in the 'Late Arrivals' threshold field | System detects value exceeding maximum allowed threshold and displays validation error message: 'Threshold value cannot exceed [maximum value, e.g., 480 minutes]' |
+| 8 | Click on the 'Consecutive Late Arrivals' threshold field and enter a negative value '-5' | System displays validation error message: 'Threshold value must be a positive number' |
+| 9 | Clear the field and leave the 'Consecutive Late Arrivals' threshold field empty (blank) | System detects missing required value and displays validation error message: 'This field is required' or 'Please enter a threshold value' |
+| 10 | Enter special characters '!@#$' in the 'Early Departures' threshold field | System detects invalid characters and displays validation error message: 'Only numeric values are allowed' |
+| 11 | Attempt to save the form with multiple validation errors present | System prevents saving and displays summary of all validation errors: 'Please correct the following errors before saving' with list of all invalid fields |
+| 12 | Correct all invalid inputs by entering valid threshold values: Late Arrivals (20), Consecutive Late Arrivals (5), Early Departures (15) | All validation error messages disappear as valid values are entered, fields display green checkmarks or success indicators |
+| 13 | Click 'Save' button with all valid inputs | System accepts all valid inputs, saves the threshold settings successfully, and displays confirmation message: 'Alert thresholds saved successfully' |
 
 **Postconditions:**
-- No invalid notification preferences are saved in the system
-- System maintains data integrity by rejecting invalid configurations
-- User is clearly informed of all validation errors
-- Notification preferences page remains in editable state for corrections
+- Invalid threshold values are rejected and not saved to the database
+- Validation error messages are displayed appropriately for each error type
+- System prevents saving of invalid configurations
+- Only valid threshold values are accepted and saved
+- User is guided to correct invalid inputs through clear error messages
+- Data integrity is maintained by preventing invalid threshold configurations
 
 ---
 
