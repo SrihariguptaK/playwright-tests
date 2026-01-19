@@ -1,126 +1,119 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Story-13: In-app alerts for scheduling conflicts', () => {
+test.describe('Real-time Pop-up Alerts for Scheduling Conflicts', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to the scheduling application
-    await page.goto('/scheduler');
-    
-    // Login as scheduler
-    await page.fill('[data-testid="username-input"]', 'scheduler@example.com');
-    await page.fill('[data-testid="password-input"]', 'password123');
-    await page.click('[data-testid="login-button"]');
-    
-    // Wait for dashboard to load
-    await expect(page.locator('[data-testid="scheduler-dashboard"]')).toBeVisible();
+    // Navigate to the scheduling interface before each test
+    await page.goto('/scheduling');
+    // Wait for the page to be fully loaded
+    await page.waitForLoadState('networkidle');
   });
 
-  test('Verify in-app alert displays upon scheduling conflict', async ({ page }) => {
-    // Step 1: Create an existing booking
-    await page.click('[data-testid="create-booking-button"]');
-    await page.fill('[data-testid="resource-select"]', 'Conference Room A');
-    await page.fill('[data-testid="booking-date"]', '2024-03-15');
-    await page.fill('[data-testid="booking-start-time"]', '10:00');
-    await page.fill('[data-testid="booking-end-time"]', '11:00');
-    await page.click('[data-testid="save-booking-button"]');
-    await expect(page.locator('[data-testid="booking-success-message"]')).toBeVisible();
+  test('Verify pop-up alert displays on conflict detection', async ({ page }) => {
+    // Step 1: Enter scheduling data causing conflict
+    await page.fill('[data-testid="resource-input"]', 'Conference Room A');
+    await page.fill('[data-testid="date-input"]', '2024-03-15');
+    await page.fill('[data-testid="start-time-input"]', '10:00');
+    await page.fill('[data-testid="end-time-input"]', '11:00');
     
-    // Step 2: Create a conflicting booking (same resource, overlapping time)
-    await page.click('[data-testid="create-booking-button"]');
-    await page.fill('[data-testid="resource-select"]', 'Conference Room A');
-    await page.fill('[data-testid="booking-date"]', '2024-03-15');
-    await page.fill('[data-testid="booking-start-time"]', '10:30');
-    await page.fill('[data-testid="booking-end-time"]', '11:30');
-    await page.click('[data-testid="save-booking-button"]');
+    // Trigger conflict detection by moving focus or clicking submit
+    await page.click('[data-testid="check-availability-button"]');
     
-    // Expected Result: In-app alert is displayed immediately
-    const alert = page.locator('[data-testid="conflict-alert"]');
-    await expect(alert).toBeVisible({ timeout: 2000 });
+    // Expected Result: Pop-up alert appears within 1 second
+    const popupAlert = page.locator('[data-testid="conflict-alert-popup"]');
+    await expect(popupAlert).toBeVisible({ timeout: 1000 });
     
-    // Step 3: Scheduler reviews alert details
+    // Step 2: Read alert details
+    const alertTitle = page.locator('[data-testid="alert-title"]');
+    const alertDetails = page.locator('[data-testid="alert-details"]');
+    const conflictingResource = page.locator('[data-testid="conflicting-resource"]');
+    const conflictingTime = page.locator('[data-testid="conflicting-time"]');
+    
     // Expected Result: Alert shows accurate conflict information
-    await expect(alert.locator('[data-testid="conflict-resource"]')).toContainText('Conference Room A');
-    await expect(alert.locator('[data-testid="conflict-time"]')).toContainText('10:30');
-    await expect(alert.locator('[data-testid="conflict-details"]')).toBeVisible();
+    await expect(alertTitle).toContainText('Scheduling Conflict Detected');
+    await expect(alertDetails).toBeVisible();
+    await expect(conflictingResource).toContainText('Conference Room A');
+    await expect(conflictingTime).toContainText('10:00');
     
-    // Step 4: Scheduler acknowledges and dismisses alert
+    // Step 3: Acknowledge alert
     await page.click('[data-testid="acknowledge-alert-button"]');
     
-    // Expected Result: Alert is removed from the interface
-    await expect(alert).not.toBeVisible();
+    // Expected Result: Alert is dismissed and acknowledgment recorded
+    await expect(popupAlert).not.toBeVisible();
+    
+    // Verify acknowledgment was recorded by checking system logs or audit trail
+    await page.goto('/audit-trail');
+    const auditLog = page.locator('[data-testid="audit-log-entry"]').first();
+    await expect(auditLog).toContainText('Conflict alert acknowledged');
+    await expect(auditLog).toContainText('Conference Room A');
   });
 
-  test('Ensure alerts persist until user dismissal or conflict resolution', async ({ page }) => {
-    // Setup: Create a conflict to trigger an alert
-    await page.click('[data-testid="create-booking-button"]');
-    await page.fill('[data-testid="resource-select"]', 'Meeting Room B');
-    await page.fill('[data-testid="booking-date"]', '2024-03-16');
-    await page.fill('[data-testid="booking-start-time"]', '14:00');
-    await page.fill('[data-testid="booking-end-time"]', '15:00');
-    await page.click('[data-testid="save-booking-button"]');
+  test('Test alert preference configuration - disable and enable pop-up alerts', async ({ page }) => {
+    // Step 1: Navigate to user settings or preferences page
+    await page.goto('/user-settings');
+    await page.waitForLoadState('networkidle');
     
-    await page.click('[data-testid="create-booking-button"]');
-    await page.fill('[data-testid="resource-select"]', 'Meeting Room B');
-    await page.fill('[data-testid="booking-date"]', '2024-03-16');
-    await page.fill('[data-testid="booking-start-time"]', '14:30');
-    await page.fill('[data-testid="booking-end-time"]', '15:30');
-    await page.click('[data-testid="save-booking-button"]');
+    // Step 2: Locate the pop-up alert configuration option
+    const alertPreferenceToggle = page.locator('[data-testid="popup-alerts-toggle"]');
+    await expect(alertPreferenceToggle).toBeVisible();
     
-    // Step 1: Scheduler receives alert for unresolved conflict
-    const alert = page.locator('[data-testid="conflict-alert"]');
-    // Expected Result: Alert remains visible
-    await expect(alert).toBeVisible();
+    // Step 3: Disable pop-up alerts by toggling off or unchecking the option
+    const isEnabled = await alertPreferenceToggle.isChecked();
+    if (isEnabled) {
+      await alertPreferenceToggle.click();
+    }
     
-    // Step 2: Scheduler navigates to different pages without taking action
-    await page.click('[data-testid="bookings-tab"]');
-    // Expected Result: Alert persists on screen
-    await expect(alert).toBeVisible();
+    // Step 4: Save the preference changes
+    await page.click('[data-testid="save-preferences-button"]');
     
-    await page.click('[data-testid="resources-tab"]');
-    await expect(alert).toBeVisible();
+    // Wait for save confirmation
+    const saveConfirmation = page.locator('[data-testid="save-confirmation"]');
+    await expect(saveConfirmation).toBeVisible();
+    await expect(saveConfirmation).toContainText('Preferences saved successfully');
     
-    await page.click('[data-testid="dashboard-tab"]');
-    await expect(alert).toBeVisible();
+    // Step 5: Navigate to scheduling interface and enter scheduling data causing a conflict
+    await page.goto('/scheduling');
+    await page.waitForLoadState('networkidle');
     
-    // Step 3: Scheduler dismisses alert
-    await page.click('[data-testid="dismiss-alert-button"]');
+    await page.fill('[data-testid="resource-input"]', 'Conference Room B');
+    await page.fill('[data-testid="date-input"]', '2024-03-16');
+    await page.fill('[data-testid="start-time-input"]', '14:00');
+    await page.fill('[data-testid="end-time-input"]', '15:00');
+    await page.click('[data-testid="check-availability-button"]');
     
-    // Expected Result: Alert is removed
-    await expect(alert).not.toBeVisible();
-  });
-
-  test('Test alert delivery latency under 1 second', async ({ page }) => {
-    // Setup: Create initial booking
-    await page.click('[data-testid="create-booking-button"]');
-    await page.fill('[data-testid="resource-select"]', 'Training Room C');
-    await page.fill('[data-testid="booking-date"]', '2024-03-17');
-    await page.fill('[data-testid="booking-start-time"]', '09:00');
-    await page.fill('[data-testid="booking-end-time"]', '10:00');
-    await page.click('[data-testid="save-booking-button"]');
-    await expect(page.locator('[data-testid="booking-success-message"]')).toBeVisible();
+    // Expected Result: Pop-up alerts are not shown on conflicts
+    const popupAlert = page.locator('[data-testid="conflict-alert-popup"]');
+    await expect(popupAlert).not.toBeVisible({ timeout: 2000 });
     
-    // Step 1: Record timestamp when conflict is created
-    await page.click('[data-testid="create-booking-button"]');
-    await page.fill('[data-testid="resource-select"]', 'Training Room C');
-    await page.fill('[data-testid="booking-date"]', '2024-03-17');
-    await page.fill('[data-testid="booking-start-time"]', '09:15');
-    await page.fill('[data-testid="booking-end-time"]', '10:15');
+    // Step 6: Return to user settings and enable pop-up alerts
+    await page.goto('/user-settings');
+    await page.waitForLoadState('networkidle');
     
-    const startTime = Date.now();
-    await page.click('[data-testid="save-booking-button"]');
+    const alertToggle = page.locator('[data-testid="popup-alerts-toggle"]');
+    const isDisabled = await alertToggle.isChecked();
+    if (!isDisabled) {
+      await alertToggle.click();
+    }
     
-    // Step 2: Wait for alert to appear and record timestamp
-    const alert = page.locator('[data-testid="conflict-alert"]');
-    await alert.waitFor({ state: 'visible', timeout: 2000 });
-    const endTime = Date.now();
+    // Step 7: Save the preference changes
+    await page.click('[data-testid="save-preferences-button"]');
+    await expect(saveConfirmation).toBeVisible();
     
-    // Step 3: Calculate time difference
-    const latency = endTime - startTime;
+    // Step 8: Navigate to scheduling interface and enter scheduling data causing a conflict
+    await page.goto('/scheduling');
+    await page.waitForLoadState('networkidle');
     
-    // Expected Result: Alert appears in-app within 1 second (1000ms)
-    expect(latency).toBeLessThan(1000);
+    await page.fill('[data-testid="resource-input"]', 'Conference Room C');
+    await page.fill('[data-testid="date-input"]', '2024-03-17');
+    await page.fill('[data-testid="start-time-input"]', '09:00');
+    await page.fill('[data-testid="end-time-input"]', '10:00');
+    await page.click('[data-testid="check-availability-button"]');
     
-    // Verify alert is actually visible
-    await expect(alert).toBeVisible();
-    await expect(alert.locator('[data-testid="conflict-resource"]')).toContainText('Training Room C');
+    // Expected Result: Pop-up alerts resume displaying on conflicts
+    const enabledPopupAlert = page.locator('[data-testid="conflict-alert-popup"]');
+    await expect(enabledPopupAlert).toBeVisible({ timeout: 1000 });
+    
+    // Verify alert contains conflict information
+    const alertTitle = page.locator('[data-testid="alert-title"]');
+    await expect(alertTitle).toContainText('Scheduling Conflict Detected');
   });
 });
