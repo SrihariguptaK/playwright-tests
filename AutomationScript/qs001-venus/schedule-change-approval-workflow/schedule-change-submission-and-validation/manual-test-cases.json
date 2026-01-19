@@ -1,0 +1,364 @@
+[
+  {
+    "storyId": "story-1",
+    "storyTitle": "As Scheduler, I want to submit schedule change requests to achieve accurate and timely schedule updates",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful schedule change submission with valid data",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated as a Scheduler",
+          "User has access to the schedule change submission page",
+          "System is operational and responsive",
+          "Test document file is prepared (size less than 10MB)"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to schedule change submission page",
+            "expectedResult": "Submission form is displayed with all mandatory fields including date, time, reason, and attachment option clearly visible and accessible"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid date in the date field (e.g., future date in correct format)",
+            "expectedResult": "Date field accepts the input without validation errors"
+          },
+          {
+            "step": 3,
+            "action": "Enter valid time in the time field (e.g., HH:MM format)",
+            "expectedResult": "Time field accepts the input without validation errors"
+          },
+          {
+            "step": 4,
+            "action": "Enter a valid reason for the schedule change in the reason field (e.g., 'Resource unavailability')",
+            "expectedResult": "Reason field accepts the input without validation errors"
+          },
+          {
+            "step": 5,
+            "action": "Click on the attachment button and select a valid document file (size less than 10MB)",
+            "expectedResult": "Document is successfully attached and file name is displayed in the form"
+          },
+          {
+            "step": 6,
+            "action": "Click the Submit button",
+            "expectedResult": "Request is accepted and processed within 2 seconds"
+          },
+          {
+            "step": 7,
+            "action": "Verify the status of the submitted request",
+            "expectedResult": "Request status is set to 'Pending Approval'"
+          },
+          {
+            "step": 8,
+            "action": "Check for confirmation message on the screen",
+            "expectedResult": "Success confirmation message is displayed indicating the schedule change request has been submitted successfully"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request is saved in ScheduleChangeRequests table",
+          "Request status is 'Pending Approval'",
+          "Request is available for approval workflow",
+          "Scheduler can view the submitted request in their request list"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Reject submission with missing mandatory fields",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated as a Scheduler",
+          "User has access to the schedule change submission page",
+          "System is operational and responsive"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to schedule change submission page",
+            "expectedResult": "Submission form is displayed with all mandatory fields clearly marked"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid data in the date field only, leaving time and reason fields empty",
+            "expectedResult": "Date field accepts the input"
+          },
+          {
+            "step": 3,
+            "action": "Tab out or click outside the empty mandatory fields",
+            "expectedResult": "Real-time validation highlights the empty time and reason fields with visual indicators (e.g., red border or asterisk)"
+          },
+          {
+            "step": 4,
+            "action": "Click the Submit button without filling all mandatory fields",
+            "expectedResult": "Submission is blocked and prevented from processing"
+          },
+          {
+            "step": 5,
+            "action": "Verify error messages displayed on the screen",
+            "expectedResult": "Clear error messages are displayed for each missing mandatory field (e.g., 'Time is required', 'Reason is required')"
+          },
+          {
+            "step": 6,
+            "action": "Verify the form remains on the submission page",
+            "expectedResult": "User remains on the submission page with all previously entered data retained"
+          }
+        ],
+        "postconditions": [
+          "No schedule change request is created in the system",
+          "Form data is retained for user to complete",
+          "User can correct errors and resubmit"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Reject attachment exceeding size limit",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated as a Scheduler",
+          "User has access to the schedule change submission page",
+          "Test file larger than 10MB is prepared (e.g., 11MB file)",
+          "System is operational and responsive"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to schedule change submission page",
+            "expectedResult": "Submission form is displayed with attachment option available"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid data in all mandatory fields (date, time, reason)",
+            "expectedResult": "All mandatory fields accept the input without validation errors"
+          },
+          {
+            "step": 3,
+            "action": "Click on the attachment button and select a file larger than 10MB (e.g., 11MB file)",
+            "expectedResult": "Attachment is rejected immediately with a clear error message indicating 'File size exceeds the maximum limit of 10MB'"
+          },
+          {
+            "step": 4,
+            "action": "Verify that the oversized file is not attached to the form",
+            "expectedResult": "No file name is displayed in the attachment area and the attachment field remains empty"
+          },
+          {
+            "step": 5,
+            "action": "Click the Submit button without a valid attachment",
+            "expectedResult": "Submission is blocked with an error message indicating attachment size requirement is not met"
+          },
+          {
+            "step": 6,
+            "action": "Remove the oversized file and attach a valid file (size less than 10MB)",
+            "expectedResult": "Valid file is successfully attached and file name is displayed"
+          },
+          {
+            "step": 7,
+            "action": "Click the Submit button with valid attachment",
+            "expectedResult": "Request is accepted and submitted successfully"
+          }
+        ],
+        "postconditions": [
+          "Only requests with attachments within size limit are accepted",
+          "System enforces 10MB attachment size limit consistently",
+          "User is informed of size restrictions clearly"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-10",
+    "storyTitle": "As Scheduler, I want to edit or withdraw pending schedule change requests to achieve flexibility and error correction",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Edit a pending schedule change request successfully",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated as a Scheduler",
+          "At least one schedule change request with status 'Pending Approval' exists in the system",
+          "The pending request was submitted by the currently logged-in scheduler",
+          "System is operational and responsive",
+          "Approvers are configured to receive notifications"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the list of schedule change requests",
+            "expectedResult": "List of schedule change requests is displayed showing all requests submitted by the scheduler"
+          },
+          {
+            "step": 2,
+            "action": "Identify and select a request with 'Pending Approval' status",
+            "expectedResult": "Request details are displayed in edit mode with all fields (date, time, reason, attachments) accessible for modification"
+          },
+          {
+            "step": 3,
+            "action": "Modify the date field to a new valid date",
+            "expectedResult": "Date field accepts the new value without validation errors"
+          },
+          {
+            "step": 4,
+            "action": "Modify the reason field with updated text (e.g., 'Updated: Resource conflict resolved')",
+            "expectedResult": "Reason field accepts the updated text without validation errors"
+          },
+          {
+            "step": 5,
+            "action": "Remove existing attachment and upload a new document (size less than 10MB)",
+            "expectedResult": "Old attachment is removed and new attachment is successfully uploaded and displayed"
+          },
+          {
+            "step": 6,
+            "action": "Click the Submit or Update button to save changes",
+            "expectedResult": "Changes are accepted and processed within 2 seconds"
+          },
+          {
+            "step": 7,
+            "action": "Verify confirmation message is displayed",
+            "expectedResult": "Success message is displayed confirming the request has been updated"
+          },
+          {
+            "step": 8,
+            "action": "Wait for 1 minute and verify approver notification",
+            "expectedResult": "Approvers are notified of the changes within 1 minute via configured notification method"
+          },
+          {
+            "step": 9,
+            "action": "View the updated request details",
+            "expectedResult": "Request displays the modified date, reason, and new attachment with status still 'Pending Approval'"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request is updated in ScheduleChangeRequests table",
+          "Request status remains 'Pending Approval'",
+          "Approvers have been notified of the modifications",
+          "Updated request is available in the pending requests list"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Withdraw a pending schedule change request",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated as a Scheduler",
+          "At least one schedule change request with status 'Pending Approval' exists in the system",
+          "The pending request was submitted by the currently logged-in scheduler",
+          "System is operational and responsive",
+          "Approvers are configured to receive notifications"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the list of schedule change requests",
+            "expectedResult": "List of schedule change requests is displayed showing all requests submitted by the scheduler"
+          },
+          {
+            "step": 2,
+            "action": "Identify and select a request with 'Pending Approval' status",
+            "expectedResult": "Request details are displayed with withdraw option available"
+          },
+          {
+            "step": 3,
+            "action": "Click the Withdraw button",
+            "expectedResult": "Confirmation dialog is displayed asking 'Are you sure you want to withdraw this request?'"
+          },
+          {
+            "step": 4,
+            "action": "Click Confirm or Yes to proceed with withdrawal",
+            "expectedResult": "Withdrawal is processed within 2 seconds"
+          },
+          {
+            "step": 5,
+            "action": "Verify the request status is updated",
+            "expectedResult": "Request status is changed to 'Withdrawn' and displayed in the request list"
+          },
+          {
+            "step": 6,
+            "action": "Verify confirmation message is displayed",
+            "expectedResult": "Success message is displayed confirming the request has been withdrawn"
+          },
+          {
+            "step": 7,
+            "action": "Wait for 1 minute and verify approver notification",
+            "expectedResult": "Approvers are notified of the withdrawal within 1 minute via configured notification method"
+          },
+          {
+            "step": 8,
+            "action": "Verify the withdrawn request is no longer in the pending list",
+            "expectedResult": "Request is removed from pending requests list or clearly marked as 'Withdrawn'"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request status is updated to 'Withdrawn' in ScheduleChangeRequests table",
+          "Request is no longer in the approval workflow",
+          "Approvers have been notified of the withdrawal",
+          "Request cannot be edited or resubmitted without creating a new request"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Prevent editing or withdrawing approved requests",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated as a Scheduler",
+          "At least one schedule change request with status 'Approved' exists in the system",
+          "The approved request was submitted by the currently logged-in scheduler",
+          "System is operational and responsive"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the list of schedule change requests",
+            "expectedResult": "List of schedule change requests is displayed showing all requests including approved ones"
+          },
+          {
+            "step": 2,
+            "action": "Identify and select a request with 'Approved' status",
+            "expectedResult": "Request details are displayed in read-only mode"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to click the Edit button or modify any field",
+            "expectedResult": "Edit option is disabled (grayed out) or an error message is displayed stating 'Cannot edit approved requests'"
+          },
+          {
+            "step": 4,
+            "action": "Verify all input fields are non-editable",
+            "expectedResult": "All fields (date, time, reason, attachments) are displayed as read-only and cannot be modified"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to click the Withdraw button",
+            "expectedResult": "Withdrawal option is disabled (grayed out) or an error message is displayed stating 'Cannot withdraw approved requests'"
+          },
+          {
+            "step": 6,
+            "action": "Verify no confirmation dialog appears for withdrawal",
+            "expectedResult": "No withdrawal confirmation dialog is displayed and no action is taken"
+          },
+          {
+            "step": 7,
+            "action": "Navigate back to the request list",
+            "expectedResult": "Request status remains 'Approved' and no changes have been made"
+          }
+        ],
+        "postconditions": [
+          "Approved request remains unchanged in the system",
+          "Request status remains 'Approved'",
+          "No notifications are sent to approvers",
+          "System integrity is maintained by preventing modification of approved requests"
+        ],
+        "estimatedTime": "4 mins"
+      }
+    ]
+  }
+]
