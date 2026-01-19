@@ -1,0 +1,586 @@
+[
+  {
+    "storyId": "story-26",
+    "storyTitle": "As Employee, I want to receive notifications about my schedule change request status to stay informed",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify notification sent upon schedule change request submission",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an employee with valid credentials",
+          "Employee has permission to submit schedule change requests",
+          "Email service is configured and operational",
+          "In-app notification service is running",
+          "Employee has a valid email address in their profile"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule change request page",
+            "expectedResult": "Schedule change request form is displayed with all required fields"
+          },
+          {
+            "step": 2,
+            "action": "Fill in all required fields for the schedule change request (date, time, reason)",
+            "expectedResult": "All fields accept input and display entered data correctly"
+          },
+          {
+            "step": 3,
+            "action": "Click the Submit button to submit the schedule change request",
+            "expectedResult": "Request is submitted successfully and confirmation message is displayed on screen"
+          },
+          {
+            "step": 4,
+            "action": "Check the employee's email inbox for submission confirmation notification",
+            "expectedResult": "Email notification is received containing submission confirmation, request details, and reference number"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to the notification center in the user profile",
+            "expectedResult": "Notification center page loads successfully"
+          },
+          {
+            "step": 6,
+            "action": "Check the notification list for the submission confirmation",
+            "expectedResult": "In-app notification is displayed with correct request details including date, time, request ID, and submission timestamp"
+          }
+        ],
+        "postconditions": [
+          "Schedule change request is saved in the system with pending status",
+          "Submission confirmation notification is logged in notification history",
+          "Email notification is sent and recorded in email logs",
+          "In-app notification is visible in employee's notification center"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Validate notification sent upon approval decision",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "A schedule change request exists in pending status",
+          "User is logged in as an approver with valid credentials",
+          "Approver has permission to approve/reject schedule change requests",
+          "Employee who submitted the request has valid email and notification settings",
+          "Notification service is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Login as approver and navigate to the pending schedule change requests page",
+            "expectedResult": "Pending requests page is displayed with list of requests awaiting approval"
+          },
+          {
+            "step": 2,
+            "action": "Select a specific schedule change request from the list",
+            "expectedResult": "Request details are displayed including employee name, requested changes, and reason"
+          },
+          {
+            "step": 3,
+            "action": "Review the request details and click the Approve button",
+            "expectedResult": "Approval confirmation dialog is displayed"
+          },
+          {
+            "step": 4,
+            "action": "Add approval comments (optional) and confirm the approval action",
+            "expectedResult": "Request status is updated to Approved and success message is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Logout as approver and login as the employee who submitted the request",
+            "expectedResult": "Employee successfully logs in and dashboard is displayed"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to the notification center in the employee's user profile",
+            "expectedResult": "Notification center displays with list of notifications"
+          },
+          {
+            "step": 7,
+            "action": "Locate and click on the approval notification",
+            "expectedResult": "Notification content is displayed showing approval status, approver name, approval timestamp, request details, and next steps for the employee"
+          },
+          {
+            "step": 8,
+            "action": "Verify the notification content includes actionable information",
+            "expectedResult": "Notification contains complete information: approved schedule details, effective date, and any required follow-up actions"
+          }
+        ],
+        "postconditions": [
+          "Request status is permanently updated to Approved",
+          "Approval notification is logged in employee's notification history",
+          "Email notification is sent to employee's registered email",
+          "Audit trail records the approval action with timestamp and approver details"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure notifications are delivered within 5 minutes",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an employee with valid credentials",
+          "System clock is synchronized and accurate",
+          "Notification service is running and monitoring is enabled",
+          "Email service has no delivery delays",
+          "Test environment has timestamp logging enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Record the current system timestamp before triggering the notification event",
+            "expectedResult": "Timestamp is recorded accurately (T0)"
+          },
+          {
+            "step": 2,
+            "action": "Submit a schedule change request as an employee",
+            "expectedResult": "Request is submitted successfully and submission timestamp is recorded (T1)"
+          },
+          {
+            "step": 3,
+            "action": "Monitor the email inbox for the submission confirmation notification",
+            "expectedResult": "Email notification is received"
+          },
+          {
+            "step": 4,
+            "action": "Record the timestamp when the email notification is received (T2)",
+            "expectedResult": "Email receipt timestamp is captured"
+          },
+          {
+            "step": 5,
+            "action": "Calculate the time difference between submission (T1) and email receipt (T2)",
+            "expectedResult": "Time difference is 5 minutes or less"
+          },
+          {
+            "step": 6,
+            "action": "Check the in-app notification center for the notification",
+            "expectedResult": "In-app notification is visible in the notification center"
+          },
+          {
+            "step": 7,
+            "action": "Verify the notification timestamp in the system logs",
+            "expectedResult": "System log shows notification was generated and sent within 5 minutes of the triggering event"
+          },
+          {
+            "step": 8,
+            "action": "Trigger an approval decision notification by having an approver approve the request",
+            "expectedResult": "Approval action is completed and timestamp is recorded (T3)"
+          },
+          {
+            "step": 9,
+            "action": "Monitor for the approval notification delivery and record receipt time (T4)",
+            "expectedResult": "Approval notification is received within 5 minutes (T4 - T3 ≤ 5 minutes)"
+          }
+        ],
+        "postconditions": [
+          "All notifications are delivered within the 5-minute SLA",
+          "Notification delivery times are logged for performance monitoring",
+          "No notifications are pending or delayed in the queue"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-27",
+    "storyTitle": "As Auditor, I want to access the audit trail of schedule change approvals to ensure compliance and traceability",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Verify auditor can view and filter audit trail records",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User has valid auditor credentials and role assigned",
+          "Audit trail database contains historical approval records",
+          "At least 10 schedule change approval records exist with different dates and users",
+          "Audit trail page is accessible and functional",
+          "Export functionality is enabled and configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the audit portal login page",
+            "expectedResult": "Login page is displayed with username and password fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid auditor credentials and click Login",
+            "expectedResult": "Authentication is successful and auditor dashboard is displayed"
+          },
+          {
+            "step": 3,
+            "action": "Navigate to the schedule change approval audit trail page from the main menu",
+            "expectedResult": "Audit trail viewer page loads successfully displaying all audit records in chronological order"
+          },
+          {
+            "step": 4,
+            "action": "Verify the audit trail displays key information columns: timestamp, user ID, action type, request ID, and comments",
+            "expectedResult": "All columns are visible and populated with data for each audit record"
+          },
+          {
+            "step": 5,
+            "action": "Locate the filter panel and select a specific date range (e.g., last 30 days)",
+            "expectedResult": "Date range filter is applied and only records within the selected range are displayed"
+          },
+          {
+            "step": 6,
+            "action": "Apply an additional filter by selecting a specific user from the user dropdown",
+            "expectedResult": "Audit records are further filtered to show only actions performed by the selected user within the date range"
+          },
+          {
+            "step": 7,
+            "action": "Verify the filtered results match the applied criteria",
+            "expectedResult": "All displayed records fall within the selected date range and are associated with the selected user"
+          },
+          {
+            "step": 8,
+            "action": "Click the Export as CSV button",
+            "expectedResult": "CSV file download is initiated"
+          },
+          {
+            "step": 9,
+            "action": "Open the downloaded CSV file",
+            "expectedResult": "CSV file contains all filtered audit records with correct data in proper format including all columns: timestamp, user ID, action, request ID, comments"
+          },
+          {
+            "step": 10,
+            "action": "Verify the CSV data matches the on-screen filtered results",
+            "expectedResult": "All records in CSV match exactly with the filtered records displayed in the audit trail viewer"
+          }
+        ],
+        "postconditions": [
+          "Audit trail remains unchanged and intact",
+          "Filter selections can be cleared to view all records again",
+          "CSV export is saved successfully to local system",
+          "Audit access is logged in security logs"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Ensure access restriction to audit trail for unauthorized users",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Test user account exists with non-auditor role (e.g., employee or manager)",
+          "User does not have auditor permissions assigned",
+          "Access control and authorization mechanisms are properly configured",
+          "Audit trail page URL is known",
+          "Security logging is enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the application login page",
+            "expectedResult": "Login page is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Login using credentials of a non-auditor user (employee or manager role)",
+            "expectedResult": "User is successfully authenticated and redirected to their role-appropriate dashboard"
+          },
+          {
+            "step": 3,
+            "action": "Verify that the audit trail menu option is not visible in the navigation menu",
+            "expectedResult": "Audit trail link is not displayed in the user's navigation menu"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to directly access the audit trail page by entering the URL in the browser",
+            "expectedResult": "Access is denied and an appropriate error message is displayed: 'Access Denied - You do not have permission to view this page' or HTTP 403 Forbidden"
+          },
+          {
+            "step": 5,
+            "action": "Verify the user is redirected to an error page or their dashboard",
+            "expectedResult": "User is redirected away from the audit trail page to either an access denied page or their home dashboard"
+          },
+          {
+            "step": 6,
+            "action": "Check the security logs for the unauthorized access attempt",
+            "expectedResult": "Security log contains an entry recording the unauthorized access attempt with user ID, timestamp, and attempted resource"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to access audit trail API endpoint directly using API testing tool with non-auditor credentials",
+            "expectedResult": "API returns HTTP 403 Forbidden status code with error message indicating insufficient permissions"
+          }
+        ],
+        "postconditions": [
+          "Non-auditor user remains unable to access audit trail",
+          "No audit data is exposed to unauthorized user",
+          "Security event is logged for compliance tracking",
+          "User session remains active for their authorized functions"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Validate immutability of audit trail data",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as auditor with full audit trail access",
+          "Existing audit records are present in the database",
+          "API testing tool is available and configured",
+          "Database access logs are enabled",
+          "Security monitoring is active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Login as auditor and navigate to the audit trail page",
+            "expectedResult": "Audit trail viewer is displayed with existing records"
+          },
+          {
+            "step": 2,
+            "action": "Select a specific audit log entry and look for edit or delete options in the UI",
+            "expectedResult": "No edit, delete, or modify buttons are available for any audit record"
+          },
+          {
+            "step": 3,
+            "action": "Right-click on an audit record to check for context menu options",
+            "expectedResult": "Context menu does not contain any options to modify or delete the record"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to modify an audit record by inspecting the page elements and trying to enable edit mode",
+            "expectedResult": "No edit functionality is available through UI manipulation"
+          },
+          {
+            "step": 5,
+            "action": "Using API testing tool, send a PUT request to modify an existing audit log entry via the API endpoint",
+            "expectedResult": "API returns HTTP 405 Method Not Allowed or HTTP 403 Forbidden with error message indicating audit logs cannot be modified"
+          },
+          {
+            "step": 6,
+            "action": "Using API testing tool, send a DELETE request to remove an audit log entry via the API endpoint",
+            "expectedResult": "API returns HTTP 405 Method Not Allowed or HTTP 403 Forbidden with error message indicating audit logs cannot be deleted"
+          },
+          {
+            "step": 7,
+            "action": "Check the security logs for the modification attempts",
+            "expectedResult": "Security log contains entries for both modification attempts with timestamps, user ID, and attempted actions flagged as security events"
+          },
+          {
+            "step": 8,
+            "action": "Verify the original audit record remains unchanged in the audit trail viewer",
+            "expectedResult": "Audit record displays with original data intact, no modifications are reflected"
+          },
+          {
+            "step": 9,
+            "action": "Check database logs to confirm no write operations were executed on audit trail tables",
+            "expectedResult": "Database logs show no UPDATE or DELETE operations on audit trail records, only SELECT operations are logged"
+          }
+        ],
+        "postconditions": [
+          "All audit trail records remain unchanged and intact",
+          "Modification attempts are logged as security events",
+          "Audit trail integrity is maintained",
+          "Security team is alerted to unauthorized modification attempts",
+          "Database audit logs confirm no data tampering occurred"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-28",
+    "storyTitle": "As Approver, I want to receive notifications for pending schedule change requests to ensure timely action",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify notification sent to approver upon assignment",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Approver account is active and configured in the system",
+          "Approver has valid email address registered",
+          "NotificationService is running and operational",
+          "User with permission to submit schedule change requests is logged in",
+          "Approval workflow is properly configured with assignment rules"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as a user with schedule change request submission permissions",
+            "expectedResult": "User successfully logs in and accesses the schedule change request form"
+          },
+          {
+            "step": 2,
+            "action": "Fill out the schedule change request form with valid data (employee name, current schedule, requested schedule, reason, effective date)",
+            "expectedResult": "Form accepts all input data without validation errors"
+          },
+          {
+            "step": 3,
+            "action": "Submit the schedule change request",
+            "expectedResult": "System displays success message confirming request submission and assigns request to designated approver"
+          },
+          {
+            "step": 4,
+            "action": "Check the approver's email inbox",
+            "expectedResult": "Email notification is received containing the schedule change request details, request ID, and submission timestamp"
+          },
+          {
+            "step": 5,
+            "action": "Log in as the assigned approver and navigate to the in-app notifications section",
+            "expectedResult": "In-app notification is visible in the notification center with unread status indicator"
+          },
+          {
+            "step": 6,
+            "action": "Click on the in-app notification to view details",
+            "expectedResult": "Notification displays complete request summary including requester name, schedule details, submission date, deadline, and a direct link to the approval interface"
+          },
+          {
+            "step": 7,
+            "action": "Click the direct link within the notification",
+            "expectedResult": "System navigates directly to the approval interface showing the full schedule change request details ready for review"
+          }
+        ],
+        "postconditions": [
+          "Notification is marked as read in the approver's notification history",
+          "Schedule change request remains in pending status awaiting approval decision",
+          "Notification record is logged in the system database",
+          "Approver has accessed the request details through the notification link"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Ensure notifications are delivered within 5 minutes",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "System clock is synchronized and accurate",
+          "NotificationService is operational with no delays",
+          "Approver account is active with valid email and in-app notification settings enabled",
+          "Network connectivity is stable",
+          "Email server is operational and accessible",
+          "Timer or stopwatch is available to measure delivery time"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Note the current system timestamp before triggering the notification event",
+            "expectedResult": "Baseline timestamp is recorded for comparison (e.g., 10:00:00 AM)"
+          },
+          {
+            "step": 2,
+            "action": "Submit a schedule change request that triggers automatic assignment to an approver",
+            "expectedResult": "System confirms request submission and displays assignment confirmation with timestamp"
+          },
+          {
+            "step": 3,
+            "action": "Start timer immediately after request submission confirmation",
+            "expectedResult": "Timer begins counting from zero"
+          },
+          {
+            "step": 4,
+            "action": "Monitor the approver's email inbox for incoming notification",
+            "expectedResult": "Email notification arrives in the inbox"
+          },
+          {
+            "step": 5,
+            "action": "Record the email received timestamp and calculate time difference from submission",
+            "expectedResult": "Time difference between submission and email receipt is 5 minutes or less"
+          },
+          {
+            "step": 6,
+            "action": "Log in as the approver and check the in-app notification center",
+            "expectedResult": "In-app notification is present in the notification list"
+          },
+          {
+            "step": 7,
+            "action": "Verify the in-app notification timestamp and calculate time difference from submission",
+            "expectedResult": "Time difference between submission and in-app notification creation is 5 minutes or less"
+          },
+          {
+            "step": 8,
+            "action": "Stop the timer and document the total delivery time for both notification channels",
+            "expectedResult": "Both email and in-app notifications were delivered within the 5-minute performance requirement"
+          }
+        ],
+        "postconditions": [
+          "Notification delivery time is documented and meets performance criteria",
+          "Both email and in-app notifications are successfully delivered",
+          "Notification timestamps are recorded in system logs",
+          "Performance metric data is available for reporting"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Validate notification access and privacy",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Multiple user accounts exist in the system with different roles",
+          "At least one approver account with pending notifications exists",
+          "At least one unauthorized user account exists (non-approver role)",
+          "Security and authentication mechanisms are properly configured",
+          "Authorization rules are enforced at API and UI levels",
+          "Test user credentials are available for both authorized and unauthorized accounts"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as an authorized approver and navigate to the notification history section",
+            "expectedResult": "Approver successfully accesses their notification history showing all notifications assigned to them"
+          },
+          {
+            "step": 2,
+            "action": "Note the notification ID or URL of a specific notification in the approver's history",
+            "expectedResult": "Notification identifier is recorded for testing unauthorized access (e.g., /notifications/12345)"
+          },
+          {
+            "step": 3,
+            "action": "Log out from the approver account",
+            "expectedResult": "User is successfully logged out and session is terminated"
+          },
+          {
+            "step": 4,
+            "action": "Log in as an unauthorized user (different role, not assigned as approver for this request)",
+            "expectedResult": "Unauthorized user successfully logs in with their own credentials"
+          },
+          {
+            "step": 5,
+            "action": "Attempt to navigate directly to the approver's notification history page using the URL",
+            "expectedResult": "System denies access and displays 'Access Denied' or '403 Forbidden' error message"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to access the specific notification using the previously recorded notification ID or URL",
+            "expectedResult": "System blocks access and displays error message indicating insufficient permissions"
+          },
+          {
+            "step": 7,
+            "action": "Attempt to make a direct API call to retrieve the approver's notifications using unauthorized credentials (e.g., GET /api/notifications)",
+            "expectedResult": "API returns 401 Unauthorized or 403 Forbidden status code with appropriate error message"
+          },
+          {
+            "step": 8,
+            "action": "Verify that no notification data is exposed in the error response or browser console",
+            "expectedResult": "Error messages do not contain sensitive notification content or approver information"
+          },
+          {
+            "step": 9,
+            "action": "Log out from unauthorized user account and log back in as the original approver",
+            "expectedResult": "Approver can still access their notifications normally, confirming no data corruption occurred"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized access attempts are logged in security audit logs",
+          "Approver's notification data remains secure and private",
+          "No sensitive information was exposed during unauthorized access attempts",
+          "System security controls are validated as functioning correctly",
+          "Authorized approver retains normal access to their notifications"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  }
+]
