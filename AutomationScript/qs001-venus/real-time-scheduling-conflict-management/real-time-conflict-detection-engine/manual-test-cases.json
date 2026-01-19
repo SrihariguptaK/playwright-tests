@@ -1,0 +1,239 @@
+[
+  {
+    "storyId": "story-1",
+    "storyTitle": "As Scheduler, I want to receive immediate conflict detection when creating a schedule to avoid double-booking resources",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate immediate conflict detection on overlapping schedule creation",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role permissions",
+          "Scheduling database is accessible and populated with existing schedules",
+          "At least one resource is already booked for a specific date and time slot",
+          "Schedule creation interface is accessible",
+          "Network connectivity is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule creation page from the main dashboard",
+            "expectedResult": "Schedule creation form is displayed with fields for date, time, and resource selection"
+          },
+          {
+            "step": 2,
+            "action": "Select a date from the date picker that has existing bookings",
+            "expectedResult": "Date is selected and displayed in the date field"
+          },
+          {
+            "step": 3,
+            "action": "Enter a start time that overlaps with an existing booking (e.g., 10:00 AM when 9:00 AM - 11:00 AM is already booked)",
+            "expectedResult": "Time is entered in the start time field"
+          },
+          {
+            "step": 4,
+            "action": "Enter an end time for the schedule (e.g., 12:00 PM)",
+            "expectedResult": "Time is entered in the end time field"
+          },
+          {
+            "step": 5,
+            "action": "Select a resource from the dropdown that is already booked for the selected time slot",
+            "expectedResult": "System immediately displays a conflict alert message indicating the resource is already booked with specific conflict details (existing booking time and resource name)"
+          },
+          {
+            "step": 6,
+            "action": "Attempt to click the 'Save' or 'Submit' button to save the schedule",
+            "expectedResult": "System blocks the submission, keeps the Save button disabled or shows an error message, and displays clear conflict details including the conflicting schedule information"
+          },
+          {
+            "step": 7,
+            "action": "Review the conflict details displayed on screen",
+            "expectedResult": "Conflict details clearly show the resource name, conflicting date, conflicting time range, and any additional relevant information"
+          }
+        ],
+        "postconditions": [
+          "Schedule is not saved to the database",
+          "Conflict alert remains visible on screen",
+          "User remains on the schedule creation page",
+          "No double-booking has occurred",
+          "System is ready for user to modify the schedule"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify conflict detection response time under 1 second",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "Performance testing environment is set up",
+          "User is logged in with Scheduler role permissions",
+          "Scheduling database contains representative test data",
+          "Performance monitoring tools are configured and running",
+          "System logs are enabled and accessible",
+          "Load testing tool is configured for concurrent user simulation",
+          "Baseline system performance metrics are recorded"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open the schedule creation interface and prepare to create a schedule with overlapping resource",
+            "expectedResult": "Schedule creation form is displayed and ready for input"
+          },
+          {
+            "step": 2,
+            "action": "Start performance timer and enter date, time, and resource that conflicts with an existing booking",
+            "expectedResult": "All fields are populated with conflicting schedule data"
+          },
+          {
+            "step": 3,
+            "action": "Observe and measure the time from last input field completion to conflict alert display",
+            "expectedResult": "Conflict alert is displayed within 1 second of completing the resource selection"
+          },
+          {
+            "step": 4,
+            "action": "Record the response time from performance monitoring tool",
+            "expectedResult": "Response time is logged and shows value less than or equal to 1000 milliseconds"
+          },
+          {
+            "step": 5,
+            "action": "Configure load testing tool to simulate 1000 concurrent users attempting to create overlapping schedules",
+            "expectedResult": "Load testing tool is configured with 1000 virtual users ready to execute"
+          },
+          {
+            "step": 6,
+            "action": "Execute the load test with all 1000 concurrent users creating conflicting schedules simultaneously",
+            "expectedResult": "Load test runs successfully with all 1000 users executing schedule creation attempts"
+          },
+          {
+            "step": 7,
+            "action": "Monitor and collect response times for all conflict detection operations during the load test",
+            "expectedResult": "All conflict detections are processed and response times are recorded for each user"
+          },
+          {
+            "step": 8,
+            "action": "Analyze the collected response time data to verify all responses are within 1 second SLA",
+            "expectedResult": "95th percentile response time is at or below 1 second, meeting the performance SLA criteria"
+          },
+          {
+            "step": 9,
+            "action": "Access system logs and filter for conflict detection API calls during the test period",
+            "expectedResult": "System logs display all conflict detection requests with timestamps"
+          },
+          {
+            "step": 10,
+            "action": "Verify response times in system logs match the performance criteria (under 1 second)",
+            "expectedResult": "Log entries confirm response times meet performance criteria with timestamps showing sub-second processing"
+          }
+        ],
+        "postconditions": [
+          "Performance test data is saved for analysis",
+          "System logs contain complete performance metrics",
+          "System returns to normal operational state",
+          "No schedules from the test are persisted in the database",
+          "Performance baseline is updated if needed"
+        ],
+        "estimatedTime": "30 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure system supports multiple resource types in conflict detection",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Scheduler role permissions",
+          "Multiple resource types are configured in the system (e.g., rooms, equipment, personnel)",
+          "Scheduling database contains existing bookings for different resource types",
+          "Schedule creation interface supports all resource types",
+          "At least one resource of each type has existing bookings"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule creation page",
+            "expectedResult": "Schedule creation form is displayed with resource type selection available"
+          },
+          {
+            "step": 2,
+            "action": "Select 'Room' as the resource type from the resource type dropdown",
+            "expectedResult": "Resource type is set to 'Room' and available rooms are displayed in the resource dropdown"
+          },
+          {
+            "step": 3,
+            "action": "Enter date and time that conflicts with an existing room booking, then select the conflicting room resource",
+            "expectedResult": "System immediately displays conflict alert for the room resource with specific conflict details"
+          },
+          {
+            "step": 4,
+            "action": "Clear the form and select 'Equipment' as the resource type",
+            "expectedResult": "Form is cleared, resource type is set to 'Equipment', and available equipment items are displayed"
+          },
+          {
+            "step": 5,
+            "action": "Enter date and time that conflicts with an existing equipment booking, then select the conflicting equipment resource",
+            "expectedResult": "System immediately displays conflict alert for the equipment resource with specific conflict details"
+          },
+          {
+            "step": 6,
+            "action": "Clear the form and select 'Personnel' as the resource type",
+            "expectedResult": "Form is cleared, resource type is set to 'Personnel', and available personnel are displayed"
+          },
+          {
+            "step": 7,
+            "action": "Enter date and time that conflicts with an existing personnel booking, then select the conflicting personnel resource",
+            "expectedResult": "System immediately displays conflict alert for the personnel resource with specific conflict details"
+          },
+          {
+            "step": 8,
+            "action": "Clear the form and select 'Room' resource type again",
+            "expectedResult": "Form is cleared and ready for new room schedule input"
+          },
+          {
+            "step": 9,
+            "action": "Enter date, time, and select a room resource that does NOT conflict with any existing bookings",
+            "expectedResult": "No conflict alert is displayed, form remains in valid state, and Save button is enabled"
+          },
+          {
+            "step": 10,
+            "action": "Repeat step 9 for 'Equipment' resource type with non-conflicting schedule",
+            "expectedResult": "No conflict alert is displayed for equipment, form is valid, and Save button is enabled"
+          },
+          {
+            "step": 11,
+            "action": "Repeat step 9 for 'Personnel' resource type with non-conflicting schedule",
+            "expectedResult": "No conflict alert is displayed for personnel, form is valid, and Save button is enabled"
+          },
+          {
+            "step": 12,
+            "action": "Click the 'Save' button to save the valid non-conflicting personnel schedule",
+            "expectedResult": "Schedule is saved successfully, confirmation message is displayed"
+          },
+          {
+            "step": 13,
+            "action": "Navigate back to schedule creation and create another non-conflicting schedule for a room resource",
+            "expectedResult": "Schedule creation form is displayed and ready for input"
+          },
+          {
+            "step": 14,
+            "action": "Enter valid non-conflicting room schedule details and click 'Save'",
+            "expectedResult": "Room schedule is saved successfully with confirmation message displayed"
+          },
+          {
+            "step": 15,
+            "action": "Create a third non-conflicting schedule for an equipment resource and save",
+            "expectedResult": "Equipment schedule is saved successfully with confirmation message, all three schedules for different resource types are now in the system"
+          }
+        ],
+        "postconditions": [
+          "Three valid schedules are saved in the database (one for each resource type)",
+          "No conflicts exist in the scheduling system",
+          "All resource types have been validated for conflict detection capability",
+          "System is ready for additional schedule creation",
+          "Confirmation messages have been displayed for all successful saves"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  }
+]
