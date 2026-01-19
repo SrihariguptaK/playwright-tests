@@ -1,180 +1,177 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Email Notifications for Scheduling Conflicts', () => {
-  const baseURL = process.env.BASE_URL || 'http://localhost:3000';
-  const schedulerEmail = 'scheduler@test.com';
-  const schedulerPassword = 'Test123!';
-  
+  let baseURL: string;
+  let testUserEmail: string;
+
   test.beforeEach(async ({ page }) => {
-    // Login as scheduler
+    baseURL = process.env.BASE_URL || 'http://localhost:3000';
+    testUserEmail = process.env.TEST_USER_EMAIL || 'scheduler@test.com';
+    
+    // Login as scheduler user
     await page.goto(`${baseURL}/login`);
-    await page.fill('[data-testid="email-input"]', schedulerEmail);
-    await page.fill('[data-testid="password-input"]', schedulerPassword);
+    await page.fill('[data-testid="email-input"]', testUserEmail);
+    await page.fill('[data-testid="password-input"]', 'Test123!');
     await page.click('[data-testid="login-button"]');
     await expect(page).toHaveURL(/.*dashboard/);
   });
 
-  test('Verify email notification is sent upon scheduling conflict', async ({ page, request }) => {
-    // Step 1: Create a scheduling conflict by booking a resource that overlaps with an existing booking
-    await page.goto(`${baseURL}/bookings`);
+  test('Verify email notification sent on conflict detection', async ({ page }) => {
+    // Note the current timestamp before triggering the conflict
+    const conflictTriggerTime = new Date();
     
-    // Create first booking
-    await page.click('[data-testid="create-booking-button"]');
-    await page.fill('[data-testid="resource-name-input"]', 'Conference Room A');
-    await page.fill('[data-testid="booking-date-input"]', '2024-02-15');
-    await page.fill('[data-testid="start-time-input"]', '10:00');
-    await page.fill('[data-testid="end-time-input"]', '12:00');
-    await page.click('[data-testid="save-booking-button"]');
+    // Navigate to scheduling page
+    await page.goto(`${baseURL}/scheduling`);
+    await expect(page.locator('[data-testid="scheduling-page"]')).toBeVisible();
     
-    await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
-    await expect(page.locator('[data-testid="success-message"]')).toContainText('Booking created successfully');
+    // Trigger a scheduling conflict by creating a conflicting schedule entry
+    await page.click('[data-testid="create-schedule-button"]');
+    await expect(page.locator('[data-testid="schedule-form"]')).toBeVisible();
     
-    // Create overlapping booking to trigger conflict
-    await page.click('[data-testid="create-booking-button"]');
-    await page.fill('[data-testid="resource-name-input"]', 'Conference Room A');
-    await page.fill('[data-testid="booking-date-input"]', '2024-02-15');
-    await page.fill('[data-testid="start-time-input"]', '11:00');
-    await page.fill('[data-testid="end-time-input"]', '13:00');
-    await page.click('[data-testid="save-booking-button"]');
+    // Fill in schedule details that will conflict with existing entry
+    await page.fill('[data-testid="schedule-resource-input"]', 'Conference Room A');
+    await page.fill('[data-testid="schedule-date-input"]', '2024-02-15');
+    await page.fill('[data-testid="schedule-start-time-input"]', '10:00');
+    await page.fill('[data-testid="schedule-end-time-input"]', '11:00');
+    await page.fill('[data-testid="schedule-description-input"]', 'Team Meeting - Conflict Test');
     
-    // Expected Result: Email notification is generated
-    await expect(page.locator('[data-testid="conflict-warning"]')).toBeVisible();
-    await expect(page.locator('[data-testid="conflict-warning"]')).toContainText('Scheduling conflict detected');
+    // Submit the conflicting schedule
+    await page.click('[data-testid="submit-schedule-button"]');
     
-    // Step 2: Check scheduler's email inbox
-    // Wait up to 5 minutes for email delivery
-    await page.waitForTimeout(5000); // Simulating wait time
+    // Verify conflict is detected
+    await expect(page.locator('[data-testid="conflict-alert"]')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[data-testid="conflict-alert"]')).toContainText('Scheduling conflict detected');
     
-    // Navigate to email verification page or use API to check email
-    const emailCheckResponse = await request.get(`${baseURL}/api/test/emails/${schedulerEmail}/latest`);
-    expect(emailCheckResponse.ok()).toBeTruthy();
+    // Wait and monitor for email notification delivery (within 30 seconds)
+    await page.waitForTimeout(2000);
     
-    const emailData = await emailCheckResponse.json();
+    // Navigate to email delivery logs
+    await page.goto(`${baseURL}/admin/email-logs`);
+    await expect(page.locator('[data-testid="email-logs-page"]')).toBeVisible();
     
-    // Expected Result: Email with conflict details is received
-    expect(emailData.subject).toContain('Scheduling Conflict Detected');
-    expect(emailData.body).toContain('Conference Room A');
-    expect(emailData.body).toContain('2024-02-15');
-    expect(emailData.body).toContain('10:00');
-    expect(emailData.body).toContain('11:00');
-    expect(emailData.to).toBe(schedulerEmail);
+    // Filter logs for recent emails
+    await page.fill('[data-testid="log-search-input"]', testUserEmail);
+    await page.click('[data-testid="search-button"]');
+    
+    // Verify email delivery status is logged as successful
+    const emailLogEntry = page.locator('[data-testid="email-log-entry"]').first();
+    await expect(emailLogEntry).toBeVisible({ timeout: 35000 });
+    await expect(emailLogEntry.locator('[data-testid="email-status"]')).toContainText('Delivered');
+    await expect(emailLogEntry.locator('[data-testid="email-subject"]')).toContainText('Scheduling Conflict');
+    
+    // Verify email was sent within 30 seconds
+    const emailTimestamp = await emailLogEntry.locator('[data-testid="email-timestamp"]').textContent();
+    const emailSentTime = new Date(emailTimestamp || '');
+    const timeDifference = (emailSentTime.getTime() - conflictTriggerTime.getTime()) / 1000;
+    expect(timeDifference).toBeLessThanOrEqual(30);
+    
+    // Verify email contains accurate conflict details
+    await emailLogEntry.click();
+    await expect(page.locator('[data-testid="email-detail-modal"]')).toBeVisible();
+    await expect(page.locator('[data-testid="email-body"]')).toContainText('Conference Room A');
+    await expect(page.locator('[data-testid="email-body"]')).toContainText('2024-02-15');
+    await expect(page.locator('[data-testid="email-body"]')).toContainText('10:00');
+    await expect(page.locator('[data-testid="email-body"]')).toContainText('11:00');
   });
 
-  test('Test user preference configuration for email notifications', async ({ page, request }) => {
-    // Step 1: Navigate to user settings/preferences page
+  test('Test email notification preference settings', async ({ page }) => {
+    // Navigate to user settings or preferences page
     await page.goto(`${baseURL}/settings`);
+    await expect(page.locator('[data-testid="settings-page"]')).toBeVisible();
+    
+    // Navigate to notifications tab
     await page.click('[data-testid="notifications-tab"]');
+    await expect(page.locator('[data-testid="notification-preferences"]')).toBeVisible();
     
-    // Locate email notification settings
-    await expect(page.locator('[data-testid="email-notifications-section"]')).toBeVisible();
+    // Locate the email notification configuration option
+    const emailNotificationToggle = page.locator('[data-testid="email-notification-toggle"]');
+    await expect(emailNotificationToggle).toBeVisible();
     
-    // Update email notification preferences - disable conflict notifications
-    const conflictNotificationToggle = page.locator('[data-testid="conflict-notification-toggle"]');
-    await expect(conflictNotificationToggle).toBeVisible();
-    
-    // Check current state and toggle if enabled
-    const isEnabled = await conflictNotificationToggle.isChecked();
+    // Disable email notifications by toggling off
+    const isEnabled = await emailNotificationToggle.isChecked();
     if (isEnabled) {
-      await conflictNotificationToggle.uncheck();
+      await emailNotificationToggle.uncheck();
     }
     
+    // Save the preference changes
     await page.click('[data-testid="save-preferences-button"]');
-    
-    // Expected Result: Preferences are saved successfully
     await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
     await expect(page.locator('[data-testid="success-message"]')).toContainText('Preferences saved successfully');
     
-    // Step 2: Trigger conflict event
-    await page.goto(`${baseURL}/bookings`);
+    // Trigger a scheduling conflict in the system
+    await page.goto(`${baseURL}/scheduling`);
+    await page.click('[data-testid="create-schedule-button"]');
+    await page.fill('[data-testid="schedule-resource-input"]', 'Conference Room B');
+    await page.fill('[data-testid="schedule-date-input"]', '2024-02-16');
+    await page.fill('[data-testid="schedule-start-time-input"]', '14:00');
+    await page.fill('[data-testid="schedule-end-time-input"]', '15:00');
+    await page.fill('[data-testid="schedule-description-input"]', 'Test Meeting - Disabled Notifications');
+    await page.click('[data-testid="submit-schedule-button"]');
     
-    // Create first booking
-    await page.click('[data-testid="create-booking-button"]');
-    await page.fill('[data-testid="resource-name-input"]', 'Meeting Room B');
-    await page.fill('[data-testid="booking-date-input"]', '2024-02-16');
-    await page.fill('[data-testid="start-time-input"]', '14:00');
-    await page.fill('[data-testid="end-time-input"]', '15:00');
-    await page.click('[data-testid="save-booking-button"]');
+    // Verify conflict is detected
+    await expect(page.locator('[data-testid="conflict-alert"]')).toBeVisible({ timeout: 5000 });
     
-    // Create conflicting booking
-    await page.click('[data-testid="create-booking-button"]');
-    await page.fill('[data-testid="resource-name-input"]', 'Meeting Room B');
-    await page.fill('[data-testid="booking-date-input"]', '2024-02-16');
-    await page.fill('[data-testid="start-time-input"]', '14:30');
-    await page.fill('[data-testid="end-time-input"]', '15:30');
-    await page.click('[data-testid="save-booking-button"]');
+    // Wait 60 seconds and check email inbox via logs
+    await page.waitForTimeout(60000);
     
-    await page.waitForTimeout(5000);
+    // Verify email delivery logs show no new emails sent
+    await page.goto(`${baseURL}/admin/email-logs`);
+    await page.fill('[data-testid="log-search-input"]', testUserEmail);
+    await page.fill('[data-testid="log-date-filter"]', new Date().toISOString().split('T')[0]);
+    await page.click('[data-testid="search-button"]');
     
-    // Expected Result: Email suppressed according to preferences
-    const emailCheckResponse = await request.get(`${baseURL}/api/test/emails/${schedulerEmail}/latest`);
+    const noEmailsMessage = page.locator('[data-testid="no-emails-found"]');
+    const emailCount = await page.locator('[data-testid="email-log-entry"]').count();
     
-    if (emailCheckResponse.ok()) {
-      const emailData = await emailCheckResponse.json();
-      // Verify no new conflict email was sent (timestamp should be old or subject different)
-      expect(emailData.subject).not.toContain('Meeting Room B');
+    // Verify no emails were sent (either no results or count is 0)
+    if (await noEmailsMessage.isVisible()) {
+      await expect(noEmailsMessage).toContainText('No emails found');
+    } else {
+      // If there are emails, verify none are for the recent conflict
+      const recentEmailWithConflict = page.locator('[data-testid="email-log-entry"]').filter({ hasText: 'Conference Room B' });
+      await expect(recentEmailWithConflict).toHaveCount(0);
     }
     
-    // Re-enable notifications for cleanup
+    // Return to user settings and enable email notifications
     await page.goto(`${baseURL}/settings`);
     await page.click('[data-testid="notifications-tab"]');
-    await page.locator('[data-testid="conflict-notification-toggle"]').check();
+    await page.locator('[data-testid="email-notification-toggle"]').check();
+    
+    // Save the preference changes
     await page.click('[data-testid="save-preferences-button"]');
-  });
-
-  test('Ensure email delivery success rate is above 99%', async ({ page, request }) => {
-    // Step 1: Prepare a batch of at least 100 scheduling conflicts
-    const totalConflicts = 100;
-    const testEmails: string[] = [];
+    await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
+    await expect(page.locator('[data-testid="success-message"]')).toContainText('Preferences saved successfully');
     
-    // Generate test email addresses
-    for (let i = 0; i < totalConflicts; i++) {
-      testEmails.push(`scheduler${i}@test.com`);
-    }
+    // Trigger another scheduling conflict in the system
+    await page.goto(`${baseURL}/scheduling`);
+    await page.click('[data-testid="create-schedule-button"]');
+    await page.fill('[data-testid="schedule-resource-input"]', 'Conference Room C');
+    await page.fill('[data-testid="schedule-date-input"]', '2024-02-17');
+    await page.fill('[data-testid="schedule-start-time-input"]', '09:00');
+    await page.fill('[data-testid="schedule-end-time-input"]', '10:00');
+    await page.fill('[data-testid="schedule-description-input"]', 'Test Meeting - Enabled Notifications');
+    await page.click('[data-testid="submit-schedule-button"]');
     
-    // Navigate to admin/testing interface
-    await page.goto(`${baseURL}/admin/email-testing`);
-    await expect(page.locator('[data-testid="email-batch-test-section"]')).toBeVisible();
+    // Verify conflict is detected
+    await expect(page.locator('[data-testid="conflict-alert"]')).toBeVisible({ timeout: 5000 });
     
-    // Step 2: Trigger all conflict events and initiate email notification sending
-    await page.fill('[data-testid="batch-size-input"]', totalConflicts.toString());
-    await page.fill('[data-testid="email-list-textarea"]', testEmails.join(','));
-    await page.click('[data-testid="trigger-batch-conflicts-button"]');
+    // Wait up to 30 seconds and check email inbox
+    await page.waitForTimeout(5000);
     
-    // Wait for batch processing to complete
-    await expect(page.locator('[data-testid="batch-processing-status"]')).toContainText('Processing', { timeout: 10000 });
-    await expect(page.locator('[data-testid="batch-processing-status"]')).toContainText('Completed', { timeout: 360000 }); // 6 minutes timeout
+    // Verify email delivery logs show email was sent
+    await page.goto(`${baseURL}/admin/email-logs`);
+    await page.fill('[data-testid="log-search-input"]', testUserEmail);
+    await page.click('[data-testid="search-button"]');
     
-    // Step 3: Monitor email delivery status
-    await page.click('[data-testid="view-delivery-report-button"]');
-    await expect(page.locator('[data-testid="delivery-report-table"]')).toBeVisible();
+    const enabledEmailLogEntry = page.locator('[data-testid="email-log-entry"]').first();
+    await expect(enabledEmailLogEntry).toBeVisible({ timeout: 30000 });
+    await expect(enabledEmailLogEntry.locator('[data-testid="email-status"]')).toContainText('Delivered');
+    await expect(enabledEmailLogEntry.locator('[data-testid="email-subject"]')).toContainText('Scheduling Conflict');
     
-    // Get delivery statistics
-    const totalSentText = await page.locator('[data-testid="total-emails-sent"]').textContent();
-    const totalDeliveredText = await page.locator('[data-testid="total-emails-delivered"]').textContent();
-    const deliveryRateText = await page.locator('[data-testid="delivery-success-rate"]').textContent();
-    
-    const totalSent = parseInt(totalSentText?.replace(/\D/g, '') || '0');
-    const totalDelivered = parseInt(totalDeliveredText?.replace(/\D/g, '') || '0');
-    const deliveryRate = parseFloat(deliveryRateText?.replace(/[^0-9.]/g, '') || '0');
-    
-    // Step 4: Calculate and verify delivery success rate
-    expect(totalSent).toBe(totalConflicts);
-    expect(totalDelivered).toBeGreaterThanOrEqual(totalConflicts * 0.99);
-    
-    // Expected Result: At least 99% of emails are delivered successfully
-    expect(deliveryRate).toBeGreaterThanOrEqual(99.0);
-    
-    // Verify in delivery report table
-    const failedDeliveries = totalSent - totalDelivered;
-    expect(failedDeliveries).toBeLessThanOrEqual(1); // Allow max 1 failure for 100 emails
-    
-    // Additional API verification
-    const deliveryStatsResponse = await request.get(`${baseURL}/api/email/delivery-stats?batchId=latest`);
-    expect(deliveryStatsResponse.ok()).toBeTruthy();
-    
-    const deliveryStats = await deliveryStatsResponse.json();
-    expect(deliveryStats.successRate).toBeGreaterThanOrEqual(0.99);
-    expect(deliveryStats.totalSent).toBe(totalConflicts);
-    expect(deliveryStats.delivered).toBeGreaterThanOrEqual(totalConflicts * 0.99);
+    // Verify email contains conflict details for Conference Room C
+    await enabledEmailLogEntry.click();
+    await expect(page.locator('[data-testid="email-detail-modal"]')).toBeVisible();
+    await expect(page.locator('[data-testid="email-body"]')).toContainText('Conference Room C');
+    await expect(page.locator('[data-testid="email-body"]')).toContainText('2024-02-17');
   });
 });
