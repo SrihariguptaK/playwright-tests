@@ -1,9 +1,9 @@
 # Manual Test Cases
 
-## Story: As Employee, I want to submit schedule change requests to achieve timely updates to my work schedule
-**Story ID:** story-1
+## Story: As Employee, I want to submit schedule change requests to achieve formal processing and approval
+**Story ID:** story-23
 
-### Test Case: Validate successful schedule change request submission with valid input
+### Test Case: Validate successful schedule change request submission with valid data
 - **ID:** tc-001
 - **Type:** happy-path
 - **Priority:** High
@@ -11,29 +11,30 @@
 
 **Preconditions:**
 - Employee has valid login credentials
-- Employee is logged into the scheduling system
-- Schedule change request page is accessible
-- Test file (PDF/DOC) under 5MB is available for attachment
-- Database connection is active and ScheduleChangeRequests table is accessible
+- Employee is authenticated in the scheduling system
+- Employee has permission to submit schedule change requests
+- Supporting document (PDF/DOC) under 10MB is available for upload
+- Network connectivity is stable
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Navigate to schedule change request page from the main dashboard | Schedule change request form is displayed with all mandatory fields visible: Date, Time, Reason, and optional file attachment field. All fields are empty and ready for input |
-| 2 | Enter a valid future date in the Date field (e.g., tomorrow's date) | Date is accepted and displayed in the correct format without validation errors |
-| 3 | Enter a valid time in the Time field (e.g., 09:00 AM) | Time is accepted and displayed in the correct format without validation errors |
-| 4 | Enter a valid reason in the Reason field (e.g., 'Medical appointment') | Reason text is accepted and displayed in the field without validation errors |
-| 5 | Click on the file attachment button and select a valid file (PDF/DOC) under 5MB | File is successfully attached, file name is displayed, and no error messages appear |
-| 6 | Click the 'Submit' button | Form is submitted successfully, confirmation message is displayed (e.g., 'Your schedule change request has been submitted successfully'), and the page shows submission timestamp |
-| 7 | Verify the request is logged in the system by checking the submission history or database | Request appears in the submission log with correct timestamp, employee ID, and all submitted data including attached file |
+| 1 | Navigate to schedule change request submission page | Submission form is displayed with all mandatory fields including employee name, current schedule, requested schedule, reason for change, effective date, and attachment option |
+| 2 | Enter valid employee name in the employee name field | Employee name is accepted and displayed in the field without validation errors |
+| 3 | Enter current schedule details (e.g., Monday-Friday, 9:00 AM - 5:00 PM) | Current schedule details are accepted and displayed correctly |
+| 4 | Enter requested schedule details (e.g., Tuesday-Saturday, 10:00 AM - 6:00 PM) | Requested schedule details are accepted and displayed correctly |
+| 5 | Enter a valid reason for the schedule change (e.g., 'Personal commitment requiring schedule adjustment') | Reason is accepted and displayed in the text field |
+| 6 | Select a valid effective date (future date) using the date picker | Date is selected and displayed in correct format (MM/DD/YYYY or DD/MM/YYYY based on locale) |
+| 7 | Click on the attachment button and select a valid document (e.g., medical certificate, 2MB PDF) | Document is uploaded successfully, file name and size are displayed, no error messages appear |
+| 8 | Review all entered data for accuracy | All fields display the entered information correctly |
+| 9 | Click the Submit button | Request is saved to ScheduleChangeRequests table, approval workflow is initiated automatically, confirmation message is displayed with unique request ID (e.g., 'Your request #SCR-12345 has been submitted successfully'), response time is under 2 seconds |
 
 **Postconditions:**
-- Schedule change request is saved in ScheduleChangeRequests table
-- Request has a unique ID and timestamp
-- Request status is set to 'Submitted'
-- Request is forwarded to approval workflow
+- Schedule change request is saved in the database with status 'Pending Approval'
+- Approval workflow is initiated and assigned to appropriate approver
+- Attached document is stored in DocumentStorage and linked to the request
+- Request ID is generated and associated with the submission
 - Employee can view the submitted request in their request history
-- System response time is under 2 seconds
 
 ---
 
@@ -41,69 +42,66 @@
 - **ID:** tc-002
 - **Type:** error-case
 - **Priority:** High
+- **Estimated Time:** 4 mins
+
+**Preconditions:**
+- Employee has valid login credentials
+- Employee is authenticated in the scheduling system
+- Employee has navigated to the schedule change request submission page
+- All mandatory fields are clearly marked with asterisks or 'required' labels
+
+**Steps:**
+| Step | Action | Expected Result |
+|------|--------|------------------|
+| 1 | Navigate to submission page | Form is displayed with all mandatory fields marked as required (employee name, current schedule, requested schedule, reason, effective date) |
+| 2 | Leave the employee name field empty | Field remains empty, no data is entered |
+| 3 | Enter valid data in current schedule field | Current schedule data is accepted |
+| 4 | Leave the requested schedule field empty | Field remains empty, no data is entered |
+| 5 | Enter valid reason for change | Reason is accepted and displayed |
+| 6 | Leave the effective date field empty | Field remains empty, no date is selected |
+| 7 | Click outside the empty mandatory fields or tab to next field | Real-time validation highlights missing fields with red borders or error icons, inline error messages appear (e.g., 'This field is required') |
+| 8 | Attempt to submit the form by clicking the Submit button | Submission is blocked, form does not submit, error summary message is displayed at the top of the form (e.g., 'Please complete all required fields'), focus is set to the first missing mandatory field |
+| 9 | Verify that all empty mandatory fields are highlighted with error messages | All missing mandatory fields (employee name, requested schedule, effective date) display individual error messages and visual indicators |
+
+**Postconditions:**
+- No request is saved to the database
+- No approval workflow is initiated
+- Form remains on the submission page with entered data preserved
+- Error messages are clearly visible to guide user correction
+
+---
+
+### Test Case: Test attachment upload size limit enforcement
+- **ID:** tc-003
+- **Type:** boundary
+- **Priority:** High
 - **Estimated Time:** 6 mins
 
 **Preconditions:**
 - Employee has valid login credentials
-- Employee is logged into the scheduling system
-- Schedule change request page is accessible
-- Form validation rules are configured correctly
+- Employee is authenticated in the scheduling system
+- Test file larger than 10MB (e.g., 12MB PDF) is prepared
+- Test file within size limit (e.g., 5MB PDF) is prepared
+- Employee has navigated to the schedule change request submission page
 
 **Steps:**
 | Step | Action | Expected Result |
 |------|--------|------------------|
-| 1 | Navigate to schedule change request page from the main dashboard | Schedule change request form is displayed with all mandatory fields visible and empty |
-| 2 | Leave the Date field empty and click outside the field or tab to the next field | Real-time validation triggers and highlights the Date field with a red border or indicator, displaying error message 'Date is required' |
-| 3 | Leave the Time field empty and click outside the field or tab to the next field | Real-time validation triggers and highlights the Time field with a red border or indicator, displaying error message 'Time is required' |
-| 4 | Leave the Reason field empty and click outside the field | Real-time validation triggers and highlights the Reason field with a red border or indicator, displaying error message 'Reason is required' |
-| 5 | Click the 'Submit' button with all mandatory fields still empty | Form submission is blocked and prevented. Descriptive error messages are displayed at the top of the form and/or next to each empty mandatory field stating 'Please complete all required fields before submitting' |
-| 6 | Verify that no data is saved to the database | No new record is created in the ScheduleChangeRequests table and no submission log entry exists |
-| 7 | Fill in only the Date field with a valid date and attempt to submit again | Submission is still blocked with error messages displayed for the remaining empty mandatory fields (Time and Reason) |
+| 1 | Navigate to submission form | Form is displayed with all fields including attachment upload option, size limit information is visible (e.g., 'Maximum file size: 10MB') |
+| 2 | Click on the attachment upload button | File browser dialog opens allowing file selection |
+| 3 | Select a document larger than 10MB (e.g., 12MB PDF file) | File selection dialog closes and system begins validation |
+| 4 | Observe the upload attempt | Upload is rejected immediately, error message is displayed (e.g., 'File size exceeds maximum limit of 10MB. Please select a smaller file'), no file is attached to the form, attachment field remains empty |
+| 5 | Click on the attachment upload button again | File browser dialog opens again for new selection |
+| 6 | Select a valid size document (e.g., 5MB PDF file) | File is uploaded successfully, file name and size are displayed in the attachment field (e.g., 'medical_certificate.pdf (5MB)'), no error messages appear |
+| 7 | Complete all other mandatory fields with valid data (employee name, current schedule, requested schedule, reason, effective date) | All fields accept valid data without errors |
+| 8 | Click the Submit button | Submission succeeds, request is saved with attachment linked, approval workflow is initiated, confirmation message with request ID is displayed, attached document is stored in DocumentStorage API |
 
 **Postconditions:**
-- No schedule change request is created in the database
-- Form remains on the screen with entered data preserved
-- Error messages are clearly visible to the user
-- User can correct the errors and resubmit
-- No partial or incomplete data is logged
-
----
-
-### Test Case: Ensure draft save functionality works correctly
-- **ID:** tc-003
-- **Type:** happy-path
-- **Priority:** Medium
-- **Estimated Time:** 7 mins
-
-**Preconditions:**
-- Employee has valid login credentials
-- Employee is logged into the scheduling system
-- Schedule change request page is accessible
-- Draft save functionality is enabled
-- Database supports draft storage
-
-**Steps:**
-| Step | Action | Expected Result |
-|------|--------|------------------|
-| 1 | Navigate to schedule change request page from the main dashboard | Schedule change request form is displayed with all fields empty and ready for input |
-| 2 | Enter a valid future date in the Date field (e.g., next week's date) | Date is accepted and displayed without validation errors |
-| 3 | Enter a valid time in the Time field (e.g., 02:00 PM) | Time is accepted and displayed without validation errors |
-| 4 | Leave the Reason field empty (partial data entry) | Reason field remains empty without triggering validation errors since draft save does not require all mandatory fields |
-| 5 | Click the 'Save Draft' button | Draft is saved successfully and a confirmation notification is displayed (e.g., 'Draft saved successfully' or 'Your changes have been saved as draft') |
-| 6 | Verify the draft timestamp is displayed on the form | Last saved timestamp is visible on the form (e.g., 'Draft saved at 10:30 AM') |
-| 7 | Navigate away from the schedule change request page to another section of the application | User successfully navigates to another page without losing draft data |
-| 8 | Return to the schedule change request page | Form is displayed and automatically loads the previously saved draft data |
-| 9 | Verify that the Date field contains the previously entered date | Date field displays the exact date that was entered before saving the draft |
-| 10 | Verify that the Time field contains the previously entered time | Time field displays the exact time that was entered before saving the draft |
-| 11 | Verify that the Reason field is still empty as it was not filled | Reason field remains empty, confirming partial data was correctly saved and restored |
-
-**Postconditions:**
-- Draft is saved in the database with status 'Draft'
-- Draft has a unique ID and timestamp
-- Previously entered data is preserved and retrievable
-- User can continue editing the draft or submit it after completion
-- Draft does not appear in the approval workflow until submitted
-- User can have multiple drafts if system allows
+- Schedule change request is saved in the database with valid attachment
+- Attachment file is stored in DocumentStorage and associated with the request ID
+- Approval workflow is initiated successfully
+- Employee receives confirmation with request ID
+- Oversized file is not stored in the system
 
 ---
 
