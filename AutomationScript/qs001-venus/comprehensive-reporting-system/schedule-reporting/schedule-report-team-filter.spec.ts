@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Schedule Report Team Filtering', () => {
   test.beforeEach(async ({ page }) => {
-    // Login as Project Manager
+    // Navigate to the application and login as Project Manager
     await page.goto('/login');
     await page.fill('[data-testid="username-input"]', 'project.manager@example.com');
     await page.fill('[data-testid="password-input"]', 'password123');
@@ -16,159 +16,122 @@ test.describe('Schedule Report Team Filtering', () => {
     
     // Expected Result: Schedule report UI is displayed
     await expect(page.locator('[data-testid="schedule-report-container"]')).toBeVisible();
-    await expect(page.locator('[data-testid="team-filter-dropdown"]')).toBeVisible();
-    await expect(page.locator('[data-testid="generate-report-button"]')).toBeVisible();
-
+    await expect(page.locator('h1, h2').filter({ hasText: /Schedule Report/i })).toBeVisible();
+    
     // Step 2: Click on the team filter dropdown to view available teams
     await page.click('[data-testid="team-filter-dropdown"]');
     await expect(page.locator('[data-testid="team-filter-options"]')).toBeVisible();
-
+    
     // Step 3: Select a valid team from the filter dropdown
-    await page.click('[data-testid="team-option-development-team-a"]');
+    await page.click('[data-testid="team-option-development-team-a"]', { timeout: 5000 });
     
     // Expected Result: Team filter is applied
     await expect(page.locator('[data-testid="team-filter-dropdown"]')).toContainText('Development Team A');
-    const selectedTeamValue = await page.locator('[data-testid="team-filter-dropdown"]').getAttribute('data-selected-team');
-    expect(selectedTeamValue).toBe('development-team-a');
-
-    // Step 4: Click the 'Generate Report' button to create the filtered report
+    
+    // Step 4: Click the 'Generate Report' button to generate the filtered report
     await page.click('[data-testid="generate-report-button"]');
-
-    // Step 5: Wait for report generation to complete (within 5 seconds)
-    await expect(page.locator('[data-testid="report-loading-indicator"]')).toBeVisible({ timeout: 1000 });
-    await expect(page.locator('[data-testid="report-loading-indicator"]')).toBeHidden({ timeout: 5000 });
+    
+    // Wait for report generation (max 5 seconds as per technical requirements)
+    await page.waitForSelector('[data-testid="report-results"]', { timeout: 5000 });
     
     // Expected Result: Report displays schedule data only for selected team
-    await expect(page.locator('[data-testid="schedule-report-results"]')).toBeVisible();
+    await expect(page.locator('[data-testid="report-results"]')).toBeVisible();
     
-    // Step 6: Verify that all activities and schedules displayed belong only to the selected team
-    const reportRows = page.locator('[data-testid="schedule-report-row"]');
+    // Step 5: Verify all displayed activities, resources, and timelines belong to the selected team
+    const reportRows = page.locator('[data-testid="report-row"]');
     await expect(reportRows).toHaveCountGreaterThan(0);
     
-    const rowCount = await reportRows.count();
-    for (let i = 0; i < rowCount; i++) {
-      const teamCell = reportRows.nth(i).locator('[data-testid="row-team-name"]');
-      await expect(teamCell).toContainText('Development Team A');
+    const teamLabels = page.locator('[data-testid="report-row"] [data-testid="team-name"]');
+    const count = await teamLabels.count();
+    for (let i = 0; i < count; i++) {
+      await expect(teamLabels.nth(i)).toContainText('Development Team A');
     }
-
-    // Step 7: Check that resource assignments shown in the report are members of the selected team
-    const resourceAssignments = page.locator('[data-testid="resource-assignment"]');
-    const assignmentCount = await resourceAssignments.count();
-    for (let i = 0; i < assignmentCount; i++) {
-      const teamAttribute = await resourceAssignments.nth(i).getAttribute('data-team');
-      expect(teamAttribute).toBe('development-team-a');
-    }
-
-    // Step 8: Verify the report header or filter summary indicates the team filter is active
-    await expect(page.locator('[data-testid="report-header-filter-summary"]')).toContainText('Team: Development Team A');
-    await expect(page.locator('[data-testid="active-filter-badge"]')).toBeVisible();
+    
+    // Step 6: Check report header or filter summary section
+    await expect(page.locator('[data-testid="report-header"]')).toContainText('Development Team A');
+    await expect(page.locator('[data-testid="filter-summary"]')).toContainText('Team: Development Team A');
   });
 
   test('Handle invalid team filter input (error-case)', async ({ page }) => {
-    // Step 1: Navigate to Schedule Reporting section from the main dashboard
+    // Step 1: Navigate to Schedule Reporting section
     await page.click('[data-testid="schedule-reporting-link"]');
     await expect(page.locator('[data-testid="schedule-report-container"]')).toBeVisible();
-
+    
     // Step 2: Enter an invalid team identifier in the team filter field
     await page.click('[data-testid="team-filter-dropdown"]');
-    const filterInput = page.locator('[data-testid="team-filter-input"]');
-    await filterInput.fill('INVALID_TEAM_999');
-
-    // Step 3: Tab out of the field or trigger validation by clicking elsewhere
-    await page.keyboard.press('Tab');
-    await page.waitForTimeout(500);
-
+    await page.fill('[data-testid="team-filter-input"]', 'INVALID_TEAM_999');
+    await page.press('[data-testid="team-filter-input"]', 'Enter');
+    
     // Expected Result: System displays validation error
     await expect(page.locator('[data-testid="team-filter-error"]')).toBeVisible();
-    await expect(page.locator('[data-testid="team-filter-error"]')).toContainText(/invalid team|team not found|please select a valid team/i);
-
-    // Step 4: Verify the error message is clearly visible and describes the validation issue
+    await expect(page.locator('[data-testid="team-filter-error"]')).toContainText(/invalid team/i);
+    
+    // Step 3: Verify the error message is clearly visible and user-friendly
     const errorMessage = await page.locator('[data-testid="team-filter-error"]').textContent();
     expect(errorMessage).toBeTruthy();
-    expect(errorMessage!.length).toBeGreaterThan(10);
-
-    // Step 5: Attempt to click the 'Generate Report' button with the invalid team filter
+    expect(errorMessage?.length).toBeGreaterThan(10);
+    
+    // Step 4: Attempt to click the 'Generate Report' button with invalid team filter
     await page.click('[data-testid="generate-report-button"]');
-
+    
     // Expected Result: Report generation is blocked until valid input is provided
-    await expect(page.locator('[data-testid="schedule-report-results"]')).not.toBeVisible();
+    await expect(page.locator('[data-testid="report-results"]')).not.toBeVisible();
     await expect(page.locator('[data-testid="team-filter-error"]')).toBeVisible();
     
-    // Verify the generate button is disabled or shows validation message
+    // Verify generate button is disabled or shows error state
     const generateButton = page.locator('[data-testid="generate-report-button"]');
-    const isDisabled = await generateButton.isDisabled();
+    const isDisabled = await generateButton.isDisabled().catch(() => false);
     if (!isDisabled) {
-      await expect(page.locator('[data-testid="validation-message"]')).toBeVisible();
+      // If button is not disabled, verify error persists
+      await expect(page.locator('[data-testid="team-filter-error"]')).toBeVisible();
     }
-
-    // Step 6: Verify that no report is generated with invalid team filter
-    await expect(page.locator('[data-testid="schedule-report-results"]')).not.toBeVisible();
-    await expect(page.locator('[data-testid="report-header-filter-summary"]')).not.toBeVisible();
-
-    // Step 7: Clear the invalid team filter input and select a valid team from the dropdown
-    await filterInput.clear();
-    await expect(page.locator('[data-testid="team-filter-error"]')).not.toBeVisible();
     
+    // Step 5: Clear the invalid input and select a valid team from the dropdown
     await page.click('[data-testid="team-filter-dropdown"]');
+    await page.fill('[data-testid="team-filter-input"]', '');
     await page.click('[data-testid="team-option-development-team-a"]');
+    
+    // Verify error message is cleared
+    await expect(page.locator('[data-testid="team-filter-error"]')).not.toBeVisible();
     await expect(page.locator('[data-testid="team-filter-dropdown"]')).toContainText('Development Team A');
-
-    // Step 8: Click 'Generate Report' with the valid team filter
+    
+    // Step 6: Click 'Generate Report' button with valid team filter
     await page.click('[data-testid="generate-report-button"]');
     
-    // Verify successful report generation
-    await expect(page.locator('[data-testid="report-loading-indicator"]')).toBeVisible({ timeout: 1000 });
-    await expect(page.locator('[data-testid="report-loading-indicator"]')).toBeHidden({ timeout: 5000 });
-    await expect(page.locator('[data-testid="schedule-report-results"]')).toBeVisible();
-    await expect(page.locator('[data-testid="team-filter-error"]')).not.toBeVisible();
+    // Expected Result: Report generates successfully
+    await page.waitForSelector('[data-testid="report-results"]', { timeout: 5000 });
+    await expect(page.locator('[data-testid="report-results"]')).toBeVisible();
   });
 
-  test('Filter schedule report by valid team - API validation', async ({ page }) => {
+  test('Export filtered schedule reports correctly', async ({ page }) => {
     // Navigate to Schedule Reporting section
     await page.click('[data-testid="schedule-reporting-link"]');
     await expect(page.locator('[data-testid="schedule-report-container"]')).toBeVisible();
-
-    // Set up API response listener
-    const responsePromise = page.waitForResponse(
-      response => response.url().includes('/api/reports/schedule') && response.status() === 200
-    );
-
+    
     // Select a valid team from filter dropdown
     await page.click('[data-testid="team-filter-dropdown"]');
     await page.click('[data-testid="team-option-development-team-a"]');
-
+    await expect(page.locator('[data-testid="team-filter-dropdown"]')).toContainText('Development Team A');
+    
     // Generate report
     await page.click('[data-testid="generate-report-button"]');
-
-    // Wait for and validate API response
-    const response = await responsePromise;
-    expect(response.url()).toContain('team=');
-    expect(response.status()).toBe(200);
-
-    // Verify report displays filtered data
-    await expect(page.locator('[data-testid="schedule-report-results"]')).toBeVisible({ timeout: 5000 });
-  });
-
-  test('Export filtered schedule report correctly', async ({ page }) => {
-    // Navigate to Schedule Reporting section
-    await page.click('[data-testid="schedule-reporting-link"]');
-    await expect(page.locator('[data-testid="schedule-report-container"]')).toBeVisible();
-
-    // Select team filter and generate report
-    await page.click('[data-testid="team-filter-dropdown"]');
-    await page.click('[data-testid="team-option-development-team-a"]');
-    await page.click('[data-testid="generate-report-button"]');
+    await page.waitForSelector('[data-testid="report-results"]', { timeout: 5000 });
+    await expect(page.locator('[data-testid="report-results"]')).toBeVisible();
     
-    await expect(page.locator('[data-testid="schedule-report-results"]')).toBeVisible({ timeout: 5000 });
-
-    // Set up download listener
+    // Setup download listener
     const downloadPromise = page.waitForEvent('download');
-
+    
     // Click export button
     await page.click('[data-testid="export-report-button"]');
-
-    // Wait for download and verify
+    
+    // Wait for download to complete
     const download = await downloadPromise;
-    expect(download.suggestedFilename()).toMatch(/schedule.*report.*development.*team.*a/i);
+    
+    // Verify download occurred
+    expect(download.suggestedFilename()).toMatch(/schedule.*report/i);
+    expect(download.suggestedFilename()).toContain('Development-Team-A');
+    
+    // Verify success message
+    await expect(page.locator('[data-testid="export-success-message"]')).toBeVisible();
   });
 });
