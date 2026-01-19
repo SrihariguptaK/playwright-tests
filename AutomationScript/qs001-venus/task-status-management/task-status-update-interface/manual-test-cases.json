@@ -1,0 +1,969 @@
+[
+  {
+    "storyId": "story-1",
+    "storyTitle": "As Employee, I want to perform task status updates to achieve accurate progress tracking",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful status update with valid input",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated with valid OAuth2 credentials",
+          "User has employee role with task update permissions",
+          "At least one task is assigned to the logged-in employee",
+          "Task has a current status that allows valid transitions",
+          "System is accessible via desktop browser",
+          "Network connectivity is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task detail page by clicking on an assigned task from the task list",
+            "expectedResult": "Task detail page loads successfully displaying task name, description, current status, and status update dropdown. Current status is clearly visible and highlighted."
+          },
+          {
+            "step": 2,
+            "action": "Click on the status dropdown menu to view available status options",
+            "expectedResult": "Dropdown expands showing all valid status options for the current task state. Invalid status transitions are either not displayed or are disabled/grayed out."
+          },
+          {
+            "step": 3,
+            "action": "Select a valid new status from the dropdown menu (e.g., change from 'In Progress' to 'Completed')",
+            "expectedResult": "Selected status is highlighted in the dropdown. The dropdown closes and the new status value is displayed in the status field. Submit button becomes enabled if previously disabled."
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Submit' or 'Update Status' button to save the status change",
+            "expectedResult": "System processes the request and displays a success confirmation message (e.g., 'Status updated successfully'). The update completes within 2 seconds. The new status is reflected in the task detail view."
+          },
+          {
+            "step": 5,
+            "action": "Navigate back to the task list view",
+            "expectedResult": "Task list displays the updated status for the modified task, confirming the change has been persisted in the system."
+          }
+        ],
+        "postconditions": [
+          "Task status is updated in the TaskStatus table",
+          "Status change is recorded with timestamp in the database",
+          "Task list reflects the new status",
+          "User remains on the task detail page or is redirected to task list",
+          "No error messages are displayed"
+        ],
+        "estimatedTime": "3 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify rejection of invalid status transition",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated with valid OAuth2 credentials",
+          "User has employee role with task update permissions",
+          "At least one task is assigned to the logged-in employee",
+          "Task has a current status with defined invalid transition rules (e.g., cannot move from 'Completed' to 'Not Started')",
+          "System is accessible via desktop browser",
+          "Business rules for status transitions are configured in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task detail page by selecting a task with a status that has restricted transitions",
+            "expectedResult": "Task detail page loads successfully displaying task details and current status (e.g., 'Completed'). Status dropdown is visible and accessible."
+          },
+          {
+            "step": 2,
+            "action": "Click on the status dropdown to view available options and attempt to select an invalid status transition (e.g., from 'Completed' to 'Not Started')",
+            "expectedResult": "Invalid status options are either not displayed in the dropdown, or are displayed but disabled/grayed out with a visual indicator. If selectable, a validation warning appears immediately upon selection."
+          },
+          {
+            "step": 3,
+            "action": "If the invalid status was selectable, click the 'Submit' or 'Update Status' button",
+            "expectedResult": "System blocks the submission and displays a clear error message such as 'Invalid status transition: Cannot change from Completed to Not Started' or 'This status change is not allowed'. The original status remains unchanged."
+          },
+          {
+            "step": 4,
+            "action": "Verify that the task status has not changed by checking the current status display",
+            "expectedResult": "Task detail page continues to show the original status. No success confirmation message is displayed. The status field reverts to the original value if it was temporarily changed."
+          },
+          {
+            "step": 5,
+            "action": "Navigate to the task list and verify the task status",
+            "expectedResult": "Task list shows the original status for the task, confirming no unauthorized status change occurred."
+          }
+        ],
+        "postconditions": [
+          "Task status remains unchanged in the database",
+          "Error message is displayed to the user",
+          "No status change is recorded in the audit log",
+          "User remains on the task detail page",
+          "System maintains data integrity"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure status update works on mobile devices",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated with valid OAuth2 credentials on mobile device",
+          "User has employee role with task update permissions",
+          "At least one task is assigned to the logged-in employee",
+          "Mobile device (iOS or Android) with supported browser or native app",
+          "Mobile device has stable internet connection",
+          "Task has a current status that allows valid transitions"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open the task management application on a mobile device (smartphone or tablet) and navigate to the task list",
+            "expectedResult": "Application loads with responsive mobile interface. Task list is displayed in a mobile-optimized layout with touch-friendly elements. All tasks are visible and scrollable."
+          },
+          {
+            "step": 2,
+            "action": "Tap on a task to access the task update interface",
+            "expectedResult": "Task detail page opens with mobile-responsive design. All elements (task name, description, status dropdown, submit button) are properly sized and accessible. Interface adapts to screen orientation (portrait/landscape)."
+          },
+          {
+            "step": 3,
+            "action": "Tap on the status dropdown to view available status options",
+            "expectedResult": "Dropdown menu expands with touch-optimized selection options. Status options are clearly readable and have adequate touch target size (minimum 44x44 pixels). Valid status options are displayed."
+          },
+          {
+            "step": 4,
+            "action": "Select a valid new status from the dropdown by tapping on it",
+            "expectedResult": "Selected status is highlighted and the dropdown closes. New status value is displayed in the status field. No UI elements overlap or become inaccessible."
+          },
+          {
+            "step": 5,
+            "action": "Tap the 'Submit' or 'Update Status' button to save the change",
+            "expectedResult": "System processes the update within 2 seconds. Success confirmation message appears in a mobile-friendly format (toast notification or modal). The message is clearly visible and does not obstruct other UI elements."
+          },
+          {
+            "step": 6,
+            "action": "Navigate back to the task list view by using the back button or navigation menu",
+            "expectedResult": "Task list reloads and displays the updated status for the modified task. The status change is immediately visible in the mobile task list view."
+          },
+          {
+            "step": 7,
+            "action": "Verify the status change persists by closing and reopening the application",
+            "expectedResult": "Upon reopening, the task list shows the updated status, confirming the change was successfully saved to the server and persisted."
+          }
+        ],
+        "postconditions": [
+          "Task status is updated in the database",
+          "Status change is visible on both mobile and desktop platforms",
+          "Mobile interface remains responsive and functional",
+          "User can continue to perform other actions on mobile device",
+          "No layout or rendering issues occur on mobile view"
+        ],
+        "estimatedTime": "5 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-3",
+    "storyTitle": "As Employee, I want to perform editing task status updates to achieve correction of mistakes",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate successful status edit within allowed time window",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated with valid credentials and has edit permissions",
+          "User has employee role with status edit authorization",
+          "At least one task has a status update submitted less than 30 minutes ago",
+          "TaskStatusHistory table contains recent status update records",
+          "Audit trail logging is enabled and functional",
+          "System time is synchronized and accurate"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task detail page and locate the 'Status History' or 'View History' section",
+            "expectedResult": "Task status history section is displayed showing a chronological list of all status updates with timestamps, previous status, new status, and user who made the change. Most recent updates appear at the top."
+          },
+          {
+            "step": 2,
+            "action": "Identify a status update that was submitted less than 30 minutes ago (timestamp should be within the allowed edit window)",
+            "expectedResult": "Recent status update is visible with a timestamp showing it is within the 30-minute window. An 'Edit' button or icon is displayed next to the status update entry, indicating it is editable."
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Edit' button next to the recent status update",
+            "expectedResult": "Edit interface opens, either as a modal dialog or inline form. The current status value is pre-populated in an editable dropdown or field. A status dropdown shows all valid status options based on transition rules."
+          },
+          {
+            "step": 4,
+            "action": "Select a different valid status from the dropdown menu (e.g., change from 'In Progress' to 'On Hold')",
+            "expectedResult": "New status is selected and highlighted in the dropdown. The interface shows the change clearly, possibly with a visual indicator showing 'Original: In Progress' and 'New: On Hold'."
+          },
+          {
+            "step": 5,
+            "action": "Click the 'Save' or 'Update' button to submit the edited status change",
+            "expectedResult": "System processes the edit within 2 seconds. A success confirmation message appears (e.g., 'Status update edited successfully'). The edit interface closes and returns to the status history view."
+          },
+          {
+            "step": 6,
+            "action": "Verify the status history now reflects the edited status",
+            "expectedResult": "Status history shows the updated status value with an indicator that it was edited (e.g., 'Edited' badge or icon). The timestamp of the original update is preserved, but an 'Edited at' timestamp is also displayed."
+          },
+          {
+            "step": 7,
+            "action": "Navigate to the audit trail or system logs to verify the edit was logged",
+            "expectedResult": "Audit trail contains a new entry recording the status edit with details including: original status, new status, user who made the edit, timestamp of edit, and task ID. All required audit information is complete and accurate."
+          },
+          {
+            "step": 8,
+            "action": "Check the current task status on the task detail page",
+            "expectedResult": "Task detail page displays the newly edited status as the current status. The change is reflected throughout the system consistently."
+          }
+        ],
+        "postconditions": [
+          "Status update is modified in TaskStatusHistory table",
+          "Audit trail entry is created with complete edit details",
+          "Current task status reflects the edited value",
+          "Original timestamp is preserved with additional edit timestamp",
+          "Manager notification is queued or sent",
+          "User remains on task detail or history page"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify rejection of status edit after time window",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated with valid credentials and has edit permissions",
+          "User has employee role with status edit authorization",
+          "At least one task has a status update submitted more than 30 minutes ago",
+          "TaskStatusHistory table contains status update records older than 30 minutes",
+          "System time is synchronized and accurate",
+          "30-minute edit window validation is configured and active"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task detail page and access the 'Status History' section",
+            "expectedResult": "Task status history is displayed showing all status updates with timestamps. Status updates older than 30 minutes are visible in the list."
+          },
+          {
+            "step": 2,
+            "action": "Locate a status update that was submitted more than 30 minutes ago (check timestamp to confirm it is outside the edit window)",
+            "expectedResult": "Status update with timestamp older than 30 minutes is visible. The 'Edit' button is either not displayed, is disabled/grayed out, or shows a visual indicator that editing is not allowed (e.g., lock icon)."
+          },
+          {
+            "step": 3,
+            "action": "Attempt to click the 'Edit' button or option for the expired status update (if visible)",
+            "expectedResult": "If the button is disabled, no action occurs and a tooltip may appear stating 'Edit window expired'. If the button is clickable, the system prevents the edit interface from opening or immediately shows an error message."
+          },
+          {
+            "step": 4,
+            "action": "If edit interface opens, attempt to modify the status and click 'Save' or 'Update'",
+            "expectedResult": "System blocks the submission and displays a clear error message such as 'Edit window expired - status updates can only be edited within 30 minutes of submission' or 'Cannot edit status: time limit exceeded'."
+          },
+          {
+            "step": 5,
+            "action": "Verify the error message is displayed prominently and provides clear guidance",
+            "expectedResult": "Error message is displayed in a visible location (modal, banner, or inline message) with appropriate styling (red color, error icon). Message clearly explains why the edit was rejected and the time constraint."
+          },
+          {
+            "step": 6,
+            "action": "Close the error message and return to the status history view",
+            "expectedResult": "Status history view is displayed without any changes. The expired status update remains in its original state."
+          },
+          {
+            "step": 7,
+            "action": "Verify that no changes were made to the status history by checking the status update details",
+            "expectedResult": "The status update older than 30 minutes shows the original status value with no modifications. No 'Edited' indicator is present. The timestamp remains unchanged."
+          },
+          {
+            "step": 8,
+            "action": "Check the audit trail to confirm no edit attempt was logged as successful",
+            "expectedResult": "Audit trail does not contain any successful edit entry for this status update. Optionally, a failed edit attempt may be logged for security purposes, but the status itself remains unchanged."
+          },
+          {
+            "step": 9,
+            "action": "Verify the current task status has not changed",
+            "expectedResult": "Task detail page shows the same status as before the edit attempt. No unauthorized changes occurred in the system."
+          }
+        ],
+        "postconditions": [
+          "Status update remains unchanged in TaskStatusHistory table",
+          "No audit trail entry for successful edit is created",
+          "Error message is displayed to user",
+          "Current task status remains the same",
+          "System maintains data integrity and time-based validation",
+          "User remains on task detail or history page"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure notifications are sent to managers on status edits",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "User is authenticated with valid credentials and has edit permissions",
+          "User has employee role with status edit authorization",
+          "At least one task has a status update submitted less than 30 minutes ago",
+          "Task has an assigned manager with valid notification settings",
+          "Manager notification system is configured and operational",
+          "Notification service is running and accessible",
+          "Manager has a valid email address or notification channel configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task status history and select a recent status update (less than 30 minutes old) to edit",
+            "expectedResult": "Status history is displayed with recent updates. Edit option is available for the selected status update within the time window."
+          },
+          {
+            "step": 2,
+            "action": "Click the 'Edit' button to open the edit interface",
+            "expectedResult": "Edit interface opens with the current status pre-populated and a dropdown showing valid status options."
+          },
+          {
+            "step": 3,
+            "action": "Modify the status by selecting a different valid status from the dropdown",
+            "expectedResult": "New status is selected and displayed in the edit interface. The change is clearly visible to the user."
+          },
+          {
+            "step": 4,
+            "action": "Click 'Save' or 'Update' to submit the edited status change",
+            "expectedResult": "System processes the edit successfully within 2 seconds. Success confirmation message appears (e.g., 'Status updated and manager notified'). The edit is saved to the database and audit trail."
+          },
+          {
+            "step": 5,
+            "action": "Access the manager notification system or inbox (log in as the assigned manager or check notification logs)",
+            "expectedResult": "Manager notification system shows a new notification related to the status edit. Notification appears in the manager's notification center, email inbox, or configured notification channel."
+          },
+          {
+            "step": 6,
+            "action": "Open and review the notification content",
+            "expectedResult": "Notification contains accurate and complete information including: task name/ID, employee who made the edit, original status, new edited status, timestamp of edit, and a link to view the task details."
+          },
+          {
+            "step": 7,
+            "action": "Verify the notification includes all required details: task identifier, original status, new status, employee name, and edit timestamp",
+            "expectedResult": "All required information is present and accurate in the notification. The notification is formatted clearly and professionally. Links (if any) are functional and direct to the correct task."
+          },
+          {
+            "step": 8,
+            "action": "Check the notification timestamp to ensure it was sent immediately after the edit",
+            "expectedResult": "Notification timestamp is within seconds of the status edit submission time, confirming real-time or near-real-time notification delivery."
+          },
+          {
+            "step": 9,
+            "action": "Verify in the system logs or notification service that the notification was successfully delivered",
+            "expectedResult": "System logs or notification service dashboard shows successful delivery status for the manager notification. No delivery errors or failures are recorded."
+          }
+        ],
+        "postconditions": [
+          "Status edit is successfully saved in the database",
+          "Manager receives notification via configured channel",
+          "Notification contains accurate task and edit details",
+          "Notification delivery is logged in the system",
+          "Audit trail includes both the status edit and notification event",
+          "Manager can access task details from notification link"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-7",
+    "storyTitle": "As Employee, I want to perform receiving notifications for task status updates to achieve timely awareness",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate notification delivery on status update",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged into the system as an employee",
+          "User has at least one task assigned to them",
+          "User has both in-app and email notifications enabled in settings",
+          "User has valid email address configured in profile",
+          "Notification service is running and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task details page for an assigned task",
+            "expectedResult": "Task details page loads successfully showing current task status"
+          },
+          {
+            "step": 2,
+            "action": "Update the task status from current status to a different status (e.g., from 'Pending' to 'In Progress')",
+            "expectedResult": "Status update is processed successfully and task status is changed in the system"
+          },
+          {
+            "step": 3,
+            "action": "Click on the notifications icon in the application header to view in-app notifications",
+            "expectedResult": "Notification appears in the in-app notification panel with task name, new status ('In Progress'), and timestamp of the status change"
+          },
+          {
+            "step": 4,
+            "action": "Open the email inbox associated with the user account",
+            "expectedResult": "Email notification is received within 5 seconds containing task name, new status, timestamp, and link to the task"
+          },
+          {
+            "step": 5,
+            "action": "Verify the content accuracy of both in-app and email notifications",
+            "expectedResult": "Both notifications display identical and accurate information matching the task status update"
+          }
+        ],
+        "postconditions": [
+          "Task status remains updated in the system",
+          "Notification is marked as delivered in the notification service logs",
+          "User can access the task from notification links"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify notification preference settings",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged into the system as an employee",
+          "User has at least one task assigned to them",
+          "User currently has both in-app and email notifications enabled",
+          "User has access to notification settings page"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to user profile settings and click on 'Notification Settings' or 'Preferences'",
+            "expectedResult": "Notification settings page is displayed showing all available notification channels (in-app and email) with current preferences"
+          },
+          {
+            "step": 2,
+            "action": "Locate the email notification toggle/checkbox for task status updates and disable it",
+            "expectedResult": "Email notification option is unchecked/toggled off while in-app notification remains enabled"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Save' or 'Update Preferences' button",
+            "expectedResult": "Success message is displayed confirming 'Notification preferences saved successfully' and settings page reflects the updated preference"
+          },
+          {
+            "step": 4,
+            "action": "Navigate to a task assigned to the user and update its status to trigger a notification",
+            "expectedResult": "Task status is updated successfully in the system"
+          },
+          {
+            "step": 5,
+            "action": "Check the in-app notification panel for the status update notification",
+            "expectedResult": "In-app notification is displayed with correct task details, new status, and timestamp"
+          },
+          {
+            "step": 6,
+            "action": "Check the email inbox for any notification related to the status update",
+            "expectedResult": "No email notification is received, confirming that email notifications are disabled"
+          },
+          {
+            "step": 7,
+            "action": "Verify notification delivery logs in the system",
+            "expectedResult": "Logs show notification sent only via in-app channel, email channel skipped based on user preference"
+          }
+        ],
+        "postconditions": [
+          "User notification preferences remain saved as in-app only",
+          "Future task status updates will only trigger in-app notifications",
+          "Email notification channel remains disabled until user re-enables it"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure unauthorized users do not receive notifications",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Two user accounts exist: User A (authorized) and User B (unauthorized)",
+          "User A is logged in and has a task assigned to them",
+          "User B is logged in in a separate browser/session and is NOT assigned to User A's task",
+          "Both users have notifications enabled",
+          "Admin/tester has access to audit logs and notification service logs"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "As User A, navigate to the task details page for a task assigned only to User A",
+            "expectedResult": "Task details page loads successfully showing User A as the assignee"
+          },
+          {
+            "step": 2,
+            "action": "Update the task status from current status to a different status (e.g., from 'Pending' to 'In Progress')",
+            "expectedResult": "Status update is processed successfully and task status changes in the system"
+          },
+          {
+            "step": 3,
+            "action": "As User A, check the in-app notifications panel",
+            "expectedResult": "User A receives notification about the task status update with correct details"
+          },
+          {
+            "step": 4,
+            "action": "Switch to User B's session and check the in-app notifications panel",
+            "expectedResult": "User B does not see any notification related to User A's task status update"
+          },
+          {
+            "step": 5,
+            "action": "Check User B's email inbox for any notifications about User A's task",
+            "expectedResult": "No email notification is received by User B regarding the task status update"
+          },
+          {
+            "step": 6,
+            "action": "Access the notification service audit logs and filter by the task status update event",
+            "expectedResult": "Audit logs show notifications were sent only to User A (authorized user) and no notification records exist for User B"
+          },
+          {
+            "step": 7,
+            "action": "Verify the notification recipient list in the logs matches only authorized users",
+            "expectedResult": "Logs confirm that the system correctly identified only User A as an affected employee and excluded User B from notification distribution"
+          }
+        ],
+        "postconditions": [
+          "Only authorized users have received notifications",
+          "Audit logs accurately reflect notification distribution to authorized users only",
+          "System security controls prevented unauthorized notification delivery"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-8",
+    "storyTitle": "As Employee, I want to perform filtering tasks by status to achieve focused task management",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate filtering tasks by single status",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged into the system as an employee",
+          "User has multiple tasks assigned with different statuses (e.g., In Progress, Pending, Completed)",
+          "Task list page is accessible and functional",
+          "At least 3 tasks exist with 'In Progress' status and 3 tasks with other statuses"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task list page from the main navigation menu",
+            "expectedResult": "Full task list page is displayed showing all tasks assigned to the user across all statuses with task count visible"
+          },
+          {
+            "step": 2,
+            "action": "Locate the status filter dropdown or filter panel on the task list page",
+            "expectedResult": "Status filter UI component is visible showing all available status options (e.g., In Progress, Pending, Completed, etc.)"
+          },
+          {
+            "step": 3,
+            "action": "Select a single status filter option 'In Progress' from the filter dropdown/panel",
+            "expectedResult": "Task list updates dynamically to display only tasks with 'In Progress' status, and task count reflects the filtered number"
+          },
+          {
+            "step": 4,
+            "action": "Verify that all displayed tasks show 'In Progress' as their status",
+            "expectedResult": "All visible tasks in the list have 'In Progress' status and no tasks with other statuses are displayed"
+          },
+          {
+            "step": 5,
+            "action": "Note the number of tasks displayed and verify it matches the expected count of 'In Progress' tasks",
+            "expectedResult": "Task count matches the number of tasks with 'In Progress' status"
+          },
+          {
+            "step": 6,
+            "action": "Click the 'Clear filter' button or deselect the 'In Progress' status filter",
+            "expectedResult": "Full task list is restored showing all tasks across all statuses, and task count returns to the original total"
+          },
+          {
+            "step": 7,
+            "action": "Verify that tasks with all statuses are now visible again",
+            "expectedResult": "Task list displays tasks with various statuses including In Progress, Pending, Completed, etc."
+          }
+        ],
+        "postconditions": [
+          "Task list displays all tasks without any filters applied",
+          "Filter controls are reset to default state",
+          "No filter selections are active"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Validate filtering tasks by multiple statuses",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged into the system as an employee",
+          "User has tasks assigned with multiple different statuses",
+          "At least 2 tasks exist with 'In Progress' status, 2 with 'Pending' status, and 2 with 'Completed' status",
+          "Task list page supports multi-select filtering",
+          "Browser session persistence is enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task list page",
+            "expectedResult": "Full task list is displayed showing all tasks with various statuses"
+          },
+          {
+            "step": 2,
+            "action": "Open the status filter control and select multiple status options: 'In Progress' and 'Pending'",
+            "expectedResult": "Both 'In Progress' and 'Pending' status filters are selected/checked in the filter UI"
+          },
+          {
+            "step": 3,
+            "action": "Apply the multi-select filter or wait for automatic filtering",
+            "expectedResult": "Task list updates to show only tasks with either 'In Progress' OR 'Pending' status, excluding tasks with 'Completed' or other statuses"
+          },
+          {
+            "step": 4,
+            "action": "Verify that all displayed tasks have either 'In Progress' or 'Pending' status",
+            "expectedResult": "All visible tasks match one of the selected statuses and no tasks with unselected statuses are shown"
+          },
+          {
+            "step": 5,
+            "action": "Modify the filter selection by deselecting 'Pending' and adding 'Completed' to the selection",
+            "expectedResult": "Filter selection updates to show 'In Progress' and 'Completed' as selected statuses"
+          },
+          {
+            "step": 6,
+            "action": "Observe the task list update",
+            "expectedResult": "Task list updates dynamically to show only tasks with 'In Progress' or 'Completed' status, excluding 'Pending' tasks"
+          },
+          {
+            "step": 7,
+            "action": "Note the current filter selections ('In Progress' and 'Completed')",
+            "expectedResult": "Filter UI clearly indicates that 'In Progress' and 'Completed' are the active filters"
+          },
+          {
+            "step": 8,
+            "action": "Reload the page by pressing F5 or clicking the browser refresh button",
+            "expectedResult": "Page reloads successfully and task list page is displayed"
+          },
+          {
+            "step": 9,
+            "action": "Check the status filter selections after page reload",
+            "expectedResult": "Previously selected filters ('In Progress' and 'Completed') are persisted and still active, showing the same filtered task list"
+          },
+          {
+            "step": 10,
+            "action": "Verify the task list content matches the persisted filter selections",
+            "expectedResult": "Task list displays only tasks with 'In Progress' or 'Completed' status, confirming filter persistence across page reload"
+          }
+        ],
+        "postconditions": [
+          "Filter selections remain persisted in the user session",
+          "Task list continues to show filtered results based on saved preferences",
+          "User can continue working with the same filter context"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure filtered task list loads within performance SLA",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "User is logged into the system as an employee",
+          "Test environment has 1000+ tasks loaded in the database assigned to the user",
+          "Tasks have various statuses distributed across the dataset",
+          "Network conditions are normal (not throttled)",
+          "Performance monitoring tools are available to measure load times",
+          "User has appropriate authorization to view all assigned tasks"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task list page and wait for the full unfiltered list to load",
+            "expectedResult": "Task list page loads showing all 1000+ tasks with pagination or infinite scroll, and total task count is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Open browser developer tools and navigate to the Network tab to monitor API calls",
+            "expectedResult": "Network monitoring is active and ready to capture API request/response times"
+          },
+          {
+            "step": 3,
+            "action": "Select one or more status filters (e.g., 'In Progress') and start a timer or note the timestamp",
+            "expectedResult": "Filter selection is applied and API request is initiated to fetch filtered results"
+          },
+          {
+            "step": 4,
+            "action": "Monitor the time taken for the filtered task list to fully load and display results",
+            "expectedResult": "Filtered task list loads and displays within 2 seconds, meeting the performance SLA requirement"
+          },
+          {
+            "step": 5,
+            "action": "Verify the API response time in the Network tab for the GET /api/tasks?status=... request",
+            "expectedResult": "API response time is under 2 seconds and HTTP status code is 200 OK"
+          },
+          {
+            "step": 6,
+            "action": "Clear the filter to return to the full unfiltered task list view",
+            "expectedResult": "Full task list loads successfully without errors or performance degradation"
+          },
+          {
+            "step": 7,
+            "action": "Apply a different status filter and measure the load time again",
+            "expectedResult": "Filtered results load within 2 seconds consistently"
+          },
+          {
+            "step": 8,
+            "action": "Navigate between filtered and unfiltered views multiple times (at least 3 iterations)",
+            "expectedResult": "UI remains responsive throughout all navigation actions with no lag, freezing, or JavaScript errors"
+          },
+          {
+            "step": 9,
+            "action": "Check browser console for any errors or warnings during filter operations",
+            "expectedResult": "No errors or warnings are displayed in the browser console"
+          },
+          {
+            "step": 10,
+            "action": "Verify that only tasks authorized for the current user are displayed in both filtered and unfiltered views",
+            "expectedResult": "All displayed tasks are assigned to or accessible by the current user, and no unauthorized tasks are visible in the list"
+          },
+          {
+            "step": 11,
+            "action": "Randomly select several tasks from the filtered list and verify their status matches the applied filter",
+            "expectedResult": "All sampled tasks have the correct status matching the filter criteria, confirming data accuracy"
+          }
+        ],
+        "postconditions": [
+          "Task list performance meets the 2-second SLA requirement",
+          "System handles large datasets without performance degradation",
+          "Security controls ensure only authorized tasks are displayed",
+          "UI remains stable and responsive under load"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-10",
+    "storyTitle": "As Employee, I want to perform validating task status updates to achieve data integrity",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate acceptance of valid status update",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the system with valid credentials",
+          "Employee has permission to update task status",
+          "At least one task exists in the system with current status 'In Progress'",
+          "Business rules engine is configured with valid status transition flows",
+          "API endpoint PUT /api/tasks/{taskId}/status is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task management page and select a task with status 'In Progress'",
+            "expectedResult": "Task details are displayed with current status showing 'In Progress'"
+          },
+          {
+            "step": 2,
+            "action": "Click on the status dropdown and select a valid next status (e.g., 'Completed')",
+            "expectedResult": "Status dropdown displays available valid status options"
+          },
+          {
+            "step": 3,
+            "action": "Fill in all mandatory fields required for the status update (e.g., completion notes, actual hours)",
+            "expectedResult": "All mandatory fields are populated with valid data"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Update Status' button to submit the status change",
+            "expectedResult": "System processes the request and update is accepted and saved to the database"
+          },
+          {
+            "step": 5,
+            "action": "Verify confirmation message is displayed on the screen",
+            "expectedResult": "Success confirmation message appears stating 'Task status updated successfully' or similar"
+          },
+          {
+            "step": 6,
+            "action": "Refresh the task details page and verify the status has been updated",
+            "expectedResult": "Task now displays the new status 'Completed' with timestamp of update"
+          },
+          {
+            "step": 7,
+            "action": "Navigate to the audit logs section and search for the task update record",
+            "expectedResult": "Audit log entry is found showing task ID, old status, new status, timestamp, and employee who made the change"
+          },
+          {
+            "step": 8,
+            "action": "Verify all details in the audit log are correct and complete",
+            "expectedResult": "Update is logged correctly with 100% accuracy of all fields"
+          }
+        ],
+        "postconditions": [
+          "Task status is updated to 'Completed' in the database",
+          "Audit log contains complete record of the status change",
+          "Employee can view the updated task status",
+          "System remains in stable state ready for next operation"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify rejection of invalid status update",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the system with valid credentials",
+          "Employee has permission to update task status",
+          "At least one task exists with current status 'Completed'",
+          "Business rules define that 'Completed' tasks cannot transition to 'In Progress'",
+          "Validation rules are properly configured in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task management page and select a task with status 'Completed'",
+            "expectedResult": "Task details are displayed showing current status as 'Completed'"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to change the status to an invalid transition state (e.g., 'In Progress')",
+            "expectedResult": "Status dropdown allows selection but validation will occur on submission"
+          },
+          {
+            "step": 3,
+            "action": "Fill in any required fields and click 'Update Status' button to submit the invalid status update",
+            "expectedResult": "System validates the status transition and rejects the update"
+          },
+          {
+            "step": 4,
+            "action": "Verify that an error message is displayed on the screen",
+            "expectedResult": "Descriptive error message appears stating 'Invalid status transition: Cannot change from Completed to In Progress' or similar clear explanation"
+          },
+          {
+            "step": 5,
+            "action": "Verify that the task status remains unchanged in the system",
+            "expectedResult": "Task status remains 'Completed' and no update is saved to the database"
+          },
+          {
+            "step": 6,
+            "action": "Review the error message details to understand the validation failure reason",
+            "expectedResult": "Error message clearly explains why the transition is invalid and what valid options are available"
+          },
+          {
+            "step": 7,
+            "action": "Correct the status by selecting a valid transition (e.g., 'Archived' if allowed from 'Completed')",
+            "expectedResult": "Valid status option is selected"
+          },
+          {
+            "step": 8,
+            "action": "Resubmit the status update with the corrected valid status",
+            "expectedResult": "System validates and accepts the update, displaying success confirmation"
+          },
+          {
+            "step": 9,
+            "action": "Verify the task now shows the new valid status",
+            "expectedResult": "Task status is successfully updated to the valid status with confirmation message displayed"
+          }
+        ],
+        "postconditions": [
+          "Invalid status update was rejected and not saved",
+          "Task eventually updated to valid status after correction",
+          "Validation error was logged in system logs",
+          "Employee understands the valid status transition rules"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure validation completes within performance SLA",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the system with valid credentials",
+          "Multiple tasks (at least 10) exist in the system with various statuses",
+          "System is under normal operational load",
+          "Performance monitoring tools are configured and accessible",
+          "System logs are enabled and capturing validation events",
+          "Network latency is within normal parameters"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Open performance monitoring dashboard or prepare timing measurement tool",
+            "expectedResult": "Monitoring tools are ready to capture response times"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to the first task and initiate a valid status update",
+            "expectedResult": "Task update form is displayed"
+          },
+          {
+            "step": 3,
+            "action": "Submit the status update and measure the validation processing time from submission to response",
+            "expectedResult": "Validation completes and response is received within 1 second (1000ms)"
+          },
+          {
+            "step": 4,
+            "action": "Record the validation time and verify it meets the SLA requirement",
+            "expectedResult": "Validation time is logged and is less than or equal to 1 second"
+          },
+          {
+            "step": 5,
+            "action": "Repeat steps 2-4 for at least 9 more tasks with different status transitions under normal load",
+            "expectedResult": "Each validation completes within 1 second for all submissions"
+          },
+          {
+            "step": 6,
+            "action": "Submit a status update with invalid data to trigger a validation error",
+            "expectedResult": "Validation error occurs and is processed within 1 second"
+          },
+          {
+            "step": 7,
+            "action": "Navigate to system logs and search for validation error entries",
+            "expectedResult": "System logs display all validation errors that occurred during testing"
+          },
+          {
+            "step": 8,
+            "action": "Verify each validation error log entry contains complete information (timestamp, task ID, error type, error message, employee ID)",
+            "expectedResult": "All validation errors are logged with 100% accuracy and completeness of required fields"
+          },
+          {
+            "step": 9,
+            "action": "Cross-reference the number of validation errors triggered with the number of log entries",
+            "expectedResult": "Count matches exactly - all errors are logged without any missing entries"
+          },
+          {
+            "step": 10,
+            "action": "Monitor system resource utilization (CPU, memory, response times) during the validation tests",
+            "expectedResult": "System resources remain within normal operating parameters"
+          },
+          {
+            "step": 11,
+            "action": "Verify system responsiveness by navigating to different pages and performing other operations",
+            "expectedResult": "No performance degradation occurs - system remains responsive with normal page load times"
+          },
+          {
+            "step": 12,
+            "action": "Review overall performance metrics and confirm all validations met the 1-second SLA",
+            "expectedResult": "100% of status update validations completed within the 1-second performance requirement"
+          }
+        ],
+        "postconditions": [
+          "All validation operations completed within 1 second SLA",
+          "All validation errors are logged in system logs with complete accuracy",
+          "System performance remains stable with no degradation",
+          "Performance metrics are documented for future reference",
+          "Test tasks are in their final updated states"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  }
+]
