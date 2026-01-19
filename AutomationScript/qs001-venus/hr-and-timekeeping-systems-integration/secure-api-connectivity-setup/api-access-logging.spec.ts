@@ -3,142 +3,164 @@ import { request } from '@playwright/test';
 
 test.describe('API Access Logging - Story 15', () => {
   const API_BASE_URL = process.env.API_BASE_URL || 'https://api.example.com';
-  const LOGS_DASHBOARD_URL = process.env.LOGS_DASHBOARD_URL || 'https://admin.example.com/logs';
-  const ALERTS_DASHBOARD_URL = process.env.ALERTS_DASHBOARD_URL || 'https://admin.example.com/alerts';
-  
-  let apiContext;
-  let testRequestId: string;
-  let testTimestamp: number;
+  const LOGGING_DASHBOARD_URL = process.env.LOGGING_DASHBOARD_URL || 'https://admin.example.com/logs';
+  const VALID_CLIENT_ID = 'test-client-12345';
+  const VALID_API_KEY = 'valid-api-key-token-abc123';
+  const INVALID_API_KEY = 'invalid-expired-token-xyz789';
+  const TEST_ENDPOINT = '/api/v1/test-resource';
 
-  test.beforeAll(async ({ playwright }) => {
-    apiContext = await playwright.request.newContext({
-      baseURL: API_BASE_URL,
-      extraHTTPHeaders: {
-        'Content-Type': 'application/json'
-      }
-    });
-  });
-
-  test.afterAll(async () => {
-    await apiContext.dispose();
-  });
-
-  test('TC#1: Verify logging of successful API access - Make authorized API request and verify logging', async ({ page }) => {
-    // Step 1: Make authorized API request
-    testTimestamp = Date.now();
-    const clientId = 'test-client-12345';
-    const endpoint = '/api/v1/data';
+  test('Verify logging of successful API access (happy-path)', async ({ page, request }) => {
+    // Step 1: Make authorized API request using valid client credentials to a test endpoint
+    const requestTimestamp = new Date().toISOString();
     
-    const response = await apiContext.get(endpoint, {
+    const apiResponse = await request.get(`${API_BASE_URL}${TEST_ENDPOINT}`, {
       headers: {
-        'Authorization': 'Bearer valid-test-token',
-        'X-Client-ID': clientId
+        'Authorization': `Bearer ${VALID_API_KEY}`,
+        'X-Client-ID': VALID_CLIENT_ID
       }
     });
 
     // Expected Result: Access attempt is logged with correct details
-    expect(response.status()).toBe(200);
-    testRequestId = response.headers()['x-request-id'] || `req-${testTimestamp}`;
+    expect(apiResponse.ok()).toBeTruthy();
+    expect(apiResponse.status()).toBe(200);
 
-    // Step 2: Query logs for the request
-    await page.goto(LOGS_DASHBOARD_URL);
+    // Wait for log processing (allowing time for async logging)
+    await page.waitForTimeout(2000);
+
+    // Step 2: Query the centralized logging system for the request using client ID and timestamp
+    await page.goto(LOGGING_DASHBOARD_URL);
     
-    // Login to logs dashboard if needed
-    await page.waitForSelector('[data-testid="logs-dashboard"]', { timeout: 10000 });
+    // Login to logging dashboard if needed
+    await page.waitForSelector('[data-testid="login-form"]', { timeout: 5000 }).catch(() => {});
+    const loginFormVisible = await page.locator('[data-testid="login-form"]').isVisible().catch(() => false);
     
-    // Search for the specific log entry
-    await page.fill('[data-testid="log-search-input"]', testRequestId);
-    await page.click('[data-testid="log-search-button"]');
-    
-    // Wait for search results
-    await page.waitForSelector('[data-testid="log-entry"]', { timeout: 5000 });
-    
+    if (loginFormVisible) {
+      await page.fill('[data-testid="username-input"]', 'admin');
+      await page.fill('[data-testid="password-input"]', 'admin123');
+      await page.click('[data-testid="login-button"]');
+      await page.waitForLoadState('networkidle');
+    }
+
+    // Navigate to logs search
+    await page.click('[data-testid="logs-menu"]');
+    await page.waitForSelector('[data-testid="log-search-form"]');
+
+    // Search for the specific API request log
+    await page.fill('[data-testid="client-id-filter"]', VALID_CLIENT_ID);
+    await page.fill('[data-testid="endpoint-filter"]', TEST_ENDPOINT);
+    await page.fill('[data-testid="timestamp-from"]', requestTimestamp.split('T')[0]);
+    await page.click('[data-testid="search-logs-button"]');
+
     // Expected Result: Log entry is found with accurate data
-    const logEntry = page.locator('[data-testid="log-entry"]').first();
-    await expect(logEntry).toBeVisible();
+    await page.waitForSelector('[data-testid="log-results-table"]');
+    const logEntries = page.locator('[data-testid="log-entry-row"]');
+    await expect(logEntries).toHaveCountGreaterThan(0);
+
+    // Step 3: Verify log entry contains all required fields: timestamp, client ID, endpoint, and result status
+    const firstLogEntry = logEntries.first();
+    await expect(firstLogEntry.locator('[data-testid="log-timestamp"]')).toBeVisible();
+    await expect(firstLogEntry.locator('[data-testid="log-client-id"]')).toContainText(VALID_CLIENT_ID);
+    await expect(firstLogEntry.locator('[data-testid="log-endpoint"]')).toContainText(TEST_ENDPOINT);
+    await expect(firstLogEntry.locator('[data-testid="log-result-status"]')).toContainText('200');
+    await expect(firstLogEntry.locator('[data-testid="log-result-status"]')).toContainText('SUCCESS');
+
+    // Step 4: Verify the logging operation completed within performance requirements
+    const logTimestamp = await firstLogEntry.locator('[data-testid="log-timestamp"]').textContent();
+    const logProcessingTime = await firstLogEntry.locator('[data-testid="log-processing-time"]').textContent();
     
-    // Verify log contains correct details
-    await expect(logEntry.locator('[data-testid="log-client-id"]')).toContainText(clientId);
-    await expect(logEntry.locator('[data-testid="log-endpoint"]')).toContainText(endpoint);
-    await expect(logEntry.locator('[data-testid="log-status"]')).toContainText('200');
-    await expect(logEntry.locator('[data-testid="log-result"]')).toContainText('success');
-    
-    // Verify timestamp is within expected range (within last 5 minutes)
-    const logTimestamp = await logEntry.locator('[data-testid="log-timestamp"]').textContent();
-    expect(logTimestamp).toBeTruthy();
-    
-    // Verify request ID is present
-    await expect(logEntry.locator('[data-testid="log-request-id"]')).toContainText(testRequestId);
+    // Verify logging was under 10ms per request
+    if (logProcessingTime) {
+      const processingTimeMs = parseFloat(logProcessingTime.replace('ms', ''));
+      expect(processingTimeMs).toBeLessThan(10);
+    }
+
+    // Verify log completeness
+    await expect(firstLogEntry.locator('[data-testid="log-complete-indicator"]')).toHaveAttribute('data-complete', 'true');
   });
 
-  test('TC#2: Verify logging of failed API access - Make unauthorized API request and verify alert generation', async ({ page }) => {
-    // Step 1: Make unauthorized API request
-    testTimestamp = Date.now();
-    const clientId = 'unauthorized-client-99999';
-    const endpoint = '/api/v1/sensitive-data';
+  test('Verify logging of failed API access (error-case)', async ({ page, request }) => {
+    // Step 1: Make unauthorized API request using invalid or expired client credentials
+    const requestTimestamp = new Date().toISOString();
     
-    const response = await apiContext.get(endpoint, {
+    const apiResponse = await request.get(`${API_BASE_URL}${TEST_ENDPOINT}`, {
       headers: {
-        'Authorization': 'Bearer invalid-token',
-        'X-Client-ID': clientId
+        'Authorization': `Bearer ${INVALID_API_KEY}`,
+        'X-Client-ID': VALID_CLIENT_ID
       },
       failOnStatusCode: false
     });
 
     // Expected Result: Access attempt is logged with failure status
-    expect(response.status()).toBe(401);
-    testRequestId = response.headers()['x-request-id'] || `req-${testTimestamp}`;
+    expect(apiResponse.status()).toBe(401);
 
-    // Verify the failed attempt is logged
-    await page.goto(LOGS_DASHBOARD_URL);
-    await page.waitForSelector('[data-testid="logs-dashboard"]', { timeout: 10000 });
-    
-    // Filter for failed requests
-    await page.click('[data-testid="log-filter-status"]');
-    await page.click('[data-testid="filter-option-failed"]');
-    
-    // Search for the specific failed request
-    await page.fill('[data-testid="log-search-input"]', clientId);
-    await page.click('[data-testid="log-search-button"]');
-    
-    await page.waitForSelector('[data-testid="log-entry"]', { timeout: 5000 });
-    
-    const failedLogEntry = page.locator('[data-testid="log-entry"]').first();
-    await expect(failedLogEntry).toBeVisible();
-    await expect(failedLogEntry.locator('[data-testid="log-status"]')).toContainText('401');
-    await expect(failedLogEntry.locator('[data-testid="log-result"]')).toContainText('failed');
-    await expect(failedLogEntry.locator('[data-testid="log-client-id"]')).toContainText(clientId);
+    // Wait for log processing and alert generation
+    await page.waitForTimeout(3000);
 
-    // Step 2: Check alert system for suspicious activity
-    await page.goto(ALERTS_DASHBOARD_URL);
-    await page.waitForSelector('[data-testid="alerts-dashboard"]', { timeout: 10000 });
+    // Step 2: Query the centralized logging system for the failed request attempt
+    await page.goto(LOGGING_DASHBOARD_URL);
     
-    // Filter for recent alerts
-    await page.click('[data-testid="alert-filter-timeframe"]');
-    await page.click('[data-testid="filter-option-last-hour"]');
+    // Login to logging dashboard if needed
+    await page.waitForSelector('[data-testid="login-form"]', { timeout: 5000 }).catch(() => {});
+    const loginFormVisible = await page.locator('[data-testid="login-form"]').isVisible().catch(() => false);
     
-    // Search for alerts related to the failed access attempt
-    await page.fill('[data-testid="alert-search-input"]', clientId);
-    await page.click('[data-testid="alert-search-button"]');
-    
-    // Wait for alert results
-    await page.waitForSelector('[data-testid="alert-entry"]', { timeout: 10000 });
-    
+    if (loginFormVisible) {
+      await page.fill('[data-testid="username-input"]', 'admin');
+      await page.fill('[data-testid="password-input"]', 'admin123');
+      await page.click('[data-testid="login-button"]');
+      await page.waitForLoadState('networkidle');
+    }
+
+    // Navigate to logs search
+    await page.click('[data-testid="logs-menu"]');
+    await page.waitForSelector('[data-testid="log-search-form"]');
+
+    // Filter for failed access attempts
+    await page.fill('[data-testid="client-id-filter"]', VALID_CLIENT_ID);
+    await page.fill('[data-testid="endpoint-filter"]', TEST_ENDPOINT);
+    await page.selectOption('[data-testid="status-filter"]', 'FAILED');
+    await page.fill('[data-testid="timestamp-from"]', requestTimestamp.split('T')[0]);
+    await page.click('[data-testid="search-logs-button"]');
+
+    // Expected Result: Failed attempt log is found
+    await page.waitForSelector('[data-testid="log-results-table"]');
+    const logEntries = page.locator('[data-testid="log-entry-row"]');
+    await expect(logEntries).toHaveCountGreaterThan(0);
+
+    const failedLogEntry = logEntries.first();
+    await expect(failedLogEntry.locator('[data-testid="log-result-status"]')).toContainText('401');
+    await expect(failedLogEntry.locator('[data-testid="log-result-status"]')).toContainText('UNAUTHORIZED');
+
+    // Verify the failed attempt log contains complete information for security analysis
+    await expect(failedLogEntry.locator('[data-testid="log-timestamp"]')).toBeVisible();
+    await expect(failedLogEntry.locator('[data-testid="log-client-id"]')).toContainText(VALID_CLIENT_ID);
+    await expect(failedLogEntry.locator('[data-testid="log-endpoint"]')).toContainText(TEST_ENDPOINT);
+    await expect(failedLogEntry.locator('[data-testid="log-failure-reason"]')).toBeVisible();
+    await expect(failedLogEntry.locator('[data-testid="log-failure-reason"]')).toContainText(/invalid|expired|unauthorized/i);
+
+    // Step 3: Check alert system for suspicious activity notification related to the failed access attempt
+    await page.click('[data-testid="alerts-menu"]');
+    await page.waitForSelector('[data-testid="alerts-dashboard"]');
+
+    // Filter alerts for security-related notifications
+    await page.selectOption('[data-testid="alert-type-filter"]', 'SECURITY');
+    await page.fill('[data-testid="alert-search-input"]', VALID_CLIENT_ID);
+    await page.click('[data-testid="search-alerts-button"]');
+
     // Expected Result: Alert is generated for failed access attempt
-    const alertEntry = page.locator('[data-testid="alert-entry"]').first();
-    await expect(alertEntry).toBeVisible();
-    
-    // Verify alert contains relevant information
-    await expect(alertEntry.locator('[data-testid="alert-type"]')).toContainText('Unauthorized Access Attempt');
-    await expect(alertEntry.locator('[data-testid="alert-client-id"]')).toContainText(clientId);
-    await expect(alertEntry.locator('[data-testid="alert-severity"]')).toContainText('high');
-    await expect(alertEntry.locator('[data-testid="alert-status"]')).toContainText('active');
-    
-    // Verify alert timestamp is recent
-    const alertTimestamp = await alertEntry.locator('[data-testid="alert-timestamp"]').textContent();
-    expect(alertTimestamp).toBeTruthy();
-    
-    // Verify alert description mentions failed authentication
-    await expect(alertEntry.locator('[data-testid="alert-description"]')).toContainText('failed');
+    await page.waitForSelector('[data-testid="alert-list"]');
+    const alerts = page.locator('[data-testid="alert-item"]');
+    await expect(alerts).toHaveCountGreaterThan(0);
+
+    const securityAlert = alerts.first();
+    await expect(securityAlert.locator('[data-testid="alert-title"]')).toContainText(/unauthorized|suspicious|failed access/i);
+    await expect(securityAlert.locator('[data-testid="alert-client-id"]')).toContainText(VALID_CLIENT_ID);
+    await expect(securityAlert.locator('[data-testid="alert-severity"]')).toContainText(/high|medium/i);
+    await expect(securityAlert.locator('[data-testid="alert-status"]')).toContainText(/new|pending review/i);
+
+    // Verify alert contains reference to the failed log entry
+    await securityAlert.click();
+    await page.waitForSelector('[data-testid="alert-details"]');
+    await expect(page.locator('[data-testid="alert-log-reference"]')).toBeVisible();
+    await expect(page.locator('[data-testid="alert-endpoint"]')).toContainText(TEST_ENDPOINT);
   });
 });
