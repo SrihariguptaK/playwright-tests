@@ -1,0 +1,178 @@
+[
+  {
+    "storyId": "story-13",
+    "storyTitle": "As Integration Engineer, I want to implement OAuth 2.0 authentication to achieve secure API access",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful OAuth token issuance with valid client credentials",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "OAuth 2.0 authentication system is deployed and running",
+          "Valid OAuth client credentials (client_id and client_secret) are registered in the system",
+          "/oauth/token endpoint is accessible",
+          "At least one secured API endpoint is available for testing",
+          "Test environment has network connectivity to the API server",
+          "Logging system is enabled and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Submit valid client credentials (client_id and client_secret) to /oauth/token endpoint using POST request with grant_type=client_credentials",
+            "expectedResult": "System responds with HTTP 200 OK status code and returns a JSON response containing a valid access_token, token_type (Bearer), expires_in value, and timestamp"
+          },
+          {
+            "step": 2,
+            "action": "Extract the access token from the response and include it in the Authorization header as 'Bearer {access_token}' when calling a secured API endpoint",
+            "expectedResult": "API request is successfully authorized, system responds with HTTP 200 OK, and the requested data or operation is processed and returned correctly"
+          },
+          {
+            "step": 3,
+            "action": "Query the authentication logs for the recent token issuance event using the client_id as search criteria",
+            "expectedResult": "Authentication event is logged with timestamp, client identifier, successful authentication status, token issuance confirmation, and IP address of the requesting client"
+          }
+        ],
+        "postconditions": [
+          "Valid access token is issued and stored in system",
+          "Authentication event is permanently logged in the system",
+          "Token expiration timer is initiated",
+          "Client session is established and tracked"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Reject API request without access token",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "OAuth 2.0 authentication system is deployed and running",
+          "At least one secured API endpoint is available for testing",
+          "API endpoints are configured to require OAuth 2.0 authentication",
+          "Logging system is enabled and operational",
+          "Test environment has network connectivity to the API server"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Send a request to a secured API endpoint without including the Authorization header or access token",
+            "expectedResult": "System responds with HTTP 401 Unauthorized status code and returns an error message indicating authentication is required (e.g., 'Authorization token required' or 'Unauthorized access')"
+          },
+          {
+            "step": 2,
+            "action": "Query the authentication logs for the recent unauthorized access attempt using the timestamp and endpoint path as search criteria",
+            "expectedResult": "Unauthorized access attempt is logged with timestamp, requested endpoint, HTTP 401 response code, IP address of the requesting client, and indication of missing authentication token"
+          }
+        ],
+        "postconditions": [
+          "No API data is exposed or processed",
+          "Unauthorized access attempt is logged in security logs",
+          "System security state remains intact",
+          "No session or token is created"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Reject API request with expired token",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "OAuth 2.0 authentication system is deployed and running",
+          "Valid OAuth client credentials are available",
+          "An access token has been previously issued and has expired (either wait for natural expiration or use a token with modified expiry)",
+          "At least one secured API endpoint is available for testing",
+          "Logging system is enabled and operational",
+          "System clock is synchronized and accurate"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Include the expired access token in the Authorization header as 'Bearer {expired_token}' and send a request to a secured API endpoint",
+            "expectedResult": "System validates the token, detects expiration, responds with HTTP 401 Unauthorized status code, and returns an error message indicating token expiry (e.g., 'Token has expired' or 'Access token is no longer valid')"
+          }
+        ],
+        "postconditions": [
+          "Expired token is rejected and not honored",
+          "Token expiration event is logged in authentication logs",
+          "No API data is exposed or processed",
+          "Client must request a new token to regain access"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-14",
+    "storyTitle": "As Security Analyst, I want to ensure all API data transmissions are encrypted to achieve data privacy",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Verify API endpoints accept HTTPS connections only",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "API server is deployed and running with TLS/SSL configured",
+          "Valid SSL/TLS certificate is installed on the server",
+          "API endpoints are accessible via both HTTP and HTTPS protocols for testing",
+          "Test client has network connectivity to the API server",
+          "Logging system is enabled and operational",
+          "DNS or host configuration allows access to the API server domain"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Send an API request to any /api/* endpoint using HTTPS protocol (https://server/api/endpoint) with valid request parameters",
+            "expectedResult": "TLS handshake completes successfully, request is accepted by the server, system responds with appropriate HTTP status code (200, 201, etc.), and requested data or operation is processed and returned over encrypted connection"
+          },
+          {
+            "step": 2,
+            "action": "Send an API request to the same /api/* endpoint using HTTP protocol (http://server/api/endpoint) with valid request parameters",
+            "expectedResult": "Request is rejected by the server, system responds with HTTP 400 Bad Request, HTTP 403 Forbidden, or connection refused error, and error message clearly indicates HTTPS is required (e.g., 'HTTPS connection required' or 'Insecure connection not allowed')"
+          }
+        ],
+        "postconditions": [
+          "HTTPS connection is established and logged",
+          "HTTP connection attempt is rejected and logged",
+          "No sensitive data is transmitted over unencrypted connection",
+          "Security policy enforcement is confirmed"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify TLS version enforcement",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "API server is deployed with TLS version enforcement configured",
+          "Server is configured to accept only TLS 1.2 or higher",
+          "Test client or tool capable of specifying TLS version (e.g., OpenSSL, curl with --tlsv options) is available",
+          "Valid SSL/TLS certificate is installed on the server",
+          "API endpoints are accessible for testing",
+          "Logging system is enabled and operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Attempt to establish a connection to an API endpoint using TLS 1.1 or lower protocol version (e.g., using curl --tlsv1.1 or OpenSSL with -tls1_1 flag)",
+            "expectedResult": "TLS handshake fails, connection is rejected by the server, client receives connection error or SSL/TLS protocol version mismatch error, and no data transmission occurs"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to establish a connection to the same API endpoint using TLS 1.2 or higher protocol version (e.g., using curl --tlsv1.2 or OpenSSL with -tls1_2 flag)",
+            "expectedResult": "TLS handshake completes successfully, connection is accepted by the server, secure encrypted channel is established, and API endpoint responds normally to requests"
+          }
+        ],
+        "postconditions": [
+          "TLS 1.2+ connection is established and logged with encryption details",
+          "TLS 1.1 or lower connection attempt is rejected and logged",
+          "Server maintains security compliance with TLS version requirements",
+          "Connection security status is recorded in logs"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  }
+]
