@@ -1,173 +1,161 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Approval Workflow Configuration', () => {
+  const MANAGER_EMAIL = 'manager@company.com';
+  const MANAGER_PASSWORD = 'Manager@123';
+  const EMPLOYEE_EMAIL = 'employee@company.com';
+  const EMPLOYEE_PASSWORD = 'Employee@123';
+  const BASE_URL = 'http://localhost:3000';
+
   test.beforeEach(async ({ page }) => {
-    // Login as administrator before each test
-    await page.goto('/login');
-    await page.fill('[data-testid="username-input"]', 'admin@company.com');
-    await page.fill('[data-testid="password-input"]', 'AdminPassword123!');
-    await page.click('[data-testid="login-button"]');
-    await expect(page).toHaveURL(/.*dashboard/);
+    await page.goto(BASE_URL);
   });
 
-  test('Validate creation of multi-step approval workflow', async ({ page }) => {
-    // Step 1: Administrator navigates to workflow configuration page from the main menu
-    await page.click('[data-testid="main-menu"]');
-    await page.click('[data-testid="workflow-configuration-menu-item"]');
+  test('Validate creation of multi-level approval workflow', async ({ page }) => {
+    // Step 1: Manager navigates to workflow configuration page from the admin portal menu
+    await page.fill('[data-testid="email-input"]', MANAGER_EMAIL);
+    await page.fill('[data-testid="password-input"]', MANAGER_PASSWORD);
+    await page.click('[data-testid="login-button"]');
+    await expect(page).toHaveURL(/.*admin/);
+    
+    await page.click('[data-testid="admin-menu"]');
+    await page.click('[data-testid="workflow-configuration-link"]');
     
     // Expected Result: Workflow configuration UI is displayed
     await expect(page.locator('[data-testid="workflow-configuration-page"]')).toBeVisible();
     await expect(page.locator('h1')).toContainText('Workflow Configuration');
 
-    // Step 2: Administrator clicks 'Create New Workflow' button
-    await page.click('[data-testid="create-new-workflow-button"]');
+    // Step 2: Manager clicks 'Create New Workflow' button
+    await page.click('[data-testid="create-workflow-button"]');
     await expect(page.locator('[data-testid="workflow-form"]')).toBeVisible();
 
-    // Step 3: Administrator enters workflow name and description
-    await page.fill('[data-testid="workflow-name-input"]', 'Schedule Change Approval Process');
-    await page.fill('[data-testid="workflow-description-input"]', 'Three-tier approval for schedule modifications');
+    // Step 3: Manager enters workflow name and description
+    await page.fill('[data-testid="workflow-name-input"]', 'Schedule Change Approval - Level 2');
+    await page.fill('[data-testid="workflow-description-input"]', 'Two-level approval for schedule changes');
 
-    // Step 4: Administrator creates first workflow step
-    await page.click('[data-testid="add-workflow-step-button"]');
-    await page.fill('[data-testid="step-order-input-0"]', '1');
-    await page.fill('[data-testid="step-name-input-0"]', 'Manager Approval');
-    await page.selectOption('[data-testid="step-approver-role-select-0"]', 'Manager');
+    // Step 4: Manager adds first approval level
+    await page.click('[data-testid="add-level-button"]');
+    await expect(page.locator('[data-testid="approval-level-1"]')).toBeVisible();
+    await page.selectOption('[data-testid="level-1-approver-select"]', { label: 'Team Lead' });
 
-    // Step 5: Administrator creates second workflow step
-    await page.click('[data-testid="add-workflow-step-button"]');
-    await page.fill('[data-testid="step-order-input-1"]', '2');
-    await page.fill('[data-testid="step-name-input-1"]', 'Department Head Approval');
-    await page.selectOption('[data-testid="step-approver-role-select-1"]', 'Department Head');
+    // Step 5: Manager adds second approval level
+    await page.click('[data-testid="add-level-button"]');
+    await expect(page.locator('[data-testid="approval-level-2"]')).toBeVisible();
+    await page.selectOption('[data-testid="level-2-approver-select"]', { label: 'Department Manager' });
 
-    // Step 6: Administrator creates third workflow step
-    await page.click('[data-testid="add-workflow-step-button"]');
-    await page.fill('[data-testid="step-order-input-2"]', '3');
-    await page.fill('[data-testid="step-name-input-2"]', 'HR Approval');
-    await page.selectOption('[data-testid="step-approver-role-select-2"]', 'HR Manager');
-
-    // Expected Result: Workflow steps are saved and displayed in correct order
-    await expect(page.locator('[data-testid="workflow-step-0"]')).toContainText('Manager Approval');
-    await expect(page.locator('[data-testid="workflow-step-1"]')).toContainText('Department Head Approval');
-    await expect(page.locator('[data-testid="workflow-step-2"]')).toContainText('HR Approval');
-
-    // Step 7: Administrator clicks 'Save and Activate' button
-    await page.click('[data-testid="save-activate-workflow-button"]');
-
-    // Expected Result: Workflow is persisted and activated successfully
-    await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
-    await expect(page.locator('[data-testid="success-message"]')).toContainText('Workflow saved and activated successfully');
-
-    // Step 8: Administrator verifies the workflow appears in the active workflows list
-    await expect(page.locator('[data-testid="active-workflows-list"]')).toBeVisible();
-    const workflowItem = page.locator('[data-testid="workflow-item"]').filter({ hasText: 'Schedule Change Approval Process' });
-    await expect(workflowItem).toBeVisible();
+    // Step 6: Manager clicks 'Save' button to save the workflow configuration
+    await page.click('[data-testid="save-workflow-button"]');
     
-    // Verify all three steps are visible in the workflow
-    await workflowItem.click();
-    await expect(page.locator('[data-testid="workflow-step-list"]')).toContainText('Manager Approval');
-    await expect(page.locator('[data-testid="workflow-step-list"]')).toContainText('Department Head Approval');
-    await expect(page.locator('[data-testid="workflow-step-list"]')).toContainText('HR Approval');
+    // Expected Result: Workflow is saved successfully and visible in list
+    await expect(page.locator('[data-testid="success-message"]')).toContainText('Workflow saved successfully');
+    await expect(page.locator('[data-testid="workflow-list"]')).toContainText('Schedule Change Approval - Level 2');
+
+    // Step 7: Manager navigates to the audit log section and filters by workflow configuration changes
+    await page.click('[data-testid="audit-log-link"]');
+    await expect(page.locator('[data-testid="audit-log-page"]')).toBeVisible();
+    await page.selectOption('[data-testid="audit-filter-select"]', { label: 'Workflow Configuration' });
+    
+    // Expected Result: Audit log shows creation with correct details
+    const auditEntry = page.locator('[data-testid="audit-log-entry"]').first();
+    await expect(auditEntry).toContainText('Schedule Change Approval - Level 2');
+    await expect(auditEntry).toContainText('Created');
+    await expect(auditEntry).toContainText(MANAGER_EMAIL);
+    await expect(auditEntry.locator('[data-testid="audit-timestamp"]')).toBeVisible();
   });
 
-  test('Verify validation prevents duplicate step orders', async ({ page }) => {
-    // Step 1: Administrator navigates to workflow configuration page
-    await page.click('[data-testid="main-menu"]');
-    await page.click('[data-testid="workflow-configuration-menu-item"]');
-    await expect(page.locator('[data-testid="workflow-configuration-page"]')).toBeVisible();
+  test('Verify rejection of invalid workflow configuration', async ({ page }) => {
+    // Login as manager
+    await page.fill('[data-testid="email-input"]', MANAGER_EMAIL);
+    await page.fill('[data-testid="password-input"]', MANAGER_PASSWORD);
+    await page.click('[data-testid="login-button"]');
+    
+    // Step 1: Manager navigates to workflow configuration page and clicks 'Create New Workflow'
+    await page.click('[data-testid="admin-menu"]');
+    await page.click('[data-testid="workflow-configuration-link"]');
+    await page.click('[data-testid="create-workflow-button"]');
 
-    // Step 2: Administrator clicks 'Create New Workflow' button
-    await page.click('[data-testid="create-new-workflow-button"]');
-    await expect(page.locator('[data-testid="workflow-form"]')).toBeVisible();
+    // Step 2: Manager enters workflow name 'Invalid Circular Workflow'
+    await page.fill('[data-testid="workflow-name-input"]', 'Invalid Circular Workflow');
 
-    // Step 3: Administrator enters workflow name
-    await page.fill('[data-testid="workflow-name-input"]', 'Test Duplicate Steps Workflow');
+    // Step 3: Manager creates Level 1 approver as 'Manager A'
+    await page.click('[data-testid="add-level-button"]');
+    await page.selectOption('[data-testid="level-1-approver-select"]', { label: 'Manager A' });
 
-    // Step 4: Administrator creates first workflow step with order number 1
-    await page.click('[data-testid="add-workflow-step-button"]');
-    await page.fill('[data-testid="step-order-input-0"]', '1');
-    await page.fill('[data-testid="step-name-input-0"]', 'First Approval');
-    await page.selectOption('[data-testid="step-approver-role-select-0"]', 'Manager');
+    // Step 4: Manager creates Level 2 approver as 'Manager B' with escalation back to 'Manager A'
+    await page.click('[data-testid="add-level-button"]');
+    await page.selectOption('[data-testid="level-2-approver-select"]', { label: 'Manager B' });
+    await page.selectOption('[data-testid="level-2-escalation-select"]', { label: 'Manager A' });
 
-    // Step 5: Administrator attempts to create second workflow step with the same order number 1
-    await page.click('[data-testid="add-workflow-step-button"]');
-    await page.fill('[data-testid="step-order-input-1"]', '1');
-    await page.fill('[data-testid="step-name-input-1"]', 'Second Approval');
-    await page.selectOption('[data-testid="step-approver-role-select-1"]', 'Department Head');
+    // Step 5: Manager creates Level 3 approver as 'Manager A', creating a circular hierarchy
+    await page.click('[data-testid="add-level-button"]');
+    await page.selectOption('[data-testid="level-3-approver-select"]', { label: 'Manager A' });
 
-    // Step 6: Administrator attempts to click 'Save' button
-    await page.click('[data-testid="save-activate-workflow-button"]');
-
+    // Step 6: Manager clicks 'Save' button to attempt saving the workflow
+    await page.click('[data-testid="save-workflow-button"]');
+    
     // Expected Result: Validation error is displayed preventing save
     await expect(page.locator('[data-testid="validation-error"]')).toBeVisible();
-    await expect(page.locator('[data-testid="validation-error"]')).toContainText('Duplicate step order numbers are not allowed');
-    
-    // Verify workflow was not saved
-    await expect(page.locator('[data-testid="success-message"]')).not.toBeVisible();
+    await expect(page.locator('[data-testid="validation-error"]')).toContainText('Circular approval hierarchy detected');
+    await expect(page.locator('[data-testid="workflow-list"]')).not.toContainText('Invalid Circular Workflow');
 
-    // Step 7: Administrator corrects the second step order number to 2
-    await page.fill('[data-testid="step-order-input-1"]', '2');
+    // Step 7: Manager removes Level 3 from the workflow configuration
+    await page.click('[data-testid="remove-level-3-button"]');
+    await expect(page.locator('[data-testid="approval-level-3"]')).not.toBeVisible();
+
+    // Step 8: Manager clicks 'Save' button again to save the corrected workflow
+    await page.click('[data-testid="save-workflow-button"]');
     
-    // Verify error is cleared after correction
-    await page.click('[data-testid="save-activate-workflow-button"]');
-    await expect(page.locator('[data-testid="validation-error"]')).not.toBeVisible();
-    await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
+    // Expected Result: Workflow is saved successfully
+    await expect(page.locator('[data-testid="success-message"]')).toContainText('Workflow saved successfully');
+    await expect(page.locator('[data-testid="workflow-list"]')).toContainText('Invalid Circular Workflow');
   });
 
-  test('Ensure only administrators can access workflow configuration', async ({ page }) => {
-    // Logout from admin account
-    await page.click('[data-testid="user-menu"]');
-    await page.click('[data-testid="logout-button"]');
-    await expect(page).toHaveURL(/.*login/);
-
-    // Step 1: Login as non-admin user
-    await page.fill('[data-testid="username-input"]', 'user@company.com');
-    await page.fill('[data-testid="password-input"]', 'UserPassword123!');
+  test('Test role-based access control for workflow configuration', async ({ page }) => {
+    // Step 1: Unauthorized user (Employee role) logs into the system with valid credentials
+    await page.fill('[data-testid="email-input"]', EMPLOYEE_EMAIL);
+    await page.fill('[data-testid="password-input"]', EMPLOYEE_PASSWORD);
     await page.click('[data-testid="login-button"]');
     await expect(page).toHaveURL(/.*dashboard/);
 
-    // Step 2: Non-admin user attempts to navigate to workflow configuration page by entering the URL directly
-    await page.goto('/workflow-configuration');
-
+    // Step 2: Unauthorized user attempts to navigate to workflow configuration page
+    await page.goto(`${BASE_URL}/admin/workflow-configuration`);
+    
     // Expected Result: Access is denied with appropriate error message
     await expect(page.locator('[data-testid="access-denied-message"]')).toBeVisible();
     await expect(page.locator('[data-testid="access-denied-message"]')).toContainText('Access Denied');
     await expect(page.locator('[data-testid="error-description"]')).toContainText('You do not have permission to access this page');
+    await expect(page.locator('[data-testid="workflow-configuration-page"]')).not.toBeVisible();
 
-    // Step 3: Verify user is redirected to appropriate page
-    await page.waitForTimeout(2000);
-    await expect(page).toHaveURL(/.*dashboard/);
-
-    // Step 4: Non-admin user attempts to access workflow configuration API endpoint directly
-    const response = await page.request.post('/api/approval-workflows', {
-      data: {
-        name: 'Unauthorized Workflow',
-        description: 'This should fail',
-        steps: []
-      }
-    });
-
-    // Expected Result: API request is rejected with 403 Forbidden
-    expect(response.status()).toBe(403);
-    const responseBody = await response.json();
-    expect(responseBody.error).toContain('Unauthorized');
-
-    // Step 5: Log out non-admin user and log in with Administrator credentials
+    // Step 3: Unauthorized user logs out of the system
     await page.click('[data-testid="user-menu"]');
     await page.click('[data-testid="logout-button"]');
     await expect(page).toHaveURL(/.*login/);
 
-    await page.fill('[data-testid="username-input"]', 'admin@company.com');
-    await page.fill('[data-testid="password-input"]', 'AdminPassword123!');
+    // Step 4: Authorized manager logs into the admin portal with valid manager credentials
+    await page.fill('[data-testid="email-input"]', MANAGER_EMAIL);
+    await page.fill('[data-testid="password-input"]', MANAGER_PASSWORD);
     await page.click('[data-testid="login-button"]');
-    await expect(page).toHaveURL(/.*dashboard/);
+    await expect(page).toHaveURL(/.*admin/);
 
-    // Step 6: Administrator navigates to workflow configuration page
-    await page.click('[data-testid="main-menu"]');
-    await page.click('[data-testid="workflow-configuration-menu-item"]');
-
-    // Expected Result: Administrator can access the page successfully
+    // Step 5: Authorized manager navigates to workflow configuration page from the admin menu
+    await page.click('[data-testid="admin-menu"]');
+    await page.click('[data-testid="workflow-configuration-link"]');
+    
+    // Expected Result: Access granted and UI is displayed
     await expect(page.locator('[data-testid="workflow-configuration-page"]')).toBeVisible();
     await expect(page.locator('h1')).toContainText('Workflow Configuration');
-    await expect(page.locator('[data-testid="create-new-workflow-button"]')).toBeVisible();
+
+    // Step 6: Manager verifies all workflow configuration features are accessible
+    await expect(page.locator('[data-testid="create-workflow-button"]')).toBeVisible();
+    await expect(page.locator('[data-testid="create-workflow-button"]')).toBeEnabled();
+    
+    // Verify edit functionality is accessible
+    const workflowRow = page.locator('[data-testid="workflow-row"]').first();
+    if (await workflowRow.isVisible()) {
+      await expect(workflowRow.locator('[data-testid="edit-workflow-button"]')).toBeVisible();
+      await expect(workflowRow.locator('[data-testid="delete-workflow-button"]')).toBeVisible();
+    }
+    
+    await expect(page.locator('[data-testid="workflow-list"]')).toBeVisible();
   });
 });
