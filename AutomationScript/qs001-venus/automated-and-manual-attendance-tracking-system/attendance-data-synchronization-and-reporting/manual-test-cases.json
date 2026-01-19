@@ -1,0 +1,424 @@
+[
+  {
+    "storyId": "story-7",
+    "storyTitle": "As Attendance Manager, I want to generate consolidated attendance reports combining biometric and manual data to achieve accurate workforce insights",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate generation of consolidated attendance reports",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Attendance Manager with valid credentials",
+          "Attendance database contains both biometric and manual attendance data",
+          "Reporting module is accessible and functional",
+          "User has necessary permissions to access reporting features"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to reporting module from the main dashboard",
+            "expectedResult": "Reporting interface is displayed with available report types, filter options, and generation controls"
+          },
+          {
+            "step": 2,
+            "action": "Select 'Consolidated Attendance Report' as report type and apply desired filters (date range, department, etc.), then click 'Generate Report' button",
+            "expectedResult": "Consolidated attendance report is displayed showing combined biometric and manual attendance data with accurate employee records, timestamps, and attendance status"
+          },
+          {
+            "step": 3,
+            "action": "Click 'Export' button and select 'PDF' format from the export options",
+            "expectedResult": "PDF file downloads successfully with correct data matching the displayed report, including all columns, formatting, and consolidated attendance information"
+          }
+        ],
+        "postconditions": [
+          "Consolidated report is generated and viewable",
+          "PDF export file is saved to local downloads folder",
+          "Report generation action is logged in system audit trail"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify report filtering and export options",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Attendance Manager",
+          "Reporting module is accessible",
+          "Attendance database contains multiple employees with varied attendance records",
+          "Test data includes specific employee records for the selected date range"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to reporting module and select specific employee from employee filter dropdown and set date range using date picker controls",
+            "expectedResult": "Filters are applied successfully and report displays only attendance data for the selected employee within the specified date range, excluding all other employee records"
+          },
+          {
+            "step": 2,
+            "action": "Click 'Export' button and select 'Excel' format from the export options",
+            "expectedResult": "Excel file downloads successfully with correct filtered data matching the displayed report, maintaining all data integrity, formulas, and formatting in spreadsheet format"
+          }
+        ],
+        "postconditions": [
+          "Filtered report displays accurate subset of attendance data",
+          "Excel export file is saved to local downloads folder",
+          "Export action is logged in system"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure access control for reporting features",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "System has role-based access control configured",
+          "Test user accounts exist: one unauthorized user and one attendance manager",
+          "Reporting module requires specific permissions to access"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Login to the system using credentials of an unauthorized user (without attendance manager role)",
+            "expectedResult": "Access to reporting module is denied with appropriate error message or the reporting module option is not visible in the navigation menu"
+          },
+          {
+            "step": 2,
+            "action": "Logout from unauthorized user account and login using attendance manager credentials with proper permissions",
+            "expectedResult": "Access to reporting module is granted and the reporting interface is displayed with all available features and options visible"
+          }
+        ],
+        "postconditions": [
+          "Unauthorized access attempt is logged in security audit trail",
+          "Attendance manager has full access to reporting features",
+          "Role-based access control is validated and functioning correctly"
+        ],
+        "estimatedTime": "3 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-8",
+    "storyTitle": "As Attendance Manager, I want to resolve conflicts between biometric and manual attendance data to ensure data consistency",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate automatic conflict detection",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Attendance Manager",
+          "Conflict detection service is running and scheduled hourly",
+          "Attendance database is accessible and contains test data",
+          "Conflict resolution dashboard is available"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Create overlapping biometric and manual attendance entries for the same employee at the same time period (e.g., biometric check-in at 9:00 AM and manual entry at 9:05 AM for same date)",
+            "expectedResult": "System automatically detects the conflict during the next scheduled conflict detection run and lists it in the conflict resolution dashboard with conflict type, employee details, and timestamp information"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to conflict resolution interface and locate the newly detected conflict in the conflicts list",
+            "expectedResult": "Conflict details are displayed correctly showing both conflicting entries (biometric and manual), employee information, date/time of entries, conflict type, and available resolution actions"
+          }
+        ],
+        "postconditions": [
+          "Conflict is detected and logged in the system",
+          "Conflict appears in manager's dashboard awaiting resolution",
+          "Notification is sent to attendance manager about detected conflict"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify conflict resolution actions",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as Attendance Manager",
+          "Multiple conflicts exist in the conflict resolution dashboard",
+          "Test conflicts include various scenarios (overlapping entries, duplicates)",
+          "Attendance records are in editable state"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Select a conflicting entry from the conflict list and click 'Accept' button to accept the selected entry as the correct record",
+            "expectedResult": "Attendance record is updated with the accepted entry, conflict is removed from the dashboard, and the conflicting alternative entry is discarded or marked as resolved"
+          },
+          {
+            "step": 2,
+            "action": "Select another conflicting entry and click 'Reject' button to reject the selected entry",
+            "expectedResult": "Entry is marked as rejected with appropriate status flag, excluded from all attendance reports and calculations, and conflict is removed from active conflicts list"
+          },
+          {
+            "step": 3,
+            "action": "Select a third conflicting entry, click 'Modify' button, make changes to the attendance time or status, and save the modifications",
+            "expectedResult": "Changes are saved successfully to the attendance record, modified entry replaces the original conflicting entries, conflict is resolved and removed from dashboard, and updated record appears in attendance reports"
+          }
+        ],
+        "postconditions": [
+          "All three conflicts are resolved and removed from pending list",
+          "Attendance records are updated according to resolution actions",
+          "Reports reflect the resolved attendance data",
+          "All resolution actions are logged in audit trail"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure audit logging of conflict resolutions",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "User is logged in as Attendance Manager",
+          "Audit logging system is enabled and functional",
+          "At least one conflict exists in the system",
+          "User has permissions to view audit logs"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Select a conflict from the conflict resolution dashboard, choose a resolution action (accept, reject, or modify), complete the resolution process, then navigate to audit logs section",
+            "expectedResult": "Resolution action is logged in audit trail with complete details including user ID/name who performed the action, timestamp of resolution, conflict ID, action taken (accept/reject/modify), original conflicting values, final resolved value, and employee affected"
+          }
+        ],
+        "postconditions": [
+          "Audit log entry is permanently stored in the system",
+          "Log entry is retrievable and viewable by authorized users",
+          "Audit trail maintains data integrity and compliance requirements"
+        ],
+        "estimatedTime": "4 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-12",
+    "storyTitle": "As Attendance Manager, I want to audit attendance data synchronization processes to ensure data integrity",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate logging of synchronization events",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Attendance Manager role",
+          "Biometric attendance system is connected and operational",
+          "Manual attendance data is available for synchronization",
+          "Synchronization logs database is accessible",
+          "User has permissions to access synchronization audit interface"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the attendance data synchronization module",
+            "expectedResult": "Synchronization module interface is displayed with available data sources"
+          },
+          {
+            "step": 2,
+            "action": "Select biometric and manual attendance data sources for synchronization",
+            "expectedResult": "Data sources are selected and synchronization options are displayed"
+          },
+          {
+            "step": 3,
+            "action": "Initiate attendance data synchronization by clicking 'Synchronize' button",
+            "expectedResult": "Synchronization process starts and progress indicator is displayed"
+          },
+          {
+            "step": 4,
+            "action": "Wait for synchronization process to complete",
+            "expectedResult": "Synchronization completes successfully with status message displayed"
+          },
+          {
+            "step": 5,
+            "action": "Verify that synchronization event is logged with status and timestamp in the system",
+            "expectedResult": "Synchronization event is recorded in logs with 'Success' status, timestamp, data source details, and number of records synchronized"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to synchronization audit interface from the main menu",
+            "expectedResult": "Synchronization audit interface loads displaying list of synchronization events"
+          },
+          {
+            "step": 7,
+            "action": "Locate the most recent synchronization event in the audit logs",
+            "expectedResult": "The synchronization event performed in previous steps appears in audit logs with correct timestamp, status, and event details"
+          },
+          {
+            "step": 8,
+            "action": "Verify the event appears within 1 minute of synchronization completion",
+            "expectedResult": "Event timestamp confirms log entry was created within 1 minute of synchronization event occurrence"
+          }
+        ],
+        "postconditions": [
+          "Synchronization event is permanently logged in the database",
+          "Audit trail is available for future review",
+          "Attendance data is synchronized between biometric and manual systems",
+          "System remains in operational state"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify filtering and export of synchronization audit logs",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Attendance Manager role",
+          "Multiple synchronization events exist in the system with different dates and statuses",
+          "At least 5 successful synchronization events are logged",
+          "At least 2 failed synchronization events are logged",
+          "User has permissions to view and export audit logs",
+          "Synchronization audit interface is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to synchronization audit interface",
+            "expectedResult": "Audit interface loads displaying all synchronization events in chronological order"
+          },
+          {
+            "step": 2,
+            "action": "Verify that filter options are available (date range, status, data source)",
+            "expectedResult": "Filter panel is displayed with date range picker, status dropdown (Success/Failed/In Progress), and data source options"
+          },
+          {
+            "step": 3,
+            "action": "Select a specific date range using the date filter (e.g., last 7 days)",
+            "expectedResult": "Date range is selected and applied to the filter"
+          },
+          {
+            "step": 4,
+            "action": "Select 'Success' status from the status filter dropdown",
+            "expectedResult": "Status filter is applied showing only successful synchronization events"
+          },
+          {
+            "step": 5,
+            "action": "Click 'Apply Filters' button",
+            "expectedResult": "Audit logs are filtered and display only successful synchronization events within the selected date range"
+          },
+          {
+            "step": 6,
+            "action": "Verify filtered results show correct data matching filter criteria",
+            "expectedResult": "All displayed events have 'Success' status and timestamps within the selected date range"
+          },
+          {
+            "step": 7,
+            "action": "Change status filter to 'Failed' and apply",
+            "expectedResult": "Audit logs update to display only failed synchronization events within the date range"
+          },
+          {
+            "step": 8,
+            "action": "Click 'Export' button and select CSV format",
+            "expectedResult": "Export dialog appears with CSV format selected and file name suggestion displayed"
+          },
+          {
+            "step": 9,
+            "action": "Confirm export by clicking 'Download' button",
+            "expectedResult": "CSV file downloads successfully to local system within 5 seconds"
+          },
+          {
+            "step": 10,
+            "action": "Open the downloaded CSV file",
+            "expectedResult": "CSV file opens correctly with columns: Event ID, Timestamp, Status, Data Source, Records Synchronized, Duration, User"
+          },
+          {
+            "step": 11,
+            "action": "Verify CSV data matches the filtered audit logs displayed on screen",
+            "expectedResult": "All rows in CSV match the filtered results with correct data in all columns"
+          }
+        ],
+        "postconditions": [
+          "Filtered audit logs remain displayed in the interface",
+          "CSV file is saved in downloads folder",
+          "Audit logs database remains unchanged",
+          "Filter settings can be cleared or modified for subsequent queries"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure alert generation for synchronization failures",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in with Attendance Manager role",
+          "Synchronization system is operational",
+          "Alert notification system is configured and enabled",
+          "User has permissions to receive synchronization alerts",
+          "Test environment allows simulation of synchronization failures",
+          "Email/notification channels are configured for alerts"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to synchronization audit interface",
+            "expectedResult": "Audit interface is displayed with current synchronization status"
+          },
+          {
+            "step": 2,
+            "action": "Access synchronization test/simulation module or disconnect biometric data source to simulate failure",
+            "expectedResult": "Test mode is activated or data source connection is interrupted"
+          },
+          {
+            "step": 3,
+            "action": "Initiate attendance data synchronization process",
+            "expectedResult": "Synchronization process starts and attempts to connect to data sources"
+          },
+          {
+            "step": 4,
+            "action": "Wait for synchronization process to fail due to simulated error",
+            "expectedResult": "Synchronization process fails with error message displayed on screen"
+          },
+          {
+            "step": 5,
+            "action": "Verify that system generates an alert notification for the synchronization failure",
+            "expectedResult": "Alert notification appears in the system notification panel with failure details including timestamp, error type, and affected data source"
+          },
+          {
+            "step": 6,
+            "action": "Check email or configured notification channel for alert message",
+            "expectedResult": "Alert email/notification is received with subject 'Synchronization Failure Alert' containing failure details and timestamp"
+          },
+          {
+            "step": 7,
+            "action": "Navigate to synchronization audit logs",
+            "expectedResult": "Audit logs interface displays the list of synchronization events"
+          },
+          {
+            "step": 8,
+            "action": "Locate the failed synchronization event in the audit logs",
+            "expectedResult": "Failed synchronization event appears in logs with 'Failed' status, timestamp, error message, and failure reason"
+          },
+          {
+            "step": 9,
+            "action": "Verify the failure event was logged within 1 minute of occurrence",
+            "expectedResult": "Event timestamp confirms log entry was created within 1 minute of synchronization failure"
+          },
+          {
+            "step": 10,
+            "action": "Click on the failed event to view detailed error information",
+            "expectedResult": "Detailed view opens showing complete error stack trace, affected records count, and recommended resolution steps"
+          },
+          {
+            "step": 11,
+            "action": "Verify alert contains actionable information for troubleshooting",
+            "expectedResult": "Alert includes error code, description, affected system components, and suggested corrective actions"
+          }
+        ],
+        "postconditions": [
+          "Synchronization failure is logged in audit database",
+          "Alert notification is recorded in notification history",
+          "System remains operational for other functions",
+          "Failed synchronization can be retried after resolving the issue",
+          "Alert recipients are notified of the failure"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  }
+]
