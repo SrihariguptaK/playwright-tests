@@ -1,0 +1,1067 @@
+[
+  {
+    "storyId": "story-2",
+    "storyTitle": "As Employee, I want to perform adding comments to tasks to achieve improved communication",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful comment submission",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an employee with valid credentials",
+          "User has access to at least one task in the system",
+          "Task detail page is accessible",
+          "Network connectivity is stable",
+          "Browser supports JavaScript and has cookies enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to task detail page by clicking on a task from the task list",
+            "expectedResult": "Task detail page loads successfully within 2 seconds. Task details are displayed including title, description, status, and assignee. Comment input box is visible at the bottom of the page with a submit button"
+          },
+          {
+            "step": 2,
+            "action": "Click on the comment input box and enter a valid comment text (e.g., 'This is a test comment for validation'). Click the submit button",
+            "expectedResult": "Comment is submitted successfully. The comment appears immediately in the comment list below the input box. Comment displays with the current user's name as author, current timestamp in format 'MMM DD, YYYY HH:MM AM/PM', and the exact comment text entered"
+          },
+          {
+            "step": 3,
+            "action": "Check the notification system or ask relevant stakeholders (task assignee, task creator, project manager) to verify notification receipt",
+            "expectedResult": "Notification is successfully sent to all relevant stakeholders. Notification contains task name, commenter name, and comment preview. Notification appears in the notification center within 5 seconds of comment submission"
+          }
+        ],
+        "postconditions": [
+          "Comment is permanently saved in TaskComments table",
+          "Comment is visible to all users with access to the task",
+          "Notifications have been delivered to stakeholders",
+          "Comment count for the task is incremented by 1",
+          "User remains on the task detail page"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify editing and deleting own comments within time limit",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an employee",
+          "User has previously added at least one comment to a task",
+          "The comment was posted less than 15 minutes ago",
+          "User is on the task detail page where the comment exists",
+          "System time is synchronized correctly"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Locate own comment in the comment list that was posted less than 15 minutes ago. Hover over or click on the comment",
+            "expectedResult": "Edit and delete icons/buttons are visible and enabled for the user's own comment. The options appear as clickable elements (e.g., pencil icon for edit, trash icon for delete). Comments posted by other users do not show these options"
+          },
+          {
+            "step": 2,
+            "action": "Click the edit button/icon. Modify the comment text (e.g., change 'This is a test comment' to 'This is an updated test comment'). Click save or submit button",
+            "expectedResult": "Comment editing interface appears with the current comment text pre-populated in an editable text box. After saving, the updated comment text is displayed in the comment list. An 'edited' indicator appears next to the timestamp. The timestamp shows when the comment was last edited"
+          },
+          {
+            "step": 3,
+            "action": "Click the delete button/icon on the same comment. Confirm deletion if a confirmation dialog appears",
+            "expectedResult": "A confirmation dialog appears asking 'Are you sure you want to delete this comment?'. After confirming, the comment is immediately removed from the comment list. The comment no longer appears on the page. A success message 'Comment deleted successfully' is displayed briefly"
+          }
+        ],
+        "postconditions": [
+          "Edited comment is saved with updated timestamp in database",
+          "Deleted comment is removed from TaskComments table or marked as deleted",
+          "Comment count for the task is decremented by 1 after deletion",
+          "User remains on the task detail page",
+          "No orphaned data remains in the system"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure comment input sanitization prevents XSS",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an employee",
+          "User is on a task detail page with comment functionality",
+          "Browser developer console is open to monitor for errors",
+          "Security testing is approved for the test environment",
+          "Test data includes various XSS attack vectors"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "In the comment input box, enter a comment containing script tags such as '<script>alert(\"XSS\")</script>' or other malicious code like '<img src=x onerror=alert(\"XSS\")>'",
+            "expectedResult": "Input is accepted in the text box without immediate errors. No script execution occurs during input. The input field displays the text as entered"
+          },
+          {
+            "step": 2,
+            "action": "Click the submit button to save the comment",
+            "expectedResult": "Comment is successfully submitted and saved. The comment appears in the comment list with the script tags displayed as plain text (e.g., visible as '&lt;script&gt;alert(\"XSS\")&lt;/script&gt;'). No JavaScript alert boxes or script execution occurs. The malicious code is rendered as harmless text"
+          },
+          {
+            "step": 3,
+            "action": "Check browser developer console for JavaScript errors, security warnings, or XSS alerts. Refresh the page and verify the comment still displays safely. Check application security logs",
+            "expectedResult": "No JavaScript errors appear in the console. No security warnings or XSS alerts are triggered. After page refresh, the comment still displays as sanitized plain text without executing scripts. Security logs show no injection attempts succeeded. System remains stable and fully functional"
+          }
+        ],
+        "postconditions": [
+          "Malicious input is stored safely in sanitized form",
+          "No security vulnerabilities are exploited",
+          "System security logs record the sanitization event",
+          "Application remains stable and secure",
+          "Comment is visible as plain text to all users"
+        ],
+        "estimatedTime": "8 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-4",
+    "storyTitle": "As Employee, I want to perform adding comments with mentions to achieve targeted communication",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate autocomplete suggestions for mentions",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an employee",
+          "User is on a task detail page with comment functionality",
+          "Multiple users exist in the system directory",
+          "User has permission to mention other users",
+          "Network latency is within normal parameters"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Click in the comment input box. Type the '@' symbol followed by characters matching a user's name (e.g., '@joh' for user 'John Smith'). Measure the response time",
+            "expectedResult": "Autocomplete dropdown appears below the cursor position within 1 second. The dropdown displays a list of users whose names match the entered characters. Each entry shows user's full name and optionally their avatar or role. The list is filtered in real-time as more characters are typed"
+          },
+          {
+            "step": 2,
+            "action": "Use arrow keys or mouse to navigate the autocomplete list. Click on or press Enter to select a user from the list (e.g., select 'John Smith')",
+            "expectedResult": "The selected user's mention is inserted into the comment input at the cursor position in the format '@John Smith' or '@johnsmith' depending on system configuration. The autocomplete dropdown closes automatically. The mention text is visually distinguished (e.g., highlighted in blue or with different background color). Cursor is positioned after the mention ready for continued typing"
+          },
+          {
+            "step": 3,
+            "action": "Complete the comment text if needed (e.g., '@John Smith please review this task'). Click the submit button",
+            "expectedResult": "Comment is saved successfully to the database. The comment appears in the comment list immediately. The mention '@John Smith' is displayed with special formatting (e.g., highlighted, clickable, or in a different color). Hovering over the mention may show user details. The comment structure preserves the mention metadata"
+          }
+        ],
+        "postconditions": [
+          "Comment with mention is saved in TaskComments table",
+          "Mention metadata is stored linking to the mentioned user",
+          "Comment is visible with highlighted mention to all users",
+          "System is ready to process notification for mentioned user",
+          "User remains on task detail page"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify notifications sent to mentioned users",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an employee",
+          "At least one other user exists in the system to be mentioned",
+          "User is on a task detail page",
+          "Notification system is enabled and functioning",
+          "Mentioned user has notification permissions enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "In the comment input box, type '@' and select a specific user from the autocomplete list (e.g., '@Jane Doe'). Complete the comment (e.g., '@Jane Doe can you help with this?'). Click submit button",
+            "expectedResult": "Comment is submitted successfully. Success message appears (e.g., 'Comment posted successfully'). The comment appears in the comment list with the mention highlighted. No error messages are displayed. The system confirms the comment was saved with HTTP 200/201 status"
+          },
+          {
+            "step": 2,
+            "action": "Log in as the mentioned user (Jane Doe) or check the notification center/inbox for the mentioned user account. Navigate to notifications section",
+            "expectedResult": "A new notification appears in the mentioned user's notification center. The notification is marked as unread. Notification appears within 10 seconds of comment submission. The notification icon shows an updated count badge"
+          },
+          {
+            "step": 3,
+            "action": "Click on the notification to view its details. Verify the notification content includes task name, commenter name, comment text, and timestamp",
+            "expectedResult": "Notification displays complete and accurate information including: task title/ID, name of user who mentioned them, full or truncated comment text with the mention visible, timestamp of when comment was posted, and a link to navigate directly to the task. Clicking the notification navigates to the specific task detail page with the comment visible"
+          }
+        ],
+        "postconditions": [
+          "Notification is marked as delivered in the system",
+          "Mentioned user has received and can access the notification",
+          "Notification remains in user's notification history",
+          "Clicking notification navigates to correct task",
+          "Original commenter remains on task detail page"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure input sanitization prevents injection via mentions",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an employee",
+          "User is on a task detail page with mention functionality",
+          "Browser developer console is open for monitoring",
+          "Security testing is authorized in test environment",
+          "Test includes various injection attack vectors"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "In the comment input box, attempt to enter mention input with special characters or malicious scripts such as '@<script>alert(\"XSS\")</script>' or '@user\"><script>alert(\"XSS\")</script>' or SQL injection patterns like '@user'; DROP TABLE users;--'",
+            "expectedResult": "System accepts the input without crashing. Input sanitization occurs in real-time or upon submission. Special characters are escaped or encoded. No script execution occurs during input. Autocomplete may not trigger for invalid mention patterns. The input field remains functional"
+          },
+          {
+            "step": 2,
+            "action": "Click the submit button to save the comment with the malicious mention input",
+            "expectedResult": "Comment is submitted and processed by the server. The comment is saved successfully. Malicious code is sanitized and stored as plain text. The comment appears in the comment list with special characters escaped (e.g., displayed as '&lt;script&gt;' instead of executing). No JavaScript alerts or SQL errors occur. The mention is either treated as plain text or rejected gracefully"
+          },
+          {
+            "step": 3,
+            "action": "Check browser developer console for errors. Review application security logs for injection attempts. Refresh the page and verify the comment displays safely. Check database integrity",
+            "expectedResult": "No JavaScript errors or security warnings appear in console. Security logs show the sanitization event and blocked injection attempt. After page refresh, comment still displays as safe, sanitized text. No script execution occurs. Database tables remain intact with no corruption. System remains stable and fully operational. No unauthorized database queries were executed"
+          }
+        ],
+        "postconditions": [
+          "Malicious input is neutralized and stored safely",
+          "No security vulnerabilities are exploited",
+          "Security incident is logged for audit purposes",
+          "Database integrity is maintained",
+          "System remains secure and functional",
+          "Comment is visible as sanitized text to all users"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-6",
+    "storyTitle": "As Employee, I want to perform deleting my own comments within allowed time to achieve control over my input",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate successful deletion of own comment within time window",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the system",
+          "Employee has access to a task with commenting enabled",
+          "Employee has posted at least one comment less than 15 minutes ago",
+          "Database connection is active and TaskComments table is accessible"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task details page containing the employee's own comment",
+            "expectedResult": "Task details page loads successfully with all comments displayed"
+          },
+          {
+            "step": 2,
+            "action": "Locate the comment posted by the logged-in employee that is less than 15 minutes old",
+            "expectedResult": "Comment is visible with delete option/icon displayed next to it"
+          },
+          {
+            "step": 3,
+            "action": "Click the delete button/icon on the eligible comment",
+            "expectedResult": "Confirmation dialog appears asking 'Are you sure you want to delete this comment?'"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Confirm' or 'Yes' button in the confirmation dialog",
+            "expectedResult": "Comment is immediately removed from the UI and success message is displayed"
+          },
+          {
+            "step": 5,
+            "action": "Refresh the page to verify comment removal from database",
+            "expectedResult": "Deleted comment does not reappear, confirming database deletion"
+          },
+          {
+            "step": 6,
+            "action": "Access the audit log system and search for deletion events by the employee's user ID and timestamp",
+            "expectedResult": "Audit log contains a deletion record with correct user ID, comment ID, task ID, and timestamp within 2 seconds of deletion action"
+          }
+        ],
+        "postconditions": [
+          "Comment is permanently removed from TaskComments table",
+          "UI no longer displays the deleted comment",
+          "Audit log contains complete deletion record",
+          "Other comments on the task remain unaffected"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify rejection of deletion after time window",
+        "type": "edge-case",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the system",
+          "Employee has access to a task with commenting enabled",
+          "Employee has posted at least one comment more than 15 minutes ago",
+          "System time is accurately synchronized"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task details page containing the employee's own comment posted more than 15 minutes ago",
+            "expectedResult": "Task details page loads successfully with all comments displayed"
+          },
+          {
+            "step": 2,
+            "action": "Locate the comment posted by the logged-in employee that is older than 15 minutes",
+            "expectedResult": "Comment is visible but delete option is either disabled, grayed out, or not displayed"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to access the delete functionality (if visible) or try to submit a DELETE request via API endpoint",
+            "expectedResult": "System blocks the action and displays error message 'Deletion window expired' or similar notification"
+          },
+          {
+            "step": 4,
+            "action": "Verify the error message content and clarity",
+            "expectedResult": "Error message clearly states that comments can only be deleted within 15 minutes of posting"
+          },
+          {
+            "step": 5,
+            "action": "Refresh the page and verify the comment status",
+            "expectedResult": "Comment remains visible and unchanged in both UI and database"
+          },
+          {
+            "step": 6,
+            "action": "Check audit logs for any deletion attempt records",
+            "expectedResult": "Audit log may contain failed deletion attempt with appropriate rejection reason"
+          }
+        ],
+        "postconditions": [
+          "Comment remains in TaskComments table unchanged",
+          "UI continues to display the comment",
+          "No deletion record is created in audit log",
+          "Employee receives clear feedback about time window expiration"
+        ],
+        "estimatedTime": "4 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure confirmation prompt appears before deletion",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee is logged into the system",
+          "Employee has access to a task with commenting enabled",
+          "Employee has posted at least one comment less than 15 minutes ago",
+          "Confirmation dialog functionality is enabled in system settings"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task details page containing the employee's own eligible comment",
+            "expectedResult": "Task details page loads successfully with comments displayed"
+          },
+          {
+            "step": 2,
+            "action": "Locate an eligible comment (posted less than 15 minutes ago) and click the delete button",
+            "expectedResult": "Confirmation dialog immediately appears with message asking for deletion confirmation, containing 'Cancel' and 'Confirm' buttons"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Cancel' or 'No' button in the confirmation dialog",
+            "expectedResult": "Confirmation dialog closes and returns to task details page without any changes"
+          },
+          {
+            "step": 4,
+            "action": "Verify the comment is still present in the UI",
+            "expectedResult": "Comment remains visible and unchanged with all original content intact"
+          },
+          {
+            "step": 5,
+            "action": "Click the delete button again on the same comment",
+            "expectedResult": "Confirmation dialog appears again as expected"
+          },
+          {
+            "step": 6,
+            "action": "Click the 'Confirm' or 'Yes' button in the confirmation dialog",
+            "expectedResult": "Comment is successfully deleted and removed from UI within 2 seconds"
+          },
+          {
+            "step": 7,
+            "action": "Verify the deletion was processed in the database",
+            "expectedResult": "Comment no longer exists in TaskComments table and audit log contains deletion record"
+          }
+        ],
+        "postconditions": [
+          "When cancelled: Comment remains in database and UI unchanged",
+          "When confirmed: Comment is permanently deleted from database and UI",
+          "Audit log reflects only confirmed deletion action",
+          "User experience includes proper confirmation safeguard"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-9",
+    "storyTitle": "As Employee, I want to perform receiving notifications for new comments to achieve prompt awareness",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate notification delivery on new comment",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Two employee accounts are active and logged in (commenter and recipient)",
+          "Recipient employee is assigned to or associated with a task",
+          "Notification service is running and operational",
+          "Email service is configured and functional",
+          "Recipient has default notification settings enabled for both in-app and email"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "As the commenter employee, navigate to the task details page",
+            "expectedResult": "Task details page loads successfully with comment section visible"
+          },
+          {
+            "step": 2,
+            "action": "Enter a new comment in the comment text field (e.g., 'This is a test comment for notification')",
+            "expectedResult": "Comment text is entered successfully in the input field"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Submit' or 'Add Comment' button to post the comment",
+            "expectedResult": "Comment is saved successfully, appears in the comment list with timestamp and author name"
+          },
+          {
+            "step": 4,
+            "action": "As the recipient employee, check the in-app notification center within 5 seconds",
+            "expectedResult": "New notification appears showing comment excerpt, author name (commenter), task title, and timestamp"
+          },
+          {
+            "step": 5,
+            "action": "Verify the notification content includes all required details",
+            "expectedResult": "Notification displays: comment excerpt (first 50-100 characters), full author name, task ID/title, and link to task"
+          },
+          {
+            "step": 6,
+            "action": "Check the recipient employee's email inbox within 5 seconds",
+            "expectedResult": "Email notification is received with subject line containing task reference"
+          },
+          {
+            "step": 7,
+            "action": "Open and review the email notification content",
+            "expectedResult": "Email contains comment excerpt, author name, task details, direct link to task, and is formatted correctly"
+          },
+          {
+            "step": 8,
+            "action": "Click the notification link in either in-app or email notification",
+            "expectedResult": "User is redirected to the correct task details page with the new comment visible"
+          }
+        ],
+        "postconditions": [
+          "Comment is stored in TaskComments table",
+          "In-app notification is marked as delivered in notification logs",
+          "Email notification is sent and logged",
+          "Notification delivery time is recorded and within 5 seconds threshold",
+          "Recipient can access the task directly from notification"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify notification preference settings for comments",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "Employee is logged into the system",
+          "Notification preferences page is accessible",
+          "Employee has default notification settings enabled",
+          "At least one task is assigned to the employee for testing",
+          "Another employee account exists to add comments"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to user profile or settings menu and select 'Notification Settings' or 'Preferences'",
+            "expectedResult": "Notification settings page loads displaying all notification preference options"
+          },
+          {
+            "step": 2,
+            "action": "Locate the comment notification settings section",
+            "expectedResult": "Comment notification options are visible with separate toggles for in-app and email channels"
+          },
+          {
+            "step": 3,
+            "action": "Disable the email notification toggle for comments while keeping in-app notifications enabled",
+            "expectedResult": "Email toggle switches to 'Off' state while in-app toggle remains 'On'"
+          },
+          {
+            "step": 4,
+            "action": "Click the 'Save' or 'Update Preferences' button",
+            "expectedResult": "Success message appears confirming 'Notification preferences saved successfully'"
+          },
+          {
+            "step": 5,
+            "action": "Refresh the notification settings page to verify persistence",
+            "expectedResult": "Email notifications for comments remain disabled, in-app notifications remain enabled"
+          },
+          {
+            "step": 6,
+            "action": "As another employee, add a new comment to a task assigned to the test employee",
+            "expectedResult": "Comment is posted successfully to the task"
+          },
+          {
+            "step": 7,
+            "action": "As the test employee, check the in-app notification center within 5 seconds",
+            "expectedResult": "In-app notification appears with comment details as expected"
+          },
+          {
+            "step": 8,
+            "action": "Check the test employee's email inbox after 10 seconds",
+            "expectedResult": "No email notification is received for the new comment"
+          },
+          {
+            "step": 9,
+            "action": "Verify notification logs in the system",
+            "expectedResult": "Logs show in-app notification sent, email notification skipped due to user preference"
+          }
+        ],
+        "postconditions": [
+          "User notification preferences are saved in database",
+          "Email notifications for comments are disabled for the user",
+          "In-app notifications continue to function normally",
+          "System respects user preferences for future comment notifications",
+          "Preference changes are reflected in notification delivery logs"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure unauthorized users do not receive comment notifications",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Three employee accounts exist: Employee A (task owner), Employee B (authorized), Employee C (unauthorized)",
+          "A task exists assigned to Employee A and Employee B only",
+          "Employee C has no association with the task",
+          "Notification service is operational",
+          "All employees have notifications enabled by default"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Verify task assignment and permissions showing Employee A and B are assigned, Employee C is not",
+            "expectedResult": "Task permissions confirm only Employee A and B have access"
+          },
+          {
+            "step": 2,
+            "action": "As Employee A, navigate to the task and add a new comment",
+            "expectedResult": "Comment is posted successfully and saved to TaskComments table"
+          },
+          {
+            "step": 3,
+            "action": "As Employee C (unauthorized user), check in-app notification center immediately",
+            "expectedResult": "No notification appears for the newly added comment"
+          },
+          {
+            "step": 4,
+            "action": "Wait 10 seconds and check Employee C's email inbox",
+            "expectedResult": "No email notification is received regarding the comment"
+          },
+          {
+            "step": 5,
+            "action": "As Employee B (authorized user), check in-app notification center",
+            "expectedResult": "Notification appears with correct comment details"
+          },
+          {
+            "step": 6,
+            "action": "Access the system audit logs and filter for notification events related to the comment",
+            "expectedResult": "Audit logs show notifications sent only to Employee B (authorized), no notification record for Employee C"
+          },
+          {
+            "step": 7,
+            "action": "Review notification service logs for authorization checks",
+            "expectedResult": "Logs confirm authorization check was performed and Employee C was excluded from notification recipients"
+          },
+          {
+            "step": 8,
+            "action": "Verify Employee C cannot access the task directly via URL",
+            "expectedResult": "Employee C receives 'Access Denied' or '403 Forbidden' error when attempting to view the task"
+          }
+        ],
+        "postconditions": [
+          "Only authorized users (Employee A and B) received notifications",
+          "Unauthorized user (Employee C) received no notifications",
+          "Audit logs accurately reflect notification recipients",
+          "Security authorization checks are logged and verifiable",
+          "System maintains data privacy and access control"
+        ],
+        "estimatedTime": "6 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-11",
+    "storyTitle": "As Employee, I want to perform viewing comments on tasks to achieve context understanding",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate display of comments with pagination",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an authorized employee",
+          "Task exists with more than 20 comments in the system",
+          "User has permission to view the task and its comments",
+          "Browser is open and network connection is stable"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task detail page by clicking on a task from the task list",
+            "expectedResult": "Task detail page loads successfully and displays task information"
+          },
+          {
+            "step": 2,
+            "action": "Scroll down to the comments section on the task detail page",
+            "expectedResult": "Comments section is visible and first 20 comments are displayed within 1 second"
+          },
+          {
+            "step": 3,
+            "action": "Verify that comments are displayed in chronological order (oldest to newest or newest to oldest based on design)",
+            "expectedResult": "Comments are arranged in proper chronological sequence with consistent ordering"
+          },
+          {
+            "step": 4,
+            "action": "Check each comment for the presence of author name and timestamp",
+            "expectedResult": "All 20 comments display the author's name and timestamp in the correct format (e.g., 'John Doe - Jan 15, 2024 10:30 AM')"
+          },
+          {
+            "step": 5,
+            "action": "Scroll down to the bottom of the loaded comments to trigger pagination or lazy loading",
+            "expectedResult": "Loading indicator appears briefly and additional comments (next batch) load smoothly without page refresh"
+          },
+          {
+            "step": 6,
+            "action": "Continue scrolling through multiple pages of comments",
+            "expectedResult": "Each subsequent batch of comments loads smoothly with proper author and timestamp metadata displayed"
+          },
+          {
+            "step": 7,
+            "action": "Verify the total number of comments matches the expected count for the task",
+            "expectedResult": "All comments are eventually loaded and the count matches the total number of comments associated with the task"
+          }
+        ],
+        "postconditions": [
+          "All comments remain visible on the page",
+          "User can scroll back through previously loaded comments",
+          "No errors are logged in the browser console",
+          "Page performance remains stable"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify highlighting of new comments",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an authorized employee",
+          "Task exists with existing comments",
+          "User has previously viewed the task comments section",
+          "New comments have been added to the task since the user's last visit",
+          "System tracks last visit timestamp for the user"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task detail page that has new comments added since last visit",
+            "expectedResult": "Task detail page loads successfully"
+          },
+          {
+            "step": 2,
+            "action": "Scroll to the comments section and observe the display of comments",
+            "expectedResult": "Comments section loads and new comments added since last visit are visually highlighted (e.g., with different background color, border, or badge)"
+          },
+          {
+            "step": 3,
+            "action": "Verify that only comments added after the last visit timestamp are highlighted",
+            "expectedResult": "Only new unseen comments show the highlighting visual indicator; previously viewed comments do not have highlighting"
+          },
+          {
+            "step": 4,
+            "action": "Count the number of highlighted comments and cross-reference with the actual new comments added",
+            "expectedResult": "The number of highlighted comments matches exactly with the number of new comments added since last visit (no false positives)"
+          },
+          {
+            "step": 5,
+            "action": "Scroll through all comments to view the highlighted new comments",
+            "expectedResult": "All new comments remain highlighted as user scrolls through the comments section"
+          },
+          {
+            "step": 6,
+            "action": "Navigate away from the task detail page to another page in the application",
+            "expectedResult": "User successfully navigates to a different page"
+          },
+          {
+            "step": 7,
+            "action": "Return to the same task detail page and navigate to the comments section",
+            "expectedResult": "Comments section loads and previously highlighted comments are no longer highlighted, indicating they have been viewed"
+          },
+          {
+            "step": 8,
+            "action": "Refresh the browser page and check the comments section again",
+            "expectedResult": "After page refresh, the highlighting has reset and no comments are highlighted since all have been viewed"
+          }
+        ],
+        "postconditions": [
+          "New comment highlighting state is updated in the system",
+          "User's last visit timestamp is updated",
+          "No comments are incorrectly highlighted on subsequent visits",
+          "System maintains accurate tracking of viewed comments"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Ensure access control for comments",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an authorized employee",
+          "Multiple tasks exist in the system with different access permissions",
+          "At least one task exists that the user is NOT authorized to view",
+          "At least one task exists that the user IS authorized to view",
+          "Access control rules are properly configured in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Identify a task ID that the logged-in user is not authorized to access",
+            "expectedResult": "Task ID is identified and confirmed to be outside user's authorization scope"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to navigate to the unauthorized task detail page by entering the URL directly or clicking a link",
+            "expectedResult": "System denies access and displays an appropriate error message (e.g., '403 Forbidden' or 'You do not have permission to view this task')"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to access the comments section of the unauthorized task via direct API call (if applicable) using browser developer tools",
+            "expectedResult": "API request returns 403 Forbidden status code and no comment data is returned"
+          },
+          {
+            "step": 4,
+            "action": "Verify that no comment data or metadata is visible or leaked in the error response",
+            "expectedResult": "Error response contains no sensitive information about comments, authors, or timestamps"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to a task that the user IS authorized to view",
+            "expectedResult": "Task detail page loads successfully without any access restrictions"
+          },
+          {
+            "step": 6,
+            "action": "Scroll to the comments section of the authorized task",
+            "expectedResult": "Comments section loads and displays all comments with author names, timestamps, and content correctly"
+          },
+          {
+            "step": 7,
+            "action": "Verify that all displayed comments belong to the current task and no comments from other tasks are visible",
+            "expectedResult": "All comments displayed are associated only with the current authorized task; no data leakage from other tasks occurs"
+          },
+          {
+            "step": 8,
+            "action": "Check browser console and network tab for any unauthorized data requests or errors",
+            "expectedResult": "No unauthorized API calls are made and no errors related to data leakage are present"
+          },
+          {
+            "step": 9,
+            "action": "Verify audit logs (if accessible) to confirm access attempts are properly logged",
+            "expectedResult": "Audit logs show the denied access attempt for unauthorized task and successful access for authorized task"
+          }
+        ],
+        "postconditions": [
+          "User remains on an authorized page or error page",
+          "No unauthorized data has been accessed or displayed",
+          "Security logs reflect the access attempts accurately",
+          "System maintains data integrity and access control"
+        ],
+        "estimatedTime": "12 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-12",
+    "storyTitle": "As Employee, I want to perform receiving notifications for comment edits to achieve awareness of changes",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate notification delivery on comment edit",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is logged in as an authorized employee",
+          "Task exists with at least one comment",
+          "User is assigned to or has access to the task",
+          "User has notifications enabled for comment edits (default settings)",
+          "Email service is configured and operational",
+          "In-app notification system is functional",
+          "User has a valid email address registered in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the task detail page containing the comment to be edited",
+            "expectedResult": "Task detail page loads successfully with comments section visible"
+          },
+          {
+            "step": 2,
+            "action": "Locate an existing comment and click on the edit button/icon for that comment",
+            "expectedResult": "Comment edit interface opens with the current comment text displayed in an editable field"
+          },
+          {
+            "step": 3,
+            "action": "Modify the comment text by adding or changing content (e.g., change 'Initial comment' to 'Updated comment with new information')",
+            "expectedResult": "Text is successfully modified in the edit field"
+          },
+          {
+            "step": 4,
+            "action": "Click the Save or Update button to save the edited comment",
+            "expectedResult": "Comment is updated successfully and the new text is displayed in the comments section with an 'edited' indicator or timestamp"
+          },
+          {
+            "step": 5,
+            "action": "Wait for up to 5 seconds and check the in-app notification icon/bell in the application header",
+            "expectedResult": "In-app notification appears within 5 seconds showing the comment edit notification with notification badge count incremented"
+          },
+          {
+            "step": 6,
+            "action": "Click on the in-app notification to view details",
+            "expectedResult": "Notification displays correct details including: edited comment excerpt, editor's name, task name/ID, and timestamp of the edit"
+          },
+          {
+            "step": 7,
+            "action": "Verify the content of the notification matches the actual edit made",
+            "expectedResult": "Notification content accurately reflects the edited comment text (excerpt) and shows who made the edit"
+          },
+          {
+            "step": 8,
+            "action": "Open the email client associated with the user's registered email address",
+            "expectedResult": "Email client opens successfully"
+          },
+          {
+            "step": 9,
+            "action": "Check the inbox for a notification email regarding the comment edit (wait up to 5 seconds if not immediately visible)",
+            "expectedResult": "Email notification is received within 5 seconds with subject line indicating comment edit (e.g., 'Comment Edited on Task: [Task Name]')"
+          },
+          {
+            "step": 10,
+            "action": "Open the email notification and review its content",
+            "expectedResult": "Email contains accurate information including: edited comment excerpt, editor's name and details, task name/link, timestamp, and a link to view the task"
+          },
+          {
+            "step": 11,
+            "action": "Click on the task link in the email notification",
+            "expectedResult": "Browser opens and navigates directly to the task detail page with the edited comment visible"
+          }
+        ],
+        "postconditions": [
+          "Comment remains in edited state with updated content",
+          "Notification is marked as delivered in the system",
+          "Email is successfully sent and logged",
+          "User can access the task from notification links",
+          "Notification delivery metrics are updated"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify notification preference settings for comment edits",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "User is logged in as an authorized employee",
+          "User has access to notification settings page",
+          "Task exists with at least one comment that can be edited",
+          "Notification preferences are set to default (both in-app and email enabled)",
+          "User has permission to modify their own notification settings"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the user profile or settings menu by clicking on the user avatar or settings icon",
+            "expectedResult": "User menu or profile dropdown is displayed with options"
+          },
+          {
+            "step": 2,
+            "action": "Click on 'Notification Settings' or 'Preferences' option from the menu",
+            "expectedResult": "Notification settings page loads successfully displaying all notification preference options"
+          },
+          {
+            "step": 3,
+            "action": "Locate the notification preferences section specifically for 'Comment Edits' or 'Comment Updates'",
+            "expectedResult": "Comment edit notification preferences are visible with toggle switches or checkboxes for different notification channels (in-app, email)"
+          },
+          {
+            "step": 4,
+            "action": "Verify the current state of notification preferences (both in-app and email should be enabled by default)",
+            "expectedResult": "Both in-app and email notification toggles are in the 'enabled' or 'on' state"
+          },
+          {
+            "step": 5,
+            "action": "Click on the email notification toggle to disable email notifications for comment edits",
+            "expectedResult": "Email notification toggle switches to 'disabled' or 'off' state while in-app notification remains enabled"
+          },
+          {
+            "step": 6,
+            "action": "Click the Save or Update button to save the notification preferences",
+            "expectedResult": "Success message appears confirming 'Notification preferences saved successfully' and the page reflects the updated settings"
+          },
+          {
+            "step": 7,
+            "action": "Navigate away from the settings page and then return to verify persistence",
+            "expectedResult": "Upon returning to notification settings, email notifications for comment edits remain disabled while in-app remains enabled"
+          },
+          {
+            "step": 8,
+            "action": "Navigate to a task detail page with an existing comment",
+            "expectedResult": "Task detail page loads with comments section visible"
+          },
+          {
+            "step": 9,
+            "action": "Edit an existing comment by modifying its text and saving the changes",
+            "expectedResult": "Comment is successfully updated and saved with the new content displayed"
+          },
+          {
+            "step": 10,
+            "action": "Wait for up to 5 seconds and check the in-app notification icon",
+            "expectedResult": "In-app notification appears within 5 seconds showing the comment edit notification"
+          },
+          {
+            "step": 11,
+            "action": "Verify the in-app notification contains correct details about the comment edit",
+            "expectedResult": "In-app notification displays accurate information including edited comment excerpt and editor details"
+          },
+          {
+            "step": 12,
+            "action": "Check the email inbox for any notification email regarding the comment edit (wait up to 1 minute)",
+            "expectedResult": "No email notification is received in the inbox, confirming that email notifications are disabled as per user preference"
+          },
+          {
+            "step": 13,
+            "action": "Verify spam/junk folder to ensure email was not misdirected",
+            "expectedResult": "No email notification is found in spam or junk folders either"
+          }
+        ],
+        "postconditions": [
+          "User notification preferences remain saved as configured",
+          "Only in-app notifications are sent for comment edits",
+          "Email notifications are suppressed for comment edits",
+          "User can re-enable email notifications at any time",
+          "System respects user preferences for future comment edits"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Ensure unauthorized users do not receive comment edit notifications",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "Two users are logged into the system: User A (authorized) and User B (unauthorized)",
+          "Task exists that is assigned to or accessible by User A only",
+          "User B does not have access or assignment to the task",
+          "Task contains at least one comment that can be edited",
+          "Both users have notifications enabled for comment edits",
+          "Audit logging is enabled in the system"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in as User A (authorized user) and navigate to the task detail page",
+            "expectedResult": "User A successfully accesses the task detail page with comments visible"
+          },
+          {
+            "step": 2,
+            "action": "As User A, locate an existing comment and click the edit button",
+            "expectedResult": "Comment edit interface opens for User A"
+          },
+          {
+            "step": 3,
+            "action": "Modify the comment text with new content (e.g., 'This is an updated comment for testing')",
+            "expectedResult": "Comment text is modified in the edit field"
+          },
+          {
+            "step": 4,
+            "action": "Save the edited comment by clicking the Save or Update button",
+            "expectedResult": "Comment is successfully updated and the new text is displayed in the comments section with updated timestamp"
+          },
+          {
+            "step": 5,
+            "action": "Note the exact timestamp of the comment edit for audit verification",
+            "expectedResult": "Timestamp is recorded for later verification"
+          },
+          {
+            "step": 6,
+            "action": "Switch to User B's session (unauthorized user) or log in as User B in a different browser/incognito window",
+            "expectedResult": "User B is successfully logged into the system"
+          },
+          {
+            "step": 7,
+            "action": "As User B, check the in-app notification icon/bell for any new notifications",
+            "expectedResult": "No notification appears for User B regarding the comment edit on the unauthorized task"
+          },
+          {
+            "step": 8,
+            "action": "As User B, navigate to the notifications page or notification center to view all notifications",
+            "expectedResult": "Notification list does not contain any notification about the comment edit from the task User B is not authorized to access"
+          },
+          {
+            "step": 9,
+            "action": "Check User B's email inbox for any notification emails about the comment edit",
+            "expectedResult": "No email notification is received by User B regarding the comment edit"
+          },
+          {
+            "step": 10,
+            "action": "Wait for up to 1 minute to ensure no delayed notifications are delivered to User B",
+            "expectedResult": "After waiting, User B still has not received any notifications (in-app or email) about the comment edit"
+          },
+          {
+            "step": 11,
+            "action": "As User A or system administrator, access the audit logs or notification logs for the comment edit event",
+            "expectedResult": "Audit logs are accessible and display notification events for the comment edit"
+          },
+          {
+            "step": 12,
+            "action": "Review the audit logs to verify which users received notifications for the comment edit",
+            "expectedResult": "Audit logs show that notifications were sent only to User A (authorized user) and not to User B (unauthorized user)"
+          },
+          {
+            "step": 13,
+            "action": "Verify the audit log entry contains details such as: task ID, comment ID, editor name, timestamp, and list of notified users",
+            "expectedResult": "Audit log contains complete information and confirms User B is not in the list of notified users"
+          },
+          {
+            "step": 14,
+            "action": "As User B, attempt to directly access the task URL to verify access control",
+            "expectedResult": "User B is denied access to the task with appropriate error message (403 Forbidden or similar)"
+          }
+        ],
+        "postconditions": [
+          "Comment remains in edited state",
+          "Only authorized users received notifications",
+          "No data leakage occurred to unauthorized users",
+          "Audit logs accurately reflect notification distribution",
+          "System maintains security and access control integrity",
+          "User B remains unaware of the task and comment edit"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  }
+]
