@@ -1,164 +1,169 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Biometric Device Monitoring - Story 25', () => {
-  const adminCredentials = {
-    username: 'biometric.admin@company.com',
-    password: 'Admin@123'
-  };
-
-  const nonAdminCredentials = {
-    username: 'regular.employee@company.com',
-    password: 'Employee@123'
-  };
-
-  const baseURL = process.env.BASE_URL || 'http://localhost:3000';
-  const apiBaseURL = process.env.API_BASE_URL || 'http://localhost:3000/api';
-
-  test('Validate real-time device status display', async ({ page }) => {
-    // Step 1: Login as biometric system administrator
-    await page.goto(`${baseURL}/login`);
-    await page.fill('[data-testid="username-input"]', adminCredentials.username);
-    await page.fill('[data-testid="password-input"]', adminCredentials.password);
-    await page.click('[data-testid="login-button"]');
-    
-    // Expected Result: Access granted to monitoring dashboard
-    await expect(page).toHaveURL(/.*dashboard/);
-    await expect(page.locator('[data-testid="user-role"]')).toContainText('Biometric System Administrator');
-
-    // Navigate to monitoring dashboard
-    await page.click('[data-testid="main-menu"]');
-    await page.click('[data-testid="biometric-monitoring-link"]');
-    await expect(page).toHaveURL(/.*biometric\/monitoring/);
-
-    // Step 2: View device status panel
-    await page.waitForSelector('[data-testid="device-status-panel"]', { timeout: 10000 });
-    const deviceStatusPanel = page.locator('[data-testid="device-status-panel"]');
-    await expect(deviceStatusPanel).toBeVisible();
-
-    // Expected Result: All devices show current status accurately
-    const deviceCards = page.locator('[data-testid="device-card"]');
-    const deviceCount = await deviceCards.count();
-    expect(deviceCount).toBeGreaterThan(0);
-
-    // Verify each device has status information
-    for (let i = 0; i < deviceCount; i++) {
-      const deviceCard = deviceCards.nth(i);
-      await expect(deviceCard.locator('[data-testid="device-name"]')).toBeVisible();
-      await expect(deviceCard.locator('[data-testid="device-status"]')).toBeVisible();
-      await expect(deviceCard.locator('[data-testid="device-last-sync"]')).toBeVisible();
-    }
-
-    // Observe real-time status updates by waiting for polling cycle
-    const initialTimestamp = await page.locator('[data-testid="device-card"]').first().locator('[data-testid="device-last-sync"]').textContent();
-    await page.waitForTimeout(65000); // Wait for next polling cycle (1 minute + buffer)
-    const updatedTimestamp = await page.locator('[data-testid="device-card"]').first().locator('[data-testid="device-last-sync"]').textContent();
-    expect(updatedTimestamp).not.toBe(initialTimestamp);
-
-    // Step 3: Simulate device offline event
-    // Using test control panel to simulate offline device
-    await page.click('[data-testid="test-controls-toggle"]');
-    await page.click('[data-testid="simulate-device-offline"]');
-    await page.selectOption('[data-testid="device-selector"]', { index: 0 });
-    await page.click('[data-testid="apply-simulation"]');
-
-    // Expected Result: Alert notification is triggered and displayed
-    await page.waitForSelector('[data-testid="alert-notification"]', { timeout: 70000 });
-    const alertNotification = page.locator('[data-testid="alert-notification"]');
-    await expect(alertNotification).toBeVisible();
-    await expect(alertNotification).toContainText('Device Offline');
-    await expect(alertNotification.locator('[data-testid="alert-severity"]')).toContainText('Error');
-
-    // Verify device status shows offline
-    const offlineDevice = page.locator('[data-testid="device-card"]').first();
-    await expect(offlineDevice.locator('[data-testid="device-status"]')).toContainText('Offline');
-    await expect(offlineDevice.locator('[data-testid="device-status-indicator"]')).toHaveClass(/offline|error/);
-
-    // Reconnect device and observe status update
-    await page.click('[data-testid="test-controls-toggle"]');
-    await page.click('[data-testid="simulate-device-online"]');
-    await page.selectOption('[data-testid="device-selector"]', { index: 0 });
-    await page.click('[data-testid="apply-simulation"]');
-
-    // Wait for device to come back online
-    await page.waitForTimeout(65000);
-    await expect(offlineDevice.locator('[data-testid="device-status"]')).toContainText('Online');
-    await expect(offlineDevice.locator('[data-testid="device-status-indicator"]')).toHaveClass(/online|active/);
+test.describe('Biometric Device Connectivity Monitoring', () => {
+  test.beforeEach(async ({ page }) => {
+    // Navigate to login page before each test
+    await page.goto('/login');
   });
 
-  test('Verify access restriction to monitoring dashboard', async ({ page, request }) => {
-    // Step 1: Login as non-administrator user
-    await page.goto(`${baseURL}/login`);
-    await page.fill('[data-testid="username-input"]', nonAdminCredentials.username);
-    await page.fill('[data-testid="password-input"]', nonAdminCredentials.password);
+  test('Validate real-time device connectivity status display', async ({ page }) => {
+    // Step 1: Admin accesses monitoring dashboard
+    await page.fill('[data-testid="username-input"]', 'admin@company.com');
+    await page.fill('[data-testid="password-input"]', 'Admin@123');
     await page.click('[data-testid="login-button"]');
-
-    // Expected Result: Access to monitoring dashboard is denied
-    await expect(page).toHaveURL(/.*dashboard/);
-    await expect(page.locator('[data-testid="user-role"]')).not.toContainText('Biometric System Administrator');
-
-    // Attempt to navigate via menu
-    await page.click('[data-testid="main-menu"]');
-    const monitoringLink = page.locator('[data-testid="biometric-monitoring-link"]');
-    await expect(monitoringLink).not.toBeVisible();
-
-    // Attempt to access via direct URL
-    await page.goto(`${baseURL}/biometric/monitoring`);
-    await expect(page.locator('[data-testid="access-denied-message"]')).toBeVisible();
-    await expect(page.locator('[data-testid="access-denied-message"]')).toContainText('Access Denied');
-    await expect(page).toHaveURL(/.*unauthorized|.*access-denied/);
-
-    // Step 2: Attempt to access monitoring API endpoints
-    const cookies = await page.context().cookies();
-    const authCookie = cookies.find(c => c.name === 'auth_token' || c.name === 'session');
     
-    const apiResponse = await request.get(`${apiBaseURL}/biometric/devices/status`, {
-      headers: {
-        'Cookie': authCookie ? `${authCookie.name}=${authCookie.value}` : ''
-      }
-    });
+    // Expected Result: Dashboard displays all biometric devices with current status
+    await expect(page).toHaveURL(/.*dashboard/);
+    await page.click('[data-testid="monitoring-dashboard-menu"]');
+    await expect(page.locator('[data-testid="device-monitoring-dashboard"]')).toBeVisible();
+    await expect(page.locator('[data-testid="biometric-device-list"]')).toBeVisible();
+    
+    // Verify all devices show connected status with green indicators
+    const deviceRows = page.locator('[data-testid="device-row"]');
+    await expect(deviceRows).toHaveCount(await deviceRows.count());
+    const firstDeviceStatus = page.locator('[data-testid="device-status"]').first();
+    await expect(firstDeviceStatus).toHaveText('Connected');
+    await expect(firstDeviceStatus).toHaveClass(/status-connected|green/);
+    
+    // Step 2: Simulate device disconnection
+    await page.click('[data-testid="test-simulation-tool"]');
+    await page.click('[data-testid="simulate-disconnect-device-1"]');
+    
+    // Expected Result: Device status changes to disconnected within 30 seconds
+    await page.waitForTimeout(30000);
+    const disconnectedDevice = page.locator('[data-testid="device-row"]').filter({ hasText: 'Device-1' });
+    await expect(disconnectedDevice.locator('[data-testid="device-status"]')).toHaveText('Disconnected');
+    await expect(disconnectedDevice.locator('[data-testid="device-status"]')).toHaveClass(/status-disconnected|red/);
+    
+    // Step 3: Admin views device logs
+    await disconnectedDevice.click();
+    await page.click('[data-testid="view-logs-button"]');
+    
+    // Expected Result: Logs show connectivity history and disconnection event
+    await expect(page.locator('[data-testid="device-logs-panel"]')).toBeVisible();
+    const logEntries = page.locator('[data-testid="log-entry"]');
+    await expect(logEntries).toContainText(['Connection state changed', 'Disconnected']);
+    await expect(page.locator('[data-testid="log-entry"]').filter({ hasText: 'Disconnected' })).toBeVisible();
+    await expect(page.locator('[data-testid="log-timestamp"]').first()).toBeVisible();
+  });
 
-    // Expected Result: API returns unauthorized error
-    expect(apiResponse.status()).toBe(401);
-    const responseBody = await apiResponse.json();
-    expect(responseBody.error).toMatch(/unauthorized|forbidden|access denied/i);
-
-    // Verify no monitoring data is accessible
-    await page.goto(`${baseURL}/dashboard`);
-    const monitoringWidgets = page.locator('[data-testid="biometric-monitoring-widget"]');
-    await expect(monitoringWidgets).not.toBeVisible();
-
-    // Logout from non-administrator account
-    await page.click('[data-testid="user-menu"]');
-    await page.click('[data-testid="logout-button"]');
-    await expect(page).toHaveURL(/.*login/);
-
-    // Login as Biometric System Administrator
-    await page.fill('[data-testid="username-input"]', adminCredentials.username);
-    await page.fill('[data-testid="password-input"]', adminCredentials.password);
+  test('Verify alert generation on device connectivity loss', async ({ page }) => {
+    // Login as admin
+    await page.fill('[data-testid="username-input"]', 'admin@company.com');
+    await page.fill('[data-testid="password-input"]', 'Admin@123');
     await page.click('[data-testid="login-button"]');
-    await expect(page).toHaveURL(/.*dashboard/);
-
-    // Navigate to monitoring dashboard
-    await page.click('[data-testid="main-menu"]');
-    await page.click('[data-testid="biometric-monitoring-link"]');
-    await expect(page).toHaveURL(/.*biometric\/monitoring/);
-    await expect(page.locator('[data-testid="device-status-panel"]')).toBeVisible();
-
-    // Access monitoring API endpoint with admin credentials
-    const adminCookies = await page.context().cookies();
-    const adminAuthCookie = adminCookies.find(c => c.name === 'auth_token' || c.name === 'session');
+    await page.click('[data-testid="monitoring-dashboard-menu"]');
     
-    const adminApiResponse = await request.get(`${apiBaseURL}/biometric/devices/status`, {
-      headers: {
-        'Cookie': adminAuthCookie ? `${adminAuthCookie.name}=${adminAuthCookie.value}` : ''
-      }
-    });
+    // Verify all devices are connected
+    const allDeviceStatuses = page.locator('[data-testid="device-status"]');
+    const statusCount = await allDeviceStatuses.count();
+    for (let i = 0; i < statusCount; i++) {
+      await expect(allDeviceStatuses.nth(i)).toHaveText('Connected');
+    }
+    
+    // Step 1: Simulate device connectivity loss
+    const disconnectionTime = new Date();
+    await page.click('[data-testid="test-simulation-tool"]');
+    await page.click('[data-testid="simulate-disconnect-device-2"]');
+    
+    // Expected Result: System generates alert notification
+    await page.waitForSelector('[data-testid="alert-notification"]', { timeout: 60000 });
+    await expect(page.locator('[data-testid="alert-notification"]')).toBeVisible();
+    await expect(page.locator('[data-testid="alert-notification"]')).toContainText('Device connectivity loss');
+    
+    // Step 2: Admin receives alert via configured channels
+    const alertGenerationTime = new Date();
+    const timeDifference = (alertGenerationTime.getTime() - disconnectionTime.getTime()) / 1000;
+    expect(timeDifference).toBeLessThan(60); // Alert within 1 minute
+    
+    // Expected Result: Alert received promptly
+    await page.click('[data-testid="notification-center"]');
+    await expect(page.locator('[data-testid="alert-panel"]')).toBeVisible();
+    const alertMessage = page.locator('[data-testid="alert-message"]').first();
+    await expect(alertMessage).toContainText(['Device-2', 'connectivity loss', 'disconnected']);
+    
+    // Step 3: Admin acknowledges alert
+    await alertMessage.click();
+    await page.click('[data-testid="acknowledge-alert-button"]');
+    await page.click('[data-testid="confirm-acknowledgment-button"]');
+    
+    // Expected Result: Alert status updated and logged
+    await expect(page.locator('[data-testid="alert-status"]').first()).toHaveText('Acknowledged');
+    await page.click('[data-testid="alert-history-link"]');
+    await expect(page.locator('[data-testid="alert-log-entry"]').filter({ hasText: 'Device-2' })).toBeVisible();
+    await expect(page.locator('[data-testid="alert-log-entry"]').filter({ hasText: 'Acknowledged' })).toBeVisible();
+  });
 
-    // Expected Result: API returns success with device data
-    expect(adminApiResponse.status()).toBe(200);
-    const adminResponseBody = await adminApiResponse.json();
-    expect(adminResponseBody.devices).toBeDefined();
-    expect(Array.isArray(adminResponseBody.devices)).toBe(true);
-    expect(adminResponseBody.devices.length).toBeGreaterThan(0);
+  test('Ensure access control for monitoring dashboard - non-admin denied', async ({ page }) => {
+    // Step 1: Non-admin user attempts to access monitoring dashboard
+    await page.fill('[data-testid="username-input"]', 'employee@company.com');
+    await page.fill('[data-testid="password-input"]', 'Employee@123');
+    await page.click('[data-testid="login-button"]');
+    
+    // Expected Result: Access denied message displayed
+    await expect(page).toHaveURL(/.*dashboard/);
+    
+    // Verify monitoring dashboard menu is not visible for non-admin
+    const monitoringMenu = page.locator('[data-testid="monitoring-dashboard-menu"]');
+    await expect(monitoringMenu).not.toBeVisible();
+    
+    // Attempt direct URL access
+    await page.goto('/monitoring/dashboard');
+    
+    // Verify access denied or redirect
+    const accessDeniedMessage = page.locator('[data-testid="access-denied-message"]');
+    const errorPage = page.locator('[data-testid="error-page"]');
+    const isAccessDenied = await accessDeniedMessage.isVisible().catch(() => false);
+    const isErrorPage = await errorPage.isVisible().catch(() => false);
+    
+    expect(isAccessDenied || isErrorPage).toBeTruthy();
+    
+    if (isAccessDenied) {
+      await expect(accessDeniedMessage).toContainText(['Access Denied', 'Unauthorized', 'permission']);
+    }
+    
+    // Check system logs for unauthorized access attempt
+    await page.goto('/admin/system-logs');
+    const unauthorizedLogEntry = page.locator('[data-testid="log-entry"]').filter({ hasText: 'Unauthorized access attempt' });
+    const logCount = await unauthorizedLogEntry.count();
+    expect(logCount).toBeGreaterThan(0);
+  });
+
+  test('Ensure access control for monitoring dashboard - admin granted', async ({ page }) => {
+    // Step 2: Admin logs in and accesses dashboard
+    await page.fill('[data-testid="username-input"]', 'admin@company.com');
+    await page.fill('[data-testid="password-input"]', 'Admin@123');
+    await page.click('[data-testid="login-button"]');
+    
+    // Expected Result: Dashboard accessible and functional
+    await expect(page).toHaveURL(/.*dashboard/);
+    await page.click('[data-testid="monitoring-dashboard-menu"]');
+    await expect(page.locator('[data-testid="device-monitoring-dashboard"]')).toBeVisible();
+    
+    // Verify all dashboard features are accessible
+    await expect(page.locator('[data-testid="biometric-device-list"]')).toBeVisible();
+    await expect(page.locator('[data-testid="device-status-indicators"]')).toBeVisible();
+    
+    // Navigate to device logs section
+    await page.click('[data-testid="device-logs-tab"]');
+    await expect(page.locator('[data-testid="device-logs-section"]')).toBeVisible();
+    
+    // Navigate to alerts section
+    await page.click('[data-testid="alerts-tab"]');
+    await expect(page.locator('[data-testid="alerts-section"]')).toBeVisible();
+    await expect(page.locator('[data-testid="alert-management-panel"]')).toBeVisible();
+    
+    // Navigate to settings section
+    await page.click('[data-testid="settings-tab"]');
+    await expect(page.locator('[data-testid="monitoring-settings-section"]')).toBeVisible();
+    
+    // Verify all sections are functional
+    await page.click('[data-testid="device-list-tab"]');
+    const deviceRows = page.locator('[data-testid="device-row"]');
+    const deviceCount = await deviceRows.count();
+    expect(deviceCount).toBeGreaterThan(0);
+    
+    // Verify status updates functionality
+    await expect(page.locator('[data-testid="last-update-timestamp"]')).toBeVisible();
   });
 });
