@@ -1,220 +1,333 @@
 [
   {
-    "storyId": "story-11",
-    "storyTitle": "As Employee, I want to receive notifications of schedule changes to stay informed and avoid missed shifts",
+    "storyId": "story-16",
+    "storyTitle": "As Employee, I want to receive notifications of schedule changes to stay informed",
     "testCases": [
       {
         "id": "tc-001",
-        "title": "Validate display of schedule change notifications on login",
+        "title": "Validate real-time notification display on dashboard",
         "type": "happy-path",
         "priority": "High",
         "preconditions": [
-          "Employee account exists and is active in the system",
-          "Employee has valid login credentials",
-          "At least one schedule change has been made for the employee within the last 24 hours",
-          "Schedule change notification has been generated in ScheduleChangeNotifications table",
-          "Employee has not yet logged in since the schedule change occurred",
-          "Web application is accessible and running"
+          "Employee account exists in the system with valid credentials",
+          "Employee is assigned to at least one shift in the schedule",
+          "Employee has access to the web portal",
+          "ScheduleChangeEvents table is accessible and functional",
+          "Notification service is running and operational"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Navigate to the schedule portal login page",
-            "expectedResult": "Login page is displayed with username and password fields"
+            "action": "Log in to the employee portal using valid credentials",
+            "expectedResult": "Employee successfully logs in and is redirected to the dashboard"
           },
           {
             "step": 2,
-            "action": "Enter valid employee credentials (username and password)",
-            "expectedResult": "Credentials are accepted and login button is enabled"
+            "action": "Manager or system administrator creates a schedule change event for the employee (modify shift time, date, or location)",
+            "expectedResult": "Schedule change event is created and saved in ScheduleChangeEvents table"
           },
           {
             "step": 3,
-            "action": "Click the login button",
-            "expectedResult": "Employee is successfully authenticated and redirected to the main dashboard"
+            "action": "Wait and monitor the employee dashboard for notification appearance (maximum 15 minutes)",
+            "expectedResult": "Notification appears on employee dashboard within 15 minutes displaying the schedule change details"
           },
           {
             "step": 4,
-            "action": "Observe the notification area on the dashboard",
-            "expectedResult": "New schedule change notifications are displayed prominently in a notification panel or banner with visual indicators (e.g., badge count, highlighted section)"
+            "action": "Verify notification content includes change type, old schedule details, new schedule details, and timestamp",
+            "expectedResult": "Notification displays complete and accurate schedule change information"
           },
           {
             "step": 5,
-            "action": "Review the notification content",
-            "expectedResult": "Notification displays complete details including change type (new/updated/canceled), date of change, shift date, shift time, and any relevant shift information"
+            "action": "Click on the notification to view full details",
+            "expectedResult": "Notification expands or opens to show comprehensive schedule change information"
           },
           {
             "step": 6,
-            "action": "Click on the notification to view full details",
-            "expectedResult": "Notification expands or opens to show comprehensive information about the schedule change"
+            "action": "Click the 'Acknowledge' button on the notification",
+            "expectedResult": "Acknowledgment is recorded in the system and notification is marked as read with visual indicator (e.g., color change, checkmark)"
           },
           {
             "step": 7,
-            "action": "Click the acknowledge button or mark as read option on the notification",
-            "expectedResult": "Notification is marked as read, visual indicator changes (e.g., color change, opacity reduction), and notification is removed from the new notifications list"
-          },
-          {
-            "step": 8,
-            "action": "Verify the notification counter or badge",
-            "expectedResult": "Notification count decreases by one and updates in real-time"
-          },
-          {
-            "step": 9,
-            "action": "Refresh the page or navigate away and return to dashboard",
-            "expectedResult": "Previously acknowledged notification remains marked as read and does not reappear in new notifications"
+            "action": "Verify the notification status changes from unread to read/acknowledged",
+            "expectedResult": "Notification displays acknowledged status with timestamp of acknowledgment"
           }
         ],
         "postconditions": [
-          "Employee remains logged into the system",
-          "Notification is marked as read in the database",
-          "Notification is moved from unread to read status",
-          "Employee is aware of the schedule change",
-          "Notification history is updated with acknowledgment timestamp"
+          "Notification is marked as acknowledged in the database",
+          "Acknowledgment timestamp is recorded in NotificationStatus table",
+          "Employee remains logged in to the portal",
+          "Notification remains visible in notification history"
         ],
-        "estimatedTime": "8 mins"
+        "estimatedTime": "20 mins"
       },
       {
         "id": "tc-002",
-        "title": "Verify notification history accessibility",
+        "title": "Verify email alert delivery for schedule changes",
         "type": "happy-path",
         "priority": "High",
         "preconditions": [
-          "Employee is logged into the schedule portal",
-          "Employee has received multiple schedule change notifications over time (at least 5 historical notifications)",
-          "Some notifications are marked as read and some as unread",
-          "Notification history feature is enabled in the system",
-          "Employee has proper permissions to access notification history"
+          "Employee account exists with valid email address configured",
+          "Email notification service is enabled and operational",
+          "Employee has opted in for email notifications (if applicable)",
+          "SMTP server is configured and accessible",
+          "Employee has access to their email inbox"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "Locate the notification icon or menu in the navigation bar",
-            "expectedResult": "Notification icon is visible with current unread notification count displayed"
+            "action": "Manager or system administrator creates a schedule change event for the employee",
+            "expectedResult": "Schedule change event is saved and triggers email alert process"
           },
           {
             "step": 2,
-            "action": "Click on the notification icon or menu",
-            "expectedResult": "Notification dropdown or panel opens showing recent notifications"
+            "action": "Monitor the email delivery system logs for email dispatch confirmation",
+            "expectedResult": "System logs show email queued and sent to employee's email address"
           },
           {
             "step": 3,
-            "action": "Locate and click on 'View All Notifications' or 'Notification History' link",
-            "expectedResult": "System navigates to the notification history page"
+            "action": "Check employee's email inbox within 15 minutes of schedule change",
+            "expectedResult": "Employee receives email alert within 15 minutes of the schedule change event"
           },
           {
             "step": 4,
-            "action": "Observe the notification history page layout",
-            "expectedResult": "Page displays a comprehensive list of all past notifications in chronological order (newest first)"
+            "action": "Open the email and verify sender address matches system notification address",
+            "expectedResult": "Email is from official system notification address and not marked as spam"
           },
           {
             "step": 5,
-            "action": "Verify the details displayed for each notification entry",
-            "expectedResult": "Each notification shows accurate details including: change type (new/updated/canceled), shift date, shift time, notification timestamp, read/unread status, and any additional shift information"
+            "action": "Review email subject line for clarity and relevance",
+            "expectedResult": "Subject line clearly indicates schedule change notification (e.g., 'Schedule Change Alert - [Date]')"
           },
           {
             "step": 6,
-            "action": "Check the visual distinction between read and unread notifications",
-            "expectedResult": "Read and unread notifications are clearly differentiated through visual styling (e.g., bold text for unread, different background colors)"
+            "action": "Verify email content includes original schedule details, new schedule details, change type, and effective date",
+            "expectedResult": "Email content matches schedule change details exactly as stored in the system"
           },
           {
             "step": 7,
-            "action": "Scroll through the notification history list",
-            "expectedResult": "All historical notifications are accessible and properly paginated or infinitely scrollable"
+            "action": "Check for any links in the email to view full details or acknowledge in the portal",
+            "expectedResult": "Email contains working link to employee portal for acknowledgment"
           },
           {
             "step": 8,
-            "action": "Click on a specific historical notification to view full details",
-            "expectedResult": "Notification expands or opens a detail view showing complete information about that specific schedule change"
-          },
-          {
-            "step": 9,
-            "action": "Verify the timestamp accuracy of notifications",
-            "expectedResult": "Each notification displays the correct date and time when the schedule change occurred and when the notification was generated"
-          },
-          {
-            "step": 10,
-            "action": "Apply any available filters (if present) such as date range or notification type",
-            "expectedResult": "Notification list filters correctly based on selected criteria"
+            "action": "Compare email content with the notification displayed on the dashboard",
+            "expectedResult": "Email content matches dashboard notification content exactly"
           }
         ],
         "postconditions": [
-          "Employee remains on the notification history page or returns to dashboard",
-          "All notification data remains intact and unchanged",
-          "Notification history is available for future reference",
-          "No notifications are lost or corrupted"
+          "Email is delivered and accessible in employee's inbox",
+          "Email delivery is logged in system",
+          "Employee can access portal link from email",
+          "Schedule change remains active in the system"
+        ],
+        "estimatedTime": "20 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Test notification history access",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "Employee account exists with valid credentials",
+          "Employee has received at least 3-5 schedule change notifications in the past",
+          "Some notifications are acknowledged and some are unacknowledged",
+          "Employee is logged into the web portal",
+          "Notification history feature is enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "From the employee dashboard, locate and click on 'Notification History' or 'View All Notifications' link/button",
+            "expectedResult": "System navigates to the notification history page"
+          },
+          {
+            "step": 2,
+            "action": "Verify the notification history page loads completely",
+            "expectedResult": "Notification history page displays with all UI elements loaded (headers, filters, notification list)"
+          },
+          {
+            "step": 3,
+            "action": "Review the list of notifications displayed on the history page",
+            "expectedResult": "All past schedule change notifications for the employee are displayed in chronological order (newest first)"
+          },
+          {
+            "step": 4,
+            "action": "Verify each notification entry shows key information: date/time of change, change type, old schedule, new schedule, and acknowledgment status",
+            "expectedResult": "Each notification displays complete information with clear visual distinction between acknowledged and unacknowledged notifications"
+          },
+          {
+            "step": 5,
+            "action": "Check for acknowledgment timestamps on acknowledged notifications",
+            "expectedResult": "Acknowledged notifications display the date and time when they were acknowledged"
+          },
+          {
+            "step": 6,
+            "action": "Verify unacknowledged notifications are clearly marked and allow acknowledgment from history page",
+            "expectedResult": "Unacknowledged notifications show 'Acknowledge' button and are visually distinct (e.g., bold, highlighted)"
+          },
+          {
+            "step": 7,
+            "action": "Test pagination or scrolling if more than 10-20 notifications exist",
+            "expectedResult": "All notifications are accessible through pagination or infinite scroll functionality"
+          },
+          {
+            "step": 8,
+            "action": "Apply any available filters (date range, acknowledged/unacknowledged status)",
+            "expectedResult": "Filters work correctly and display only notifications matching the filter criteria"
+          },
+          {
+            "step": 9,
+            "action": "Click on a specific notification to view full details",
+            "expectedResult": "Notification expands or opens detail view showing complete schedule change information"
+          }
+        ],
+        "postconditions": [
+          "Employee remains on notification history page or returns to dashboard",
+          "All notifications remain accessible for future reference",
+          "No data is modified unless employee acknowledges an unacknowledged notification",
+          "Employee session remains active"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  },
+  {
+    "storyId": "story-17",
+    "storyTitle": "As Employee, I want to acknowledge schedule change notifications to confirm awareness",
+    "testCases": [
+      {
+        "id": "tc-004",
+        "title": "Validate acknowledgment of schedule change notification",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "Employee account exists with valid credentials",
+          "Employee is logged into the web portal",
+          "At least one unacknowledged schedule change notification exists for the employee",
+          "NotificationStatus table is accessible and functional",
+          "POST /api/notifications/acknowledge endpoint is operational"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the employee dashboard where notifications are displayed",
+            "expectedResult": "Dashboard loads successfully showing unacknowledged notification(s) with visual indicator (e.g., badge, highlight)"
+          },
+          {
+            "step": 2,
+            "action": "Identify an unacknowledged schedule change notification in the notification list",
+            "expectedResult": "Unacknowledged notification is clearly visible with 'Acknowledge' button enabled"
+          },
+          {
+            "step": 3,
+            "action": "Click the 'Acknowledge' button on the notification",
+            "expectedResult": "System processes the acknowledgment request within 1 second"
+          },
+          {
+            "step": 4,
+            "action": "Verify notification status updates visually on the UI",
+            "expectedResult": "Notification status changes to 'Acknowledged' with visual confirmation (checkmark, color change, or status label)"
+          },
+          {
+            "step": 5,
+            "action": "Check for confirmation message displayed to the employee",
+            "expectedResult": "System displays confirmation message such as 'Notification acknowledged successfully' or similar positive feedback"
+          },
+          {
+            "step": 6,
+            "action": "Verify the 'Acknowledge' button is disabled or removed from the acknowledged notification",
+            "expectedResult": "'Acknowledge' button is no longer available for the acknowledged notification"
+          },
+          {
+            "step": 7,
+            "action": "Refresh the page or navigate away and return to the dashboard",
+            "expectedResult": "Notification remains in acknowledged state after page refresh"
+          },
+          {
+            "step": 8,
+            "action": "Locate the same notification and attempt to click 'Acknowledge' again (if button is still visible)",
+            "expectedResult": "System prevents duplicate acknowledgment and displays message such as 'This notification has already been acknowledged'"
+          },
+          {
+            "step": 9,
+            "action": "Attempt to send duplicate acknowledgment via direct API call using POST /api/notifications/acknowledge with same notification ID",
+            "expectedResult": "API returns error response (e.g., 400 Bad Request or 409 Conflict) with message indicating notification already acknowledged"
+          }
+        ],
+        "postconditions": [
+          "Notification status is updated to 'Acknowledged' in NotificationStatus table",
+          "Acknowledgment timestamp is recorded in database",
+          "Employee ID is logged with the acknowledgment",
+          "Notification cannot be acknowledged again",
+          "Employee remains logged in to the portal"
         ],
         "estimatedTime": "10 mins"
       },
       {
-        "id": "tc-003",
-        "title": "Test access control for notifications",
-        "type": "error-case",
+        "id": "tc-005",
+        "title": "Verify acknowledgment logging",
+        "type": "happy-path",
         "priority": "High",
         "preconditions": [
-          "Two employee accounts exist in the system: Employee A and Employee B",
-          "Employee A is logged into the schedule portal",
-          "Employee B has schedule change notifications in the system",
-          "Access control and authorization mechanisms are properly configured",
-          "API endpoint security is enabled",
-          "Employee A does not have administrative privileges"
+          "Employee account exists with valid credentials and known employee ID",
+          "Employee is logged into the web portal",
+          "At least one unacknowledged schedule change notification exists for the employee",
+          "Database access is available to verify NotificationStatus table",
+          "System timestamp is accurate and synchronized"
         ],
         "steps": [
           {
             "step": 1,
-            "action": "As Employee A, navigate to the notification history page",
-            "expectedResult": "Employee A's notification history page loads successfully showing only their own notifications"
+            "action": "Record the current system timestamp before performing acknowledgment",
+            "expectedResult": "Current timestamp is noted for comparison (e.g., 2024-01-15 10:30:00)"
           },
           {
             "step": 2,
-            "action": "Note Employee A's employee ID from the URL or profile section",
-            "expectedResult": "Employee A's ID is visible (e.g., employeeId=123 in URL or profile)"
+            "action": "Navigate to employee dashboard and identify the notification ID of an unacknowledged notification",
+            "expectedResult": "Notification ID is visible or retrievable from UI/API (e.g., notification-12345)"
           },
           {
             "step": 3,
-            "action": "Attempt to manually modify the URL to access Employee B's notifications by changing the employeeId parameter (e.g., change employeeId=123 to employeeId=456)",
-            "expectedResult": "System detects unauthorized access attempt"
+            "action": "Click the 'Acknowledge' button on the selected notification",
+            "expectedResult": "System displays confirmation message that acknowledgment was successful"
           },
           {
             "step": 4,
-            "action": "Press Enter to navigate to the modified URL",
-            "expectedResult": "Access denied error message is displayed (e.g., '403 Forbidden' or 'You do not have permission to view these notifications')"
+            "action": "Query the NotificationStatus table in the database for the specific notification ID",
+            "expectedResult": "Database record exists for the notification with updated status"
           },
           {
             "step": 5,
-            "action": "Verify that no notification data from Employee B is visible on the page",
-            "expectedResult": "No unauthorized notification information is displayed; page shows only error message or redirects to Employee A's own notifications"
+            "action": "Verify the acknowledgment status field is set to 'Acknowledged' or equivalent value",
+            "expectedResult": "Status field shows 'Acknowledged' or boolean value TRUE"
           },
           {
             "step": 6,
-            "action": "Open browser developer tools and attempt to make a direct API call to GET /api/notifications?scheduleChanges&employeeId={Employee B's ID}",
-            "expectedResult": "API returns 403 Forbidden status code with appropriate error message"
+            "action": "Verify the acknowledgment timestamp is recorded in the database",
+            "expectedResult": "Timestamp field contains the date and time of acknowledgment, matching the time when 'Acknowledge' was clicked (within 1-2 seconds tolerance)"
           },
           {
             "step": 7,
-            "action": "Verify the response body of the API call",
-            "expectedResult": "Response contains error message indicating insufficient permissions and no notification data is returned"
+            "action": "Verify the employee ID/user ID is recorded with the acknowledgment",
+            "expectedResult": "Employee ID field matches the logged-in employee's ID who performed the acknowledgment"
           },
           {
             "step": 8,
-            "action": "Attempt to access notification details directly using a notification ID that belongs to Employee B",
-            "expectedResult": "Access is denied and error message is displayed"
+            "action": "Check for any additional audit fields (created_by, modified_by, IP address if applicable)",
+            "expectedResult": "All relevant audit fields are populated with correct information"
           },
           {
             "step": 9,
-            "action": "Check the application logs (if accessible) for security events",
-            "expectedResult": "Unauthorized access attempt is logged with appropriate details (timestamp, employee ID, attempted resource)"
-          },
-          {
-            "step": 10,
-            "action": "Return to Employee A's legitimate notification page",
-            "expectedResult": "Employee A can successfully access their own notifications without any issues"
+            "action": "Verify the acknowledgment timestamp format is consistent with system standards (ISO 8601 or configured format)",
+            "expectedResult": "Timestamp is stored in correct format and timezone"
           }
         ],
         "postconditions": [
-          "Employee A remains logged in with access only to their own notifications",
-          "Employee B's notification data remains secure and inaccessible to Employee A",
-          "Security logs contain record of unauthorized access attempt",
-          "No data breach or unauthorized access occurred",
-          "System security integrity is maintained"
+          "NotificationStatus table contains complete acknowledgment record",
+          "Acknowledgment timestamp is accurately recorded",
+          "Employee ID is correctly associated with the acknowledgment",
+          "Database integrity is maintained",
+          "Acknowledgment data is available for reporting and audit purposes"
         ],
         "estimatedTime": "12 mins"
       }
