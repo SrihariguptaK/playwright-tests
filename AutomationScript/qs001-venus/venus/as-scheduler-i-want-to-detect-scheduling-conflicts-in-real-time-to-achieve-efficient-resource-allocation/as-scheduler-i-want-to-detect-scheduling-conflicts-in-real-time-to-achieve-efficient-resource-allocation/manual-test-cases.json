@@ -1,0 +1,134 @@
+[
+  {
+    "storyId": "story-3",
+    "storyTitle": "As Scheduler, I want to detect scheduling conflicts in real-time to achieve efficient resource allocation.",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Validate conflict detection with overlapping schedules",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated and logged into the scheduling system",
+          "At least one existing booking is present in the scheduling database",
+          "User has permissions to create new scheduling requests",
+          "API endpoint /api/schedule/check is accessible and operational",
+          "Scheduling database is online and responsive"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the scheduling interface and access the new booking form",
+            "expectedResult": "New booking form is displayed with all required fields (date, time, resource, duration)"
+          },
+          {
+            "step": 2,
+            "action": "Enter scheduling details that overlap with an existing booking (same resource, overlapping time slot)",
+            "expectedResult": "Form accepts the input and displays entered values correctly"
+          },
+          {
+            "step": 3,
+            "action": "Submit the scheduling request by clicking the Submit button",
+            "expectedResult": "System processes the request and performs conflict detection within 2 seconds"
+          },
+          {
+            "step": 4,
+            "action": "Observe the system response for conflict detection alert",
+            "expectedResult": "System detects the conflict and displays an alert message to the user indicating the scheduling conflict with details of the overlapping booking"
+          },
+          {
+            "step": 5,
+            "action": "Navigate to the conflict log section in the system",
+            "expectedResult": "Conflict log interface is displayed with list of all detected conflicts"
+          },
+          {
+            "step": 6,
+            "action": "Check the conflict log for the newly detected conflict entry",
+            "expectedResult": "Conflict is recorded in the system with timestamp, conflicting schedules, resource details, and user information"
+          },
+          {
+            "step": 7,
+            "action": "Review the alert message displayed to the user",
+            "expectedResult": "Alert provides clear information about the conflict and offers actionable options for resolution (e.g., modify time, select different resource, cancel request)"
+          }
+        ],
+        "postconditions": [
+          "Conflict is logged in the system database",
+          "User is aware of the scheduling conflict",
+          "Original existing booking remains unchanged",
+          "New conflicting booking is not created",
+          "System is ready to accept new scheduling requests"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Ensure no false positives in conflict detection",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "User is authenticated and logged into the scheduling system",
+          "Existing bookings are present in the scheduling database",
+          "User has permissions to create new scheduling requests",
+          "API endpoint /api/schedule/check is accessible and operational",
+          "Scheduling database is online and responsive"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the scheduling interface and access the new booking form",
+            "expectedResult": "New booking form is displayed with all required fields available for input"
+          },
+          {
+            "step": 2,
+            "action": "Enter scheduling details that do not overlap with any existing bookings (different time slot or different resource)",
+            "expectedResult": "Form accepts the input and all entered values are displayed correctly"
+          },
+          {
+            "step": 3,
+            "action": "Submit the scheduling request by clicking the Submit button",
+            "expectedResult": "System processes the request and performs conflict detection check within 2 seconds"
+          },
+          {
+            "step": 4,
+            "action": "Observe the system response for any conflict alerts",
+            "expectedResult": "System does not detect any conflicts and proceeds with booking creation without displaying any conflict alerts"
+          },
+          {
+            "step": 5,
+            "action": "Verify that a success confirmation message is displayed",
+            "expectedResult": "System displays a success message confirming the booking has been created successfully"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to the conflict log section in the system",
+            "expectedResult": "Conflict log interface is displayed showing existing conflict entries"
+          },
+          {
+            "step": 7,
+            "action": "Check the conflict log for any new entries related to the submitted request",
+            "expectedResult": "No new entries are added to the conflict log for this non-conflicting booking request"
+          },
+          {
+            "step": 8,
+            "action": "Review the user interface for any alert messages",
+            "expectedResult": "No conflict alert is generated or displayed to the user"
+          },
+          {
+            "step": 9,
+            "action": "Verify the new booking appears in the schedule view",
+            "expectedResult": "New booking is successfully created and visible in the scheduling calendar/list view"
+          }
+        ],
+        "postconditions": [
+          "New booking is successfully created in the system",
+          "No false conflict entries are logged",
+          "Scheduling database is updated with the new booking",
+          "User receives confirmation of successful booking",
+          "System is ready to accept additional scheduling requests"
+        ],
+        "estimatedTime": "10 mins"
+      }
+    ]
+  }
+]
