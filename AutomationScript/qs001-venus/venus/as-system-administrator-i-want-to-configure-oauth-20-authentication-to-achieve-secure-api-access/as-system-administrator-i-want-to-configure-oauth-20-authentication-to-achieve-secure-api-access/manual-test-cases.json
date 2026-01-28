@@ -1,0 +1,875 @@
+[
+  {
+    "storyId": "12149",
+    "storyTitle": "As System Administrator, I want to configure OAuth 2.0 authentication to achieve secure API access",
+    "testCases": [
+      {
+        "id": "tc-001",
+        "title": "Verify system successfully obtains OAuth 2.0 access tokens using valid client credentials",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "System Administrator has valid OAuth 2.0 client ID and client secret",
+          "API settings page is accessible",
+          "OAuth provider endpoint is available and responding",
+          "System has network connectivity to OAuth provider",
+          "Secure vault for credential storage is configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to API settings page as System Administrator",
+            "expectedResult": "API settings page loads successfully with OAuth configuration section visible"
+          },
+          {
+            "step": 2,
+            "action": "Locate the OAuth 2.0 configuration section",
+            "expectedResult": "OAuth configuration fields for Client ID and Client Secret are displayed"
+          },
+          {
+            "step": 3,
+            "action": "Enter valid OAuth Client ID in the Client ID field",
+            "expectedResult": "Client ID is accepted and displayed in the input field"
+          },
+          {
+            "step": 4,
+            "action": "Enter valid OAuth Client Secret in the Client Secret field",
+            "expectedResult": "Client Secret is accepted and masked for security"
+          },
+          {
+            "step": 5,
+            "action": "Click 'Save' or 'Connect' button to submit credentials",
+            "expectedResult": "System initiates OAuth token request to /oauth/token endpoint"
+          },
+          {
+            "step": 6,
+            "action": "Observe system response after credential submission",
+            "expectedResult": "System displays success message indicating token obtained successfully"
+          },
+          {
+            "step": 7,
+            "action": "Verify access token is received in system logs or token status indicator",
+            "expectedResult": "Access token is present with valid format and expiry timestamp"
+          },
+          {
+            "step": 8,
+            "action": "Check that token acquisition completed within performance requirements",
+            "expectedResult": "Token acquisition completed within 1 second"
+          }
+        ],
+        "postconditions": [
+          "Valid OAuth 2.0 access token is stored in the system",
+          "System is authenticated and ready to make API requests",
+          "Authentication event is logged in system logs",
+          "Token expiry time is recorded"
+        ],
+        "estimatedTime": "5 mins"
+      },
+      {
+        "id": "tc-002",
+        "title": "Verify system securely stores and encrypts OAuth tokens preventing unauthorized access",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "System has successfully obtained OAuth 2.0 access token",
+          "Secure vault with encryption is configured",
+          "System Administrator has access to verify storage mechanisms",
+          "Encryption keys are properly configured"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "After successful token acquisition, access the secure vault or token storage location",
+            "expectedResult": "Token storage location is accessible to authorized administrators only"
+          },
+          {
+            "step": 2,
+            "action": "Verify that the stored token is encrypted and not in plain text",
+            "expectedResult": "Token is stored in encrypted format, not readable as plain text"
+          },
+          {
+            "step": 3,
+            "action": "Check encryption algorithm used for token storage",
+            "expectedResult": "Industry-standard encryption algorithm (AES-256 or equivalent) is used"
+          },
+          {
+            "step": 4,
+            "action": "Attempt to access token storage without proper authorization credentials",
+            "expectedResult": "Access is denied with appropriate error message"
+          },
+          {
+            "step": 5,
+            "action": "Verify that token transmission uses TLS encryption",
+            "expectedResult": "All token-related communications use TLS 1.2 or higher"
+          },
+          {
+            "step": 6,
+            "action": "Check system logs for token storage event",
+            "expectedResult": "Log entry shows token stored securely without exposing token value"
+          },
+          {
+            "step": 7,
+            "action": "Verify that client secret is also encrypted in storage",
+            "expectedResult": "Client secret is encrypted and not visible in plain text"
+          }
+        ],
+        "postconditions": [
+          "OAuth tokens are stored in encrypted format",
+          "Unauthorized access to tokens is prevented",
+          "Security audit trail is maintained",
+          "All credentials remain confidential"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-003",
+        "title": "Verify system automatically refreshes access tokens before expiration without manual intervention",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "System has valid OAuth 2.0 access token with known expiry time",
+          "Token refresh mechanism is configured",
+          "OAuth provider supports token refresh",
+          "System has valid refresh token (if applicable)",
+          "Automatic refresh is enabled in system settings"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Note the current access token and its expiry timestamp",
+            "expectedResult": "Current token details including expiry time are visible in system"
+          },
+          {
+            "step": 2,
+            "action": "Wait until system approaches token expiry threshold (typically 5 minutes before expiry)",
+            "expectedResult": "System continues normal operation during waiting period"
+          },
+          {
+            "step": 3,
+            "action": "Monitor system logs for automatic token refresh initiation",
+            "expectedResult": "System automatically initiates token refresh request before expiration"
+          },
+          {
+            "step": 4,
+            "action": "Verify that refresh request is sent to /oauth/token endpoint",
+            "expectedResult": "Token refresh request is sent with appropriate grant_type parameter"
+          },
+          {
+            "step": 5,
+            "action": "Observe system response to refresh request",
+            "expectedResult": "New access token is obtained successfully"
+          },
+          {
+            "step": 6,
+            "action": "Verify that token refresh completed within performance requirements",
+            "expectedResult": "Token refresh completed within 1 second"
+          },
+          {
+            "step": 7,
+            "action": "Confirm that new token replaces old token in secure storage",
+            "expectedResult": "New token is stored and old token is invalidated"
+          },
+          {
+            "step": 8,
+            "action": "Verify that API requests continue without interruption",
+            "expectedResult": "No API request failures occur during token refresh"
+          },
+          {
+            "step": 9,
+            "action": "Check authentication logs for refresh event",
+            "expectedResult": "Token refresh event is logged with timestamp and success status"
+          }
+        ],
+        "postconditions": [
+          "New valid access token is active in the system",
+          "Old token is invalidated",
+          "Token refresh event is logged",
+          "API access continues uninterrupted",
+          "No manual intervention was required"
+        ],
+        "estimatedTime": "15 mins"
+      },
+      {
+        "id": "tc-004",
+        "title": "Verify system rejects API requests with invalid tokens and logs these events",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "System has OAuth 2.0 authentication configured",
+          "Test environment allows token manipulation for testing",
+          "System logging is enabled",
+          "API endpoints are available for testing"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Prepare an API request with an invalid access token (malformed token)",
+            "expectedResult": "API request is ready with invalid token in authorization header"
+          },
+          {
+            "step": 2,
+            "action": "Submit the API request with invalid token",
+            "expectedResult": "System rejects the request with 401 Unauthorized status code"
+          },
+          {
+            "step": 3,
+            "action": "Verify error response message indicates invalid token",
+            "expectedResult": "Error message clearly states 'Invalid token' or similar"
+          },
+          {
+            "step": 4,
+            "action": "Check authentication logs for rejected request event",
+            "expectedResult": "Log entry shows rejected request with timestamp, token status, and reason"
+          },
+          {
+            "step": 5,
+            "action": "Prepare an API request with an expired access token",
+            "expectedResult": "API request is ready with expired token"
+          },
+          {
+            "step": 6,
+            "action": "Submit the API request with expired token",
+            "expectedResult": "System rejects the request with 401 Unauthorized status code"
+          },
+          {
+            "step": 7,
+            "action": "Verify error response indicates token expiration",
+            "expectedResult": "Error message states 'Token expired' or similar"
+          },
+          {
+            "step": 8,
+            "action": "Check authentication logs for expired token event",
+            "expectedResult": "Log entry shows rejected request due to token expiration"
+          },
+          {
+            "step": 9,
+            "action": "Attempt API request with no token provided",
+            "expectedResult": "System rejects request with 401 Unauthorized status code"
+          },
+          {
+            "step": 10,
+            "action": "Verify all rejection events are logged with appropriate details",
+            "expectedResult": "All unauthorized access attempts are logged with timestamp, IP, and reason"
+          }
+        ],
+        "postconditions": [
+          "All invalid token requests are rejected",
+          "No unauthorized API access occurred",
+          "All rejection events are logged in authentication logs",
+          "System security is maintained",
+          "Zero unauthorized API access attempts recorded"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-005",
+        "title": "Verify system rejects API requests with expired tokens and logs these events",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "System has OAuth 2.0 authentication configured",
+          "Access to expired token for testing purposes",
+          "System logging is enabled and accessible",
+          "API endpoints are available for testing",
+          "Token expiry validation is enabled"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Obtain or create an expired OAuth access token for testing",
+            "expectedResult": "Expired token is available with past expiry timestamp"
+          },
+          {
+            "step": 2,
+            "action": "Prepare an API request using the expired token",
+            "expectedResult": "API request is configured with expired token in authorization header"
+          },
+          {
+            "step": 3,
+            "action": "Submit the API request to a protected endpoint",
+            "expectedResult": "System validates token and detects expiration"
+          },
+          {
+            "step": 4,
+            "action": "Verify the API response status code",
+            "expectedResult": "System returns 401 Unauthorized status code"
+          },
+          {
+            "step": 5,
+            "action": "Check the error response body for expiration message",
+            "expectedResult": "Response contains clear message indicating token has expired"
+          },
+          {
+            "step": 6,
+            "action": "Navigate to authentication logs section",
+            "expectedResult": "Authentication logs page loads successfully"
+          },
+          {
+            "step": 7,
+            "action": "Search for the rejected request event in logs",
+            "expectedResult": "Log entry exists for the rejected request with expired token"
+          },
+          {
+            "step": 8,
+            "action": "Verify log entry contains timestamp, token status, and rejection reason",
+            "expectedResult": "Log shows timestamp, 'Token Expired' status, and request details"
+          },
+          {
+            "step": 9,
+            "action": "Confirm that no API data was returned with the rejected request",
+            "expectedResult": "No sensitive data or API response payload is included in error response"
+          },
+          {
+            "step": 10,
+            "action": "Verify that expired token event contributes to security metrics",
+            "expectedResult": "Event is counted in unauthorized access attempt metrics"
+          }
+        ],
+        "postconditions": [
+          "Expired token request is rejected",
+          "No unauthorized data access occurred",
+          "Event is logged in authentication logs",
+          "Security metrics are updated",
+          "System maintains zero unauthorized access success rate"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-006",
+        "title": "Verify system provides an interface for administrators to configure OAuth credentials",
+        "type": "happy-path",
+        "priority": "High",
+        "preconditions": [
+          "System Administrator account is created and active",
+          "Administrator has necessary permissions to access API settings",
+          "System is deployed and accessible",
+          "OAuth configuration interface is implemented"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Log in to the system as System Administrator",
+            "expectedResult": "Administrator successfully logs in and dashboard is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to API settings or configuration section",
+            "expectedResult": "API settings page is accessible and loads successfully"
+          },
+          {
+            "step": 3,
+            "action": "Locate OAuth 2.0 configuration section on the page",
+            "expectedResult": "OAuth configuration section is clearly visible with appropriate labels"
+          },
+          {
+            "step": 4,
+            "action": "Verify presence of Client ID input field",
+            "expectedResult": "Client ID field is present with clear label and input validation"
+          },
+          {
+            "step": 5,
+            "action": "Verify presence of Client Secret input field",
+            "expectedResult": "Client Secret field is present with password masking enabled"
+          },
+          {
+            "step": 6,
+            "action": "Check for OAuth provider endpoint configuration option",
+            "expectedResult": "OAuth endpoint URL field is available for configuration"
+          },
+          {
+            "step": 7,
+            "action": "Verify presence of Save/Submit button",
+            "expectedResult": "Action button is clearly labeled and enabled"
+          },
+          {
+            "step": 8,
+            "action": "Check for Test Connection or Validate Credentials option",
+            "expectedResult": "Option to test credentials before saving is available"
+          },
+          {
+            "step": 9,
+            "action": "Verify interface displays current connection status",
+            "expectedResult": "Current OAuth connection status (connected/disconnected) is shown"
+          },
+          {
+            "step": 10,
+            "action": "Check for option to update existing OAuth credentials",
+            "expectedResult": "Edit or Update functionality is available for existing credentials"
+          },
+          {
+            "step": 11,
+            "action": "Verify interface includes help text or documentation links",
+            "expectedResult": "Helpful tooltips or documentation links are provided for guidance"
+          }
+        ],
+        "postconditions": [
+          "OAuth configuration interface is fully functional",
+          "Administrator can configure credentials",
+          "Interface provides clear feedback and guidance",
+          "Configuration changes can be saved and updated"
+        ],
+        "estimatedTime": "6 mins"
+      },
+      {
+        "id": "tc-007",
+        "title": "Verify system provides an interface for administrators to update OAuth credentials",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "System Administrator is logged in",
+          "Existing OAuth credentials are already configured",
+          "API settings page is accessible",
+          "Administrator has update permissions"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to API settings page",
+            "expectedResult": "API settings page loads with existing OAuth configuration displayed"
+          },
+          {
+            "step": 2,
+            "action": "Verify current OAuth credentials are displayed (masked for security)",
+            "expectedResult": "Current Client ID is visible, Client Secret is masked"
+          },
+          {
+            "step": 3,
+            "action": "Click Edit or Update button for OAuth configuration",
+            "expectedResult": "OAuth configuration fields become editable"
+          },
+          {
+            "step": 4,
+            "action": "Update the Client ID field with new valid Client ID",
+            "expectedResult": "New Client ID is accepted and displayed in the field"
+          },
+          {
+            "step": 5,
+            "action": "Update the Client Secret field with new valid Client Secret",
+            "expectedResult": "New Client Secret is accepted and masked"
+          },
+          {
+            "step": 6,
+            "action": "Click Save or Update button to submit changes",
+            "expectedResult": "System validates new credentials and initiates token request"
+          },
+          {
+            "step": 7,
+            "action": "Observe system response after credential update",
+            "expectedResult": "Success message confirms credentials updated and new token obtained"
+          },
+          {
+            "step": 8,
+            "action": "Verify old token is invalidated and new token is active",
+            "expectedResult": "New token is stored and old token is no longer used"
+          },
+          {
+            "step": 9,
+            "action": "Check authentication logs for credential update event",
+            "expectedResult": "Log entry shows credential update with timestamp and administrator ID"
+          },
+          {
+            "step": 10,
+            "action": "Verify API requests use new credentials successfully",
+            "expectedResult": "API requests are authenticated with new token without errors"
+          }
+        ],
+        "postconditions": [
+          "OAuth credentials are updated in the system",
+          "New access token is obtained and stored",
+          "Old credentials are replaced",
+          "Update event is logged",
+          "API access continues with new credentials"
+        ],
+        "estimatedTime": "7 mins"
+      },
+      {
+        "id": "tc-008",
+        "title": "Verify system validates OAuth credentials format before submission",
+        "type": "edge-case",
+        "priority": "Medium",
+        "preconditions": [
+          "System Administrator is logged in",
+          "API settings page is accessible",
+          "OAuth configuration interface is displayed",
+          "Client-side validation is implemented"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to OAuth configuration section",
+            "expectedResult": "OAuth configuration fields are displayed and ready for input"
+          },
+          {
+            "step": 2,
+            "action": "Leave Client ID field empty and attempt to save",
+            "expectedResult": "Validation error message indicates Client ID is required"
+          },
+          {
+            "step": 3,
+            "action": "Enter invalid characters or format in Client ID field",
+            "expectedResult": "Validation error indicates invalid Client ID format"
+          },
+          {
+            "step": 4,
+            "action": "Leave Client Secret field empty and attempt to save",
+            "expectedResult": "Validation error message indicates Client Secret is required"
+          },
+          {
+            "step": 5,
+            "action": "Enter Client Secret that is too short (below minimum length)",
+            "expectedResult": "Validation error indicates Client Secret does not meet minimum length"
+          },
+          {
+            "step": 6,
+            "action": "Enter excessively long string in Client ID field (beyond maximum)",
+            "expectedResult": "Validation error or field limits input to maximum allowed length"
+          },
+          {
+            "step": 7,
+            "action": "Enter special characters that are not allowed in credentials",
+            "expectedResult": "Validation error indicates invalid characters detected"
+          },
+          {
+            "step": 8,
+            "action": "Verify that Save button remains disabled until validation passes",
+            "expectedResult": "Save button is disabled when validation errors exist"
+          },
+          {
+            "step": 9,
+            "action": "Enter valid credentials in both fields",
+            "expectedResult": "Validation passes and Save button becomes enabled"
+          },
+          {
+            "step": 10,
+            "action": "Verify validation messages are clear and helpful",
+            "expectedResult": "All validation messages provide clear guidance on requirements"
+          }
+        ],
+        "postconditions": [
+          "Invalid credentials are not submitted to the system",
+          "User receives clear validation feedback",
+          "System prevents configuration errors",
+          "Only valid format credentials can be saved"
+        ],
+        "estimatedTime": "8 mins"
+      },
+      {
+        "id": "tc-009",
+        "title": "Verify system handles OAuth provider unavailability gracefully",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "System Administrator is logged in",
+          "OAuth configuration is set up",
+          "OAuth provider endpoint can be made unavailable for testing",
+          "Error handling mechanisms are implemented"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Simulate OAuth provider endpoint being unavailable (network error or timeout)",
+            "expectedResult": "OAuth provider is unreachable from the system"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to obtain new access token with provider unavailable",
+            "expectedResult": "System detects connection failure to OAuth provider"
+          },
+          {
+            "step": 3,
+            "action": "Verify system displays appropriate error message to administrator",
+            "expectedResult": "Error message indicates OAuth provider is unavailable or unreachable"
+          },
+          {
+            "step": 4,
+            "action": "Check that system does not crash or become unresponsive",
+            "expectedResult": "System remains stable and responsive despite provider unavailability"
+          },
+          {
+            "step": 5,
+            "action": "Verify error is logged in authentication logs",
+            "expectedResult": "Log entry shows connection failure with timestamp and error details"
+          },
+          {
+            "step": 6,
+            "action": "Check if system implements retry mechanism",
+            "expectedResult": "System attempts retry with exponential backoff (if configured)"
+          },
+          {
+            "step": 7,
+            "action": "Verify existing valid token continues to work during provider outage",
+            "expectedResult": "API requests with valid existing token continue to function"
+          },
+          {
+            "step": 8,
+            "action": "Restore OAuth provider availability",
+            "expectedResult": "OAuth provider becomes reachable again"
+          },
+          {
+            "step": 9,
+            "action": "Verify system automatically recovers and can obtain tokens",
+            "expectedResult": "System successfully obtains new token once provider is available"
+          },
+          {
+            "step": 10,
+            "action": "Check recovery event is logged",
+            "expectedResult": "Log entry shows successful reconnection to OAuth provider"
+          }
+        ],
+        "postconditions": [
+          "System handles provider unavailability without crashing",
+          "Appropriate error messages are displayed",
+          "Events are logged for troubleshooting",
+          "System recovers automatically when provider is available",
+          "Existing valid tokens continue to function during outage"
+        ],
+        "estimatedTime": "12 mins"
+      },
+      {
+        "id": "tc-010",
+        "title": "Verify authentication events are logged with complete details",
+        "type": "happy-path",
+        "priority": "Medium",
+        "preconditions": [
+          "System Administrator is logged in",
+          "OAuth authentication is configured",
+          "System logging is enabled",
+          "Authentication logs are accessible to administrators"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to authentication logs or system logs section",
+            "expectedResult": "Logs page loads successfully with authentication events visible"
+          },
+          {
+            "step": 2,
+            "action": "Perform OAuth token acquisition",
+            "expectedResult": "Token is obtained successfully"
+          },
+          {
+            "step": 3,
+            "action": "Check logs for token acquisition event",
+            "expectedResult": "Log entry exists for token acquisition with timestamp"
+          },
+          {
+            "step": 4,
+            "action": "Verify log entry includes event type (token obtained)",
+            "expectedResult": "Event type is clearly labeled as 'Token Acquired' or similar"
+          },
+          {
+            "step": 5,
+            "action": "Verify log entry includes timestamp in readable format",
+            "expectedResult": "Timestamp shows date and time in standard format"
+          },
+          {
+            "step": 6,
+            "action": "Verify log entry includes administrator or system user who initiated action",
+            "expectedResult": "User ID or username is recorded in log entry"
+          },
+          {
+            "step": 7,
+            "action": "Verify log entry includes success/failure status",
+            "expectedResult": "Status field shows 'Success' for successful authentication"
+          },
+          {
+            "step": 8,
+            "action": "Verify sensitive information (tokens, secrets) is not exposed in logs",
+            "expectedResult": "Token values and secrets are masked or not included in logs"
+          },
+          {
+            "step": 9,
+            "action": "Trigger token refresh event and check logs",
+            "expectedResult": "Token refresh event is logged with complete details"
+          },
+          {
+            "step": 10,
+            "action": "Trigger authentication failure and check logs",
+            "expectedResult": "Failed authentication attempt is logged with error reason"
+          },
+          {
+            "step": 11,
+            "action": "Verify logs can be filtered by event type",
+            "expectedResult": "Filter options allow viewing specific authentication event types"
+          },
+          {
+            "step": 12,
+            "action": "Verify logs can be searched by date range",
+            "expectedResult": "Date range filter successfully narrows log entries"
+          }
+        ],
+        "postconditions": [
+          "All authentication events are logged",
+          "Logs contain complete and accurate information",
+          "Sensitive data is protected in logs",
+          "Logs are accessible and searchable",
+          "Audit trail is maintained for compliance"
+        ],
+        "estimatedTime": "10 mins"
+      },
+      {
+        "id": "tc-011",
+        "title": "Verify token refresh performance meets requirement of under 1 second",
+        "type": "boundary",
+        "priority": "High",
+        "preconditions": [
+          "System has valid OAuth access token approaching expiration",
+          "Token refresh mechanism is configured and enabled",
+          "Performance monitoring tools are available",
+          "Network conditions are stable for accurate measurement"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Set up performance monitoring to measure token refresh duration",
+            "expectedResult": "Performance monitoring is active and ready to capture metrics"
+          },
+          {
+            "step": 2,
+            "action": "Note the current access token and its expiry time",
+            "expectedResult": "Current token details are recorded for comparison"
+          },
+          {
+            "step": 3,
+            "action": "Wait for automatic token refresh to trigger",
+            "expectedResult": "System initiates token refresh before expiration"
+          },
+          {
+            "step": 4,
+            "action": "Record the start time when refresh request is initiated",
+            "expectedResult": "Start timestamp is captured accurately"
+          },
+          {
+            "step": 5,
+            "action": "Monitor the token refresh process",
+            "expectedResult": "Refresh request is sent to OAuth provider"
+          },
+          {
+            "step": 6,
+            "action": "Record the end time when new token is received and stored",
+            "expectedResult": "End timestamp is captured when refresh completes"
+          },
+          {
+            "step": 7,
+            "action": "Calculate total duration of token refresh operation",
+            "expectedResult": "Duration is calculated as end time minus start time"
+          },
+          {
+            "step": 8,
+            "action": "Verify token refresh duration is under 1 second",
+            "expectedResult": "Total refresh time is less than 1000 milliseconds"
+          },
+          {
+            "step": 9,
+            "action": "Repeat token refresh test multiple times (at least 5 iterations)",
+            "expectedResult": "All iterations complete with refresh time under 1 second"
+          },
+          {
+            "step": 10,
+            "action": "Check performance logs for refresh latency metrics",
+            "expectedResult": "Performance logs show consistent refresh times under 1 second"
+          },
+          {
+            "step": 11,
+            "action": "Verify API requests are not delayed during token refresh",
+            "expectedResult": "No API request timeouts or delays occur during refresh"
+          }
+        ],
+        "postconditions": [
+          "Token refresh performance meets requirement of under 1 second",
+          "Performance metrics are documented",
+          "System maintains performance SLA",
+          "No service interruption during token refresh"
+        ],
+        "estimatedTime": "20 mins"
+      },
+      {
+        "id": "tc-012",
+        "title": "Verify system prevents unauthorized access with 100% success rate",
+        "type": "error-case",
+        "priority": "High",
+        "preconditions": [
+          "OAuth authentication is fully configured",
+          "Multiple test scenarios for unauthorized access are prepared",
+          "System logging is enabled",
+          "Test environment allows security testing"
+        ],
+        "steps": [
+          {
+            "step": 1,
+            "action": "Attempt API request with no authentication token",
+            "expectedResult": "Request is rejected with 401 Unauthorized status"
+          },
+          {
+            "step": 2,
+            "action": "Verify rejection is logged and no data is returned",
+            "expectedResult": "Unauthorized attempt is logged, no API data exposed"
+          },
+          {
+            "step": 3,
+            "action": "Attempt API request with malformed token",
+            "expectedResult": "Request is rejected with 401 Unauthorized status"
+          },
+          {
+            "step": 4,
+            "action": "Verify malformed token attempt is logged",
+            "expectedResult": "Event is logged with details of malformed token"
+          },
+          {
+            "step": 5,
+            "action": "Attempt API request with expired token",
+            "expectedResult": "Request is rejected with 401 Unauthorized status"
+          },
+          {
+            "step": 6,
+            "action": "Verify expired token attempt is logged",
+            "expectedResult": "Event is logged indicating token expiration"
+          },
+          {
+            "step": 7,
+            "action": "Attempt API request with token from different OAuth client",
+            "expectedResult": "Request is rejected with 401 Unauthorized status"
+          },
+          {
+            "step": 8,
+            "action": "Verify invalid client token attempt is logged",
+            "expectedResult": "Event is logged showing token validation failure"
+          },
+          {
+            "step": 9,
+            "action": "Attempt API request with revoked token",
+            "expectedResult": "Request is rejected with 401 Unauthorized status"
+          },
+          {
+            "step": 10,
+            "action": "Verify revoked token attempt is logged",
+            "expectedResult": "Event is logged indicating token was revoked"
+          },
+          {
+            "step": 11,
+            "action": "Review all unauthorized access attempts in logs",
+            "expectedResult": "All attempts are logged with zero successful unauthorized access"
+          },
+          {
+            "step": 12,
+            "action": "Calculate success rate of preventing unauthorized access",
+            "expectedResult": "100% of unauthorized attempts were successfully blocked"
+          },
+          {
+            "step": 13,
+            "action": "Verify no sensitive data was exposed in any rejection response",
+            "expectedResult": "All rejection responses contain only generic error messages"
+          }
+        ],
+        "postconditions": [
+          "Zero unauthorized API access attempts succeeded",
+          "100% prevention rate is achieved",
+          "All unauthorized attempts are logged",
+          "No sensitive data was exposed",
+          "Security metrics confirm success criteria met"
+        ],
+        "estimatedTime": "15 mins"
+      }
+    ]
+  }
+]
