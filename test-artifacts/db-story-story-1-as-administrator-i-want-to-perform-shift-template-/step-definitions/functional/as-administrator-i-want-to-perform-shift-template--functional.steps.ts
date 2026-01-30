@@ -43,9 +43,9 @@ Given('database has fewer than \(\\\\d\+\) existing templates', async function (
   console.log('Step not yet implemented: database has fewer than 100 existing templates');
 });
 
-Given('browser supports time input fields', async function () {
+Given('system is connected to the ShiftTemplates database table', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: browser supports time input fields');
+  console.log('Step not yet implemented: system is connected to the ShiftTemplates database table');
 });
 
 When('click the 'Create New Template' button in the top-right corner of the page', async function () {
@@ -54,9 +54,9 @@ When('click the 'Create New Template' button in the top-right corner of the page
   await actions.click(element);
 });
 
-Then('template creation form modal opens with empty fields for Template Name, Start Time, End Time, and Break Times', async function () {
+Then('shift template creation form modal opens with empty fields for Template Name, Start Time, End Time, and Break Times', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: template creation form modal opens with empty fields for Template Name, Start Time, End Time, and Break Times');
+  console.log('Step not yet implemented: shift template creation form modal opens with empty fields for Template Name, Start Time, End Time, and Break Times');
 });
 
 When('enter 'Morning Shift' in the Template Name field', async function () {
@@ -65,14 +65,14 @@ When('enter 'Morning Shift' in the Template Name field', async function () {
   await actions.fill(element, param1);
 });
 
-Then('text 'Morning Shift' appears in the Template Name field', async function () {
+Then('text 'Morning Shift' appears in the Template Name input field', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: text 'Morning Shift' appears in the Template Name field');
+  console.log('Step not yet implemented: text 'Morning Shift' appears in the Template Name input field');
 });
 
-When('select '\(\\\\d\+\):\(\\\\d\+\) AM' in the Start Time field using the time picker', async function (num1: number, num2: number) {
+When('select '\(\\\\d\+\):\(\\\\d\+\) AM' from the Start Time dropdown picker', async function (num1: number, num2: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: select '08:00 AM' in the Start Time field using the time picker');
+  console.log('Step not yet implemented: select '08:00 AM' from the Start Time dropdown picker');
 });
 
 Then('start Time field displays '\(\\\\d\+\):\(\\\\d\+\) AM'', async function (num1: number, num2: number) {
@@ -80,14 +80,14 @@ Then('start Time field displays '\(\\\\d\+\):\(\\\\d\+\) AM'', async function (n
   console.log('Step not yet implemented: start Time field displays '08:00 AM'');
 });
 
-When('select '\(\\\\d\+\):\(\\\\d\+\) PM' in the End Time field using the time picker', async function (num1: number, num2: number) {
+When('select '\(\\\\d\+\):\(\\\\d\+\) PM' from the End Time dropdown picker', async function (num1: number, num2: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: select '05:00 PM' in the End Time field using the time picker');
+  console.log('Step not yet implemented: select '05:00 PM' from the End Time dropdown picker');
 });
 
-Then('end Time field displays '\(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number) {
+Then('end Time field displays '\(\\\\d\+\):\(\\\\d\+\) PM' and no validation error appears', async function (num1: number, num2: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: end Time field displays '05:00 PM'');
+  console.log('Step not yet implemented: end Time field displays '05:00 PM' and no validation error appears');
 });
 
 When('click 'Add Break' button and enter break time from '\(\\\\d\+\):\(\\\\d\+\) PM' to '\(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number, num3: number, num4: number) {
@@ -107,9 +107,9 @@ When('click the 'Save Template' button at the bottom of the form', async functio
   await actions.click(element);
 });
 
-Then('green success banner appears at top of page with message 'Shift template created successfully' and modal closes', async function () {
+Then('green success banner appears at top of page with message 'Template created successfully' and modal closes', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: green success banner appears at top of page with message 'Shift template created successfully' and modal closes');
+  console.log('Step not yet implemented: green success banner appears at top of page with message 'Template created successfully' and modal closes');
 });
 
 When('verify the templates list on the main page', async function () {
@@ -117,14 +117,14 @@ When('verify the templates list on the main page', async function () {
   console.log('Step not yet implemented: verify the templates list on the main page');
 });
 
-Then('new template 'Morning Shift' appears in the templates list showing Start: \(\\\\d\+\):\(\\\\d\+\) AM, End: \(\\\\d\+\):\(\\\\d\+\) PM, Break: \(\\\\d\+\):\(\\\\d\+\) PM - \(\\\\d\+\):\(\\\\d\+\) PM', async function (num1: number, num2: number, num3: number, num4: number, num5: number, num6: number, num7: number, num8: number) {
+Then(''Morning Shift' template appears in the list with Start Time '\(\\\\d\+\):\(\\\\d\+\) AM', End Time '\(\\\\d\+\):\(\\\\d\+\) PM', and Break '\(\\\\d\+\):\(\\\\d\+\) PM - \(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number, num3: number, num4: number, num5: number, num6: number, num7: number, num8: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: new template 'Morning Shift' appears in the templates list showing Start: 08:00 AM, End: 05:00 PM, Break: 12:00 PM - 01:00 PM');
+  console.log('Step not yet implemented: 'Morning Shift' template appears in the list with Start Time '08:00 AM', End Time '05:00 PM', and Break '12:00 PM - 01:00 PM'');
 });
 
-Then('new shift template 'Morning Shift' is saved in ShiftTemplates database table', async function () {
+Then('new shift template 'Morning Shift' is saved in the ShiftTemplates database table', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: new shift template 'Morning Shift' is saved in ShiftTemplates database table');
+  console.log('Step not yet implemented: new shift template 'Morning Shift' is saved in the ShiftTemplates database table');
 });
 
 Then('template appears in the list of all templates on the management page', async function () {
@@ -132,9 +132,9 @@ Then('template appears in the list of all templates on the management page', asy
   console.log('Step not yet implemented: template appears in the list of all templates on the management page');
 });
 
-Then('user remains on the shift template management page', async function () {
+Then('administrator remains logged in and on the shift template management page', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: user remains on the shift template management page');
+  console.log('Step not yet implemented: administrator remains logged in and on the shift template management page');
 });
 
 Then('template is available for selection in scheduling workflows', async function () {
@@ -152,9 +152,9 @@ Given('user is on the shift template management page', async function () {
   console.log('Step not yet implemented: user is on the shift template management page');
 });
 
-Given('system supports multiple break periods per template', async function () {
+Given('no template with the name 'Extended Shift' exists', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: system supports multiple break periods per template');
+  console.log('Step not yet implemented: no template with the name 'Extended Shift' exists');
 });
 
 When('click 'Create New Template' button', async function () {
@@ -168,49 +168,50 @@ Then('template creation form opens', async function () {
   console.log('Step not yet implemented: template creation form opens');
 });
 
-When('enter 'Extended Shift' in Template Name, '\(\\\\d\+\):\(\\\\d\+\) AM' as Start Time, '\(\\\\d\+\):\(\\\\d\+\) PM' as End Time', async function (num1: number, num2: number, num3: number, num4: number) {
+When('enter 'Extended Shift' as Template Name, '\(\\\\d\+\):\(\\\\d\+\) AM' as Start Time, '\(\\\\d\+\):\(\\\\d\+\) PM' as End Time', async function (num1: number, num2: number, num3: number, num4: number) {
   // TODO: Implement fill action
   const element = page.locator('SELECTOR_HERE');
   await actions.fill(element, param1);
 });
 
-Then('all fields display entered values correctly', async function () {
+Then('all fields populate correctly with entered values', async function () {
   // TODO: Implement fill action
   const element = page.locator('SELECTOR_HERE');
   await actions.fill(element, param1);
 });
 
-When('click 'Add Break' and enter first break from '\(\\\\d\+\):\(\\\\d\+\) AM' to '\(\\\\d\+\):\(\\\\d\+\) AM'', async function (num1: number, num2: number, num3: number, num4: number) {
+When('click 'Add Break' and add first break from '\(\\\\d\+\):\(\\\\d\+\) AM' to '\(\\\\d\+\):\(\\\\d\+\) AM'', async function (num1: number, num2: number, num3: number, num4: number) {
   // TODO: Implement click action
   const element = page.locator('SELECTOR_HERE');
   await actions.click(element);
 });
 
-Then('first break entry appears: '\(\\\\d\+\):\(\\\\d\+\) AM - \(\\\\d\+\):\(\\\\d\+\) AM'', async function (num1: number, num2: number, num3: number, num4: number) {
+Then('first break appears in the breaks list', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: first break entry appears: '10:00 AM - 10:15 AM'');
+  console.log('Step not yet implemented: first break appears in the breaks list');
 });
 
-When('click 'Add Break' again and enter second break from '\(\\\\d\+\):\(\\\\d\+\) PM' to '\(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number, num3: number, num4: number) {
+When('click 'Add Break' again and add second break from '\(\\\\d\+\):\(\\\\d\+\) PM' to '\(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number, num3: number, num4: number) {
   // TODO: Implement click action
   const element = page.locator('SELECTOR_HERE');
   await actions.click(element);
 });
 
-Then('second break entry appears: '\(\\\\d\+\):\(\\\\d\+\) PM - \(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number, num3: number, num4: number) {
+Then('second break appears below the first break in the list', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: second break entry appears: '01:00 PM - 02:00 PM'');
+  console.log('Step not yet implemented: second break appears below the first break in the list');
 });
 
-When('click 'Add Break' again and enter third break from '\(\\\\d\+\):\(\\\\d\+\) PM' to '\(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number, num3: number, num4: number) {
+When('click 'Add Break' again and add third break from '\(\\\\d\+\):\(\\\\d\+\) PM' to '\(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number, num3: number, num4: number) {
   // TODO: Implement click action
   const element = page.locator('SELECTOR_HERE');
   await actions.click(element);
 });
 
-Then('third break entry appears: '\(\\\\d\+\):\(\\\\d\+\) PM - \(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number, num3: number, num4: number) {
-  // TODO: Implement step
-  console.log('Step not yet implemented: third break entry appears: '06:00 PM - 06:30 PM'');
+Then('third break appears in the list, all three breaks are visible', async function () {
+  // TODO: Implement assertion
+  const element = page.locator('SELECTOR_HERE');
+  await assertions.assertVisible(element);
 });
 
 When('click 'Save Template' button', async function () {
@@ -219,25 +220,14 @@ When('click 'Save Template' button', async function () {
   await actions.click(element);
 });
 
-Then('success message 'Shift template created successfully' appears', async function () {
+Then('success message 'Template created successfully' appears and form closes', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: success message 'Shift template created successfully' appears');
+  console.log('Step not yet implemented: success message 'Template created successfully' appears and form closes');
 });
 
-When('locate 'Extended Shift' in the templates list and click to view details', async function () {
-  // TODO: Implement click action
-  const element = page.locator('SELECTOR_HERE');
-  await actions.click(element);
-});
-
-Then('template details show all three break periods: \(\\\\d\+\):\(\\\\d\+\) AM - \(\\\\d\+\):\(\\\\d\+\) AM, \(\\\\d\+\):\(\\\\d\+\) PM - \(\\\\d\+\):\(\\\\d\+\) PM, \(\\\\d\+\):\(\\\\d\+\) PM - \(\\\\d\+\):\(\\\\d\+\) PM', async function (num1: number, num2: number, num3: number, num4: number, num5: number, num6: number, num7: number, num8: number, num9: number, num10: number, num11: number, num12: number) {
+Then('template 'Extended Shift' is saved with three separate break periods', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: template details show all three break periods: 10:00 AM - 10:15 AM, 01:00 PM - 02:00 PM, 06:00 PM - 06:30 PM');
-});
-
-Then('template 'Extended Shift' is saved with all three break periods', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: template 'Extended Shift' is saved with all three break periods');
+  console.log('Step not yet implemented: template 'Extended Shift' is saved with three separate break periods');
 });
 
 Then('all break times are stored correctly in the database', async function () {
@@ -245,47 +235,45 @@ Then('all break times are stored correctly in the database', async function () {
   console.log('Step not yet implemented: all break times are stored correctly in the database');
 });
 
-Then('template is visible in the templates list with break count indicator', async function () {
-  // TODO: Implement assertion
-  const element = page.locator('SELECTOR_HERE');
-  await assertions.assertVisible(element);
-});
-
-Given('at least one shift template 'Morning Shift' exists with Start: \(\\\\d\+\):\(\\\\d\+\) AM, End: \(\\\\d\+\):\(\\\\d\+\) PM', async function (num1: number, num2: number, num3: number, num4: number) {
+Then('template appears in the list showing all three breaks', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: at least one shift template 'Morning Shift' exists with Start: 08:00 AM, End: 05:00 PM');
+  console.log('Step not yet implemented: template appears in the list showing all three breaks');
 });
 
-When('locate 'Morning Shift' template in the list and click the 'Edit' icon button', async function () {
+Given('at least one shift template named 'Evening Shift' exists with Start Time '\(\\\\d\+\):\(\\\\d\+\) PM' and End Time '\(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number, num3: number, num4: number) {
+  // TODO: Implement step
+  console.log('Step not yet implemented: at least one shift template named 'Evening Shift' exists with Start Time '02:00 PM' and End Time '10:00 PM'');
+});
+
+When('locate 'Evening Shift' template in the list and click the 'Edit' icon button', async function () {
   // TODO: Implement click action
   const element = page.locator('SELECTOR_HERE');
   await actions.click(element);
 });
 
-Then('edit template form opens pre-populated with existing values: Template Name: 'Morning Shift', Start: \(\\\\d\+\):\(\\\\d\+\) AM, End: \(\\\\d\+\):\(\\\\d\+\) PM', async function (num1: number, num2: number, num3: number, num4: number) {
+Then('edit template form opens pre-populated with existing values: Name 'Evening Shift', Start '\(\\\\d\+\):\(\\\\d\+\) PM', End '\(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number, num3: number, num4: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: edit template form opens pre-populated with existing values: Template Name: 'Morning Shift', Start: 08:00 AM, End: 05:00 PM');
+  console.log('Step not yet implemented: edit template form opens pre-populated with existing values: Name 'Evening Shift', Start '02:00 PM', End '10:00 PM'');
 });
 
-When('change the End Time from '\(\\\\d\+\):\(\\\\d\+\) PM' to '\(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number, num3: number, num4: number) {
+When('change End Time from '\(\\\\d\+\):\(\\\\d\+\) PM' to '\(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number, num3: number, num4: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: change the End Time from '05:00 PM' to '06:00 PM'');
+  console.log('Step not yet implemented: change End Time from '10:00 PM' to '11:00 PM'');
 });
 
-Then('end Time field updates to display '\(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number) {
+Then('end Time field updates to show '\(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: end Time field updates to display '06:00 PM'');
+  console.log('Step not yet implemented: end Time field updates to show '11:00 PM'');
 });
 
-When('click 'Add Break' and enter new break from '\(\\\\d\+\):\(\\\\d\+\) PM' to '\(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number, num3: number, num4: number) {
-  // TODO: Implement click action
-  const element = page.locator('SELECTOR_HERE');
-  await actions.click(element);
+When('add a new break from '\(\\\\d\+\):\(\\\\d\+\) PM' to '\(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number, num3: number, num4: number) {
+  // TODO: Implement step
+  console.log('Step not yet implemented: add a new break from '06:00 PM' to '06:30 PM'');
 });
 
-Then('new break entry appears: '\(\\\\d\+\):\(\\\\d\+\) PM - \(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number, num3: number, num4: number) {
+Then('break entry appears in the breaks section', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: new break entry appears: '03:00 PM - 03:15 PM'');
+  console.log('Step not yet implemented: break entry appears in the breaks section');
 });
 
 When('click 'Save Changes' button', async function () {
@@ -294,61 +282,66 @@ When('click 'Save Changes' button', async function () {
   await actions.click(element);
 });
 
-Then('green success banner displays 'Shift template updated successfully' and form closes', async function () {
+Then('success message 'Template updated successfully' appears in green banner', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: green success banner displays 'Shift template updated successfully' and form closes');
+  console.log('Step not yet implemented: success message 'Template updated successfully' appears in green banner');
 });
 
-When('verify 'Morning Shift' template in the list', async function () {
+When('verify the updated template in the list', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: verify 'Morning Shift' template in the list');
+  console.log('Step not yet implemented: verify the updated template in the list');
 });
 
-Then('template shows updated End Time: \(\\\\d\+\):\(\\\\d\+\) PM and includes the new break period', async function (num1: number, num2: number) {
+Then(''Evening Shift' now shows End Time as '\(\\\\d\+\):\(\\\\d\+\) PM' and includes the new break period', async function (num1: number, num2: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: template shows updated End Time: 06:00 PM and includes the new break period');
+  console.log('Step not yet implemented: 'Evening Shift' now shows End Time as '11:00 PM' and includes the new break period');
 });
 
-Then('template 'Morning Shift' is updated in the database with new End Time and break', async function () {
+Then('template changes are persisted in the ShiftTemplates database', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: template 'Morning Shift' is updated in the database with new End Time and break');
+  console.log('Step not yet implemented: template changes are persisted in the ShiftTemplates database');
 });
 
-Then('updated template appears correctly in the templates list', async function () {
+Then('updated template reflects new End Time and break period', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: updated template appears correctly in the templates list');
+  console.log('Step not yet implemented: updated template reflects new End Time and break period');
 });
 
-Then('audit log records the template modification with timestamp and administrator ID', async function () {
+Then('template edit history is logged in the system audit trail', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: audit log records the template modification with timestamp and administrator ID');
+  console.log('Step not yet implemented: template edit history is logged in the system audit trail');
 });
 
-Given('at least one shift template 'Test Template' exists and is not currently assigned to any schedules', async function () {
+Given('a shift template named 'Temporary Shift' exists in the system', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: at least one shift template 'Test Template' exists and is not currently assigned to any schedules');
+  console.log('Step not yet implemented: a shift template named 'Temporary Shift' exists in the system');
 });
 
-When('locate 'Test Template' in the templates list and click the 'Delete' icon button', async function () {
+Given('template is not currently assigned to any active schedules', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: template is not currently assigned to any active schedules');
+});
+
+When('locate 'Temporary Shift' template in the list and click the 'Delete' icon button', async function () {
   // TODO: Implement click action
   const element = page.locator('SELECTOR_HERE');
   await actions.click(element);
 });
 
-Then('confirmation dialog appears with message 'Are you sure you want to delete this template\? This action cannot be undone\.' with 'Cancel' and 'Delete' buttons', async function () {
+Then('confirmation dialog appears with message 'Are you sure you want to delete this template\? This action cannot be undone\.'', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: confirmation dialog appears with message 'Are you sure you want to delete this template? This action cannot be undone.' with 'Cancel' and 'Delete' buttons');
+  console.log('Step not yet implemented: confirmation dialog appears with message 'Are you sure you want to delete this template? This action cannot be undone.'');
 });
 
-When('click the 'Delete' button in the confirmation dialog', async function () {
+When('click 'Confirm' button in the confirmation dialog', async function () {
   // TODO: Implement click action
   const element = page.locator('SELECTOR_HERE');
   await actions.click(element);
 });
 
-Then('confirmation dialog closes and green success banner appears with message 'Shift template deleted successfully'', async function () {
+Then('dialog closes and success message 'Template deleted successfully' appears in green banner', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: confirmation dialog closes and green success banner appears with message 'Shift template deleted successfully'');
+  console.log('Step not yet implemented: dialog closes and success message 'Template deleted successfully' appears in green banner');
 });
 
 When('verify the templates list', async function () {
@@ -356,34 +349,34 @@ When('verify the templates list', async function () {
   console.log('Step not yet implemented: verify the templates list');
 });
 
-Then(''Test Template' no longer appears in the templates list', async function () {
+Then(''Temporary Shift' template no longer appears in the list', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: 'Test Template' no longer appears in the templates list');
+  console.log('Step not yet implemented: 'Temporary Shift' template no longer appears in the list');
 });
 
-When('refresh the page by pressing F5', async function () {
+When('refresh the page', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: refresh the page by pressing F5');
+  console.log('Step not yet implemented: refresh the page');
 });
 
-Then('page reloads and 'Test Template' is still not present in the list, confirming deletion persisted', async function () {
+Then('template list reloads and 'Temporary Shift' is still not present, confirming deletion', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: page reloads and 'Test Template' is still not present in the list, confirming deletion persisted');
+  console.log('Step not yet implemented: template list reloads and 'Temporary Shift' is still not present, confirming deletion');
 });
 
-Then('template 'Test Template' is removed from the ShiftTemplates database table', async function () {
+Then('template 'Temporary Shift' is removed from the ShiftTemplates database', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: template 'Test Template' is removed from the ShiftTemplates database table');
+  console.log('Step not yet implemented: template 'Temporary Shift' is removed from the ShiftTemplates database');
 });
 
-Then('template is no longer available for selection in scheduling workflows', async function () {
+Then('template is no longer available for scheduling', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: template is no longer available for selection in scheduling workflows');
+  console.log('Step not yet implemented: template is no longer available for scheduling');
 });
 
-Then('deletion is logged in the audit trail with administrator ID and timestamp', async function () {
+Then('deletion action is logged in the system audit trail with timestamp and administrator ID', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: deletion is logged in the audit trail with administrator ID and timestamp');
+  console.log('Step not yet implemented: deletion action is logged in the system audit trail with timestamp and administrator ID');
 });
 
 Given('at least \(\\\\d\+\) different shift templates exist in the system', async function (num1: number) {
@@ -397,109 +390,118 @@ Given('user navigates to the shift template management page', async function () 
   await waits.waitForNetworkIdle();
 });
 
-When('observe the templates list section on the page', async function () {
+When('observe the main shift template management page', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: observe the templates list section on the page');
+  console.log('Step not yet implemented: observe the main shift template management page');
 });
 
-Then('all \(\\\\d\+\) templates are displayed in a table/list format with columns: Template Name, Start Time, End Time, Break Times, Actions', async function (num1: number) {
+Then('page displays a table/list with columns: Template Name, Start Time, End Time, Break Times, Actions \(Edit/Delete\)', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: page displays a table/list with columns: Template Name, Start Time, End Time, Break Times, Actions (Edit/Delete)');
+});
+
+When('verify all templates are displayed in the list', async function () {
   // TODO: Implement assertion
   const element = page.locator('SELECTOR_HERE');
   await assertions.assertVisible(element);
 });
 
-When('verify each template row displays complete information', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: verify each template row displays complete information');
-});
-
-Then('each row shows template name, formatted start time \(HH:MM AM/PM\), formatted end time \(HH:MM AM/PM\), number of breaks or break details, and action buttons \(Edit, Delete\)', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: each row shows template name, formatted start time (HH:MM AM/PM), formatted end time (HH:MM AM/PM), number of breaks or break details, and action buttons (Edit, Delete)');
-});
-
-When('click on a template name to expand details', async function () {
-  // TODO: Implement click action
+Then('all \(\\\\d\+\)\+ templates appear with their respective details clearly visible', async function (num1: number) {
+  // TODO: Implement assertion
   const element = page.locator('SELECTOR_HERE');
-  await actions.click(element);
+  await assertions.assertVisible(element);
 });
 
-Then('template details expand showing full break schedule with start and end times for each break period', async function () {
+When('check that each template shows complete information', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: template details expand showing full break schedule with start and end times for each break period');
+  console.log('Step not yet implemented: check that each template shows complete information');
 });
 
-When('verify the templates are sorted by creation date \(newest first\)', async function () {
+Then('each row displays template name, formatted start time, formatted end time, and break periods \(if any\)', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: verify the templates are sorted by creation date (newest first)');
+  console.log('Step not yet implemented: each row displays template name, formatted start time, formatted end time, and break periods (if any)');
 });
 
-Then('most recently created template appears at the top of the list', async function () {
+When('verify action buttons are present for each template', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: most recently created template appears at the top of the list');
+  console.log('Step not yet implemented: verify action buttons are present for each template');
 });
 
-Then('all templates remain in their current state', async function () {
+Then('each template row has visible 'Edit' and 'Delete' action buttons/icons', async function () {
+  // TODO: Implement assertion
+  const element = page.locator('SELECTOR_HERE');
+  await assertions.assertVisible(element);
+});
+
+Then('all templates remain unchanged in the database', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: all templates remain in their current state');
+  console.log('Step not yet implemented: all templates remain unchanged in the database');
 });
 
-Then('no data is modified', async function () {
+Then('user remains on the template management page', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: no data is modified');
+  console.log('Step not yet implemented: user remains on the template management page');
 });
 
-Given('break times are optional for template creation', async function () {
+Then('page is ready for further template management actions', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: break times are optional for template creation');
+  console.log('Step not yet implemented: page is ready for further template management actions');
 });
 
-When('enter 'No Break Shift' in Template Name field', async function () {
+Given('system allows templates without breaks', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: system allows templates without breaks');
+});
+
+When('enter 'Short Shift' as Template Name', async function () {
   // TODO: Implement fill action
   const element = page.locator('SELECTOR_HERE');
   await actions.fill(element, param1);
 });
 
-Then('template Name field displays 'No Break Shift'', async function () {
+Then('template Name field shows 'Short Shift'', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: template Name field displays 'No Break Shift'');
+  console.log('Step not yet implemented: template Name field shows 'Short Shift'');
 });
 
-When('enter '\(\\\\d\+\):\(\\\\d\+\) AM' as Start Time and '\(\\\\d\+\):\(\\\\d\+\) PM' as End Time', async function (num1: number, num2: number, num3: number, num4: number) {
-  // TODO: Implement fill action
-  const element = page.locator('SELECTOR_HERE');
-  await actions.fill(element, param1);
-});
-
-Then('start Time shows '\(\\\\d\+\):\(\\\\d\+\) AM' and End Time shows '\(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number, num3: number, num4: number) {
+When('select '\(\\\\d\+\):\(\\\\d\+\) AM' as Start Time and '\(\\\\d\+\):\(\\\\d\+\) PM' as End Time', async function (num1: number, num2: number, num3: number, num4: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: start Time shows '09:00 AM' and End Time shows '12:00 PM'');
+  console.log('Step not yet implemented: select '09:00 AM' as Start Time and '01:00 PM' as End Time');
 });
 
-When('do not add any break times, click 'Save Template' button directly', async function () {
-  // TODO: Implement click action
-  const element = page.locator('SELECTOR_HERE');
-  await actions.click(element);
-});
-
-Then('success message 'Shift template created successfully' appears and form closes', async function () {
+Then('both time fields populate correctly', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: success message 'Shift template created successfully' appears and form closes');
+  console.log('Step not yet implemented: both time fields populate correctly');
 });
 
-When('locate 'No Break Shift' in the templates list', async function () {
+When('do not add any break times, leave breaks section empty', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: locate 'No Break Shift' in the templates list');
+  console.log('Step not yet implemented: do not add any break times, leave breaks section empty');
 });
 
-Then('template appears with Start: \(\\\\d\+\):\(\\\\d\+\) AM, End: \(\\\\d\+\):\(\\\\d\+\) PM, and Break Times column shows 'None' or is empty', async function (num1: number, num2: number, num3: number, num4: number) {
+Then('breaks section remains empty with no validation errors', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: template appears with Start: 09:00 AM, End: 12:00 PM, and Break Times column shows 'None' or is empty');
+  console.log('Step not yet implemented: breaks section remains empty with no validation errors');
 });
 
-Then('template 'No Break Shift' is saved in database without break times', async function () {
+Then('success message appears: 'Template created successfully'', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: template 'No Break Shift' is saved in database without break times');
+  console.log('Step not yet implemented: success message appears: 'Template created successfully'');
+});
+
+When('verify template in the list', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: verify template in the list');
+});
+
+Then(''Short Shift' appears with Start '\(\\\\d\+\):\(\\\\d\+\) AM', End '\(\\\\d\+\):\(\\\\d\+\) PM', and Break Times column shows 'None' or is empty', async function (num1: number, num2: number, num3: number, num4: number) {
+  // TODO: Implement step
+  console.log('Step not yet implemented: 'Short Shift' appears with Start '09:00 AM', End '01:00 PM', and Break Times column shows 'None' or is empty');
+});
+
+Then('template is saved without break times in the database', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: template is saved without break times in the database');
 });
 
 Then('template is available for use in scheduling', async function () {
@@ -507,90 +509,90 @@ Then('template is available for use in scheduling', async function () {
   console.log('Step not yet implemented: template is available for use in scheduling');
 });
 
-Then('template appears correctly in the list view', async function () {
+Then('no validation errors are present', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: template appears correctly in the list view');
+  console.log('Step not yet implemented: no validation errors are present');
 });
 
-Given('exactly \(\\\\d\+\) shift templates already exist in the system', async function (num1: number) {
+Given('user has valid Administrator authentication token', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: exactly 99 shift templates already exist in the system');
+  console.log('Step not yet implemented: user has valid Administrator authentication token');
 });
 
-Given('system performance baseline is established \(page load < \(\\\\d\+\) seconds\)', async function (num1: number) {
+Given('aPI endpoint POST /api/shift-templates is accessible', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: system performance baseline is established (page load < 2 seconds)');
+  console.log('Step not yet implemented: aPI endpoint POST /api/shift-templates is accessible');
 });
 
-When('note the current page load time and responsiveness', async function () {
+Given('database connection is active', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: note the current page load time and responsiveness');
+  console.log('Step not yet implemented: database connection is active');
 });
 
-Then('page loads within \(\\\\d\+\) seconds and is responsive', async function (num1: number) {
+Given('request includes valid authorization headers', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: page loads within 2 seconds and is responsive');
+  console.log('Step not yet implemented: request includes valid authorization headers');
 });
 
-Then('form opens within \(\\\\d\+\) second', async function (num1: number) {
+When('send POST request to /api/shift-templates with JSON body: \{"\(\[\^"\]\+\)": "\(\[\^"\]\+\)", "\(\[\^"\]\+\)": "\(\[\^"\]\+\)", "\(\[\^"\]\+\)": "\(\[\^"\]\+\)", "\(\[\^"\]\+\)": \[\{"\(\[\^"\]\+\)": "\(\[\^"\]\+\)", "\(\[\^"\]\+\)": "\(\[\^"\]\+\)"\}\]\}', async function (param1: string, param2: string, param3: string, param4: string, param5: string, param6: string, param7: string, param8: string, param9: string, param10: string, param11: string, num1: number, num2: number, num3: number, num4: number, num5: number, num6: number, num7: number, num8: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: form opens within 1 second');
+  console.log('Step not yet implemented: send POST request to /api/shift-templates with JSON body: {"name": "API Test Shift", "startTime": "07:00", "endTime": "15:00", "breaks": [{"start": "11:00", "end": "11:30"}]}');
 });
 
-When('enter '100th Template' as name, '\(\\\\d\+\):\(\\\\d\+\) AM' as Start Time, '\(\\\\d\+\):\(\\\\d\+\) PM' as End Time', async function (num1: number, num2: number, num3: number, num4: number) {
-  // TODO: Implement fill action
+Then('aPI returns HTTP \(\\\\d\+\) Created status code', async function (num1: number) {
+  // TODO: Implement step
+  console.log('Step not yet implemented: aPI returns HTTP 201 Created status code');
+});
+
+When('verify response body contains created template data', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: verify response body contains created template data');
+});
+
+Then('response includes template ID, name 'API Test Shift', startTime '\(\\\\d\+\):\(\\\\d\+\)', endTime '\(\\\\d\+\):\(\\\\d\+\)', and breaks array', async function (num1: number, num2: number, num3: number, num4: number) {
+  // TODO: Implement step
+  console.log('Step not yet implemented: response includes template ID, name 'API Test Shift', startTime '07:00', endTime '15:00', and breaks array');
+});
+
+When('query the database ShiftTemplates table for the new template ID', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: query the database ShiftTemplates table for the new template ID');
+});
+
+Then('template record exists in database with all correct field values', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: template record exists in database with all correct field values');
+});
+
+When('navigate to shift template management page in UI', async function () {
+  // TODO: Implement navigation
+  await actions.navigateTo('URL_HERE');
+  await waits.waitForNetworkIdle();
+});
+
+Then(''API Test Shift' appears in the templates list', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: 'API Test Shift' appears in the templates list');
+});
+
+Then('template is persisted in ShiftTemplates database table', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: template is persisted in ShiftTemplates database table');
+});
+
+Then('template is visible in the UI', async function () {
+  // TODO: Implement assertion
   const element = page.locator('SELECTOR_HERE');
-  await actions.fill(element, param1);
+  await assertions.assertVisible(element);
 });
 
-Then('all fields accept input without delay', async function () {
+Then('aPI response matches database record', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: all fields accept input without delay');
+  console.log('Step not yet implemented: aPI response matches database record');
 });
 
-When('click 'Save Template' button and measure response time', async function () {
-  // TODO: Implement click action
-  const element = page.locator('SELECTOR_HERE');
-  await actions.click(element);
-});
-
-Then('template saves within \(\\\\d\+\) seconds and success message appears', async function (num1: number) {
+Then('template can be edited and deleted through UI', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: template saves within 2 seconds and success message appears');
-});
-
-When('verify the templates list loads with all \(\\\\d\+\) templates', async function (num1: number) {
-  // TODO: Implement step
-  console.log('Step not yet implemented: verify the templates list loads with all 100 templates');
-});
-
-Then('list displays all \(\\\\d\+\) templates within \(\\\\d\+\) seconds with pagination or scrolling functionality', async function (num1: number, num2: number) {
-  // TODO: Implement step
-  console.log('Step not yet implemented: list displays all 100 templates within 3 seconds with pagination or scrolling functionality');
-});
-
-When('attempt to create a 101st template', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: attempt to create a 101st template');
-});
-
-Then('system either allows creation \(if limit is soft\) or displays message 'Maximum template limit reached \(\(\\\\d\+\)\)' and prevents creation', async function (num1: number) {
-  // TODO: Implement step
-  console.log('Step not yet implemented: system either allows creation (if limit is soft) or displays message 'Maximum template limit reached (100)' and prevents creation');
-});
-
-Then('system maintains performance with \(\\\\d\+\) templates loaded', async function (num1: number) {
-  // TODO: Implement step
-  console.log('Step not yet implemented: system maintains performance with 100 templates loaded');
-});
-
-Then('all templates remain accessible and functional', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: all templates remain accessible and functional');
-});
-
-Then('no performance degradation is observed in page load or interactions', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: no performance degradation is observed in page load or interactions');
+  console.log('Step not yet implemented: template can be edited and deleted through UI');
 });
 

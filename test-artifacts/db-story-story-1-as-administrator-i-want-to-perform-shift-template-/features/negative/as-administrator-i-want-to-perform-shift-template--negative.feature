@@ -15,22 +15,40 @@ Feature: As Administrator, I want to perform shift template creation to achieve 
     And template creation form is open
     When click 'Create New Template' button
     Then template creation form opens
-    And enter 'Invalid Time Shift' in Template Name field
-    Then template Name field displays 'Invalid Time Shift'
+    And enter 'Invalid Shift' as Template Name
+    Then template Name field populates
     And select '05:00 PM' as Start Time
-    Then start Time field displays '05:00 PM'
-    And select '08:00 AM' as End Time (earlier than start time)
-    Then end Time field displays '08:00 AM'
+    Then start Time shows '05:00 PM'
+    And select '09:00 AM' as End Time (before start time)
+    Then end Time field shows '09:00 AM'
     And click 'Save Template' button
-    Then red error message appears below End Time field stating 'End time must be after start time' and template is not saved
-    And verify the templates list
-    Then 'Invalid Time Shift' does not appear in the templates list
-    And no new template is created in the database
-    And user remains on the template creation form with error message visible
-    And form fields retain entered values for correction
+    Then red error message appears: 'End time must be after start time' and template is not saved
+    And verify template list
+    Then 'Invalid Shift' does not appear in the templates list
+    And no template is created in the database
+    And form remains open with entered data
+    And error message is displayed to guide user correction
+    And save button remains enabled for retry
 
   @high @tc-nega-002
-  Scenario: TC-NEGA-002 - Attempt to create shift template with empty required fields
+  Scenario: TC-NEGA-002 - Attempt to create shift template with break time outside shift hours
+    Given user is logged in as an Administrator
+    And user has opened the template creation form
+    And validation rules are active for break time overlap
+    When enter 'Overlap Test' as Template Name, '09:00 AM' as Start Time, '05:00 PM' as End Time
+    Then all fields populate correctly
+    And click 'Add Break' and enter break from '07:00 AM' to '08:00 AM' (before shift start)
+    Then break time entry appears in the form
+    And click 'Save Template' button
+    Then red error message appears: 'Break times must be within shift hours (09:00 AM - 05:00 PM)'
+    And verify the templates list
+    Then template 'Overlap Test' is not created and does not appear in the list
+    And no template is saved to the database
+    And form remains open with validation error displayed
+    And user can correct the break time and retry
+
+  @high @tc-nega-003
+  Scenario: TC-NEGA-003 - Attempt to create shift template with empty required fields
     Given user is logged in as an Administrator
     And user is on the shift template management page
     And template creation form is open
@@ -38,101 +56,87 @@ Feature: As Administrator, I want to perform shift template creation to achieve 
     Then template creation form opens with empty fields
     And leave Template Name field empty
     Then template Name field remains empty
-    And leave Start Time field empty
-    Then start Time field remains empty
-    And leave End Time field empty
-    Then end Time field remains empty
+    And leave Start Time and End Time fields empty
+    Then time fields show placeholder text or remain unselected
     And click 'Save Template' button
-    Then red error messages appear: 'Template Name is required' below name field, 'Start Time is required' below start time field, 'End Time is required' below end time field. Template is not saved
-    And verify no API call is made to POST /api/shift-templates
-    Then network tab shows no POST request was sent
+    Then red error messages appear: 'Template Name is required', 'Start Time is required', 'End Time is required'
+    And verify Save button behavior
+    Then template is not saved and form remains open with error indicators on required fields
     And no template is created in the database
-    And user remains on the form with validation errors displayed
-    And save button remains enabled for retry after corrections
-
-  @high @tc-nega-003
-  Scenario: TC-NEGA-003 - Attempt to create shift template with break time outside of shift hours
-    Given user is logged in as an Administrator
-    And user is on the shift template management page
-    And template creation form is open
-    When click 'Create New Template' button
-    Then template creation form opens
-    And enter 'Invalid Break Shift' as Template Name, '09:00 AM' as Start Time, '05:00 PM' as End Time
-    Then all fields display entered values
-    And click 'Add Break' and enter break time from '06:00 PM' to '06:30 PM' (after shift end time)
-    Then break time entry appears showing '06:00 PM - 06:30 PM'
-    And click 'Save Template' button
-    Then red error message appears: 'Break time must be within shift hours (09:00 AM - 05:00 PM)' and template is not saved
-    And no template is created in the database
-    And user remains on form with error message
-    And break entry remains visible for correction
+    And form validation prevents submission
+    And required field indicators (red borders or asterisks) are visible
+    And user remains on the form to complete required fields
 
   @high @tc-nega-004
-  Scenario: TC-NEGA-004 - Attempt to create shift template with overlapping break times
-    Given user is logged in as an Administrator
-    And user is on the shift template management page
-    And template creation form is open
-    When click 'Create New Template' button
-    Then template creation form opens
-    And enter 'Overlapping Breaks' as Template Name, '08:00 AM' as Start Time, '06:00 PM' as End Time
-    Then all fields display entered values
-    And click 'Add Break' and enter first break from '12:00 PM' to '01:00 PM'
-    Then first break entry appears: '12:00 PM - 01:00 PM'
-    And click 'Add Break' and enter second break from '12:30 PM' to '01:30 PM' (overlaps with first break)
-    Then second break entry appears: '12:30 PM - 01:30 PM'
-    And click 'Save Template' button
-    Then red error message appears: 'Break times cannot overlap. Please adjust break periods.' and template is not saved
-    And no template is created in the database
-    And both break entries remain visible with error indication
-    And user can edit or remove breaks to resolve conflict
-
-  @high @tc-nega-005
-  Scenario: TC-NEGA-005 - Attempt to access shift template creation without administrator permissions
+  Scenario: TC-NEGA-004 - Attempt to create shift template by unauthorized user without administrator permissions
     Given user is logged in with 'Employee' role (non-administrator)
-    And user attempts to navigate to /admin/shift-templates URL directly
-    When enter URL '/admin/shift-templates' in browser address bar and press Enter
-    Then system redirects to access denied page or displays error message 'You do not have permission to access this page'
-    And attempt to access the API endpoint directly by sending POST request to /api/shift-templates with valid template data
-    Then aPI returns 403 Forbidden status code with error message 'Insufficient permissions'
-    And verify no template was created
-    Then database query confirms no new template was added
+    And user attempts to access /admin/shift-templates URL directly
+    And security permissions are enforced at both UI and API levels
+    When navigate to /admin/shift-templates URL in browser
+    Then system redirects to unauthorized access page or displays error message 'Access Denied: Administrator privileges required'
+    And attempt to send POST request to /api/shift-templates with employee authentication token
+    Then aPI returns HTTP 403 Forbidden status with error message 'Insufficient permissions'
+    And verify no template creation form is accessible
+    Then 'Create New Template' button is not visible or is disabled
     And no template is created
     And user access attempt is logged in security audit trail
-    And user remains on access denied page or is redirected to their authorized home page
+    And user remains on unauthorized access page or is redirected to appropriate page for their role
 
-  @high @tc-nega-006
-  Scenario: TC-NEGA-006 - Attempt to create shift template with SQL injection in template name field
+  @high @tc-nega-005
+  Scenario: TC-NEGA-005 - Attempt to create shift template with special characters and SQL injection in template name
     Given user is logged in as an Administrator
-    And user is on the shift template management page
     And template creation form is open
-    When click 'Create New Template' button
-    Then template creation form opens
-    And enter SQL injection string "'; DROP TABLE ShiftTemplates; --" in Template Name field
-    Then template Name field displays the entered string
-    And enter '09:00 AM' as Start Time and '05:00 PM' as End Time
-    Then time fields display entered values
+    And input sanitization is implemented
+    When enter "'; DROP TABLE ShiftTemplates; --" in the Template Name field
+    Then text is entered in the field
+    And enter valid Start Time '08:00 AM' and End Time '04:00 PM'
+    Then time fields populate correctly
     And click 'Save Template' button
-    Then either: (1) Template is saved with the string treated as literal text, or (2) Validation error appears: 'Template name contains invalid characters'
-    And verify ShiftTemplates table still exists and contains all previous data
-    Then database table is intact, no SQL injection was executed, all existing templates remain
-    And database integrity is maintained
-    And no SQL injection attack was successful
-    And security event is logged if malicious input was detected
+    Then either: (1) Error message 'Invalid characters in template name' appears, OR (2) Template is saved with sanitized name, OR (3) Special characters are escaped properly
+    And verify database integrity by checking ShiftTemplates table still exists
+    Then shiftTemplates table is intact and not dropped, SQL injection was prevented
+    And if template was saved, verify the stored name in database
+    Then name is properly escaped/sanitized and does not contain executable SQL code
+    And database remains secure and intact
+    And no SQL injection vulnerability is exploited
+    And input is either rejected or properly sanitized
+    And security event is logged if injection attempt detected
 
-  @high @tc-nega-007
-  Scenario: TC-NEGA-007 - Attempt to delete a shift template that is currently assigned to active schedules
+  @medium @tc-nega-006
+  Scenario: TC-NEGA-006 - Attempt to delete a shift template that is currently assigned to active schedules
     Given user is logged in as an Administrator
-    And shift template 'Active Shift' exists and is assigned to at least one active employee schedule
+    And a shift template named 'Active Shift' exists
+    And template 'Active Shift' is currently assigned to at least one active employee schedule
     And user is on the shift template management page
-    When locate 'Active Shift' template in the list and click the 'Delete' icon button
+    When locate 'Active Shift' template in the list and click 'Delete' icon
     Then confirmation dialog appears
-    And click 'Delete' button in the confirmation dialog
-    Then red error message appears: 'Cannot delete template. This template is currently assigned to active schedules. Please remove all assignments before deleting.'
-    And verify the template still exists in the list
-    Then 'Active Shift' template remains in the templates list unchanged
-    And verify database integrity
-    Then template still exists in ShiftTemplates table and all schedule assignments remain intact
-    And template 'Active Shift' is not deleted
-    And all schedule assignments remain active
-    And error message guides user on how to proceed
+    And click 'Confirm' button in the dialog
+    Then red error message appears: 'Cannot delete template: Currently assigned to active schedules. Please remove assignments first.'
+    And verify template still exists in the list
+    Then 'Active Shift' template remains in the list, unchanged
+    And verify database record
+    Then template record still exists in ShiftTemplates table
+    And template is not deleted from database
+    And active schedule assignments remain intact
+    And error message guides user to remove assignments first
+    And template remains available for viewing and editing
+
+  @medium @tc-nega-007
+  Scenario: TC-NEGA-007 - Attempt to create shift template when system has reached maximum limit of 100 templates
+    Given user is logged in as an Administrator
+    And exactly 100 shift templates already exist in the system
+    And performance limit of 100 templates is enforced
+    And user is on the shift template management page
+    When click 'Create New Template' button
+    Then either button is disabled with tooltip 'Maximum template limit reached (100)', OR form opens normally
+    And if form opens, enter 'Template 101' as name, '08:00 AM' as Start Time, '04:00 PM' as End Time
+    Then fields populate with entered data
+    And click 'Save Template' button
+    Then red error message appears: 'Maximum template limit reached. Please delete unused templates before creating new ones.'
+    And verify template count in database
+    Then shiftTemplates table still contains exactly 100 records, no new template was added
+    And template count remains at 100
+    And no new template is created
+    And user is informed of the limit and guided to delete unused templates
+    And system performance remains stable
 

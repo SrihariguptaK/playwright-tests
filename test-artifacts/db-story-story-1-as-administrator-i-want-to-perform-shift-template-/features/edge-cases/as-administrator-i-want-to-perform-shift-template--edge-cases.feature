@@ -9,142 +9,143 @@ Feature: As Administrator, I want to perform shift template creation to achieve 
     And the test environment is properly configured
 
   @medium @tc-edge-001
-  Scenario: TC-EDGE-001 - Create shift template with minimum valid duration (1 minute)
+  Scenario: TC-EDGE-001 - Create shift template with minimum valid time difference (1 minute between start and end)
     Given user is logged in as an Administrator
-    And user is on the shift template management page
-    And system allows minimum shift duration of 1 minute
+    And template creation form is open
+    And system allows minimum 1-minute shift duration
     When click 'Create New Template' button
     Then template creation form opens
-    And enter 'Minimum Duration Shift' as Template Name
-    Then template Name field displays 'Minimum Duration Shift'
-    And enter '09:00 AM' as Start Time and '09:01 AM' as End Time (1 minute duration)
-    Then start Time shows '09:00 AM' and End Time shows '09:01 AM'
+    And enter 'Minimal Shift' as Template Name
+    Then template Name field shows 'Minimal Shift'
+    And select '09:00 AM' as Start Time and '09:01 AM' as End Time
+    Then both time fields populate with 1-minute difference
     And click 'Save Template' button
-    Then template saves successfully with message 'Shift template created successfully' or validation error appears if minimum duration requirement exists
-    And if saved, verify template appears in list with correct duration
-    Then template displays with 1-minute duration calculated correctly
-    And template is saved if system allows 1-minute shifts, or appropriate validation error is shown
-    And system behavior is consistent with business rules for minimum shift duration
+    Then either: (1) Success message appears and template is created, OR (2) Validation error appears if minimum duration is enforced
+    And if saved successfully, verify template in the list
+    Then template appears with Start '09:00 AM' and End '09:01 AM'
+    And template is saved if system allows 1-minute shifts
+    And validation behavior is consistent with business rules
+    And template can be used in scheduling if created
 
   @medium @tc-edge-002
-  Scenario: TC-EDGE-002 - Create shift template with maximum valid duration (24 hours)
+  Scenario: TC-EDGE-002 - Create shift template with maximum valid time span (23 hours 59 minutes)
     Given user is logged in as an Administrator
-    And user is on the shift template management page
-    And system supports 24-hour shift templates
+    And template creation form is open
+    And system supports shifts up to 24 hours
     When click 'Create New Template' button
     Then template creation form opens
-    And enter '24 Hour Shift' as Template Name
-    Then template Name field displays '24 Hour Shift'
-    And enter '12:00 AM' as Start Time and '11:59 PM' as End Time (23 hours 59 minutes)
-    Then start Time shows '12:00 AM' and End Time shows '11:59 PM'
+    And enter 'Maximum Shift' as Template Name
+    Then template Name field populates
+    And select '12:00 AM' as Start Time and '11:59 PM' as End Time
+    Then time fields show nearly 24-hour span
     And add break from '12:00 PM' to '01:00 PM'
-    Then break entry appears: '12:00 PM - 01:00 PM'
+    Then break is added successfully
     And click 'Save Template' button
-    Then template saves successfully with message 'Shift template created successfully'
-    And verify template in list shows correct duration calculation
-    Then template displays with duration of 23 hours 59 minutes or 'Full Day' indicator
-    And template '24 Hour Shift' is saved with maximum duration
-    And duration calculations are accurate
+    Then success message appears: 'Template created successfully'
+    And verify template in list
+    Then 'Maximum Shift' appears with full time span displayed correctly
+    And template with maximum duration is saved successfully
+    And system handles extreme but valid time spans
     And template is available for scheduling
 
-  @medium @tc-edge-003
-  Scenario: TC-EDGE-003 - Create shift template with template name containing special characters and Unicode
+  @low @tc-edge-003
+  Scenario: TC-EDGE-003 - Create shift template with template name at maximum character limit
     Given user is logged in as an Administrator
-    And user is on the shift template management page
-    And system supports Unicode characters in template names
-    When click 'Create New Template' button
-    Then template creation form opens
-    And enter 'Shift™ @#$% 早班 🌅 Café' in Template Name field (contains trademark symbol, special characters, Chinese characters, emoji, accented characters)
-    Then template Name field displays 'Shift™ @#$% 早班 🌅 Café' correctly
-    And enter '08:00 AM' as Start Time and '04:00 PM' as End Time
-    Then time fields display entered values
-    And click 'Save Template' button
-    Then template saves successfully with message 'Shift template created successfully'
-    And verify template appears in list with all special characters and Unicode displayed correctly
-    Then template name 'Shift™ @#$% 早班 🌅 Café' displays correctly without character corruption or encoding issues
-    And click to edit the template and verify name is preserved
-    Then edit form shows template name exactly as entered with all special characters intact
-    And template is saved with Unicode and special characters preserved
-    And character encoding is handled correctly throughout the system
-    And template name displays consistently across all views
-
-  @medium @tc-edge-004
-  Scenario: TC-EDGE-004 - Create shift template with template name at maximum character limit
-    Given user is logged in as an Administrator
-    And user is on the shift template management page
-    And template name field has a maximum character limit (assume 255 characters)
+    And template creation form is open
+    And template Name field has a maximum character limit (assume 255 characters)
     When click 'Create New Template' button
     Then template creation form opens
     And enter a 255-character string in Template Name field: 'A' repeated 255 times
-    Then template Name field accepts exactly 255 characters and prevents entry of 256th character, or shows character counter '255/255'
-    And enter '09:00 AM' as Start Time and '05:00 PM' as End Time
-    Then time fields display entered values
+    Then field accepts exactly 255 characters and prevents further input, or shows character counter '255/255'
+    And enter valid Start Time '08:00 AM' and End Time '05:00 PM'
+    Then time fields populate correctly
     And click 'Save Template' button
-    Then template saves successfully with message 'Shift template created successfully'
-    And verify template appears in list with full name visible or truncated with ellipsis
-    Then template appears in list, name is either fully visible with horizontal scroll, or truncated with tooltip showing full name on hover
-    And template is saved with maximum length name
-    And database stores full 255-character name without truncation
-    And uI handles long names gracefully without breaking layout
+    Then success message appears and template is created
+    And verify template in list
+    Then template appears with full name visible or truncated with ellipsis, hovering shows full name in tooltip
+    And template is saved with maximum-length name
+    And database field accommodates the full name
+    And uI handles display of long names appropriately
 
-  @high @tc-edge-005
-  Scenario: TC-EDGE-005 - Verify system behavior when exactly 100 templates exist (performance boundary)
+  @low @tc-edge-004
+  Scenario: TC-EDGE-004 - Create shift template with Unicode characters, emojis, and special characters in name
     Given user is logged in as an Administrator
-    And exactly 100 shift templates exist in the system
-    And user is on the shift template management page
-    When measure page load time when accessing /admin/shift-templates
-    Then page loads within 3 seconds with all 100 templates displayed or paginated
-    And scroll through the entire list of templates
-    Then scrolling is smooth without lag, all templates render correctly
-    And use search/filter functionality if available to find a specific template
-    Then search returns results within 1 second
-    And click 'Create New Template' button
-    Then form opens within 1 second, or system displays message 'Maximum template limit (100) reached. Please delete unused templates before creating new ones.'
-    And if creation is blocked, attempt to delete one template and then create a new one
-    Then after deletion, creation is allowed and new template saves successfully
-    And system maintains performance with 100 templates
-    And template limit enforcement is consistent
-    And user receives clear feedback about system limits
-
-  @medium @tc-edge-006
-  Scenario: TC-EDGE-006 - Create shift template with break time exactly at shift boundaries
-    Given user is logged in as an Administrator
-    And user is on the shift template management page
-    And system allows breaks at shift start or end times
+    And template creation form is open
+    And system supports UTF-8 character encoding
     When click 'Create New Template' button
     Then template creation form opens
-    And enter 'Boundary Break Shift' as Template Name, '09:00 AM' as Start Time, '05:00 PM' as End Time
-    Then all fields display entered values
-    And click 'Add Break' and enter break from '09:00 AM' to '09:15 AM' (starts exactly at shift start time)
-    Then break entry appears: '09:00 AM - 09:15 AM'
-    And click 'Add Break' and enter another break from '04:45 PM' to '05:00 PM' (ends exactly at shift end time)
-    Then second break entry appears: '04:45 PM - 05:00 PM'
+    And enter '早班 Shift 🌅 (Morning)' in Template Name field
+    Then field accepts and displays Unicode characters, Chinese characters, and emoji correctly
+    And enter Start Time '06:00 AM' and End Time '02:00 PM'
+    Then time fields populate correctly
     And click 'Save Template' button
-    Then template saves successfully, or validation error appears if breaks cannot be at exact boundaries
-    And system behavior is consistent with business rules for break placement
-    And if saved, breaks at boundaries are stored correctly
-    And if rejected, clear validation message explains the constraint
+    Then success message appears and template is created
+    And verify template in list
+    Then template name displays correctly with all Unicode characters and emoji rendered properly
+    And refresh the page and verify persistence
+    Then template name still displays correctly after page reload
+    And template is saved with Unicode characters intact
+    And database stores UTF-8 characters correctly
+    And uI renders special characters and emojis properly across browsers
 
-  @medium @tc-edge-007
-  Scenario: TC-EDGE-007 - Rapidly create multiple templates in quick succession to test race conditions
+  @medium @tc-edge-005
+  Scenario: TC-EDGE-005 - Create shift template with break time exactly at shift boundaries
+    Given user is logged in as an Administrator
+    And template creation form is open
+    And system validation allows breaks at shift boundaries
+    When click 'Create New Template' button
+    Then template creation form opens
+    And enter 'Boundary Break Shift' as Template Name, '08:00 AM' as Start Time, '04:00 PM' as End Time
+    Then all fields populate correctly
+    And add break from '08:00 AM' to '08:15 AM' (starts exactly at shift start)
+    Then break is added to the form
+    And click 'Save Template' button
+    Then either: (1) Success message appears if boundary breaks are allowed, OR (2) Validation error appears: 'Break cannot start at shift start time'
+    And if error appears, modify break to '08:01 AM' to '08:15 AM' and save again
+    Then template saves successfully with adjusted break time
+    And system behavior at boundaries is consistent with business rules
+    And validation provides clear guidance on break time constraints
+    And template is saved with valid break configuration
+
+  @medium @tc-edge-006
+  Scenario: TC-EDGE-006 - Rapidly create multiple templates in quick succession to test concurrent operations
     Given user is logged in as an Administrator
     And user is on the shift template management page
-    And browser developer tools are open to monitor network requests
-    When click 'Create New Template' button and quickly fill in 'Rapid Test 1', Start: '08:00 AM', End: '04:00 PM'
-    Then form is filled with values
+    And system has fewer than 95 templates (room for 5 more)
+    When open template creation form and create 'Rapid Test 1' with Start '08:00 AM', End '04:00 PM', click Save
+    Then first template saves and success message appears
+    And immediately click 'Create New Template' again and create 'Rapid Test 2' with Start '09:00 AM', End '05:00 PM', click Save
+    Then second template saves successfully
+    And repeat process rapidly for 'Rapid Test 3', 'Rapid Test 4', and 'Rapid Test 5'
+    Then all templates are created without errors or race conditions
+    And refresh the page and verify all 5 templates appear in the list
+    Then all 5 'Rapid Test' templates are present with correct details
+    And verify database contains all 5 templates with unique IDs
+    Then database shows 5 distinct records with no duplicates or missing entries
+    And all 5 templates are successfully created and persisted
+    And no race conditions or duplicate entries occurred
+    And system handled rapid successive operations correctly
+    And database integrity is maintained
+
+  @high @tc-edge-007
+  Scenario: TC-EDGE-007 - Create shift template and verify behavior when database connection is temporarily lost during save
+    Given user is logged in as an Administrator
+    And template creation form is open with valid data entered
+    And ability to simulate network/database interruption for testing
+    When enter 'Network Test Shift' as Template Name, '10:00 AM' as Start Time, '06:00 PM' as End Time
+    Then all fields populate correctly
+    And simulate database connection loss or network interruption
+    Then database connection is interrupted
     And click 'Save Template' button
-    Then save request is initiated
-    And immediately click 'Create New Template' again before first save completes and fill in 'Rapid Test 2', Start: '09:00 AM', End: '05:00 PM'
-    Then second form opens and is filled
-    And click 'Save Template' button for second template
-    Then second save request is initiated
-    And repeat steps 3-4 for 'Rapid Test 3'
-    Then third save request is initiated
-    And wait for all requests to complete and verify templates list
-    Then all three templates ('Rapid Test 1', 'Rapid Test 2', 'Rapid Test 3') appear in the list with correct data, no duplicates, no data corruption
-    And verify database contains exactly 3 new templates with unique IDs
-    Then database shows 3 distinct templates with no duplicate entries or race condition issues
-    And all templates are saved correctly without data loss
-    And no race conditions caused duplicate or corrupted data
-    And system handles concurrent requests appropriately
+    Then error message appears: 'Unable to save template. Please check your connection and try again.' or 'Network error occurred'
+    And verify form data is retained
+    Then form remains open with all entered data still present (not lost)
+    And restore database connection
+    Then connection is re-established
+    And click 'Save Template' button again
+    Then success message appears and template is saved successfully
+    And template is saved after connection is restored
+    And no duplicate entries were created
+    And user data was preserved during the error
+    And error handling provided clear feedback to user
 
