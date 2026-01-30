@@ -1,0 +1,742 @@
+{
+  "storyId": "db-story-story-14",
+  "storyTitle": "As Taxpayer, I want the system to log all PDF report generation, download, and print events to achieve audit compliance",
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify PDF report generation event is logged with user ID and timestamp",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is authenticated and logged into the system",
+        "User has permissions to generate PDF reports",
+        "Logging service is operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to report generation page",
+          "expectedResult": "Report generation page loads successfully"
+        },
+        {
+          "step": 2,
+          "action": "Select report parameters and click 'Generate PDF'",
+          "expectedResult": "PDF report is generated successfully"
+        },
+        {
+          "step": 3,
+          "action": "Access the audit log database or log viewer",
+          "expectedResult": "Log entry exists for generation event"
+        },
+        {
+          "step": 4,
+          "action": "Verify log entry contains user ID, timestamp, and action type 'GENERATE'",
+          "expectedResult": "All required fields are present and accurate"
+        }
+      ],
+      "postconditions": [
+        "Log entry is stored in secure log database",
+        "User can continue normal operations"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify PDF report download event is logged with user ID and timestamp",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is authenticated and logged into the system",
+        "PDF report is available for download",
+        "Logging service is operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to available reports list",
+          "expectedResult": "Reports list displays successfully"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Download' button for a PDF report",
+          "expectedResult": "PDF report downloads to user's device"
+        },
+        {
+          "step": 3,
+          "action": "Access the audit log database or log viewer",
+          "expectedResult": "Log entry exists for download event"
+        },
+        {
+          "step": 4,
+          "action": "Verify log entry contains user ID, timestamp, and action type 'DOWNLOAD'",
+          "expectedResult": "All required fields are present and accurate"
+        }
+      ],
+      "postconditions": [
+        "Log entry is stored in secure log database",
+        "Downloaded file is available on user's device"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify PDF report print event is logged with user ID and timestamp",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is authenticated and logged into the system",
+        "PDF report is available for printing",
+        "Logging service is operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Open a PDF report in the viewer",
+          "expectedResult": "PDF report displays in viewer"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Print' button or use browser print function",
+          "expectedResult": "Print dialog opens"
+        },
+        {
+          "step": 3,
+          "action": "Confirm print action",
+          "expectedResult": "Print job is initiated"
+        },
+        {
+          "step": 4,
+          "action": "Access the audit log and verify print event is logged with user ID and timestamp",
+          "expectedResult": "Log entry contains user ID, timestamp, and action type 'PRINT'"
+        }
+      ],
+      "postconditions": [
+        "Log entry is stored in secure log database",
+        "Print job completes or is queued"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify logs are stored securely with encryption and access controls",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Multiple log entries exist in the system",
+        "User has audit access permissions",
+        "Security mechanisms are configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to access log database directly without proper credentials",
+          "expectedResult": "Access is denied"
+        },
+        {
+          "step": 2,
+          "action": "Login with authorized audit account",
+          "expectedResult": "Access is granted to log viewer"
+        },
+        {
+          "step": 3,
+          "action": "Verify logs are encrypted at rest in database",
+          "expectedResult": "Log data is stored in encrypted format"
+        },
+        {
+          "step": 4,
+          "action": "Verify tamper-evident mechanisms (checksums/hashes) are present",
+          "expectedResult": "Each log entry has integrity verification data"
+        }
+      ],
+      "postconditions": [
+        "Logs remain secure and unmodified",
+        "Access attempt is logged"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify multiple consecutive actions are all logged correctly",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is authenticated and logged into the system",
+        "Logging service is operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Generate a PDF report",
+          "expectedResult": "Report generated and generation event logged"
+        },
+        {
+          "step": 2,
+          "action": "Download the same PDF report",
+          "expectedResult": "Report downloaded and download event logged"
+        },
+        {
+          "step": 3,
+          "action": "Print the same PDF report",
+          "expectedResult": "Print initiated and print event logged"
+        },
+        {
+          "step": 4,
+          "action": "Verify all three log entries exist with correct sequence and timestamps",
+          "expectedResult": "Three separate log entries exist with chronological timestamps"
+        }
+      ],
+      "postconditions": [
+        "All three events are logged separately",
+        "Log entries maintain chronological order"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify logging does not degrade system performance",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "System performance baseline is established",
+        "User is authenticated",
+        "Performance monitoring tools are active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Measure response time for PDF generation without logging",
+          "expectedResult": "Baseline response time recorded"
+        },
+        {
+          "step": 2,
+          "action": "Enable logging and generate PDF report",
+          "expectedResult": "PDF generates successfully"
+        },
+        {
+          "step": 3,
+          "action": "Measure response time with logging enabled",
+          "expectedResult": "Response time is within acceptable threshold (no significant degradation)"
+        },
+        {
+          "step": 4,
+          "action": "Verify user experience is not impacted",
+          "expectedResult": "No noticeable delays or performance issues"
+        }
+      ],
+      "postconditions": [
+        "Logging remains enabled",
+        "System performance meets SLA requirements"
+      ]
+    },
+    {
+      "id": "TC-FUNC-007",
+      "title": "Verify audit team can access logs within 24 hours",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "PDF events have been logged in the system",
+        "Audit team member has appropriate access credentials",
+        "Log retention policy is configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Generate, download, and print PDF reports",
+          "expectedResult": "All events are logged"
+        },
+        {
+          "step": 2,
+          "action": "Wait for log processing (if applicable)",
+          "expectedResult": "Logs are processed and available"
+        },
+        {
+          "step": 3,
+          "action": "Login as audit team member",
+          "expectedResult": "Audit interface is accessible"
+        },
+        {
+          "step": 4,
+          "action": "Query logs for events within last 24 hours",
+          "expectedResult": "All logged events are retrievable and displayed correctly"
+        }
+      ],
+      "postconditions": [
+        "Logs remain available for future queries",
+        "Audit access is logged"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify system handles logging service failure gracefully",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is authenticated",
+        "Logging service can be simulated to fail",
+        "Fallback mechanisms are configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Simulate logging service failure or unavailability",
+          "expectedResult": "Logging service is down"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to generate a PDF report",
+          "expectedResult": "Report generation completes successfully despite logging failure"
+        },
+        {
+          "step": 3,
+          "action": "Verify error is logged to fallback mechanism or queue",
+          "expectedResult": "Event is queued for retry or logged to backup system"
+        },
+        {
+          "step": 4,
+          "action": "Restore logging service and verify queued events are processed",
+          "expectedResult": "Missed events are logged once service is restored"
+        }
+      ],
+      "postconditions": [
+        "User operations are not blocked by logging failures",
+        "Events are eventually logged"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify unauthorized users cannot access or modify audit logs",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Audit logs contain multiple entries",
+        "User account without audit permissions exists",
+        "Access controls are configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Login as regular user without audit permissions",
+          "expectedResult": "User logged in successfully"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to access audit log viewer or database",
+          "expectedResult": "Access is denied with appropriate error message"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to modify or delete log entries directly",
+          "expectedResult": "Modification attempts are blocked"
+        },
+        {
+          "step": 4,
+          "action": "Verify unauthorized access attempt is logged",
+          "expectedResult": "Security event is logged for audit trail"
+        }
+      ],
+      "postconditions": [
+        "Logs remain unmodified and secure",
+        "Security violation is recorded"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify system handles missing user ID during logging",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "System can simulate session with missing user context",
+        "Logging service is operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Simulate a scenario where user ID is null or missing",
+          "expectedResult": "User context is invalid"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to generate PDF report",
+          "expectedResult": "System handles gracefully with default or anonymous user ID"
+        },
+        {
+          "step": 3,
+          "action": "Verify log entry is created with placeholder or system identifier",
+          "expectedResult": "Log entry exists with 'UNKNOWN' or 'SYSTEM' user ID"
+        },
+        {
+          "step": 4,
+          "action": "Verify error is flagged for investigation",
+          "expectedResult": "Anomaly is marked for review"
+        }
+      ],
+      "postconditions": [
+        "Logging continues despite missing user context",
+        "Anomaly is tracked for security review"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify log tampering attempts are detected and prevented",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Logs exist with tamper-evident mechanisms",
+        "User has database access for testing",
+        "Integrity checking is enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Access log database with elevated privileges",
+          "expectedResult": "Database access granted"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to modify a log entry directly in database",
+          "expectedResult": "Modification is made in database"
+        },
+        {
+          "step": 3,
+          "action": "Run integrity check or access log through audit interface",
+          "expectedResult": "Tamper detection mechanism identifies modified entry"
+        },
+        {
+          "step": 4,
+          "action": "Verify tampering alert is generated and logged",
+          "expectedResult": "Security alert is raised and tampering event is logged"
+        }
+      ],
+      "postconditions": [
+        "Tampered log is flagged as compromised",
+        "Security team is notified"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Verify logging handles rapid successive actions from same user",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is authenticated",
+        "Multiple PDF reports are available",
+        "Logging service is operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Rapidly generate 10 PDF reports in quick succession",
+          "expectedResult": "All reports are generated"
+        },
+        {
+          "step": 2,
+          "action": "Immediately download all 10 reports",
+          "expectedResult": "All downloads complete"
+        },
+        {
+          "step": 3,
+          "action": "Access audit logs",
+          "expectedResult": "Log viewer displays entries"
+        },
+        {
+          "step": 4,
+          "action": "Verify all 20 events (10 generate + 10 download) are logged with unique timestamps",
+          "expectedResult": "All 20 log entries exist with microsecond-level timestamp differentiation"
+        }
+      ],
+      "postconditions": [
+        "All events are logged without loss",
+        "System performance remains stable"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Verify logging handles concurrent actions from multiple users",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "Multiple user accounts are authenticated simultaneously",
+        "Logging service supports concurrent writes",
+        "Load testing tools are available"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Simulate 50 concurrent users generating PDF reports simultaneously",
+          "expectedResult": "All reports are generated"
+        },
+        {
+          "step": 2,
+          "action": "Simulate concurrent download and print actions",
+          "expectedResult": "All actions complete successfully"
+        },
+        {
+          "step": 3,
+          "action": "Query audit logs for all events",
+          "expectedResult": "Log entries are retrieved"
+        },
+        {
+          "step": 4,
+          "action": "Verify all events are logged with correct user IDs and no data corruption",
+          "expectedResult": "All 150+ events logged correctly with proper user attribution"
+        }
+      ],
+      "postconditions": [
+        "No log entries are lost or corrupted",
+        "System handles concurrent load"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Verify logging handles extremely large PDF reports",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is authenticated",
+        "System can generate large PDF reports (100+ MB)",
+        "Logging service is operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Generate an extremely large PDF report (100+ MB)",
+          "expectedResult": "Report generation completes"
+        },
+        {
+          "step": 2,
+          "action": "Download the large PDF report",
+          "expectedResult": "Download completes successfully"
+        },
+        {
+          "step": 3,
+          "action": "Verify generation and download events are logged",
+          "expectedResult": "Both events are logged with correct timestamps"
+        },
+        {
+          "step": 4,
+          "action": "Verify logging performance is not degraded by large file size",
+          "expectedResult": "Log entries are created within acceptable time threshold"
+        }
+      ],
+      "postconditions": [
+        "Large file operations are logged correctly",
+        "System performance is acceptable"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Verify logging at system time boundary (midnight, year rollover)",
+      "category": "Edge Cases",
+      "priority": "Low",
+      "preconditions": [
+        "System time can be set to boundary conditions",
+        "User is authenticated",
+        "Logging service is operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Set system time to 23:59:59 on December 31st",
+          "expectedResult": "System time is at year boundary"
+        },
+        {
+          "step": 2,
+          "action": "Generate PDF report at 23:59:59",
+          "expectedResult": "Report generated"
+        },
+        {
+          "step": 3,
+          "action": "Wait for time to roll over to 00:00:00 January 1st",
+          "expectedResult": "Time rolls over"
+        },
+        {
+          "step": 4,
+          "action": "Download PDF report at 00:00:01",
+          "expectedResult": "Report downloaded"
+        },
+        {
+          "step": 5,
+          "action": "Verify both events are logged with correct timestamps across year boundary",
+          "expectedResult": "Timestamps are accurate and chronologically correct"
+        }
+      ],
+      "postconditions": [
+        "Logging handles time boundaries correctly",
+        "No timestamp corruption occurs"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Verify audit log viewer is keyboard navigable",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User with audit permissions is logged in",
+        "Audit log viewer interface is accessible",
+        "Multiple log entries exist"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to audit log viewer using only keyboard (Tab key)",
+          "expectedResult": "Log viewer is reachable via keyboard"
+        },
+        {
+          "step": 2,
+          "action": "Use arrow keys to navigate through log entries",
+          "expectedResult": "Focus moves between log entries"
+        },
+        {
+          "step": 3,
+          "action": "Use Enter key to select and view log details",
+          "expectedResult": "Log details are displayed"
+        },
+        {
+          "step": 4,
+          "action": "Use Tab to navigate filter and search controls",
+          "expectedResult": "All controls are keyboard accessible"
+        }
+      ],
+      "postconditions": [
+        "All audit functions are accessible via keyboard",
+        "Focus indicators are visible"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Verify audit log viewer works with screen readers",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "Screen reader software is installed and active (JAWS/NVDA)",
+        "User with audit permissions is logged in",
+        "Log entries exist in the system"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to audit log viewer with screen reader active",
+          "expectedResult": "Page title and main heading are announced"
+        },
+        {
+          "step": 2,
+          "action": "Navigate through log entries using screen reader commands",
+          "expectedResult": "Each log entry's details are read aloud clearly"
+        },
+        {
+          "step": 3,
+          "action": "Verify ARIA labels and roles are properly announced",
+          "expectedResult": "Table headers, row data, and controls have descriptive labels"
+        },
+        {
+          "step": 4,
+          "action": "Use screen reader to access filter and search functions",
+          "expectedResult": "All interactive elements are announced and usable"
+        }
+      ],
+      "postconditions": [
+        "Screen reader users can access all audit information",
+        "ARIA attributes are properly implemented"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify audit log viewer has sufficient color contrast",
+      "category": "Accessibility",
+      "priority": "Low",
+      "preconditions": [
+        "Audit log viewer is accessible",
+        "Color contrast checking tool is available",
+        "Multiple log entries are displayed"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Open audit log viewer interface",
+          "expectedResult": "Log viewer displays"
+        },
+        {
+          "step": 2,
+          "action": "Use color contrast analyzer on text and background colors",
+          "expectedResult": "Contrast ratios are measured"
+        },
+        {
+          "step": 3,
+          "action": "Verify all text meets WCAG AA standards (4.5:1 for normal text)",
+          "expectedResult": "All text elements meet minimum contrast requirements"
+        },
+        {
+          "step": 4,
+          "action": "Check contrast for interactive elements and focus indicators",
+          "expectedResult": "Interactive elements meet 3:1 contrast ratio"
+        }
+      ],
+      "postconditions": [
+        "Interface is usable by users with visual impairments",
+        "WCAG compliance is verified"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify focus management in audit log viewer",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User with audit permissions is logged in",
+        "Audit log viewer is accessible",
+        "Log entries exist"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Tab through audit log viewer interface",
+          "expectedResult": "Focus moves in logical order"
+        },
+        {
+          "step": 2,
+          "action": "Verify visible focus indicators on all interactive elements",
+          "expectedResult": "Focus outline is clearly visible on buttons, links, and form fields"
+        },
+        {
+          "step": 3,
+          "action": "Open log detail modal and verify focus is trapped within modal",
+          "expectedResult": "Focus remains within modal until closed"
+        },
+        {
+          "step": 4,
+          "action": "Close modal and verify focus returns to trigger element",
+          "expectedResult": "Focus returns to the element that opened the modal"
+        }
+      ],
+      "postconditions": [
+        "Focus management follows accessibility best practices",
+        "Keyboard users can navigate efficiently"
+      ]
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "negative": true,
+    "edgeCases": true,
+    "accessibility": true
+  },
+  "userStoryObject": {
+    "id": "db-story-story-14",
+    "title": "As Taxpayer, I want the system to log all PDF report generation, download, and print events to achieve audit compliance",
+    "description": "CONTEXT & BACKGROUND:\nAudit compliance requires tracking user actions related to sensitive tax documents. Logging these events ensures traceability and accountability.\n\nCURRENT STATE:\nNo logging exists for report generation, download, or printing, risking non-compliance.\n\nDESIRED STATE:\nAll relevant user actions are logged with user identity, timestamps, and action details.\n\nKEY FUNCTIONALITY:\n• Log generation events with user ID and timestamp\n• Log download events with user ID and timestamp\n• Log print events with user ID and timestamp\n• Store logs securely with tamper-evident mechanisms\n• Provide logs for audit reporting\n\nUSER INTERACTION FLOW:\n1. User generates/downloads/prints report\n2. System records event details\n3. Logs are stored securely\n4. Audit team accesses logs as needed\n\nTECHNICAL CONSIDERATIONS:\n• Data source: Application event logs\n• Validation: Ensure logs are complete and accurate\n• API endpoints: Internal logging services\n• Security: Log data encryption and access control\n• Performance: Logging must not degrade user experience\n\nOUT OF SCOPE:\n• Audit report generation\n• Real-time alerting on log events\n\nSUCCESS METRICS:\n• 100% of generation, download, and print events logged\n• Logs accessible for audit within 24 hours\n• No performance degradation due to logging",
+    "persona": "Taxpayer",
+    "personaId": "",
+    "acceptanceCriteria": [
+      "System logs every PDF report generation event with user ID and timestamp",
+      "System logs every PDF report download event with user ID and timestamp",
+      "System logs every PDF report print event with user ID and timestamp",
+      "Logs are stored securely and protected from unauthorized access or tampering",
+      "Logging does not negatively impact system performance or user experience"
+    ],
+    "priority": "Medium",
+    "storyPoints": 3,
+    "epicId": "",
+    "status": "Backlog"
+  }
+}
