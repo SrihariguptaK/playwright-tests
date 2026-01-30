@@ -28,119 +28,118 @@ After(async function () {
   await browser.close();
 });
 
-Given('user is logged in as Administrator', async function () {
+Given('user is logged in as an Administrator', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: user is logged in as Administrator');
+  console.log('Step not yet implemented: user is logged in as an Administrator');
 });
 
-Given('user is on Shift Template Management page', async function () {
+Given('user is on the shift template management page', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: user is on Shift Template Management page');
+  console.log('Step not yet implemented: user is on the shift template management page');
 });
 
-Given('screen reader is not active \(testing keyboard-only navigation\)', async function () {
+Given('no mouse or pointing device is used for this test', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: screen reader is not active (testing keyboard-only navigation)');
+  console.log('Step not yet implemented: no mouse or pointing device is used for this test');
 });
 
-Given('browser is set to show focus indicators', async function () {
+Given('screen reader is not active \(pure keyboard test\)', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: browser is set to show focus indicators');
+  console.log('Step not yet implemented: screen reader is not active (pure keyboard test)');
 });
 
-When('press Tab key repeatedly to navigate through page elements until 'Create New Template' button receives focus', async function () {
+When('press Tab key repeatedly to navigate through page elements', async function () {
   // TODO: Implement navigation
   await actions.navigateTo('URL_HERE');
   await waits.waitForNetworkIdle();
 });
 
-Then('visible focus indicator \(blue outline or highlight\) appears on 'Create New Template' button', async function () {
+Then('focus moves sequentially through all interactive elements: navigation menu, 'Create New Template' button, template list items, edit buttons, delete buttons\. Focus indicator is clearly visible with 2px solid border or outline', async function () {
   // TODO: Implement assertion
   const element = page.locator('SELECTOR_HERE');
   await assertions.assertVisible(element);
 });
 
-When('press Enter key to activate 'Create New Template' button', async function () {
-  // TODO: Implement fill action
-  const element = page.locator('SELECTOR_HERE');
-  await actions.fill(element, param1);
-});
-
-Then('template creation form modal opens and focus automatically moves to first form field \(Template Name\)', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: template creation form modal opens and focus automatically moves to first form field (Template Name)');
-});
-
-When('type 'Keyboard Test' in Template Name field, then press Tab to move to Start Time field', async function () {
-  // TODO: Implement fill action
-  const element = page.locator('SELECTOR_HERE');
-  await actions.fill(element, param1);
-});
-
-Then('focus moves to Start Time dropdown with visible focus indicator, Template Name contains 'Keyboard Test'', async function () {
-  // TODO: Implement assertion
-  const element = page.locator('SELECTOR_HERE');
-  await assertions.assertVisible(element);
-});
-
-When('press Enter or Space to open Start Time dropdown, use Arrow keys to select '\(\\\\d\+\):\(\\\\d\+\) AM', press Enter to confirm', async function (num1: number, num2: number) {
-  // TODO: Implement fill action
-  const element = page.locator('SELECTOR_HERE');
-  await actions.fill(element, param1);
-});
-
-Then('start Time dropdown opens, Arrow keys navigate through time options, Enter selects '\(\\\\d\+\):\(\\\\d\+\) AM' and closes dropdown', async function (num1: number, num2: number) {
+When('navigate to 'Create New Template' button and press Enter key', async function () {
   // TODO: Implement navigation
   await actions.navigateTo('URL_HERE');
   await waits.waitForNetworkIdle();
 });
 
-When('press Tab to move to End Time field, repeat selection process to choose '\(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number) {
+Then('template creation form modal opens and focus automatically moves to the first field \(Template Name\)', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: press Tab to move to End Time field, repeat selection process to choose '05:00 PM'');
+  console.log('Step not yet implemented: template creation form modal opens and focus automatically moves to the first field (Template Name)');
 });
 
-Then('focus moves to End Time field, time selection works with keyboard, '\(\\\\d\+\):\(\\\\d\+\) PM' is selected', async function (num1: number, num2: number) {
-  // TODO: Implement step
-  console.log('Step not yet implemented: focus moves to End Time field, time selection works with keyboard, '05:00 PM' is selected');
+When('type 'Keyboard Test Shift' in Template Name field and press Tab', async function () {
+  // TODO: Implement fill action
+  const element = page.locator('SELECTOR_HERE');
+  await actions.fill(element, param1);
 });
 
-When('press Tab to navigate to 'Add Break' button and press Enter', async function () {
+Then('text is entered and focus moves to Start Time field', async function () {
+  // TODO: Implement fill action
+  const element = page.locator('SELECTOR_HERE');
+  await actions.fill(element, param1);
+});
+
+When('in Start Time field, type '\(\\\\d\+\)' or use arrow keys to select '\(\\\\d\+\):\(\\\\d\+\) AM', then press Tab', async function (num1: number, num2: number, num3: number) {
+  // TODO: Implement fill action
+  const element = page.locator('SELECTOR_HERE');
+  await actions.fill(element, param1);
+});
+
+Then('start Time is set to '\(\\\\d\+\):\(\\\\d\+\) AM' and focus moves to End Time field', async function (num1: number, num2: number) {
+  // TODO: Implement step
+  console.log('Step not yet implemented: start Time is set to '08:00 AM' and focus moves to End Time field');
+});
+
+When('in End Time field, type '\(\\\\d\+\)' or use arrow keys to select '\(\\\\d\+\):\(\\\\d\+\) PM', then press Tab', async function (num1: number, num2: number, num3: number) {
+  // TODO: Implement fill action
+  const element = page.locator('SELECTOR_HERE');
+  await actions.fill(element, param1);
+});
+
+Then('end Time is set to '\(\\\\d\+\):\(\\\\d\+\) PM' and focus moves to 'Add Break' button', async function (num1: number, num2: number) {
+  // TODO: Implement step
+  console.log('Step not yet implemented: end Time is set to '05:00 PM' and focus moves to 'Add Break' button');
+});
+
+When('press Enter on 'Add Break' button, then Tab to break start time, enter '\(\\\\d\+\):\(\\\\d\+\) PM', Tab to break end time, enter '\(\\\\d\+\):\(\\\\d\+\) PM'', async function (num1: number, num2: number, num3: number, num4: number) {
+  // TODO: Implement fill action
+  const element = page.locator('SELECTOR_HERE');
+  await actions.fill(element, param1);
+});
+
+Then('break fields are populated correctly, focus moves through break time fields', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: break fields are populated correctly, focus moves through break time fields');
+});
+
+When('press Tab to navigate to 'Save Template' button and press Enter', async function () {
   // TODO: Implement navigation
   await actions.navigateTo('URL_HERE');
   await waits.waitForNetworkIdle();
 });
 
-Then('break time fields appear and focus moves to first break time field', async function () {
+Then('template is saved, success message appears, and focus returns to 'Create New Template' button or first template in list', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: break time fields appear and focus moves to first break time field');
+  console.log('Step not yet implemented: template is saved, success message appears, and focus returns to 'Create New Template' button or first template in list');
 });
 
-When('use keyboard to add break from '\(\\\\d\+\):\(\\\\d\+\) PM' to '\(\\\\d\+\):\(\\\\d\+\) PM', then Tab to 'Save Template' button and press Enter', async function (num1: number, num2: number, num3: number, num4: number) {
-  // TODO: Implement fill action
-  const element = page.locator('SELECTOR_HERE');
-  await actions.fill(element, param1);
-});
-
-Then('break is added successfully, focus moves to Save button, Enter key saves template and shows success message', async function () {
-  // TODO: Implement fill action
-  const element = page.locator('SELECTOR_HERE');
-  await actions.fill(element, param1);
-});
-
-When('press Escape key to close success message or modal', async function () {
+When('press Escape key while form is open', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: press Escape key to close success message or modal');
+  console.log('Step not yet implemented: press Escape key while form is open');
 });
 
-Then('modal closes and focus returns to 'Create New Template' button or first element in templates list', async function () {
+Then('form closes without saving and focus returns to 'Create New Template' button', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: modal closes and focus returns to 'Create New Template' button or first element in templates list');
+  console.log('Step not yet implemented: form closes without saving and focus returns to 'Create New Template' button');
 });
 
-Then('entire workflow is completable using only keyboard', async function () {
+Then('all functionality is accessible via keyboard only', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: entire workflow is completable using only keyboard');
+  console.log('Step not yet implemented: all functionality is accessible via keyboard only');
 });
 
 Then('focus order is logical and follows visual layout', async function () {
@@ -148,20 +147,20 @@ Then('focus order is logical and follows visual layout', async function () {
   console.log('Step not yet implemented: focus order is logical and follows visual layout');
 });
 
-Then('focus is never trapped and always visible', async function () {
+Then('no keyboard traps exist where user cannot escape', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: no keyboard traps exist where user cannot escape');
+});
+
+Then('focus indicators are visible throughout interaction', async function () {
   // TODO: Implement assertion
   const element = page.locator('SELECTOR_HERE');
   await assertions.assertVisible(element);
 });
 
-Then('template is successfully created using keyboard only', async function () {
+Given('nVDA or JAWS screen reader is active', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: template is successfully created using keyboard only');
-});
-
-Given('nVDA or JAWS screen reader is active and running', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: nVDA or JAWS screen reader is active and running');
+  console.log('Step not yet implemented: nVDA or JAWS screen reader is active');
 });
 
 Given('screen reader verbosity is set to default level', async function () {
@@ -169,81 +168,91 @@ Given('screen reader verbosity is set to default level', async function () {
   console.log('Step not yet implemented: screen reader verbosity is set to default level');
 });
 
-When('navigate to 'Create New Template' button using screen reader navigation commands', async function () {
+When('navigate to 'Create New Template' button using screen reader navigation', async function () {
   // TODO: Implement navigation
   await actions.navigateTo('URL_HERE');
   await waits.waitForNetworkIdle();
 });
 
-Then('screen reader announces: 'Create New Template, button' with role and state information', async function () {
+Then('screen reader announces: 'Create New Template, button' with role and accessible name', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: screen reader announces: 'Create New Template, button' with role and state information');
+  console.log('Step not yet implemented: screen reader announces: 'Create New Template, button' with role and accessible name');
 });
 
-When('activate button and navigate to Template Name field', async function () {
+When('activate the button and listen to announcement when form opens', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: activate the button and listen to announcement when form opens');
+});
+
+Then('screen reader announces: 'Dialog opened, Create Shift Template' or 'Modal dialog, Create Shift Template, Template Name, edit, required'', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: screen reader announces: 'Dialog opened, Create Shift Template' or 'Modal dialog, Create Shift Template, Template Name, edit, required'');
+});
+
+When('navigate to Template Name field', async function () {
   // TODO: Implement navigation
   await actions.navigateTo('URL_HERE');
   await waits.waitForNetworkIdle();
 });
 
-Then('screen reader announces: 'Template Name, edit, required' indicating field label, type, and required status', async function () {
-  // TODO: Implement fill action
-  const element = page.locator('SELECTOR_HERE');
-  await actions.fill(element, param1);
+Then('screen reader announces: 'Template Name, edit, required, blank' with field label, role, required state, and current value', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: screen reader announces: 'Template Name, edit, required, blank' with field label, role, required state, and current value');
 });
 
-When('navigate to Start Time field without entering data', async function () {
+When('navigate to Start Time field', async function () {
   // TODO: Implement navigation
   await actions.navigateTo('URL_HERE');
   await waits.waitForNetworkIdle();
 });
 
-Then('screen reader announces: 'Start Time, combobox, required, collapsed' with instructions 'Press Alt\+Down to open'', async function () {
+Then('screen reader announces: 'Start Time, time picker, required' or 'Start Time, edit, required' with appropriate role', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: screen reader announces: 'Start Time, combobox, required, collapsed' with instructions 'Press Alt+Down to open'');
+  console.log('Step not yet implemented: screen reader announces: 'Start Time, time picker, required' or 'Start Time, edit, required' with appropriate role');
 });
 
-When('attempt to save form with empty required fields', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: attempt to save form with empty required fields');
-});
-
-Then('screen reader announces each validation error: 'Error: Template Name is required', 'Error: Start Time is required', 'Error: End Time is required' with error role', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: screen reader announces each validation error: 'Error: Template Name is required', 'Error: Start Time is required', 'Error: End Time is required' with error role');
-});
-
-When('fill all required fields correctly and save template', async function () {
-  // TODO: Implement fill action
-  const element = page.locator('SELECTOR_HERE');
-  await actions.fill(element, param1);
-});
-
-Then('screen reader announces: 'Success: Shift template created successfully' with alert or status role', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: screen reader announces: 'Success: Shift template created successfully' with alert or status role');
-});
-
-When('navigate to newly created template in the list', async function () {
+When('fill in all fields and navigate to 'Save Template' button, then activate it', async function () {
   // TODO: Implement navigation
   await actions.navigateTo('URL_HERE');
   await waits.waitForNetworkIdle();
 });
 
-Then('screen reader announces template details: 'Morning Shift, Start Time: \(\\\\d\+\):\(\\\\d\+\) AM, End Time: \(\\\\d\+\):\(\\\\d\+\) PM, Break: \(\\\\d\+\):\(\\\\d\+\) PM to \(\\\\d\+\):\(\\\\d\+\) PM, Edit button, Delete button'', async function (num1: number, num2: number, num3: number, num4: number, num5: number, num6: number, num7: number, num8: number) {
+Then('screen reader announces: 'Save Template, button' then after save: 'Shift template created successfully, alert' or live region announcement', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: screen reader announces template details: 'Morning Shift, Start Time: 09:00 AM, End Time: 05:00 PM, Break: 12:00 PM to 01:00 PM, Edit button, Delete button'');
+  console.log('Step not yet implemented: screen reader announces: 'Save Template, button' then after save: 'Shift template created successfully, alert' or live region announcement');
 });
 
-When('navigate to Edit and Delete buttons for the template', async function () {
+When('navigate to the templates list', async function () {
   // TODO: Implement navigation
   await actions.navigateTo('URL_HERE');
   await waits.waitForNetworkIdle();
 });
 
-Then('screen reader announces: 'Edit Morning Shift template, button' and 'Delete Morning Shift template, button' with context', async function () {
+Then('screen reader announces: 'Shift Templates, list, \(\\\\d\+\) items' or 'Shift Templates, table, \(\\\\d\+\) rows' with structure information', async function (num1: number, num2: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: screen reader announces: 'Edit Morning Shift template, button' and 'Delete Morning Shift template, button' with context');
+  console.log('Step not yet implemented: screen reader announces: 'Shift Templates, list, 5 items' or 'Shift Templates, table, 5 rows' with structure information');
+});
+
+When('navigate to a template item in the list', async function () {
+  // TODO: Implement navigation
+  await actions.navigateTo('URL_HERE');
+  await waits.waitForNetworkIdle();
+});
+
+Then('screen reader announces: 'Morning Shift, Start Time: \(\\\\d\+\):\(\\\\d\+\) AM, End Time: \(\\\\d\+\):\(\\\\d\+\) PM, Edit button, Delete button' with all relevant information', async function (num1: number, num2: number, num3: number, num4: number) {
+  // TODO: Implement step
+  console.log('Step not yet implemented: screen reader announces: 'Morning Shift, Start Time: 08:00 AM, End Time: 05:00 PM, Edit button, Delete button' with all relevant information');
+});
+
+When('navigate to Delete button and activate it to trigger confirmation dialog', async function () {
+  // TODO: Implement navigation
+  await actions.navigateTo('URL_HERE');
+  await waits.waitForNetworkIdle();
+});
+
+Then('screen reader announces: 'Alert dialog, Are you sure you want to delete this template\? This action cannot be undone\. Cancel button, Delete button'', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: screen reader announces: 'Alert dialog, Are you sure you want to delete this template? This action cannot be undone. Cancel button, Delete button'');
 });
 
 Then('all interactive elements have proper ARIA labels and roles', async function () {
@@ -251,79 +260,60 @@ Then('all interactive elements have proper ARIA labels and roles', async functio
   console.log('Step not yet implemented: all interactive elements have proper ARIA labels and roles');
 });
 
-Then('screen reader users receive all necessary information', async function () {
+Then('state changes are announced via ARIA live regions', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: screen reader users receive all necessary information');
+  console.log('Step not yet implemented: state changes are announced via ARIA live regions');
 });
 
-Then('error and success messages are announced via ARIA live regions', async function () {
+Then('form validation errors are announced immediately', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: error and success messages are announced via ARIA live regions');
+  console.log('Step not yet implemented: form validation errors are announced immediately');
 });
 
-Then('context is provided for all buttons and controls', async function () {
+Then('screen reader users can complete all tasks independently', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: context is provided for all buttons and controls');
+  console.log('Step not yet implemented: screen reader users can complete all tasks independently');
 });
 
-Given('keyboard navigation is being used', async function () {
+Given('keyboard-only navigation is being used', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: keyboard navigation is being used');
+  console.log('Step not yet implemented: keyboard-only navigation is being used');
 });
 
-When('use keyboard to open 'Create New Template' modal dialog', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: use keyboard to open 'Create New Template' modal dialog');
+When('press Tab to navigate to 'Create New Template' button and press Enter', async function () {
+  // TODO: Implement navigation
+  await actions.navigateTo('URL_HERE');
+  await waits.waitForNetworkIdle();
 });
 
-Then('modal opens and focus automatically moves to first focusable element \(Template Name field or Close button\)', async function () {
+Then('modal opens and focus automatically moves to first focusable element \(Template Name field\)', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: modal opens and focus automatically moves to first focusable element (Template Name field or Close button)');
+  console.log('Step not yet implemented: modal opens and focus automatically moves to first focusable element (Template Name field)');
 });
 
-When('press Tab repeatedly to cycle through all focusable elements in the modal', async function () {
+When('press Shift\+Tab repeatedly to move focus backward', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: press Tab repeatedly to cycle through all focusable elements in the modal');
+  console.log('Step not yet implemented: press Shift+Tab repeatedly to move focus backward');
 });
 
-Then('focus cycles through: Template Name, Start Time, End Time, Add Break button, Save Template button, Cancel button, Close \(X\) button', async function () {
+Then('focus moves backward through form fields and when reaching the first element, pressing Shift\+Tab moves focus to the last focusable element in modal \(Save or Cancel button\), creating a focus trap within modal', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: focus cycles through: Template Name, Start Time, End Time, Add Break button, Save Template button, Cancel button, Close (X) button');
+  console.log('Step not yet implemented: focus moves backward through form fields and when reaching the first element, pressing Shift+Tab moves focus to the last focusable element in modal (Save or Cancel button), creating a focus trap within modal');
 });
 
-When('continue pressing Tab after reaching last focusable element \(Close button\)', async function () {
+When('press Tab repeatedly to move focus forward from last element', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: continue pressing Tab after reaching last focusable element (Close button)');
+  console.log('Step not yet implemented: press Tab repeatedly to move focus forward from last element');
 });
 
-Then('focus wraps back to first focusable element \(Template Name field\), creating a focus trap within modal', async function () {
+Then('focus wraps around to first element in modal \(Template Name field\), confirming focus is trapped within modal and cannot escape to background page', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: focus wraps back to first focusable element (Template Name field), creating a focus trap within modal');
+  console.log('Step not yet implemented: focus wraps around to first element in modal (Template Name field), confirming focus is trapped within modal and cannot escape to background page');
 });
 
-When('press Shift\+Tab from first element', async function () {
+When('press Escape key', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: press Shift+Tab from first element');
-});
-
-Then('focus moves backward to last focusable element \(Close button\), reverse focus trap works correctly', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: focus moves backward to last focusable element (Close button), reverse focus trap works correctly');
-});
-
-When('attempt to Tab to elements outside the modal \(page header, navigation\)', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: attempt to Tab to elements outside the modal (page header, navigation)');
-});
-
-Then('focus remains trapped within modal, cannot reach elements outside modal while it is open', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: focus remains trapped within modal, cannot reach elements outside modal while it is open');
-});
-
-When('press Escape key to close modal', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: press Escape key to close modal');
+  console.log('Step not yet implemented: press Escape key');
 });
 
 Then('modal closes and focus returns to 'Create New Template' button that originally opened the modal', async function () {
@@ -331,56 +321,87 @@ Then('modal closes and focus returns to 'Create New Template' button that origin
   console.log('Step not yet implemented: modal closes and focus returns to 'Create New Template' button that originally opened the modal');
 });
 
-When('open modal again, click Cancel button', async function () {
+When('open modal again, fill in fields, and click 'Save Template' button', async function () {
   // TODO: Implement click action
   const element = page.locator('SELECTOR_HERE');
   await actions.click(element);
 });
 
-Then('modal closes and focus returns to 'Create New Template' button', async function () {
+Then('modal closes after successful save and focus returns to logical location \(either 'Create New Template' button or newly created template in list\)', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: modal closes and focus returns to 'Create New Template' button');
+  console.log('Step not yet implemented: modal closes after successful save and focus returns to logical location (either 'Create New Template' button or newly created template in list)');
 });
 
-Then('focus is properly trapped within modal when open', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: focus is properly trapped within modal when open');
+When('navigate to a template's Delete button and activate it to open confirmation dialog', async function () {
+  // TODO: Implement navigation
+  await actions.navigateTo('URL_HERE');
+  await waits.waitForNetworkIdle();
 });
 
-Then('focus returns to trigger element when modal closes', async function () {
+Then('confirmation dialog opens and focus moves to 'Cancel' or 'Delete' button \(preferably Cancel as safer default\)', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: focus returns to trigger element when modal closes');
+  console.log('Step not yet implemented: confirmation dialog opens and focus moves to 'Cancel' or 'Delete' button (preferably Cancel as safer default)');
 });
 
-Then('users cannot accidentally interact with background content', async function () {
+When('press Escape key in confirmation dialog', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: users cannot accidentally interact with background content');
+  console.log('Step not yet implemented: press Escape key in confirmation dialog');
 });
 
-Then('escape key provides keyboard method to close modal', async function () {
+Then('dialog closes without deleting and focus returns to Delete button that triggered the dialog', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: escape key provides keyboard method to close modal');
+  console.log('Step not yet implemented: dialog closes without deleting and focus returns to Delete button that triggered the dialog');
 });
 
-Given('color contrast analyzer tool is available \(browser extension or standalone\)', async function () {
+Then('focus is properly trapped within modal dialogs', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: color contrast analyzer tool is available (browser extension or standalone)');
+  console.log('Step not yet implemented: focus is properly trapped within modal dialogs');
 });
 
-Given('page is displayed at \(\\\\d\+\)% zoom in standard lighting conditions', async function (num1: number) {
+Then('focus returns to triggering element when modal closes', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: focus returns to triggering element when modal closes');
+});
+
+Then('escape key closes modals and returns focus appropriately', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: escape key closes modals and returns focus appropriately');
+});
+
+Then('no focus is lost or moved to unexpected locations', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: no focus is lost or moved to unexpected locations');
+});
+
+Given('color contrast analyzer tool is available \(browser extension or standalone tool\)', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: color contrast analyzer tool is available (browser extension or standalone tool)');
+});
+
+Given('page is displayed at \(\\\\d\+\)% zoom', async function (num1: number) {
   // TODO: Implement assertion
   const element = page.locator('SELECTOR_HERE');
   await assertions.assertVisible(element);
 });
 
-When('use color contrast analyzer to check contrast ratio of 'Create New Template' button text against button background', async function () {
+When('use color contrast analyzer to check contrast ratio of page heading 'Shift Template Management' against background', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: use color contrast analyzer to check contrast ratio of 'Create New Template' button text against button background');
+  console.log('Step not yet implemented: use color contrast analyzer to check contrast ratio of page heading 'Shift Template Management' against background');
 });
 
-Then('contrast ratio is at least \(\\\\d\+\)\.\(\\\\d\+\):\(\\\\d\+\) for normal text or \(\\\\d\+\):\(\\\\d\+\) for large text \(18pt\+\), meets WCAG AA standards', async function (num1: number, num2: number, num3: number, num4: number, num5: number) {
+Then('contrast ratio is at least \(\\\\d\+\)\.\(\\\\d\+\):\(\\\\d\+\) for normal text or \(\\\\d\+\):\(\\\\d\+\) for large text \(18pt\+ or 14pt\+ bold\)', async function (num1: number, num2: number, num3: number, num4: number, num5: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: contrast ratio is at least 4.5:1 for normal text or 3:1 for large text (18pt+), meets WCAG AA standards');
+  console.log('Step not yet implemented: contrast ratio is at least 4.5:1 for normal text or 3:1 for large text (18pt+ or 14pt+ bold)');
+});
+
+When('check contrast ratio of 'Create New Template' button text against button background', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: check contrast ratio of 'Create New Template' button text against button background');
+});
+
+Then('contrast ratio is at least \(\\\\d\+\)\.\(\\\\d\+\):\(\\\\d\+\), button is clearly readable', async function (num1: number, num2: number, num3: number) {
+  // TODO: Implement step
+  console.log('Step not yet implemented: contrast ratio is at least 4.5:1, button is clearly readable');
 });
 
 When('check contrast ratio of form field labels \(Template Name, Start Time, End Time\) against page background', async function () {
@@ -388,39 +409,39 @@ When('check contrast ratio of form field labels \(Template Name, Start Time, End
   console.log('Step not yet implemented: check contrast ratio of form field labels (Template Name, Start Time, End Time) against page background');
 });
 
-Then('all label text has contrast ratio of at least \(\\\\d\+\)\.\(\\\\d\+\):\(\\\\d\+\) against background', async function (num1: number, num2: number, num3: number) {
+Then('contrast ratio is at least \(\\\\d\+\)\.\(\\\\d\+\):\(\\\\d\+\) for all labels', async function (num1: number, num2: number, num3: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: all label text has contrast ratio of at least 4.5:1 against background');
+  console.log('Step not yet implemented: contrast ratio is at least 4.5:1 for all labels');
 });
 
-When('check contrast ratio of placeholder text in input fields', async function () {
+When('check contrast ratio of placeholder text in input fields against field background', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: check contrast ratio of placeholder text in input fields');
+  console.log('Step not yet implemented: check contrast ratio of placeholder text in input fields against field background');
 });
 
-Then('placeholder text has contrast ratio of at least \(\\\\d\+\)\.\(\\\\d\+\):\(\\\\d\+\) \(not relying on \(\\\\d\+\):\(\\\\d\+\) exception for disabled text\)', async function (num1: number, num2: number, num3: number, num4: number, num5: number) {
+Then('contrast ratio is at least \(\\\\d\+\)\.\(\\\\d\+\):\(\\\\d\+\) or placeholder text is not relied upon for critical information', async function (num1: number, num2: number, num3: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: placeholder text has contrast ratio of at least 4.5:1 (not relying on 3:1 exception for disabled text)');
+  console.log('Step not yet implemented: contrast ratio is at least 4.5:1 or placeholder text is not relied upon for critical information');
 });
 
-When('check contrast ratio of error messages \(red text\) against background', async function () {
+When('check contrast ratio of success message \(green\) text against background', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: check contrast ratio of error messages (red text) against background');
+  console.log('Step not yet implemented: check contrast ratio of success message (green) text against background');
 });
 
-Then('error message text has contrast ratio of at least \(\\\\d\+\)\.\(\\\\d\+\):\(\\\\d\+\), error is not conveyed by color alone \(includes icon or text indicator\)', async function (num1: number, num2: number, num3: number) {
+Then('contrast ratio is at least \(\\\\d\+\)\.\(\\\\d\+\):\(\\\\d\+\), message is readable without relying on color alone', async function (num1: number, num2: number, num3: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: error message text has contrast ratio of at least 4.5:1, error is not conveyed by color alone (includes icon or text indicator)');
+  console.log('Step not yet implemented: contrast ratio is at least 4.5:1, message is readable without relying on color alone');
 });
 
-When('check contrast ratio of success message \(green text/background\) against its background', async function () {
+When('check contrast ratio of error message \(red\) text against background', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: check contrast ratio of success message (green text/background) against its background');
+  console.log('Step not yet implemented: check contrast ratio of error message (red) text against background');
 });
 
-Then('success message text has contrast ratio of at least \(\\\\d\+\)\.\(\\\\d\+\):\(\\\\d\+\), success is not conveyed by color alone', async function (num1: number, num2: number, num3: number) {
+Then('contrast ratio is at least \(\\\\d\+\)\.\(\\\\d\+\):\(\\\\d\+\), error is indicated by icon or text in addition to color', async function (num1: number, num2: number, num3: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: success message text has contrast ratio of at least 4.5:1, success is not conveyed by color alone');
+  console.log('Step not yet implemented: contrast ratio is at least 4.5:1, error is indicated by icon or text in addition to color');
 });
 
 When('check contrast ratio of focus indicators \(outline/border\) against background', async function () {
@@ -428,24 +449,29 @@ When('check contrast ratio of focus indicators \(outline/border\) against backgr
   console.log('Step not yet implemented: check contrast ratio of focus indicators (outline/border) against background');
 });
 
-Then('focus indicator has contrast ratio of at least \(\\\\d\+\):\(\\\\d\+\) against adjacent colors \(WCAG \(\\\\d\+\)\.\(\\\\d\+\) non-text contrast requirement\)', async function (num1: number, num2: number, num3: number, num4: number) {
+Then('focus indicator has at least \(\\\\d\+\):\(\\\\d\+\) contrast ratio against adjacent colors', async function (num1: number, num2: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: focus indicator has contrast ratio of at least 3:1 against adjacent colors (WCAG 2.1 non-text contrast requirement)');
+  console.log('Step not yet implemented: focus indicator has at least 3:1 contrast ratio against adjacent colors');
 });
 
-Then('all text meets WCAG AA contrast requirements', async function () {
+When('check contrast of disabled button or field against background', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: all text meets WCAG AA contrast requirements');
+  console.log('Step not yet implemented: check contrast of disabled button or field against background');
 });
 
-Then('users with low vision can read all content', async function () {
+Then('disabled state is indicated by more than just reduced contrast \(e\.g\., cursor change, explicit 'disabled' text\)', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: users with low vision can read all content');
+  console.log('Step not yet implemented: disabled state is indicated by more than just reduced contrast (e.g., cursor change, explicit 'disabled' text)');
 });
 
-Then('color is not the only means of conveying information', async function () {
+Then('all text meets WCAG \(\\\\d\+\)\.\(\\\\d\+\) Level AA contrast requirements', async function (num1: number, num2: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: color is not the only means of conveying information');
+  console.log('Step not yet implemented: all text meets WCAG 2.1 Level AA contrast requirements');
+});
+
+Then('information is not conveyed by color alone', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: information is not conveyed by color alone');
 });
 
 Then('focus indicators are clearly visible', async function () {
@@ -454,306 +480,333 @@ Then('focus indicators are clearly visible', async function () {
   await assertions.assertVisible(element);
 });
 
+Then('page is readable for users with low vision or color blindness', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: page is readable for users with low vision or color blindness');
+});
+
 Given('browser zoom is set to \(\\\\d\+\)% initially', async function (num1: number) {
   // TODO: Implement step
   console.log('Step not yet implemented: browser zoom is set to 100% initially');
 });
 
-Given('browser window is at standard desktop resolution \(1920x1080\)', async function () {
+When('press Ctrl and \+ \(or Cmd and \+ on Mac\) repeatedly to zoom to \(\\\\d\+\)%', async function (num1: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: browser window is at standard desktop resolution (1920x1080)');
+  console.log('Step not yet implemented: press Ctrl and + (or Cmd and + on Mac) repeatedly to zoom to 200%');
 });
 
-When('increase browser zoom to \(\\\\d\+\)% using Ctrl/Cmd \+ Plus or browser zoom controls', async function (num1: number) {
-  // TODO: Implement step
-  console.log('Step not yet implemented: increase browser zoom to 200% using Ctrl/Cmd + Plus or browser zoom controls');
-});
-
-Then('page content scales proportionally, all text is larger and readable', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: page content scales proportionally, all text is larger and readable');
-});
-
-When('verify all page elements remain visible without horizontal scrolling \(vertical scrolling is acceptable\)', async function () {
+Then('page zooms to \(\\\\d\+\)% and all content remains visible without horizontal scrolling \(or minimal horizontal scrolling\)', async function (num1: number) {
   // TODO: Implement assertion
   const element = page.locator('SELECTOR_HERE');
   await assertions.assertVisible(element);
 });
 
-Then('page layout adapts responsively, no content is cut off, horizontal scrolling is not required or is minimal', async function () {
+When('verify all text is readable and not truncated', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: page layout adapts responsively, no content is cut off, horizontal scrolling is not required or is minimal');
+  console.log('Step not yet implemented: verify all text is readable and not truncated');
 });
 
-When('click 'Create New Template' button at \(\\\\d\+\)% zoom', async function (num1: number) {
+Then('all headings, labels, button text, and body text are fully visible and readable at \(\\\\d\+\)% zoom', async function (num1: number) {
+  // TODO: Implement assertion
+  const element = page.locator('SELECTOR_HERE');
+  await assertions.assertVisible(element);
+});
+
+When('click 'Create New Template' button', async function () {
   // TODO: Implement click action
   const element = page.locator('SELECTOR_HERE');
   await actions.click(element);
 });
 
-Then('button is clickable, modal opens correctly, all form fields are visible and accessible', async function () {
-  // TODO: Implement click action
+Then('modal opens and is fully visible at \(\\\\d\+\)% zoom, all form fields are accessible without excessive scrolling', async function (num1: number) {
+  // TODO: Implement assertion
   const element = page.locator('SELECTOR_HERE');
-  await actions.click(element);
+  await assertions.assertVisible(element);
 });
 
-When('fill out template creation form at \(\\\\d\+\)% zoom', async function (num1: number) {
+When('fill in all form fields \(Template Name, Start Time, End Time, Break Times\)', async function () {
   // TODO: Implement fill action
   const element = page.locator('SELECTOR_HERE');
   await actions.fill(element, param1);
 });
 
-Then('all form fields are usable, dropdowns open correctly, text input is visible, no overlapping elements', async function () {
-  // TODO: Implement assertion
-  const element = page.locator('SELECTOR_HERE');
-  await assertions.assertVisible(element);
-});
-
-When('verify validation error messages display correctly at \(\\\\d\+\)% zoom', async function (num1: number) {
+Then('all fields are accessible and functional, time pickers work correctly at \(\\\\d\+\)% zoom', async function (num1: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: verify validation error messages display correctly at 200% zoom');
+  console.log('Step not yet implemented: all fields are accessible and functional, time pickers work correctly at 200% zoom');
 });
 
-Then('error messages are fully visible, readable, and properly positioned near relevant fields', async function () {
-  // TODO: Implement assertion
-  const element = page.locator('SELECTOR_HERE');
-  await assertions.assertVisible(element);
-});
-
-When('save template and verify success message at \(\\\\d\+\)% zoom', async function (num1: number) {
+When('scroll through the form if necessary', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: save template and verify success message at 200% zoom');
+  console.log('Step not yet implemented: scroll through the form if necessary');
 });
 
-Then('success message displays correctly, is fully readable, and does not overlap other content', async function () {
+Then('scrolling is smooth, no content is hidden or inaccessible, sticky headers/footers \(if any\) don't obscure content', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: success message displays correctly, is fully readable, and does not overlap other content');
+  console.log('Step not yet implemented: scrolling is smooth, no content is hidden or inaccessible, sticky headers/footers (if any) don't obscure content');
 });
 
-When('verify templates list displays correctly at \(\\\\d\+\)% zoom', async function (num1: number) {
-  // TODO: Implement step
-  console.log('Step not yet implemented: verify templates list displays correctly at 200% zoom');
-});
-
-Then('template list is readable, all columns are visible \(may require scrolling\), action buttons are accessible', async function () {
-  // TODO: Implement assertion
-  const element = page.locator('SELECTOR_HERE');
-  await assertions.assertVisible(element);
-});
-
-Then('all functionality works at \(\\\\d\+\)% zoom', async function (num1: number) {
-  // TODO: Implement step
-  console.log('Step not yet implemented: all functionality works at 200% zoom');
-});
-
-Then('content reflows appropriately without loss of information', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: content reflows appropriately without loss of information');
-});
-
-Then('users with low vision can use the feature at increased zoom levels', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: users with low vision can use the feature at increased zoom levels');
-});
-
-Then('no content is hidden or inaccessible due to zoom', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: no content is hidden or inaccessible due to zoom');
-});
-
-Given('screen reader \(NVDA or JAWS\) is active', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: screen reader (NVDA or JAWS) is active');
-});
-
-Given('at least one template exists in the system', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: at least one template exists in the system');
-});
-
-When('create a new template using the form and click Save', async function () {
+When('click 'Save Template' button', async function () {
   // TODO: Implement click action
   const element = page.locator('SELECTOR_HERE');
   await actions.click(element);
 });
 
-Then('screen reader announces 'Shift template created successfully' immediately without requiring navigation, using aria-live='polite' or 'assertive' region', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: screen reader announces 'Shift template created successfully' immediately without requiring navigation, using aria-live='polite' or 'assertive' region');
+Then('template saves successfully, success message is fully visible at \(\\\\d\+\)% zoom', async function (num1: number) {
+  // TODO: Implement assertion
+  const element = page.locator('SELECTOR_HERE');
+  await assertions.assertVisible(element);
 });
 
-When('verify screen reader announces the updated template count', async function () {
+When('verify templates list is readable and functional at \(\\\\d\+\)% zoom', async function (num1: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: verify screen reader announces the updated template count');
+  console.log('Step not yet implemented: verify templates list is readable and functional at 200% zoom');
 });
 
-Then('screen reader announces 'Total templates: X' where X is the new count, using aria-live region', async function () {
+Then('list items are readable, Edit and Delete buttons are accessible and properly sized, no layout breaks', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: screen reader announces 'Total templates: X' where X is the new count, using aria-live region');
+  console.log('Step not yet implemented: list items are readable, Edit and Delete buttons are accessible and properly sized, no layout breaks');
 });
 
-When('attempt to save a template with validation errors', async function () {
+Then('all functionality works correctly at \(\\\\d\+\)% zoom', async function (num1: number) {
   // TODO: Implement step
-  console.log('Step not yet implemented: attempt to save a template with validation errors');
+  console.log('Step not yet implemented: all functionality works correctly at 200% zoom');
 });
 
-Then('screen reader announces each validation error as it appears: 'Error: Template Name is required' using aria-live='assertive' for immediate announcement', async function () {
+Then('no content is lost or becomes inaccessible', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: screen reader announces each validation error as it appears: 'Error: Template Name is required' using aria-live='assertive' for immediate announcement');
+  console.log('Step not yet implemented: no content is lost or becomes inaccessible');
 });
 
-When('delete an existing template', async function () {
+Then('layout adapts responsively without breaking', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: delete an existing template');
+  console.log('Step not yet implemented: layout adapts responsively without breaking');
 });
 
-Then('screen reader announces 'Shift template deleted successfully' and updated count 'Total templates: X' using aria-live region', async function () {
+Then('users with low vision can use the feature effectively', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: screen reader announces 'Shift template deleted successfully' and updated count 'Total templates: X' using aria-live region');
+  console.log('Step not yet implemented: users with low vision can use the feature effectively');
 });
 
-When('edit a template and save changes', async function () {
+Given('browser developer tools are open to inspect HTML elements', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: edit a template and save changes');
+  console.log('Step not yet implemented: browser developer tools are open to inspect HTML elements');
 });
 
-Then('screen reader announces 'Shift template updated successfully' using aria-live region', async function () {
+Given('accessibility tree view is available in developer tools', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: screen reader announces 'Shift template updated successfully' using aria-live region');
+  console.log('Step not yet implemented: accessibility tree view is available in developer tools');
 });
 
-When('trigger a network error during save operation', async function () {
+When('inspect the main page structure in accessibility tree', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: trigger a network error during save operation');
+  console.log('Step not yet implemented: inspect the main page structure in accessibility tree');
 });
 
-Then('screen reader announces error message 'Network error: Unable to save template' using aria-live='assertive' for critical errors', async function () {
+Then('page has proper landmark regions: <header> or role='banner', <main> or role='main', <nav> or role='navigation', <footer> or role='contentinfo'', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: screen reader announces error message 'Network error: Unable to save template' using aria-live='assertive' for critical errors');
+  console.log('Step not yet implemented: page has proper landmark regions: <header> or role='banner', <main> or role='main', <nav> or role='navigation', <footer> or role='contentinfo'');
 });
 
-Then('all dynamic content changes are announced to screen reader users', async function () {
+When('inspect 'Create New Template' button element', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: all dynamic content changes are announced to screen reader users');
+  console.log('Step not yet implemented: inspect 'Create New Template' button element');
 });
 
-Then('aRIA live regions are properly implemented with appropriate politeness levels', async function () {
-  // TODO: Implement step
-  console.log('Step not yet implemented: aRIA live regions are properly implemented with appropriate politeness levels');
+Then('button has accessible name \(aria-label or visible text\), role='button' \(implicit or explicit\), and no empty or generic labels', async function () {
+  // TODO: Implement assertion
+  const element = page.locator('SELECTOR_HERE');
+  await assertions.assertVisible(element);
 });
 
-Then('users are informed of success, errors, and state changes without manual navigation', async function () {
+When('open template creation modal and inspect modal container', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: users are informed of success, errors, and state changes without manual navigation');
+  console.log('Step not yet implemented: open template creation modal and inspect modal container');
 });
 
-Then('critical errors use assertive live regions for immediate announcement', async function () {
+Then('modal has role='dialog' or role='alertdialog', aria-labelledby pointing to modal title, aria-modal='true' to indicate modal state', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: critical errors use assertive live regions for immediate announcement');
+  console.log('Step not yet implemented: modal has role='dialog' or role='alertdialog', aria-labelledby pointing to modal title, aria-modal='true' to indicate modal state');
 });
 
-Given('user is logged in as Administrator on mobile device or browser in mobile emulation mode', async function () {
+When('inspect form fields \(Template Name, Start Time, End Time\)', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: user is logged in as Administrator on mobile device or browser in mobile emulation mode');
+  console.log('Step not yet implemented: inspect form fields (Template Name, Start Time, End Time)');
 });
 
-Given('device viewport is set to mobile size \(375x667 iPhone size or similar\)', async function () {
+Then('each field has associated <label> with for attribute matching input id, or aria-label/aria-labelledby, required fields have aria-required='true' or required attribute', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: device viewport is set to mobile size (375x667 iPhone size or similar)');
+  console.log('Step not yet implemented: each field has associated <label> with for attribute matching input id, or aria-label/aria-labelledby, required fields have aria-required='true' or required attribute');
 });
 
-Given('user is on Shift Template Management page in mobile view', async function () {
+When('inspect time picker components', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: user is on Shift Template Management page in mobile view');
+  console.log('Step not yet implemented: inspect time picker components');
 });
 
-When('measure the touch target size of 'Create New Template' button using browser developer tools', async function () {
+Then('time pickers have appropriate role \(combobox, spinbutton, or custom with proper ARIA\), aria-label describes purpose, keyboard interaction is documented or intuitive', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: measure the touch target size of 'Create New Template' button using browser developer tools');
+  console.log('Step not yet implemented: time pickers have appropriate role (combobox, spinbutton, or custom with proper ARIA), aria-label describes purpose, keyboard interaction is documented or intuitive');
 });
 
-Then('button has minimum dimensions of 44x44 CSS pixels \(or 48x48 for better accessibility\), easily tappable with finger', async function () {
+When('trigger a validation error and inspect error message', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: button has minimum dimensions of 44x44 CSS pixels (or 48x48 for better accessibility), easily tappable with finger');
+  console.log('Step not yet implemented: trigger a validation error and inspect error message');
 });
 
-When('measure touch target sizes of Edit and Delete icon buttons in templates list', async function () {
+Then('error message has role='alert' or is in aria-live='assertive' region, error is associated with field via aria-describedby, field has aria-invalid='true'', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: measure touch target sizes of Edit and Delete icon buttons in templates list');
+  console.log('Step not yet implemented: error message has role='alert' or is in aria-live='assertive' region, error is associated with field via aria-describedby, field has aria-invalid='true'');
 });
 
-Then('each icon button has minimum 44x44 pixel touch target, adequate spacing between buttons \(at least \(\\\\d\+\) pixels\) to prevent accidental taps', async function (num1: number) {
+When('inspect success message after saving template', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: each icon button has minimum 44x44 pixel touch target, adequate spacing between buttons (at least 8 pixels) to prevent accidental taps');
+  console.log('Step not yet implemented: inspect success message after saving template');
 });
 
-When('open template creation form on mobile and verify form field touch targets', async function () {
+Then('success message is in aria-live='polite' or role='status' region so screen readers announce it automatically', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: open template creation form on mobile and verify form field touch targets');
+  console.log('Step not yet implemented: success message is in aria-live='polite' or role='status' region so screen readers announce it automatically');
 });
 
-Then('all form fields \(Template Name input, Start Time dropdown, End Time dropdown\) have touch targets of at least 44x44 pixels', async function () {
+When('inspect templates list structure', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: all form fields (Template Name input, Start Time dropdown, End Time dropdown) have touch targets of at least 44x44 pixels');
+  console.log('Step not yet implemented: inspect templates list structure');
 });
 
-When('test dropdown menus \(Start Time, End Time\) on mobile device', async function () {
+Then('list has role='list' with child role='listitem', or is a proper <table> with <thead>, <tbody>, <th> scope attributes for data table', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: test dropdown menus (Start Time, End Time) on mobile device');
+  console.log('Step not yet implemented: list has role='list' with child role='listitem', or is a proper <table> with <thead>, <tbody>, <th> scope attributes for data table');
 });
 
-Then('dropdowns open correctly, time options are easily selectable with finger, each option has adequate touch target size', async function () {
+Then('all interactive elements have proper ARIA roles and labels', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: dropdowns open correctly, time options are easily selectable with finger, each option has adequate touch target size');
+  console.log('Step not yet implemented: all interactive elements have proper ARIA roles and labels');
 });
 
-When('verify Save and Cancel buttons in mobile form have adequate touch targets', async function () {
+Then('landmark regions provide clear page structure', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: verify Save and Cancel buttons in mobile form have adequate touch targets');
+  console.log('Step not yet implemented: landmark regions provide clear page structure');
 });
 
-Then('both buttons are at least 44x44 pixels, properly spaced apart to prevent accidental taps', async function () {
+Then('dynamic content changes are announced to screen readers', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: both buttons are at least 44x44 pixels, properly spaced apart to prevent accidental taps');
+  console.log('Step not yet implemented: dynamic content changes are announced to screen readers');
 });
 
-When('test mobile gestures: swipe to scroll templates list, pinch to zoom', async function () {
+Then('form validation is accessible to assistive technology', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: test mobile gestures: swipe to scroll templates list, pinch to zoom');
+  console.log('Step not yet implemented: form validation is accessible to assistive technology');
 });
 
-Then('standard mobile gestures work correctly, page is responsive to touch, no gesture conflicts', async function () {
+Given('page is accessed on mobile device or browser in mobile emulation mode \(375x667 viewport\)', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: standard mobile gestures work correctly, page is responsive to touch, no gesture conflicts');
+  console.log('Step not yet implemented: page is accessed on mobile device or browser in mobile emulation mode (375x667 viewport)');
 });
 
-When('verify mobile screen reader \(VoiceOver on iOS or TalkBack on Android\) announces all elements correctly', async function () {
+Given('touch input is being used \(not mouse\)', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: verify mobile screen reader (VoiceOver on iOS or TalkBack on Android) announces all elements correctly');
+  console.log('Step not yet implemented: touch input is being used (not mouse)');
 });
 
-Then('mobile screen reader announces all buttons, fields, and content with proper labels and roles', async function () {
+When('measure the size of 'Create New Template' button on mobile viewport', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: mobile screen reader announces all buttons, fields, and content with proper labels and roles');
+  console.log('Step not yet implemented: measure the size of 'Create New Template' button on mobile viewport');
 });
 
-Then('all interactive elements meet minimum touch target size requirements', async function () {
+Then('button is at least 44x44 CSS pixels \(iOS\) or 48x48 CSS pixels \(Android\) to meet touch target size guidelines', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: all interactive elements meet minimum touch target size requirements');
+  console.log('Step not yet implemented: button is at least 44x44 CSS pixels (iOS) or 48x48 CSS pixels (Android) to meet touch target size guidelines');
 });
 
-Then('mobile users can easily tap buttons without errors', async function () {
+When('tap 'Create New Template' button', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: mobile users can easily tap buttons without errors');
+  console.log('Step not yet implemented: tap 'Create New Template' button');
 });
 
-Then('adequate spacing prevents accidental activation of adjacent controls', async function () {
+Then('button responds to tap immediately, modal opens, no accidental activation of nearby elements', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: adequate spacing prevents accidental activation of adjacent controls');
+  console.log('Step not yet implemented: button responds to tap immediately, modal opens, no accidental activation of nearby elements');
 });
 
-Then('mobile screen readers provide full accessibility', async function () {
+When('verify spacing between interactive elements \(Edit and Delete buttons in list\)', async function () {
   // TODO: Implement step
-  console.log('Step not yet implemented: mobile screen readers provide full accessibility');
+  console.log('Step not yet implemented: verify spacing between interactive elements (Edit and Delete buttons in list)');
+});
+
+Then('minimum 8px spacing between touch targets to prevent accidental taps', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: minimum 8px spacing between touch targets to prevent accidental taps');
+});
+
+When('fill in form fields using mobile keyboard', async function () {
+  // TODO: Implement fill action
+  const element = page.locator('SELECTOR_HERE');
+  await actions.fill(element, param1);
+});
+
+Then('appropriate keyboard types appear: text keyboard for Template Name, time picker or numeric keyboard for time fields', async function () {
+  // TODO: Implement fill action
+  const element = page.locator('SELECTOR_HERE');
+  await actions.fill(element, param1);
+});
+
+When('test time picker interaction on mobile', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: test time picker interaction on mobile');
+});
+
+Then('time picker is touch-friendly, uses native mobile time picker if available, or custom picker has large touch targets', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: time picker is touch-friendly, uses native mobile time picker if available, or custom picker has large touch targets');
+});
+
+When('attempt to scroll the templates list on mobile', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: attempt to scroll the templates list on mobile');
+});
+
+Then('list scrolls smoothly with touch gestures, no horizontal scrolling required, content fits viewport width', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: list scrolls smoothly with touch gestures, no horizontal scrolling required, content fits viewport width');
+});
+
+When('test swipe gestures if implemented \(e\.g\., swipe to delete\)', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: test swipe gestures if implemented (e.g., swipe to delete)');
+});
+
+Then('swipe gestures work reliably, have visual feedback, and include alternative methods \(buttons\) for users who cannot perform gestures', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: swipe gestures work reliably, have visual feedback, and include alternative methods (buttons) for users who cannot perform gestures');
+});
+
+When('test with mobile screen reader \(TalkBack on Android or VoiceOver on iOS\)', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: test with mobile screen reader (TalkBack on Android or VoiceOver on iOS)');
+});
+
+Then('all elements are announced correctly, touch exploration works, double-tap to activate functions properly', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: all elements are announced correctly, touch exploration works, double-tap to activate functions properly');
+});
+
+Then('all touch targets meet minimum size requirements', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: all touch targets meet minimum size requirements');
+});
+
+Then('mobile interactions are smooth and reliable', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: mobile interactions are smooth and reliable');
+});
+
+Then('mobile screen readers can access all functionality', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: mobile screen readers can access all functionality');
+});
+
+Then('no functionality requires precise touch or complex gestures', async function () {
+  // TODO: Implement step
+  console.log('Step not yet implemented: no functionality requires precise touch or complex gestures');
 });
 
