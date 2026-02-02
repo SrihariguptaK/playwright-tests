@@ -1,1229 +1,1088 @@
 {
-  "storyId": "db-story-story-2",
+  "storyId": "story-2",
   "storyTitle": "As Administrator, I want to perform employee schedule management to achieve optimal staffing.",
   "functional": [
     {
       "id": "TC-FUNC-001",
-      "title": "Successfully assign single employee to shift using template",
+      "title": "Verify successful employee assignment to shift using template",
       "category": "Functional",
       "priority": "High",
       "preconditions": [
-        "Administrator is logged in with valid credentials and schedule management permissions",
+        "User is logged in with Administrator role and has schedule management permissions",
+        "Employee schedule management page is accessible at /admin/schedules",
         "At least one shift template exists in the system (e.g., 'Morning Shift 8AM-4PM')",
-        "At least one employee exists in the system with available status",
-        "Administrator is on the employee schedule management page (/admin/schedule-management)",
-        "Database connection is active and EmployeeSchedules table is accessible"
+        "At least 3 active employees exist in the system with available status",
+        "Database EmployeeSchedules table is accessible and operational"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Click on 'Select Template' dropdown button in the top-left section of the schedule management page",
-          "expectedResult": "Dropdown menu opens displaying all available shift templates with template names, times, and shift types"
+          "action": "Navigate to the employee schedule management page by clicking 'Schedules' in the main navigation menu",
+          "expectedResult": "Employee schedule management interface loads successfully displaying calendar view, shift templates dropdown, and employee list panel"
         },
         {
           "step": 2,
-          "action": "Select 'Morning Shift 8AM-4PM' template from the dropdown list",
-          "expectedResult": "Template is selected and highlighted, shift details (time, duration, requirements) appear in the template preview panel on the right"
+          "action": "Click on the 'Shift Templates' dropdown and select 'Morning Shift 8AM-4PM' template for Monday, January 15, 2024",
+          "expectedResult": "Selected shift template is highlighted in blue, shift details (time, duration, required staff count) are displayed in the right panel"
         },
         {
           "step": 3,
-          "action": "Click on the date cell in the calendar view for tomorrow's date",
-          "expectedResult": "Date cell is highlighted in blue, 'Assign Employee' modal dialog opens with the selected date and template pre-filled"
+          "action": "From the available employees list, drag and drop 'John Smith' onto the selected shift slot in the calendar",
+          "expectedResult": "Employee 'John Smith' appears in the shift slot with employee badge, shift time displays as '8:00 AM - 4:00 PM', no error messages appear"
         },
         {
           "step": 4,
-          "action": "In the 'Assign Employee' modal, click on 'Select Employee' dropdown and choose 'John Smith (ID: EMP001)' from the available employees list",
-          "expectedResult": "Employee 'John Smith' is selected, employee details (role, availability status) appear below the dropdown, no conflict warnings are shown"
+          "action": "Click the 'Save Schedule' button located at the top-right corner of the page",
+          "expectedResult": "Green success banner appears at top of page with message 'Schedule updated successfully', calendar refreshes showing saved assignment, loading spinner disappears"
         },
         {
           "step": 5,
-          "action": "Click the blue 'Save Assignment' button at the bottom-right of the modal",
-          "expectedResult": "Success message 'Schedule updated successfully' appears in green banner at top of page, modal closes automatically, calendar view updates showing 'John Smith' assigned to the selected date and shift"
-        },
-        {
-          "step": 6,
-          "action": "Verify the calendar cell for the assigned date shows employee name, shift time, and template name",
-          "expectedResult": "Calendar cell displays 'John Smith - Morning Shift 8AM-4PM' with green background indicating successful assignment"
+          "action": "Verify the assignment by refreshing the page and navigating to Monday, January 15, 2024",
+          "expectedResult": "Previously saved assignment for 'John Smith' in Morning Shift 8AM-4PM is still displayed correctly, data persists after page reload"
         }
       ],
       "postconditions": [
-        "New record is created in EmployeeSchedules table with employee ID, shift template ID, date, and timestamp",
-        "Administrator remains on the schedule management page with updated calendar view",
-        "Employee 'John Smith' can view the assigned shift in their employee portal in real-time",
-        "Assignment is logged in system audit trail with administrator ID and timestamp"
+        "Employee 'John Smith' is assigned to Morning Shift on January 15, 2024 in EmployeeSchedules table",
+        "Administrator remains on the schedule management page with calendar view active",
+        "Assignment is visible to the employee 'John Smith' in their personal schedule view",
+        "Audit log records the schedule assignment with timestamp and administrator username"
       ]
     },
     {
       "id": "TC-FUNC-002",
-      "title": "Successfully assign multiple employees to different shifts on the same day",
+      "title": "Verify calendar format displays schedules correctly for weekly view",
       "category": "Functional",
       "priority": "High",
       "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "Multiple shift templates exist (Morning, Afternoon, Evening shifts)",
-        "At least three employees exist with available status for the target date",
-        "Administrator is on the employee schedule management page",
-        "No existing assignments exist for the target date"
+        "User is logged in as Administrator with valid session token",
+        "At least 10 employee shift assignments exist across different days of the current week",
+        "Employee schedule management page is loaded at /admin/schedules",
+        "Browser viewport is set to minimum 1024x768 resolution"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Select 'Morning Shift 8AM-4PM' template from the template dropdown",
-          "expectedResult": "Morning shift template is selected and details are displayed"
+          "action": "On the employee schedule management page, click the 'Week View' button in the calendar controls toolbar",
+          "expectedResult": "Calendar switches to weekly view showing 7 columns (Monday-Sunday) with time slots in rows, current week is highlighted"
         },
         {
           "step": 2,
-          "action": "Click on tomorrow's date in the calendar and assign 'John Smith' to the morning shift, then click 'Save Assignment'",
-          "expectedResult": "Success message appears, John Smith is assigned to morning shift, calendar updates showing the assignment"
+          "action": "Observe the display of all assigned shifts across the week",
+          "expectedResult": "All 10+ shift assignments are visible with employee names, shift times, color-coded by shift type, no overlapping display issues"
         },
         {
           "step": 3,
-          "action": "Select 'Afternoon Shift 12PM-8PM' template from the template dropdown",
-          "expectedResult": "Afternoon shift template is selected, template details update in the preview panel"
+          "action": "Click on any assigned shift cell (e.g., Tuesday 2PM shift for 'Jane Doe')",
+          "expectedResult": "Shift details popup appears showing employee name, shift template name, start/end times, and 'Edit' and 'Remove' buttons"
         },
         {
           "step": 4,
-          "action": "Click on the same date (tomorrow) in the calendar and assign 'Sarah Johnson' to the afternoon shift, then click 'Save Assignment'",
-          "expectedResult": "Success message appears, Sarah Johnson is assigned to afternoon shift, calendar cell now shows both assignments stacked vertically"
-        },
-        {
-          "step": 5,
-          "action": "Select 'Evening Shift 4PM-12AM' template and assign 'Mike Davis' to the same date, then click 'Save Assignment'",
-          "expectedResult": "Success message appears, Mike Davis is assigned to evening shift, calendar cell shows all three assignments with different color codes for each shift"
-        },
-        {
-          "step": 6,
-          "action": "Hover over the calendar cell for tomorrow's date to view assignment details",
-          "expectedResult": "Tooltip appears showing all three assignments with employee names, shift times, and template names in a formatted list"
+          "action": "Use the calendar navigation arrows to move to next week",
+          "expectedResult": "Calendar updates to show next week's dates, any assignments for that week are displayed, week header shows correct date range"
         }
       ],
       "postconditions": [
-        "Three separate records are created in EmployeeSchedules table for the same date with different shift templates and employees",
-        "Calendar view displays all three assignments clearly without overlap",
-        "All three employees can view their respective assigned shifts in real-time in their employee portals",
-        "No double-booking conflicts exist for any employee"
+        "Calendar remains in weekly view mode until user changes view preference",
+        "All shift assignments are accurately displayed without data loss",
+        "User can navigate between weeks to view past and future schedules",
+        "Calendar view preference is saved in user session"
       ]
     },
     {
       "id": "TC-FUNC-003",
-      "title": "Successfully view and navigate schedule in calendar format with monthly view",
+      "title": "Verify administrator can make adjustments to existing shift assignments",
       "category": "Functional",
       "priority": "High",
       "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "Multiple employee assignments exist across different dates in the current month",
-        "Administrator is on the employee schedule management page",
-        "Calendar is set to default monthly view"
+        "Administrator is logged in with schedule modification permissions",
+        "Employee 'Sarah Johnson' is already assigned to 'Evening Shift 4PM-12AM' on Wednesday, January 17, 2024",
+        "Employee 'Mike Davis' is available and not assigned to any shift on January 17, 2024",
+        "Schedule management page is open in calendar view"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Observe the calendar view on the schedule management page",
-          "expectedResult": "Calendar displays current month with all dates visible in grid format, today's date is highlighted with a border, assigned shifts appear as colored blocks in respective date cells"
+          "action": "Navigate to Wednesday, January 17, 2024 in the calendar and locate 'Sarah Johnson' in Evening Shift 4PM-12AM",
+          "expectedResult": "Shift assignment is visible showing 'Sarah Johnson' with shift time '4:00 PM - 12:00 AM'"
         },
         {
           "step": 2,
-          "action": "Click on the 'Next Month' arrow button in the calendar header",
-          "expectedResult": "Calendar transitions to next month view, month/year label updates in header, any existing assignments for next month are displayed"
+          "action": "Click on the shift assignment cell for Sarah Johnson",
+          "expectedResult": "Shift details modal opens displaying employee name, shift details, and action buttons including 'Edit Assignment' and 'Remove Assignment'"
         },
         {
           "step": 3,
-          "action": "Click on the 'Previous Month' arrow button twice to go back to the previous month",
-          "expectedResult": "Calendar transitions to previous month view, month/year label updates accordingly, historical assignments are displayed"
+          "action": "Click the 'Edit Assignment' button in the modal",
+          "expectedResult": "Edit mode activates showing dropdown to select different employee, current selection shows 'Sarah Johnson'"
         },
         {
           "step": 4,
-          "action": "Click on a date cell that contains multiple shift assignments",
-          "expectedResult": "Date cell expands or opens a detailed view panel showing all assignments for that date with employee names, shift times, and template details in a list format"
+          "action": "From the employee dropdown, select 'Mike Davis' to replace Sarah Johnson",
+          "expectedResult": "Dropdown updates to show 'Mike Davis' selected, no validation errors appear, 'Save Changes' button becomes enabled"
         },
         {
           "step": 5,
-          "action": "Click on the 'Today' button in the calendar toolbar",
-          "expectedResult": "Calendar navigates back to current month and scrolls to highlight today's date with a pulsing animation"
+          "action": "Click the 'Save Changes' button in the edit modal",
+          "expectedResult": "Modal closes, calendar updates to show 'Mike Davis' in the Evening Shift slot, green confirmation message 'Assignment updated successfully' appears"
+        },
+        {
+          "step": 6,
+          "action": "Verify Sarah Johnson is no longer assigned to this shift by checking her employee schedule",
+          "expectedResult": "Sarah Johnson's schedule for January 17 shows no assignments, she is marked as available"
         }
       ],
       "postconditions": [
-        "Calendar remains in the last viewed month after navigation",
-        "Administrator remains logged in and on the schedule management page",
-        "No data is modified during view-only navigation",
-        "Calendar state is preserved if administrator navigates away and returns to the page"
+        "Mike Davis is now assigned to Evening Shift 4PM-12AM on January 17, 2024 in database",
+        "Sarah Johnson's previous assignment is removed and she is available",
+        "Both employees receive notifications about the schedule change",
+        "Change is logged in audit trail with administrator name and timestamp"
       ]
     },
     {
       "id": "TC-FUNC-004",
-      "title": "Successfully make adjustments to existing employee shift assignment",
+      "title": "Verify employees can view their assigned shifts in real-time",
       "category": "Functional",
       "priority": "High",
       "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "An existing assignment exists: 'John Smith' assigned to 'Morning Shift 8AM-4PM' on a specific date",
-        "At least one other employee 'Sarah Johnson' is available for reassignment",
-        "Administrator is on the employee schedule management page viewing the calendar"
+        "Employee 'Tom Wilson' has valid login credentials and is logged into the system",
+        "Administrator has assigned Tom Wilson to 'Morning Shift 8AM-4PM' on Friday, January 19, 2024",
+        "Assignment was saved less than 5 seconds ago to test real-time update",
+        "Employee is on their personal dashboard page at /employee/dashboard"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Click on the calendar cell containing John Smith's morning shift assignment",
-          "expectedResult": "Assignment details panel opens showing employee name, shift template, date, and time with 'Edit' and 'Delete' action buttons"
+          "action": "As employee Tom Wilson, navigate to 'My Schedule' section by clicking the 'My Schedule' tab in the navigation menu",
+          "expectedResult": "Personal schedule page loads showing calendar view with employee's assigned shifts, loading completes within 2 seconds"
         },
         {
           "step": 2,
-          "action": "Click the 'Edit' button (pencil icon) next to John Smith's assignment",
-          "expectedResult": "'Edit Assignment' modal opens with current assignment details pre-filled: employee dropdown shows 'John Smith', template shows 'Morning Shift 8AM-4PM', date field shows the assigned date"
+          "action": "Locate Friday, January 19, 2024 in the calendar view",
+          "expectedResult": "Friday, January 19 is visible in the calendar, the newly assigned 'Morning Shift 8AM-4PM' is displayed with shift details"
         },
         {
           "step": 3,
-          "action": "Click on the 'Select Employee' dropdown and change the selection from 'John Smith' to 'Sarah Johnson'",
-          "expectedResult": "Employee dropdown updates to show 'Sarah Johnson', system checks for conflicts and displays 'No conflicts found' message in green below the dropdown"
+          "action": "Click on the assigned shift to view details",
+          "expectedResult": "Shift details popup opens showing shift name 'Morning Shift', time '8:00 AM - 4:00 PM', location, and any shift notes"
         },
         {
           "step": 4,
-          "action": "Click the blue 'Update Assignment' button at the bottom of the modal",
-          "expectedResult": "Success message 'Assignment updated successfully' appears in green banner, modal closes, calendar updates showing 'Sarah Johnson' instead of 'John Smith' for the same shift and date"
-        },
-        {
-          "step": 5,
-          "action": "Verify the updated assignment in the calendar view",
-          "expectedResult": "Calendar cell now displays 'Sarah Johnson - Morning Shift 8AM-4PM', John Smith no longer appears in that cell, assignment color and formatting remain consistent"
+          "action": "Without refreshing, have administrator assign another shift to Tom Wilson for Saturday, January 20, 2024, then wait 3 seconds",
+          "expectedResult": "Calendar automatically updates to show the new Saturday assignment without manual refresh, notification badge appears indicating new assignment"
         }
       ],
       "postconditions": [
-        "EmployeeSchedules table record is updated with new employee ID (Sarah Johnson) while maintaining the same shift template and date",
-        "John Smith's employee portal no longer shows this shift assignment",
-        "Sarah Johnson's employee portal now displays the newly assigned shift in real-time",
-        "Update action is logged in audit trail with administrator ID, timestamp, and change details (from John Smith to Sarah Johnson)"
+        "Employee can view all current and future shift assignments",
+        "Real-time updates are reflected within 5 seconds of administrator changes",
+        "Employee remains logged in and on their schedule page",
+        "No administrator-only functions are visible to the employee"
       ]
     },
     {
       "id": "TC-FUNC-005",
-      "title": "Successfully delete an existing shift assignment",
+      "title": "Verify multiple employees can be assigned to the same shift template simultaneously",
       "category": "Functional",
       "priority": "Medium",
       "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "An existing assignment exists: 'Mike Davis' assigned to 'Evening Shift 4PM-12AM' on a specific future date",
-        "Administrator is on the employee schedule management page",
-        "Calendar view is displaying the month containing the assignment"
+        "Administrator is logged in with full schedule management permissions",
+        "Shift template 'Night Shift 12AM-8AM' exists and requires 4 staff members",
+        "At least 4 employees are available: 'Alice Brown', 'Bob Green', 'Carol White', 'David Black'",
+        "Schedule management page is open showing Thursday, January 18, 2024"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Click on the calendar cell containing Mike Davis's evening shift assignment",
-          "expectedResult": "Assignment details panel opens showing 'Mike Davis - Evening Shift 4PM-12AM' with date and 'Edit' and 'Delete' action buttons visible"
+          "action": "Select 'Night Shift 12AM-8AM' template from the shift templates dropdown for Thursday, January 18, 2024",
+          "expectedResult": "Shift template is selected, shift details show 'Required Staff: 4', empty shift slots are displayed"
         },
         {
           "step": 2,
-          "action": "Click the red 'Delete' button (trash icon) next to the assignment",
-          "expectedResult": "Confirmation modal appears with message 'Are you sure you want to delete this assignment for Mike Davis on [date]?' with 'Cancel' and 'Confirm Delete' buttons"
+          "action": "Drag and drop 'Alice Brown' from the available employees list to the first slot in the Night Shift",
+          "expectedResult": "Alice Brown appears in slot 1, counter shows '1/4 staff assigned', no errors appear"
         },
         {
           "step": 3,
-          "action": "Click the red 'Confirm Delete' button in the confirmation modal",
-          "expectedResult": "Success message 'Assignment deleted successfully' appears in green banner at top, confirmation modal closes, assignment details panel closes"
+          "action": "Drag and drop 'Bob Green', 'Carol White', and 'David Black' to slots 2, 3, and 4 respectively",
+          "expectedResult": "All 4 employees appear in their respective slots, counter shows '4/4 staff assigned', shift is marked as fully staffed with green indicator"
         },
         {
           "step": 4,
-          "action": "Verify the calendar cell for the previously assigned date",
-          "expectedResult": "Calendar cell no longer displays Mike Davis's assignment, cell appears empty or shows only remaining assignments if multiple existed, cell background returns to default color"
+          "action": "Click 'Save Schedule' button to save all 4 assignments",
+          "expectedResult": "Success message 'Schedule updated successfully - 4 employees assigned' appears, all assignments are saved and visible in calendar"
         }
       ],
       "postconditions": [
-        "Record is deleted from EmployeeSchedules table for Mike Davis's evening shift assignment",
-        "Mike Davis's employee portal no longer shows this shift assignment in real-time",
-        "Calendar view reflects the deletion immediately without requiring page refresh",
-        "Deletion action is logged in audit trail with administrator ID, timestamp, and deleted assignment details"
+        "All 4 employees are assigned to Night Shift 12AM-8AM on January 18, 2024 in database",
+        "Shift is marked as fully staffed and no longer appears in understaffed reports",
+        "All 4 employees can view this assignment in their personal schedules",
+        "Shift template usage is tracked in analytics"
       ]
     },
     {
       "id": "TC-FUNC-006",
-      "title": "Employee successfully views their assigned shifts in real-time from employee portal",
+      "title": "Verify schedule can be saved with partial shift assignments",
       "category": "Functional",
-      "priority": "High",
+      "priority": "Medium",
       "preconditions": [
-        "Employee 'John Smith' is logged into the employee portal with valid credentials",
-        "Administrator has assigned John Smith to 'Morning Shift 8AM-4PM' on three different dates in the current month",
-        "Employee is on the 'My Schedule' page in the employee portal (/employee/my-schedule)",
-        "Real-time synchronization is enabled between admin and employee views"
+        "Administrator is logged in and on schedule management page",
+        "Shift template 'Afternoon Shift 12PM-8PM' requires 3 staff members",
+        "Only 2 employees are assigned to this shift for Monday, January 22, 2024",
+        "System allows saving of partially filled shifts"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Observe the 'My Schedule' page calendar view as employee John Smith",
-          "expectedResult": "Calendar displays current month with three dates highlighted showing assigned morning shifts, each cell displays 'Morning Shift 8AM-4PM' with shift duration and location details"
+          "action": "Select 'Afternoon Shift 12PM-8PM' template for Monday, January 22, 2024",
+          "expectedResult": "Shift template loads showing 3 empty slots, required staff indicator shows '0/3'"
         },
         {
           "step": 2,
-          "action": "Click on one of the assigned shift dates in the calendar",
-          "expectedResult": "Shift details panel opens showing complete information: shift name, date, start time (8AM), end time (4PM), duration (8 hours), location, and any special instructions"
+          "action": "Assign 'Emma Taylor' and 'Frank Miller' to slots 1 and 2, leaving slot 3 empty",
+          "expectedResult": "Two employees are displayed in slots 1 and 2, slot 3 remains empty, counter shows '2/3 staff assigned', yellow warning indicator shows shift is understaffed"
         },
         {
           "step": 3,
-          "action": "While keeping the employee portal open, have an administrator add a new assignment for John Smith for tomorrow's date using the admin schedule management page",
-          "expectedResult": "Within 5 seconds, the employee's calendar view automatically updates without page refresh, tomorrow's date now shows the newly assigned shift with a brief highlight animation indicating new assignment"
+          "action": "Click 'Save Schedule' button",
+          "expectedResult": "Warning modal appears with message 'This shift is understaffed (2/3). Do you want to save anyway?' with 'Save Anyway' and 'Cancel' buttons"
         },
         {
           "step": 4,
-          "action": "Click the 'List View' toggle button in the calendar toolbar",
-          "expectedResult": "View changes from calendar to list format showing all assigned shifts in chronological order with date, shift name, time, and duration columns"
-        },
-        {
-          "step": 5,
-          "action": "Click the 'Export Schedule' button in the top-right corner",
-          "expectedResult": "Download dialog appears, schedule is exported as PDF file named 'JohnSmith_Schedule_[Month][Year].pdf' containing all assigned shifts in a formatted table"
+          "action": "Click 'Save Anyway' button in the warning modal",
+          "expectedResult": "Schedule is saved successfully, success message appears 'Schedule saved with 1 understaffed shift', shift is marked with yellow warning icon in calendar"
         }
       ],
       "postconditions": [
-        "Employee remains logged in and on the 'My Schedule' page",
-        "All assigned shifts are visible and accurate reflecting the current state in EmployeeSchedules table",
-        "Real-time updates continue to function for any subsequent administrator changes",
-        "Exported PDF is saved to employee's downloads folder"
-      ]
-    },
-    {
-      "id": "TC-FUNC-007",
-      "title": "System prevents double-booking when attempting to assign employee to overlapping shifts",
-      "category": "Functional",
-      "priority": "High",
-      "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "Employee 'Sarah Johnson' is already assigned to 'Morning Shift 8AM-4PM' on a specific date",
-        "A second shift template 'Extended Morning Shift 6AM-2PM' exists that overlaps with the existing assignment",
-        "Administrator is on the employee schedule management page"
-      ],
-      "steps": [
-        {
-          "step": 1,
-          "action": "Select 'Extended Morning Shift 6AM-2PM' template from the template dropdown",
-          "expectedResult": "Extended morning shift template is selected and details are displayed in the preview panel"
-        },
-        {
-          "step": 2,
-          "action": "Click on the same date where Sarah Johnson is already assigned to the morning shift",
-          "expectedResult": "'Assign Employee' modal opens with the selected date and extended morning shift template pre-filled"
-        },
-        {
-          "step": 3,
-          "action": "Click on 'Select Employee' dropdown and attempt to select 'Sarah Johnson' from the list",
-          "expectedResult": "Sarah Johnson appears in the dropdown but with a red warning icon next to her name and text '(Conflict: Already assigned 8AM-4PM)'"
-        },
-        {
-          "step": 4,
-          "action": "Select 'Sarah Johnson' despite the warning indicator",
-          "expectedResult": "Employee is selected, but a red error message appears below the dropdown stating 'Conflict detected: Sarah Johnson is already assigned to Morning Shift 8AM-4PM on this date. Shifts overlap from 8AM to 2PM.'"
-        },
-        {
-          "step": 5,
-          "action": "Attempt to click the 'Save Assignment' button",
-          "expectedResult": "'Save Assignment' button is disabled (grayed out) and shows tooltip 'Cannot save: Resolve conflicts before saving' when hovered over, assignment cannot be saved"
-        }
-      ],
-      "postconditions": [
-        "No new record is created in EmployeeSchedules table for the conflicting assignment",
-        "Sarah Johnson's existing morning shift assignment remains unchanged",
-        "Administrator remains on the schedule management page with the modal still open showing the conflict error",
-        "System maintains data integrity by preventing double-booking"
+        "Partial assignment is saved in database with understaffed flag set to true",
+        "Shift appears in understaffed shifts report for administrator review",
+        "Both assigned employees can view their shifts normally",
+        "Administrator receives notification about understaffed shift"
       ]
     }
   ],
   "negative": [
     {
       "id": "TC-NEGA-001",
-      "title": "Attempt to assign employee to shift without selecting a template",
+      "title": "Verify system prevents double-booking employee to overlapping shifts",
       "category": "Negative",
       "priority": "High",
       "preconditions": [
         "Administrator is logged in with schedule management permissions",
-        "Administrator is on the employee schedule management page",
-        "No shift template is currently selected in the template dropdown",
-        "At least one employee exists in the system"
+        "Employee 'Jessica Martinez' is already assigned to 'Morning Shift 8AM-4PM' on Tuesday, January 16, 2024",
+        "Another shift 'Mid-Day Shift 12PM-8PM' exists for the same date with overlapping hours",
+        "Schedule management page is open in calendar view"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Without selecting any template from the 'Select Template' dropdown, directly click on a date cell in the calendar",
-          "expectedResult": "Error message appears in red banner at top of page stating 'Please select a shift template before assigning employees', date cell is not highlighted, no modal opens"
+          "action": "Navigate to Tuesday, January 16, 2024 and verify Jessica Martinez is assigned to Morning Shift 8AM-4PM",
+          "expectedResult": "Jessica Martinez's assignment to Morning Shift is visible in the calendar"
         },
         {
           "step": 2,
-          "action": "Attempt to access the assignment functionality through any alternative method without template selection",
-          "expectedResult": "System consistently prevents assignment actions, displays same error message, 'Assign Employee' functionality remains disabled"
+          "action": "Select 'Mid-Day Shift 12PM-8PM' template for the same date (Tuesday, January 16, 2024)",
+          "expectedResult": "Mid-Day Shift template is selected, empty slots are displayed for assignment"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to drag and drop 'Jessica Martinez' from the employee list to the Mid-Day Shift slot",
+          "expectedResult": "Red error indicator appears on the shift slot, employee cannot be dropped, tooltip shows 'Employee already assigned to overlapping shift (8AM-4PM)'"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to force assignment by clicking the shift slot and selecting Jessica Martinez from the dropdown",
+          "expectedResult": "Jessica Martinez appears in dropdown but is disabled/grayed out with warning icon, hover text shows 'Conflict: Already assigned 8AM-4PM'"
+        },
+        {
+          "step": 5,
+          "action": "Try to click 'Save Schedule' button if assignment was somehow forced",
+          "expectedResult": "Validation error modal appears with message 'Cannot save schedule: Jessica Martinez has overlapping shifts on 01/16/2024', Save button is disabled"
         }
       ],
       "postconditions": [
-        "No assignment modal opens",
-        "No records are created in EmployeeSchedules table",
-        "Administrator remains on the schedule management page",
-        "Calendar view remains unchanged"
+        "No double-booking is saved in the EmployeeSchedules table",
+        "Jessica Martinez remains assigned only to the original Morning Shift 8AM-4PM",
+        "Error is logged in system logs with details of attempted double-booking",
+        "Administrator remains on schedule management page to correct the conflict"
       ]
     },
     {
       "id": "TC-NEGA-002",
-      "title": "Attempt to save shift assignment without selecting an employee",
+      "title": "Verify unauthorized user cannot access schedule management functionality",
       "category": "Negative",
       "priority": "High",
       "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "A shift template 'Morning Shift 8AM-4PM' is selected",
-        "Administrator has clicked on a date cell and 'Assign Employee' modal is open",
-        "Employee dropdown is in default state showing 'Select an employee...' placeholder"
+        "User 'RegularEmployee123' is logged in with standard Employee role (not Administrator)",
+        "User does not have schedule management permissions in the system",
+        "User is currently on their personal dashboard at /employee/dashboard",
+        "Schedule management page URL is /admin/schedules"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "In the 'Assign Employee' modal, leave the 'Select Employee' dropdown at its default placeholder value without selecting any employee",
-          "expectedResult": "Employee dropdown shows placeholder text 'Select an employee...' in gray color, no employee is selected"
+          "action": "Attempt to navigate directly to /admin/schedules by typing URL in browser address bar",
+          "expectedResult": "Access is denied, user is redirected to /unauthorized page with error message 'You do not have permission to access this page'"
         },
         {
           "step": 2,
-          "action": "Click the 'Save Assignment' button at the bottom of the modal",
-          "expectedResult": "Red error message appears below the employee dropdown stating 'Employee selection is required', employee dropdown border turns red indicating validation error, modal remains open, assignment is not saved"
+          "action": "Check main navigation menu for schedule management options",
+          "expectedResult": "No 'Schedule Management' or 'Admin' menu items are visible, only employee-level menu options are shown"
         },
         {
           "step": 3,
-          "action": "Verify the 'Save Assignment' button behavior",
-          "expectedResult": "Button remains enabled but clicking it repeatedly shows the same validation error, no API call is made to POST /api/employee-schedules endpoint"
+          "action": "Attempt to make a POST request to /api/employee-schedules endpoint using browser developer tools with valid shift assignment data",
+          "expectedResult": "API returns 403 Forbidden status code with JSON response {'error': 'Insufficient permissions', 'required_role': 'Administrator'}"
+        },
+        {
+          "step": 4,
+          "action": "Try to access schedule management via any bookmarked links or cached pages",
+          "expectedResult": "All attempts result in authorization error, session validation prevents access, user is redirected to appropriate error page"
         }
       ],
       "postconditions": [
-        "No record is created in EmployeeSchedules table",
-        "Modal remains open with error message displayed",
-        "Administrator can correct the error by selecting an employee",
-        "Calendar view shows no new assignments"
+        "No unauthorized schedule modifications are made in the database",
+        "Security event is logged showing unauthorized access attempt with user ID and timestamp",
+        "User remains logged in but confined to employee-level permissions",
+        "No sensitive administrator data is exposed to the unauthorized user"
       ]
     },
     {
       "id": "TC-NEGA-003",
-      "title": "Unauthorized user attempts to access schedule management page",
+      "title": "Verify system handles assignment to non-existent shift template gracefully",
       "category": "Negative",
-      "priority": "High",
+      "priority": "Medium",
       "preconditions": [
-        "A user account exists with 'Employee' role (not Administrator role)",
-        "User is logged in with employee credentials (username: 'employee@test.com')",
-        "User does not have schedule management permissions in the system",
-        "Schedule management page URL is /admin/schedule-management"
+        "Administrator is logged in on schedule management page",
+        "Shift template with ID 'SHIFT-999' does not exist in the database",
+        "At least one valid employee 'Kevin Lee' exists in the system",
+        "Browser developer console is open to monitor errors"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Manually enter the URL '/admin/schedule-management' in the browser address bar and press Enter",
-          "expectedResult": "System redirects to '/unauthorized' or '/403-forbidden' error page showing message 'Access Denied: You do not have permission to access this page. Required role: Administrator'"
+          "action": "Using browser developer tools, attempt to manipulate the shift template dropdown to select non-existent template ID 'SHIFT-999'",
+          "expectedResult": "System detects invalid template ID, error message appears 'Invalid shift template selected', dropdown resets to default state"
         },
         {
           "step": 2,
-          "action": "Attempt to navigate to schedule management through any menu or navigation link",
-          "expectedResult": "Schedule management menu item is not visible in the navigation menu for employee role users, no links or buttons provide access to the page"
+          "action": "Attempt to make a direct API call to POST /api/employee-schedules with payload containing non-existent shiftTemplateId: 'SHIFT-999'",
+          "expectedResult": "API returns 404 Not Found status with error message {'error': 'Shift template not found', 'templateId': 'SHIFT-999'}"
         },
         {
           "step": 3,
-          "action": "Attempt to make a direct API call to POST /api/employee-schedules with valid assignment data using employee credentials",
-          "expectedResult": "API returns 403 Forbidden status code with JSON response: {'error': 'Unauthorized', 'message': 'Only administrators can manage schedules'}, no record is created in database"
+          "action": "Check if any partial data was saved in the database",
+          "expectedResult": "No records are created in EmployeeSchedules table, database integrity is maintained"
         }
       ],
       "postconditions": [
-        "User remains logged in but is denied access to schedule management functionality",
-        "No unauthorized data modifications occur in EmployeeSchedules table",
-        "Security violation is logged in system audit trail with user ID, attempted action, and timestamp",
-        "User is redirected to their appropriate dashboard or error page"
+        "No invalid schedule assignments exist in the database",
+        "Error is logged in application error logs with details of invalid template ID",
+        "User interface remains stable without crashes or freezing",
+        "Administrator can continue working with valid shift templates"
       ]
     },
     {
       "id": "TC-NEGA-004",
-      "title": "Attempt to assign employee to past date",
+      "title": "Verify system handles network timeout during schedule save operation",
       "category": "Negative",
-      "priority": "Medium",
+      "priority": "High",
       "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "A shift template 'Morning Shift 8AM-4PM' is selected",
-        "Administrator is on the employee schedule management page",
-        "Calendar is displaying current month with past dates visible"
+        "Administrator is logged in and has made valid shift assignments for 5 employees",
+        "Network throttling is enabled in browser developer tools to simulate slow connection",
+        "API timeout is set to 30 seconds in system configuration",
+        "Schedule is ready to be saved with all valid data"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Click on a date cell in the calendar that represents a past date (e.g., 3 days ago)",
-          "expectedResult": "Past date cells are visually disabled with gray background and diagonal strikethrough pattern, clicking on them shows no response or displays tooltip 'Cannot assign shifts to past dates'"
+          "action": "Set network throttling to 'Offline' mode in browser developer tools after clicking 'Save Schedule' button but before request completes",
+          "expectedResult": "Loading spinner appears, after 30 seconds timeout error message displays 'Unable to save schedule. Please check your connection and try again.'"
         },
         {
           "step": 2,
-          "action": "Attempt to programmatically submit an assignment with a past date through browser developer console or API testing tool",
-          "expectedResult": "API returns 400 Bad Request status code with JSON response: {'error': 'Invalid date', 'message': 'Cannot assign shifts to past dates. Date must be today or future.'}, no record is created"
+          "action": "Check the calendar view to see if any assignments were partially saved",
+          "expectedResult": "Calendar shows previous state before save attempt, no partial data is displayed, unsaved changes indicator remains active"
+        },
+        {
+          "step": 3,
+          "action": "Restore network connection and click 'Save Schedule' button again",
+          "expectedResult": "Save operation completes successfully, all 5 assignments are saved, success message appears"
+        },
+        {
+          "step": 4,
+          "action": "Verify database for duplicate entries from the failed attempt",
+          "expectedResult": "No duplicate records exist, only one set of assignments is saved with correct timestamp"
         }
       ],
       "postconditions": [
-        "No records are created in EmployeeSchedules table for past dates",
-        "Calendar view remains unchanged",
-        "Administrator remains on the schedule management page",
-        "System maintains data integrity by preventing historical assignments"
+        "No corrupted or partial data exists in EmployeeSchedules table",
+        "User's unsaved work is preserved in the UI for retry",
+        "Network error is logged with timestamp and user context",
+        "System remains in consistent state ready for retry"
       ]
     },
     {
       "id": "TC-NEGA-005",
-      "title": "System handles database connection failure during assignment save",
+      "title": "Verify system prevents assignment of inactive or terminated employees",
       "category": "Negative",
       "priority": "High",
       "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "Shift template and employee are selected in the assignment modal",
-        "Database connection is simulated to fail or timeout during save operation",
-        "Administrator is ready to click 'Save Assignment' button"
+        "Administrator is logged in on schedule management page",
+        "Employee 'Linda Chen' has status 'Terminated' with termination date of January 10, 2024",
+        "Employee 'Mark Johnson' has status 'Inactive' (on leave)",
+        "Attempting to assign shifts for January 20, 2024 (after termination date)"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Click the 'Save Assignment' button to save the employee shift assignment",
-          "expectedResult": "Loading spinner appears on the button, button text changes to 'Saving...', button is disabled during the save operation"
+          "action": "Open the available employees list panel on the schedule management page",
+          "expectedResult": "Employee list displays only active employees, 'Linda Chen' and 'Mark Johnson' are not visible in the available employees list"
         },
         {
           "step": 2,
-          "action": "Observe system behavior when database connection fails or times out after 30 seconds",
-          "expectedResult": "Error message appears in red banner at top of page: 'Failed to save assignment. Database connection error. Please try again or contact support if the problem persists.', loading spinner disappears, button returns to 'Save Assignment' state and is re-enabled"
+          "action": "Use the employee search box to search for 'Linda Chen'",
+          "expectedResult": "Search returns no results or shows 'Linda Chen' with 'Terminated' badge and disabled state, cannot be selected"
         },
         {
           "step": 3,
-          "action": "Verify the modal state after the error",
-          "expectedResult": "Modal remains open with all entered data preserved (selected employee, template, date), user can attempt to save again or cancel, no partial data is saved"
+          "action": "Attempt to make direct API call to POST /api/employee-schedules with employeeId for Linda Chen",
+          "expectedResult": "API returns 400 Bad Request with error message {'error': 'Cannot assign terminated employee', 'employeeId': 'LINDA_CHEN_ID', 'status': 'Terminated'}"
         },
         {
           "step": 4,
-          "action": "Check the calendar view for any changes",
-          "expectedResult": "Calendar view shows no new assignment, previous state is maintained, no inconsistent data is displayed"
+          "action": "Attempt the same process for inactive employee 'Mark Johnson'",
+          "expectedResult": "Similar validation error appears: 'Cannot assign inactive employee to shift', assignment is blocked"
         }
       ],
       "postconditions": [
-        "No record is created in EmployeeSchedules table due to failed transaction",
-        "Administrator remains on the schedule management page with modal open",
-        "Error is logged in system error logs with timestamp, user ID, and error details",
-        "User can retry the operation once database connection is restored"
+        "No assignments exist for terminated or inactive employees in the database",
+        "Validation error is logged in audit trail",
+        "Administrator is prompted to select only active employees",
+        "Employee status integrity is maintained in the system"
       ]
     },
     {
       "id": "TC-NEGA-006",
-      "title": "Attempt to assign deleted or inactive employee to shift",
+      "title": "Verify system handles concurrent schedule modifications by multiple administrators",
       "category": "Negative",
       "priority": "Medium",
       "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "An employee 'Tom Wilson' exists in the system but has been marked as inactive or deleted",
-        "A shift template is selected",
-        "Administrator opens the 'Assign Employee' modal"
+        "Two administrators 'Admin1' and 'Admin2' are logged in simultaneously on different browsers/sessions",
+        "Both are viewing the same shift on Wednesday, January 24, 2024 - Morning Shift 8AM-4PM",
+        "Shift currently has 'Nancy White' assigned",
+        "Both administrators attempt to modify the same shift assignment"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Click on the 'Select Employee' dropdown in the assignment modal",
-          "expectedResult": "Dropdown opens showing list of active employees only, inactive or deleted employee 'Tom Wilson' does not appear in the list"
+          "action": "Admin1 clicks on Nancy White's assignment and selects 'Edit Assignment' to change to 'Oliver Brown'",
+          "expectedResult": "Edit modal opens for Admin1 showing current assignment and employee dropdown"
         },
         {
           "step": 2,
-          "action": "Attempt to assign the inactive employee through direct API call using employee ID for 'Tom Wilson'",
-          "expectedResult": "API returns 400 Bad Request with JSON response: {'error': 'Invalid employee', 'message': 'Employee is inactive or does not exist. Only active employees can be assigned to shifts.'}, no record is created"
-        }
-      ],
-      "postconditions": [
-        "No assignment is created for inactive employee in EmployeeSchedules table",
-        "System maintains data integrity by preventing assignments to inactive employees",
-        "Administrator can only select from active employees in the UI",
-        "Validation error is logged if API bypass is attempted"
-      ]
-    },
-    {
-      "id": "TC-NEGA-007",
-      "title": "Session timeout during schedule management operation",
-      "category": "Negative",
-      "priority": "Medium",
-      "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "Administrator has been idle on the schedule management page for 29 minutes (1 minute before 30-minute session timeout)",
-        "An assignment modal is open with employee and template selected",
-        "Session timeout is configured for 30 minutes of inactivity"
-      ],
-      "steps": [
-        {
-          "step": 1,
-          "action": "Wait for session to expire (1 additional minute of inactivity), then click 'Save Assignment' button",
-          "expectedResult": "System detects expired session, displays modal overlay with message 'Your session has expired. Please log in again to continue.', 'Save Assignment' action is blocked, no API call is made"
-        },
-        {
-          "step": 2,
-          "action": "Click 'Log In Again' button in the session expired modal",
-          "expectedResult": "User is redirected to login page with return URL parameter set to schedule management page, entered assignment data is lost, modal closes"
+          "action": "Before Admin1 saves, Admin2 also clicks on the same assignment and selects 'Edit Assignment' to change to 'Patricia Green'",
+          "expectedResult": "Edit modal opens for Admin2 showing current assignment"
         },
         {
           "step": 3,
-          "action": "Log in again with valid administrator credentials",
-          "expectedResult": "After successful login, user is redirected back to schedule management page, page loads in fresh state with no previous assignment data retained, calendar displays current month"
+          "action": "Admin1 clicks 'Save Changes' first, successfully updating assignment to Oliver Brown",
+          "expectedResult": "Admin1 sees success message, calendar updates to show Oliver Brown"
+        },
+        {
+          "step": 4,
+          "action": "Admin2 clicks 'Save Changes' immediately after",
+          "expectedResult": "Conflict error appears: 'This assignment was modified by another user. Please refresh and try again.' Save is blocked, Admin2's changes are not applied"
+        },
+        {
+          "step": 5,
+          "action": "Admin2 refreshes the page and views the shift",
+          "expectedResult": "Calendar shows Oliver Brown (Admin1's change), Admin2 can now make a new edit if needed"
         }
       ],
       "postconditions": [
-        "No assignment is saved due to expired session",
-        "User must re-enter assignment information after logging back in",
-        "Session expiration is logged in audit trail",
-        "User is successfully re-authenticated and can continue working"
+        "Only Admin1's change is saved in database (Oliver Brown is assigned)",
+        "No data corruption or conflicting assignments exist",
+        "Both administrators' actions are logged in audit trail with timestamps",
+        "Optimistic locking or version control prevents data conflicts"
       ]
     }
   ],
   "edgeCases": [
     {
       "id": "TC-EDGE-001",
-      "title": "Assign employee to maximum allowed shifts in a single day (boundary test)",
-      "category": "Edge Cases",
-      "priority": "Medium",
-      "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "System has a maximum limit of 3 non-overlapping shifts per employee per day",
-        "Three shift templates exist: 'Early Morning 12AM-8AM', 'Day Shift 8AM-4PM', 'Evening Shift 4PM-12AM'",
-        "Employee 'John Smith' has no existing assignments for the target date"
-      ],
-      "steps": [
-        {
-          "step": 1,
-          "action": "Assign 'John Smith' to 'Early Morning 12AM-8AM' shift for tomorrow's date and save",
-          "expectedResult": "Assignment saves successfully, calendar shows first shift assignment for John Smith"
-        },
-        {
-          "step": 2,
-          "action": "Assign 'John Smith' to 'Day Shift 8AM-4PM' shift for the same date and save",
-          "expectedResult": "Assignment saves successfully, calendar cell now shows two shifts stacked for John Smith with different time ranges"
-        },
-        {
-          "step": 3,
-          "action": "Assign 'John Smith' to 'Evening Shift 4PM-12AM' shift for the same date and save",
-          "expectedResult": "Assignment saves successfully, calendar cell shows all three shifts for John Smith covering full 24-hour period, warning message appears: 'Employee is assigned to maximum allowed shifts (3) for this date'"
-        },
-        {
-          "step": 4,
-          "action": "Attempt to assign 'John Smith' to a fourth shift on the same date",
-          "expectedResult": "When selecting John Smith from dropdown, red error message appears: 'Maximum shift limit reached: John Smith is already assigned to 3 shifts on this date (maximum allowed)', Save button is disabled"
-        }
-      ],
-      "postconditions": [
-        "Three records exist in EmployeeSchedules table for John Smith on the target date",
-        "No fourth assignment is created",
-        "System enforces maximum shift limit per employee per day",
-        "John Smith's employee portal shows all three assigned shifts"
-      ]
-    },
-    {
-      "id": "TC-EDGE-002",
-      "title": "Handle assignment operations with special characters in employee names",
-      "category": "Edge Cases",
-      "priority": "Low",
-      "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "Employees exist with special characters in names: 'O'Brien, Mary-Jane', 'José García', 'Müller, François', '李明 (Li Ming)'",
-        "A shift template is selected",
-        "Administrator is on the schedule management page"
-      ],
-      "steps": [
-        {
-          "step": 1,
-          "action": "Open the 'Assign Employee' modal and click on the employee dropdown",
-          "expectedResult": "Dropdown displays all employees with special characters correctly rendered: apostrophes, hyphens, accented characters (é, ü, ç), and Unicode characters (Chinese characters) display properly without encoding issues"
-        },
-        {
-          "step": 2,
-          "action": "Select employee 'O'Brien, Mary-Jane' and save the assignment",
-          "expectedResult": "Assignment saves successfully, calendar displays 'O'Brien, Mary-Jane' with apostrophe and hyphen rendered correctly, no character encoding errors occur"
-        },
-        {
-          "step": 3,
-          "action": "Select employee 'José García' and save the assignment to a different date",
-          "expectedResult": "Assignment saves successfully, accented characters (é, í) display correctly in calendar view and database stores UTF-8 encoded characters properly"
-        },
-        {
-          "step": 4,
-          "action": "Select employee '李明 (Li Ming)' with Chinese characters and save the assignment",
-          "expectedResult": "Assignment saves successfully, Chinese characters display correctly in calendar, employee portal, and all system views, no character corruption occurs"
-        },
-        {
-          "step": 5,
-          "action": "Export schedule to PDF containing all these assignments",
-          "expectedResult": "PDF export includes all employee names with special characters and Unicode properly rendered, no placeholder characters or encoding errors appear"
-        }
-      ],
-      "postconditions": [
-        "All assignments are saved in EmployeeSchedules table with proper UTF-8 encoding",
-        "Special characters and Unicode display correctly across all system interfaces",
-        "Database queries handle special characters without SQL errors",
-        "Employees can view their assignments with names displayed correctly"
-      ]
-    },
-    {
-      "id": "TC-EDGE-003",
-      "title": "System performance with maximum load of 500 employee assignments",
+      "title": "Verify system handles maximum capacity of 500 employee assignments without performance degradation",
       "category": "Edge Cases",
       "priority": "High",
       "preconditions": [
         "Administrator is logged in with schedule management permissions",
-        "System has 500 active employees in the database",
-        "Multiple shift templates exist for various time slots",
-        "Test environment is configured to simulate production load",
-        "Performance monitoring tools are active"
+        "Database contains exactly 500 active employees",
+        "System performance baseline is established (page load < 3 seconds)",
+        "Schedule management page is open with empty schedule for current month"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Use bulk assignment feature or script to create 500 employee assignments across a single month",
-          "expectedResult": "System processes all 500 assignments within 30 seconds, progress indicator shows completion status, no timeout errors occur, all assignments are saved to database"
+          "action": "Use bulk assignment feature or API to assign all 500 employees to various shifts across the current month",
+          "expectedResult": "Bulk assignment completes within 10 seconds, progress indicator shows completion status, no timeout errors occur"
         },
         {
           "step": 2,
-          "action": "Navigate to the schedule management page and load the calendar view with all 500 assignments",
-          "expectedResult": "Calendar page loads within 3 seconds, all 500 assignments are visible in calendar view, page remains responsive, no browser freezing or lag occurs, memory usage stays within acceptable limits (<500MB)"
+          "action": "Navigate to the calendar view showing the month with 500 assignments",
+          "expectedResult": "Calendar loads within 3 seconds, all 500 assignments are visible, scrolling is smooth without lag, no browser freezing occurs"
         },
         {
           "step": 3,
-          "action": "Navigate between months (previous/next) with 500 assignments loaded",
-          "expectedResult": "Month navigation completes within 1 second, calendar transitions smoothly, all assignments for the new month load correctly, no performance degradation occurs"
+          "action": "Use calendar filters to view assignments by specific shift type or date range",
+          "expectedResult": "Filtering completes within 2 seconds, correct subset of assignments is displayed, filter controls remain responsive"
         },
         {
           "step": 4,
-          "action": "Search or filter through the 500 assignments using any available filter functionality",
-          "expectedResult": "Filter/search operations complete within 2 seconds, results display accurately, system remains responsive during filtering"
+          "action": "Attempt to modify one assignment among the 500 and save the change",
+          "expectedResult": "Edit and save operations complete within 3 seconds, only the modified assignment is updated, no impact on other 499 assignments"
         },
         {
           "step": 5,
-          "action": "Have 50 employees simultaneously access their schedules in the employee portal",
-          "expectedResult": "All 50 employee portals load their respective schedules within 3 seconds, no database connection errors occur, system handles concurrent read operations without performance issues"
+          "action": "Export the schedule with all 500 assignments to PDF or Excel format",
+          "expectedResult": "Export completes within 15 seconds, file contains all 500 assignments accurately formatted, file size is reasonable (< 5MB)"
         }
       ],
       "postconditions": [
-        "All 500 assignments remain accurately stored in EmployeeSchedules table",
-        "System performance metrics meet defined SLA (page load <3s, operations <2s)",
-        "No data corruption or loss occurs under maximum load",
-        "Database connection pool handles concurrent requests efficiently",
-        "System logs show no performance warnings or errors"
+        "All 500 employee assignments are accurately stored in database",
+        "System performance remains within acceptable thresholds (< 3 second page loads)",
+        "No memory leaks or browser crashes occur",
+        "Database query performance is optimized with proper indexing"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Verify schedule management with employee names containing special characters and Unicode",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Administrator is logged in on schedule management page",
+        "Employees exist with names: 'José María Ñoño', 'Müller-Schmidt', 'O'Brien', '李明 (Li Ming)', 'Владимир'",
+        "Shift template 'Morning Shift 8AM-4PM' is available for assignment",
+        "Database supports UTF-8 character encoding"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Search for employee 'José María Ñoño' using the employee search box",
+          "expectedResult": "Employee is found and displayed correctly with all special characters (é, í, Ñ, ñ) rendered properly"
+        },
+        {
+          "step": 2,
+          "action": "Assign 'José María Ñoño' to Morning Shift on Monday, January 29, 2024",
+          "expectedResult": "Assignment is successful, name displays correctly in calendar with all accented characters, no character encoding errors"
+        },
+        {
+          "step": 3,
+          "action": "Assign employees 'Müller-Schmidt', 'O'Brien', '李明 (Li Ming)', and 'Владимир' to different shifts on the same day",
+          "expectedResult": "All names are displayed correctly in calendar: umlaut (ü), hyphen, apostrophe, Chinese characters, and Cyrillic characters render properly"
+        },
+        {
+          "step": 4,
+          "action": "Save the schedule and refresh the page",
+          "expectedResult": "All special character names persist correctly after save and reload, no character corruption or replacement with question marks"
+        },
+        {
+          "step": 5,
+          "action": "Export schedule to PDF and verify special characters in the exported document",
+          "expectedResult": "PDF export contains all names with special characters rendered correctly, fonts support all Unicode characters used"
+        }
+      ],
+      "postconditions": [
+        "All employee names with special characters are stored correctly in database with UTF-8 encoding",
+        "Calendar display supports international character sets without corruption",
+        "Export functionality preserves special characters in all formats",
+        "No data loss or character replacement occurs in any operation"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Verify schedule management at exact midnight boundary between days",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Administrator is logged in on schedule management page",
+        "Shift template 'Night Shift 8PM-4AM' exists that spans across midnight (crosses day boundary)",
+        "Employee 'Rachel Adams' is available for assignment",
+        "System time zone is set to EST (UTC-5)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select 'Night Shift 8PM-4AM' template for Thursday, January 25, 2024 (shift starts Thursday 8PM, ends Friday 4AM)",
+          "expectedResult": "Shift template loads correctly, system recognizes shift spans two calendar days, visual indicator shows shift extends to next day"
+        },
+        {
+          "step": 2,
+          "action": "Assign 'Rachel Adams' to this overnight shift",
+          "expectedResult": "Assignment is successful, calendar shows shift starting on Thursday with visual continuation to Friday, no double-booking validation errors"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to assign Rachel Adams to another shift on Friday, January 26 at 2AM (during her overnight shift)",
+          "expectedResult": "Validation error appears: 'Employee already assigned to overlapping shift (8PM Thu - 4AM Fri)', assignment is blocked"
+        },
+        {
+          "step": 4,
+          "action": "View Rachel's personal schedule as the employee",
+          "expectedResult": "Overnight shift displays correctly showing start date Thursday and end date Friday, time zone is clearly indicated, no confusion about which day the shift belongs to"
+        },
+        {
+          "step": 5,
+          "action": "Generate a report for shifts on Friday, January 26, 2024",
+          "expectedResult": "Rachel's overnight shift appears in Friday's report since it extends into Friday, report clearly shows shift started previous day"
+        }
+      ],
+      "postconditions": [
+        "Overnight shift is correctly stored with proper start and end timestamps in database",
+        "Double-booking validation correctly handles shifts spanning midnight",
+        "Calendar visualization clearly indicates multi-day shifts",
+        "Time zone handling is consistent across all views and reports"
       ]
     },
     {
       "id": "TC-EDGE-004",
-      "title": "Handle shift assignment spanning midnight (cross-day boundary)",
+      "title": "Verify schedule management with zero available employees for assignment",
       "category": "Edge Cases",
       "priority": "Medium",
       "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "A shift template 'Night Shift 10PM-6AM' exists that spans across midnight",
-        "Employee 'Sarah Johnson' is available for assignment",
-        "Administrator is on the schedule management page"
+        "Administrator is logged in on schedule management page",
+        "All employees in the system are either terminated, inactive, or already assigned to shifts during the target time period",
+        "Shift template 'Afternoon Shift 12PM-8PM' exists for Tuesday, January 30, 2024",
+        "No available employees exist for this date/time"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Select 'Night Shift 10PM-6AM' template from the template dropdown",
-          "expectedResult": "Template is selected, preview panel shows shift details with start time 10PM (22:00) and end time 6AM (06:00) next day, duration shows 8 hours"
+          "action": "Navigate to Tuesday, January 30, 2024 and select 'Afternoon Shift 12PM-8PM' template",
+          "expectedResult": "Shift template loads, available employees panel displays message 'No available employees for this shift time' or shows empty list"
         },
         {
           "step": 2,
-          "action": "Click on today's date in the calendar and assign 'Sarah Johnson' to the night shift, then save",
-          "expectedResult": "Assignment saves successfully, calendar cell for today shows 'Sarah Johnson - Night Shift 10PM-6AM (next day)' with visual indicator that shift extends to next day"
+          "action": "Attempt to drag and drop from the empty employee list",
+          "expectedResult": "No drag action is possible, helpful message appears: 'All employees are currently assigned or unavailable. Please adjust existing assignments or add new employees.'"
         },
         {
           "step": 3,
-          "action": "Verify the calendar display for both today and tomorrow",
-          "expectedResult": "Today's cell shows the night shift starting at 10PM, tomorrow's cell shows a continuation indicator or partial shift block from 12AM-6AM, both cells are visually linked or color-coordinated"
+          "action": "Click on the shift slot to manually select an employee",
+          "expectedResult": "Employee dropdown is empty or disabled, tooltip explains 'No employees available for assignment during this time period'"
         },
         {
           "step": 4,
-          "action": "Attempt to assign Sarah Johnson to an 'Early Morning 6AM-2PM' shift on tomorrow's date",
-          "expectedResult": "System allows the assignment since the night shift ends at 6AM and early morning shift starts at 6AM (no overlap), both assignments save successfully, calendar shows both shifts correctly"
-        },
-        {
-          "step": 5,
-          "action": "Attempt to assign Sarah Johnson to a shift that overlaps with the night shift (e.g., 'Evening Shift 8PM-4AM' on the same starting date)",
-          "expectedResult": "System detects overlap conflict, displays error message: 'Conflict detected: Shifts overlap from 10PM to 4AM', prevents double-booking"
+          "action": "Check if system provides suggestions or alternatives",
+          "expectedResult": "System displays helpful options: 'View conflicting assignments', 'Adjust shift time', or 'Request additional staff', administrator can take corrective action"
         }
       ],
       "postconditions": [
-        "Night shift assignment is stored in EmployeeSchedules table with correct start date and time spanning to next day",
-        "Calendar view accurately represents cross-midnight shifts",
-        "Conflict detection properly handles shifts that span midnight",
-        "Employee portal shows the night shift with correct date and time information"
+        "No invalid or forced assignments are created in the database",
+        "Administrator is clearly informed about the unavailability issue",
+        "System provides actionable next steps to resolve staffing shortage",
+        "Shift remains unfilled and flagged for administrator attention"
       ]
     },
     {
       "id": "TC-EDGE-005",
-      "title": "Handle empty employee list when attempting to make assignment",
+      "title": "Verify schedule management during daylight saving time transition",
       "category": "Edge Cases",
-      "priority": "Low",
+      "priority": "Medium",
       "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "All employees in the system have been marked as inactive or deleted",
-        "No active employees exist in the database",
-        "A shift template is selected",
-        "Administrator opens the 'Assign Employee' modal"
+        "Administrator is logged in on schedule management page",
+        "System date is set to March 10, 2024 (DST begins at 2:00 AM, clocks spring forward to 3:00 AM)",
+        "Shift template 'Overnight Shift 12AM-8AM' exists that spans the DST transition",
+        "Employee 'Steven Parker' is available for assignment",
+        "System time zone is set to EST/EDT"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Click on the 'Select Employee' dropdown in the assignment modal",
-          "expectedResult": "Dropdown opens but shows empty state message: 'No active employees available. Please add employees before creating assignments.', no employee options are displayed"
+          "action": "Assign 'Steven Parker' to 'Overnight Shift 12AM-8AM' on Sunday, March 10, 2024 (DST transition day)",
+          "expectedResult": "Assignment is successful, system displays warning: 'Note: This shift occurs during DST transition. Actual duration will be 7 hours instead of 8 hours.'"
         },
         {
           "step": 2,
-          "action": "Verify the 'Save Assignment' button state",
-          "expectedResult": "'Save Assignment' button is disabled (grayed out) with tooltip 'Cannot save: No employees available', assignment cannot proceed"
+          "action": "View the shift details and verify time calculations",
+          "expectedResult": "Shift shows start time 12:00 AM, end time 8:00 AM, but duration is calculated as 7 hours due to DST, compensation or adjustment note is visible"
         },
         {
           "step": 3,
-          "action": "Observe any system guidance or help messages",
-          "expectedResult": "Informational message appears in the modal: 'To create shift assignments, you must first add active employees to the system. Click here to go to Employee Management.', link to employee management page is provided"
+          "action": "Save the schedule and verify in employee's view",
+          "expectedResult": "Employee sees the shift with DST notification, time zone indicator shows EDT after 3:00 AM, no confusion about actual working hours"
+        },
+        {
+          "step": 4,
+          "action": "Generate payroll report for this shift",
+          "expectedResult": "Report correctly calculates 7 actual working hours, DST adjustment is noted, employee is compensated correctly"
         }
       ],
       "postconditions": [
-        "No assignment is created in EmployeeSchedules table",
-        "Administrator is guided to add employees before creating assignments",
-        "System handles empty employee list gracefully without errors",
-        "Modal remains functional and can be closed normally"
+        "Shift is stored with correct timestamps accounting for DST transition",
+        "Duration calculations are accurate (7 hours instead of 8)",
+        "All stakeholders are notified about DST impact on shift duration",
+        "Payroll and time tracking systems receive correct duration data"
       ]
     },
     {
       "id": "TC-EDGE-006",
-      "title": "Rapid consecutive assignment operations (race condition test)",
+      "title": "Verify rapid consecutive save operations do not create duplicate assignments",
       "category": "Edge Cases",
-      "priority": "Medium",
+      "priority": "High",
       "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "Multiple employees and shift templates are available",
-        "Administrator is on the schedule management page",
-        "Network latency is simulated to be 500ms to test race conditions"
+        "Administrator is logged in on schedule management page",
+        "Employee 'Tina Rodriguez' is assigned to 'Morning Shift 8AM-4PM' on February 1, 2024",
+        "Network latency is normal (no throttling)",
+        "Save button is enabled and functional"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Quickly create 5 assignments in rapid succession (within 5 seconds) by clicking save repeatedly without waiting for confirmation",
-          "expectedResult": "System queues all 5 assignment requests, displays loading indicators for each operation, processes requests sequentially or handles concurrent requests safely"
+          "action": "Make a valid assignment change (assign Tina Rodriguez to the shift)",
+          "expectedResult": "Assignment is displayed in the calendar, Save button is enabled"
         },
         {
           "step": 2,
-          "action": "Observe the system behavior during rapid operations",
-          "expectedResult": "All 5 assignments are processed successfully without data corruption, no duplicate assignments are created, success messages appear for each completed assignment in order"
+          "action": "Click the 'Save Schedule' button rapidly 5 times in succession (within 1 second)",
+          "expectedResult": "Save button becomes disabled after first click, loading spinner appears, subsequent clicks are ignored or queued"
         },
         {
           "step": 3,
-          "action": "Verify the final state in the calendar view",
-          "expectedResult": "Calendar displays exactly 5 assignments as intended, no missing or duplicate entries exist, all assignments have unique IDs in the database"
+          "action": "Wait for save operation to complete and check the calendar",
+          "expectedResult": "Success message appears only once: 'Schedule updated successfully', assignment appears only once in calendar, no duplicate entries"
         },
         {
           "step": 4,
-          "action": "Check the EmployeeSchedules table for data integrity",
-          "expectedResult": "Database contains exactly 5 records with correct data, no partial or corrupted records exist, all foreign key relationships are valid, timestamps are sequential"
+          "action": "Query the database directly to check for duplicate records",
+          "expectedResult": "Only one record exists for Tina Rodriguez's assignment on February 1, 2024, no duplicate entries with same timestamp or employee ID"
+        },
+        {
+          "step": 5,
+          "action": "Check API logs for multiple POST requests",
+          "expectedResult": "Either only one POST request was sent (client-side prevention), or multiple requests were sent but server-side idempotency prevented duplicates"
         }
       ],
       "postconditions": [
-        "All 5 assignments are correctly saved in EmployeeSchedules table without duplicates",
-        "System handles concurrent operations safely with proper transaction management",
-        "No race conditions cause data corruption or inconsistency",
-        "Calendar view accurately reflects all saved assignments"
-      ]
-    },
-    {
-      "id": "TC-EDGE-007",
-      "title": "Browser back button behavior during assignment workflow",
-      "category": "Edge Cases",
-      "priority": "Low",
-      "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "Administrator is on the schedule management page",
-        "An assignment modal is open with employee and template selected but not yet saved",
-        "Browser history contains previous pages"
-      ],
-      "steps": [
-        {
-          "step": 1,
-          "action": "With the 'Assign Employee' modal open and data entered, click the browser's back button",
-          "expectedResult": "Browser displays confirmation dialog: 'You have unsaved changes. Are you sure you want to leave this page?', modal remains open, entered data is preserved"
-        },
-        {
-          "step": 2,
-          "action": "Click 'Cancel' in the browser confirmation dialog",
-          "expectedResult": "User remains on the schedule management page, modal stays open with all entered data intact, no navigation occurs"
-        },
-        {
-          "step": 3,
-          "action": "Close the modal by clicking 'Cancel' button, then click browser back button again",
-          "expectedResult": "Browser navigates to previous page in history without confirmation (since no unsaved changes exist), user leaves schedule management page cleanly"
-        },
-        {
-          "step": 4,
-          "action": "Click browser forward button to return to schedule management page",
-          "expectedResult": "Schedule management page reloads with current data from database, calendar displays all saved assignments, no stale data is shown, page state is fresh"
-        }
-      ],
-      "postconditions": [
-        "No unintended data loss occurs from browser navigation",
-        "Unsaved changes are protected with confirmation dialog",
-        "Browser history navigation works correctly without breaking application state",
-        "Page reloads properly when navigating back to schedule management"
+        "Exactly one assignment record exists in EmployeeSchedules table",
+        "No duplicate data or orphaned records are created",
+        "Save button re-enables after operation completes",
+        "System implements proper request debouncing or idempotency"
       ]
     }
   ],
   "accessibility": [
     {
       "id": "TC-ACCE-001",
-      "title": "Complete keyboard navigation through schedule management workflow",
+      "title": "Verify complete keyboard navigation through schedule management interface",
       "category": "Accessibility",
       "priority": "High",
       "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "Administrator is on the schedule management page",
-        "At least one shift template and one employee exist in the system",
-        "Mouse is disconnected or not used for this test"
+        "Administrator is logged in on schedule management page",
+        "Screen reader is turned off for this test (pure keyboard navigation)",
+        "At least one shift template and 3 employees are available in the system",
+        "Browser is set to default zoom level (100%)"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Press Tab key repeatedly to navigate through all interactive elements on the page",
-          "expectedResult": "Focus moves in logical order: template dropdown → calendar navigation buttons → calendar date cells → action buttons, each focused element shows clear visible focus indicator (2px blue outline), focus order follows visual layout left-to-right, top-to-bottom"
+          "action": "Press Tab key from the page header to navigate through all interactive elements",
+          "expectedResult": "Focus moves sequentially through: main navigation, shift template dropdown, calendar navigation buttons, date cells, employee list, Save button. Focus indicator is clearly visible (2px solid border) on each element."
         },
         {
           "step": 2,
-          "action": "Tab to the 'Select Template' dropdown and press Enter key to open it",
-          "expectedResult": "Dropdown opens, focus moves to first template option, user can navigate options using Arrow Up/Down keys, Enter key selects highlighted option, Escape key closes dropdown without selection"
+          "action": "Use Tab to reach the shift template dropdown, press Enter to open it, use Arrow keys to select a template, press Enter to confirm",
+          "expectedResult": "Dropdown opens on Enter, Arrow Up/Down navigate options, selected option is highlighted, Enter confirms selection and closes dropdown, focus returns to dropdown trigger"
         },
         {
           "step": 3,
-          "action": "Use Arrow keys to select a template, press Enter to confirm, then Tab to a calendar date cell and press Enter",
-          "expectedResult": "Template is selected, focus moves to calendar, date cell is highlighted, pressing Enter opens 'Assign Employee' modal, focus automatically moves to first interactive element in modal (employee dropdown)"
+          "action": "Tab to the calendar, use Arrow keys to navigate between date cells",
+          "expectedResult": "Arrow keys move focus between calendar dates (Left/Right for days, Up/Down for weeks), current focused date has visible focus ring, Enter key selects the date"
         },
         {
           "step": 4,
-          "action": "In the modal, press Tab to navigate to employee dropdown, press Enter to open, use Arrow keys to select employee, press Enter to confirm",
-          "expectedResult": "Employee dropdown opens with keyboard, Arrow keys navigate options, Enter selects employee, focus returns to dropdown showing selected employee, Tab moves to next element"
+          "action": "Tab to employee list, use Arrow keys to select an employee, press Space or Enter to select for assignment",
+          "expectedResult": "Arrow keys navigate employee list, selected employee is highlighted, Space/Enter marks employee for assignment, visual feedback confirms selection"
         },
         {
           "step": 5,
-          "action": "Press Tab to navigate to 'Save Assignment' button and press Enter to save",
-          "expectedResult": "Assignment is saved, success message appears and is announced, modal closes, focus returns to the calendar date cell that was originally activated, user can continue keyboard navigation"
+          "action": "Press Tab to reach 'Save Schedule' button, press Enter to save",
+          "expectedResult": "Save button receives focus with visible indicator, Enter key triggers save operation, success message appears and receives focus for screen reader announcement"
         },
         {
           "step": 6,
-          "action": "Press Escape key at various points in the workflow (in modal, in dropdowns)",
-          "expectedResult": "Escape key closes modal and returns focus to triggering element, closes dropdowns without selection, provides consistent cancel/close behavior throughout"
+          "action": "Press Shift+Tab to navigate backwards through all elements",
+          "expectedResult": "Focus moves in reverse order through all interactive elements, no focus traps occur, user can navigate back to page header"
+        },
+        {
+          "step": 7,
+          "action": "Press Escape key when a modal or dropdown is open",
+          "expectedResult": "Escape key closes modal/dropdown, focus returns to the trigger element that opened it, no keyboard trap occurs"
         }
       ],
       "postconditions": [
-        "All functionality is fully accessible via keyboard without requiring mouse",
-        "Focus management is logical and predictable throughout the workflow",
-        "User can complete entire assignment workflow using only keyboard",
-        "Focus is never trapped in any component"
+        "All interactive elements are reachable via keyboard alone",
+        "Focus order is logical and follows visual layout",
+        "No keyboard traps exist in the interface",
+        "Focus indicators meet WCAG 2.1 contrast requirements (3:1 minimum)"
       ]
     },
     {
       "id": "TC-ACCE-002",
-      "title": "Screen reader compatibility and announcements for schedule management",
+      "title": "Verify screen reader announces all schedule management actions and states",
       "category": "Accessibility",
       "priority": "High",
       "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "NVDA or JAWS screen reader is running on Windows, or VoiceOver on macOS",
-        "Administrator is on the schedule management page",
-        "Screen reader is in forms/focus mode"
+        "Administrator is logged in on schedule management page",
+        "NVDA or JAWS screen reader is active and running",
+        "At least one shift template exists and one employee is available",
+        "Page has loaded completely with all ARIA labels in place"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Navigate to the schedule management page and listen to screen reader announcements",
-          "expectedResult": "Screen reader announces: 'Employee Schedule Management, main region. Select a shift template to begin assigning employees. Template dropdown, collapsed, button', page title and main heading are announced clearly"
+          "action": "Navigate to the schedule management page and listen to screen reader announcement",
+          "expectedResult": "Screen reader announces: 'Employee Schedule Management, main region. Heading level 1: Schedule Management. You are currently in the schedule calendar view.'"
         },
         {
           "step": 2,
-          "action": "Navigate to and activate the template dropdown using screen reader",
-          "expectedResult": "Screen reader announces: 'Select Template, combobox, collapsed' when focused, 'expanded' when opened, each template option is announced with name and time (e.g., 'Morning Shift 8AM to 4PM, option 1 of 5')"
+          "action": "Tab to the shift template dropdown and activate it",
+          "expectedResult": "Screen reader announces: 'Shift template, combo box, collapsed. Press Enter to expand.' When opened: 'Shift template, combo box, expanded. 5 options available. Morning Shift 8AM-4PM, 1 of 5.'"
         },
         {
           "step": 3,
-          "action": "Select a template and navigate to the calendar",
-          "expectedResult": "Screen reader announces: 'Calendar, navigation region. Use arrow keys to navigate dates. Current month: January 2024', date cells are announced as 'January 15, Monday, no assignments, button' or 'January 16, Tuesday, 2 assignments, button'"
+          "action": "Select a shift template and navigate to a calendar date",
+          "expectedResult": "Screen reader announces: 'Morning Shift 8AM-4PM selected.' Then: 'Calendar grid, January 2024. Monday, January 15, 2024, button, no assignments.'"
         },
         {
           "step": 4,
-          "action": "Activate a date cell to open the assignment modal",
-          "expectedResult": "Screen reader announces: 'Assign Employee dialog opened. Assign employee to Morning Shift on January 15, 2024. Employee dropdown, collapsed, required field', modal opening is announced, focus is set to first interactive element"
+          "action": "Assign an employee to a shift",
+          "expectedResult": "Screen reader announces: 'John Smith assigned to Morning Shift, Monday January 15, 8:00 AM to 4:00 PM. Shift has 1 of 3 required staff.'"
         },
         {
           "step": 5,
-          "action": "Navigate through the modal and select an employee",
-          "expectedResult": "Screen reader announces each form field with label and state: 'Select Employee, combobox, required, collapsed', employee options announced as 'John Smith, Employee ID EMP001, available, option 1 of 10'"
+          "action": "Attempt to assign an employee to an overlapping shift (validation error)",
+          "expectedResult": "Screen reader announces: 'Error: Cannot assign John Smith. Employee already assigned to overlapping shift from 8:00 AM to 4:00 PM. Alert.' Focus moves to error message."
         },
         {
           "step": 6,
-          "action": "Save the assignment and listen for confirmation",
-          "expectedResult": "Screen reader announces: 'Saving assignment, please wait... Assignment saved successfully. John Smith assigned to Morning Shift on January 15. Dialog closed', ARIA live region announces success message, focus returns to calendar with updated information"
+          "action": "Save the schedule successfully",
+          "expectedResult": "Screen reader announces: 'Schedule updated successfully. 1 employee assigned. Status message.' ARIA live region updates are announced without moving focus."
         },
         {
           "step": 7,
-          "action": "Navigate to a calendar cell with the new assignment",
-          "expectedResult": "Screen reader announces: 'January 15, Monday, 1 assignment: John Smith, Morning Shift, 8AM to 4PM, button', assignment details are included in cell announcement"
+          "action": "Navigate through assigned shifts in the calendar",
+          "expectedResult": "Screen reader announces each shift with full details: 'Monday January 15, Morning Shift 8AM-4PM, assigned: John Smith, 1 of 3 staff, button.'"
         }
       ],
       "postconditions": [
         "All interactive elements have proper ARIA labels and roles",
-        "Screen reader users receive all necessary information through announcements",
-        "Dynamic content updates are announced via ARIA live regions",
-        "Modal dialogs are properly announced and focus is managed correctly"
+        "State changes are announced via ARIA live regions (aria-live='polite' for updates, 'assertive' for errors)",
+        "Error messages are associated with form fields via aria-describedby",
+        "Dynamic content updates are announced without moving focus"
       ]
     },
     {
       "id": "TC-ACCE-003",
-      "title": "Focus management and visual focus indicators throughout application",
+      "title": "Verify focus management in modals and dialogs",
       "category": "Accessibility",
       "priority": "High",
       "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "Administrator is on the schedule management page",
-        "Browser zoom is set to 100%",
-        "High contrast mode is disabled initially"
+        "Administrator is logged in on schedule management page",
+        "At least one shift assignment exists that can be edited",
+        "Keyboard navigation is being used (no mouse)",
+        "Screen reader may be active for verification"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Tab through all interactive elements and observe focus indicators",
-          "expectedResult": "Every focusable element displays a visible focus indicator: minimum 2px solid border in high contrast color (blue #0066CC), focus indicator has minimum 3:1 contrast ratio against background, focus indicator is not obscured by other elements"
+          "action": "Use keyboard to navigate to an existing shift assignment and press Enter to open edit modal",
+          "expectedResult": "Modal opens, focus automatically moves to the first interactive element in modal (close button or first form field), modal has role='dialog' and aria-modal='true'"
         },
         {
           "step": 2,
-          "action": "Open the assignment modal and verify focus is automatically set to the first interactive element",
-          "expectedResult": "When modal opens, focus automatically moves to employee dropdown (first interactive element), focus is not left on the background page, focus indicator is clearly visible on the dropdown"
+          "action": "Press Tab to navigate through all elements within the modal",
+          "expectedResult": "Focus cycles only within modal elements: close button, employee dropdown, save button, cancel button. Focus does not escape to background page content."
         },
         {
           "step": 3,
-          "action": "Press Tab repeatedly within the modal and verify focus stays trapped in modal",
-          "expectedResult": "Focus cycles through modal elements only: employee dropdown → save button → cancel button → back to employee dropdown, focus never moves to background page elements, Shift+Tab reverses focus order"
+          "action": "Press Shift+Tab from the first element in the modal",
+          "expectedResult": "Focus moves to the last interactive element in the modal (Cancel or Save button), creating a focus loop within the modal"
         },
         {
           "step": 4,
-          "action": "Close the modal using Cancel button or Escape key and verify focus return",
-          "expectedResult": "When modal closes, focus returns to the element that triggered the modal (calendar date cell), focus indicator is visible on the returned element, user can continue navigation from that point"
+          "action": "Press Escape key while modal is open",
+          "expectedResult": "Modal closes, focus returns to the trigger element (the shift assignment that was clicked), screen reader announces 'Dialog closed'"
         },
         {
           "step": 5,
-          "action": "Enable Windows High Contrast Mode or browser high contrast extension and verify focus indicators",
-          "expectedResult": "Focus indicators remain visible in high contrast mode, all interactive elements are distinguishable, focus indicator uses system colors that adapt to high contrast settings"
+          "action": "Open modal again, click 'Cancel' button using keyboard (Enter or Space)",
+          "expectedResult": "Modal closes, focus returns to original trigger element, no data is saved"
         },
         {
           "step": 6,
-          "action": "Test focus behavior when error messages appear",
-          "expectedResult": "When validation error occurs, focus moves to the first field with error, error message is associated with the field via aria-describedby, focus indicator is visible on the error field with red border"
+          "action": "Open modal again, make changes, and click 'Save' button using keyboard",
+          "expectedResult": "Modal closes after save, focus returns to updated shift assignment, screen reader announces 'Assignment updated successfully'"
+        },
+        {
+          "step": 7,
+          "action": "Verify background content is not accessible while modal is open",
+          "expectedResult": "Background content has aria-hidden='true' or inert attribute, screen reader cannot access background elements, keyboard focus is trapped in modal"
         }
       ],
       "postconditions": [
-        "All interactive elements have visible focus indicators meeting WCAG 2.1 Level AA requirements",
-        "Focus is never lost or trapped inappropriately",
-        "Focus management follows logical patterns and user expectations",
-        "Focus indicators work correctly in high contrast mode"
+        "Focus is properly managed when opening and closing modals",
+        "Focus returns to logical element after modal closes",
+        "No keyboard traps exist - user can always close modal",
+        "Background content is properly hidden from assistive technologies"
       ]
     },
     {
       "id": "TC-ACCE-004",
-      "title": "Color contrast and text sizing compliance (WCAG 2.1 Level AA)",
+      "title": "Verify color contrast and visual indicators meet WCAG 2.1 AA standards",
       "category": "Accessibility",
       "priority": "High",
       "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "Administrator is on the schedule management page",
+        "Administrator is logged in on schedule management page",
         "Color contrast analyzer tool is available (e.g., browser extension or WAVE tool)",
-        "Browser zoom is set to 100% initially"
+        "Page displays various states: default, hover, focus, error, success",
+        "Multiple shift assignments with different statuses exist (filled, understaffed, conflicted)"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Use color contrast analyzer to check all text elements on the page",
-          "expectedResult": "All normal text (under 18pt) has minimum 4.5:1 contrast ratio against background, large text (18pt+ or 14pt+ bold) has minimum 3:1 contrast ratio, UI component borders and focus indicators have minimum 3:1 contrast ratio, no text relies solely on color to convey information"
+          "action": "Use color contrast analyzer to check text contrast ratios for all text elements on the page",
+          "expectedResult": "All normal text (< 18pt) has minimum 4.5:1 contrast ratio, large text (≥ 18pt or 14pt bold) has minimum 3:1 ratio, all text passes WCAG AA standards"
         },
         {
           "step": 2,
-          "action": "Check calendar date cells with different states (empty, assigned, selected, disabled)",
-          "expectedResult": "Empty cells: text has 4.5:1 contrast, assigned cells: employee names have 4.5:1 contrast with background, selected state uses both color AND border/icon indicator, disabled past dates use both gray color AND strikethrough pattern"
+          "action": "Check contrast of interactive elements (buttons, links, form fields) in default state",
+          "expectedResult": "All interactive elements have 3:1 minimum contrast ratio against background, borders and focus indicators have 3:1 contrast"
         },
         {
           "step": 3,
-          "action": "Verify error messages and success notifications for color contrast",
-          "expectedResult": "Error messages: red text #D32F2F has 4.5:1 contrast on white background, includes error icon in addition to color, success messages: green text #388E3C has 4.5:1 contrast, includes checkmark icon"
+          "action": "Verify focus indicators on all interactive elements",
+          "expectedResult": "Focus indicators are visible with minimum 3:1 contrast ratio, focus ring is at least 2px thick, focus is never hidden or removed"
         },
         {
           "step": 4,
-          "action": "Increase browser zoom to 200% using Ctrl/Cmd + Plus",
-          "expectedResult": "All text scales proportionally to 200%, no text is cut off or overlaps, layout remains functional and readable, horizontal scrolling may appear but content is not lost, all interactive elements remain clickable and properly sized"
+          "action": "Check color-coding used for shift statuses (e.g., green for filled, yellow for understaffed, red for conflicts)",
+          "expectedResult": "Status information is not conveyed by color alone - icons, text labels, or patterns accompany color coding. Example: 'Filled ✓' in green, 'Understaffed ⚠' in yellow, 'Conflict ✗' in red"
         },
         {
           "step": 5,
-          "action": "At 200% zoom, complete an assignment workflow (select template, assign employee, save)",
-          "expectedResult": "All functionality works correctly at 200% zoom, buttons and dropdowns are accessible and properly sized, modal dialog fits within viewport or scrolls appropriately, no loss of functionality due to zoom"
+          "action": "Test error messages and validation feedback",
+          "expectedResult": "Error messages have sufficient contrast (4.5:1 minimum), errors are indicated by icon + color + text, not color alone"
         },
         {
           "step": 6,
-          "action": "Test with browser text-only zoom (increase text size without zooming layout)",
-          "expectedResult": "Text increases in size without breaking layout, containers expand to accommodate larger text, no text overlaps or is cut off, minimum touch target size of 44x44 pixels is maintained for mobile"
+          "action": "Enable Windows High Contrast Mode or browser high contrast extension",
+          "expectedResult": "All content remains visible and usable, focus indicators are visible, interactive elements are distinguishable, no information is lost"
         }
       ],
       "postconditions": [
-        "All color contrast ratios meet or exceed WCAG 2.1 Level AA requirements (4.5:1 for normal text, 3:1 for large text and UI components)",
+        "All text and interactive elements meet WCAG 2.1 AA contrast requirements",
         "Information is not conveyed by color alone",
-        "Page is fully functional and readable at 200% zoom",
-        "Text sizing is flexible and responsive to user preferences"
+        "Focus indicators are always visible and meet contrast requirements",
+        "Interface is usable in high contrast mode"
       ]
     },
     {
       "id": "TC-ACCE-005",
-      "title": "ARIA labels, roles, and live regions implementation",
+      "title": "Verify page functionality at 200% zoom level",
       "category": "Accessibility",
-      "priority": "High",
+      "priority": "Medium",
       "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "Administrator is on the schedule management page",
-        "Browser developer tools are open to inspect ARIA attributes",
-        "Screen reader is running for testing announcements"
+        "Administrator is logged in on schedule management page",
+        "Browser zoom is set to 100% initially",
+        "Page displays calendar with multiple shift assignments",
+        "Viewport size is set to 1280x720 (standard desktop resolution)"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Inspect the main page structure for ARIA landmarks and roles",
-          "expectedResult": "Page has proper landmark roles: <main role='main'> for main content, <nav role='navigation'> for calendar navigation, <form role='form'> for assignment form, <dialog role='dialog'> for modal, each landmark has aria-label or aria-labelledby for identification"
+          "action": "Increase browser zoom to 200% using Ctrl/Cmd + Plus key or browser zoom controls",
+          "expectedResult": "Page content scales proportionally, text is readable, no content is cut off or hidden, horizontal scrolling is minimal or absent"
         },
         {
           "step": 2,
-          "action": "Inspect the template dropdown for ARIA attributes",
-          "expectedResult": "Dropdown has role='combobox', aria-expanded='false' when closed and 'true' when open, aria-haspopup='listbox', aria-label='Select shift template', options have role='option' with aria-selected state"
+          "action": "Navigate through the calendar at 200% zoom",
+          "expectedResult": "Calendar remains functional, date cells are accessible, shift assignments are readable, no overlapping content, vertical scrolling works smoothly"
         },
         {
           "step": 3,
-          "action": "Inspect calendar date cells for ARIA attributes",
-          "expectedResult": "Calendar has role='grid', date cells have role='gridcell', cells with assignments have aria-label describing date and assignments (e.g., 'January 15, Monday, 2 assignments: John Smith Morning Shift, Sarah Johnson Afternoon Shift'), disabled past dates have aria-disabled='true'"
+          "action": "Open shift template dropdown and employee list at 200% zoom",
+          "expectedResult": "Dropdowns and lists are fully functional, all options are visible and selectable, no content is truncated, scrolling within dropdowns works if needed"
         },
         {
           "step": 4,
-          "action": "Trigger a success message by saving an assignment and inspect the notification",
-          "expectedResult": "Success message container has aria-live='polite' and role='status', message is announced by screen reader without interrupting user, message includes aria-atomic='true' to announce entire message"
+          "action": "Perform a complete workflow: select template, assign employee, save schedule at 200% zoom",
+          "expectedResult": "All functionality works identically to 100% zoom, buttons are accessible, forms are usable, success/error messages are visible"
         },
         {
           "step": 5,
-          "action": "Trigger an error message by attempting invalid operation and inspect the error",
-          "expectedResult": "Error message container has aria-live='assertive' and role='alert', error is announced immediately by screen reader, error field has aria-invalid='true' and aria-describedby pointing to error message ID"
+          "action": "Open edit modal at 200% zoom",
+          "expectedResult": "Modal is fully visible within viewport (may require scrolling), all modal controls are accessible, modal can be closed, content is not cut off"
         },
         {
           "step": 6,
-          "action": "Inspect the assignment modal for ARIA dialog attributes",
-          "expectedResult": "Modal has role='dialog', aria-modal='true' to indicate modal behavior, aria-labelledby pointing to modal title ID, aria-describedby pointing to modal description if present, focus is trapped within modal"
-        },
-        {
-          "step": 7,
-          "action": "Inspect loading states during save operations",
-          "expectedResult": "Save button has aria-busy='true' during loading, aria-label updates to 'Saving assignment, please wait', loading spinner has role='status' and aria-label='Loading', screen reader announces loading state"
+          "action": "Test at 400% zoom (WCAG AAA requirement)",
+          "expectedResult": "Page remains functional though may require more scrolling, no loss of functionality, content reflows appropriately, text remains readable"
         }
       ],
       "postconditions": [
-        "All interactive elements have appropriate ARIA roles and attributes",
-        "Dynamic content updates are announced via ARIA live regions",
-        "Form fields have proper labels and error associations",
-        "Modal dialogs have correct ARIA dialog implementation",
-        "Loading and status changes are communicated to assistive technologies"
+        "All functionality is available at 200% zoom (WCAG AA requirement)",
+        "Content reflows without horizontal scrolling or loss of information",
+        "Text remains readable and interactive elements remain usable",
+        "Layout adapts responsively to increased zoom levels"
       ]
     },
     {
       "id": "TC-ACCE-006",
-      "title": "Mobile accessibility - touch targets and gesture support",
+      "title": "Verify ARIA landmarks and semantic HTML structure for navigation",
       "category": "Accessibility",
       "priority": "Medium",
       "preconditions": [
-        "Administrator is logged in with schedule management permissions on mobile device or browser mobile emulation",
-        "Device is iPhone (iOS) or Android phone with screen reader enabled (VoiceOver or TalkBack)",
-        "Administrator is on the schedule management page in mobile view",
-        "Touch screen is the primary input method"
+        "Administrator is logged in on schedule management page",
+        "Screen reader is active (NVDA, JAWS, or VoiceOver)",
+        "Page has fully loaded with all content rendered",
+        "Browser developer tools are open to inspect HTML structure"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Measure and verify touch target sizes for all interactive elements",
-          "expectedResult": "All buttons, links, and interactive elements have minimum touch target size of 44x44 pixels (iOS) or 48x48 pixels (Android), adequate spacing exists between touch targets (minimum 8px), calendar date cells are large enough to tap accurately"
+          "action": "Use screen reader landmark navigation (e.g., 'D' key in NVDA/JAWS) to navigate through page regions",
+          "expectedResult": "Screen reader announces distinct landmarks: 'banner' (header), 'navigation' (main menu), 'main' (schedule content), 'complementary' (employee list sidebar), 'contentinfo' (footer). Each landmark has descriptive aria-label."
         },
         {
           "step": 2,
-          "action": "Tap on the template dropdown to open it",
-          "expectedResult": "Dropdown opens on first tap without requiring double-tap, dropdown options are large enough to tap (minimum 44px height), scrolling through options works smoothly with swipe gestures"
+          "action": "Inspect HTML structure using developer tools",
+          "expectedResult": "Semantic HTML5 elements are used: <header>, <nav>, <main>, <aside>, <footer>. ARIA landmarks supplement where semantic HTML is insufficient. No redundant or conflicting landmarks."
         },
         {
           "step": 3,
-          "action": "Navigate the calendar using swipe gestures",
-          "expectedResult": "Swipe left/right navigates between months, swipe gestures are smooth and responsive, calendar updates without lag, current month is announced by screen reader after navigation"
+          "action": "Use screen reader heading navigation (e.g., 'H' key) to navigate through headings",
+          "expectedResult": "Logical heading hierarchy exists: H1 'Schedule Management' (only one H1), H2 for major sections ('Calendar View', 'Shift Templates'), H3 for subsections. No heading levels are skipped."
         },
         {
           "step": 4,
-          "action": "Tap on a calendar date cell to open assignment modal",
-          "expectedResult": "Modal opens on single tap, modal is properly sized for mobile viewport, all modal content is visible without horizontal scrolling, modal can be dismissed by tapping outside or using close button"
+          "action": "Navigate to the calendar and verify it has proper ARIA structure",
+          "expectedResult": "Calendar has role='grid' or role='table', date cells have role='gridcell' or role='cell', column headers have role='columnheader', aria-label describes the calendar (e.g., 'January 2024 Schedule Calendar')"
         },
         {
           "step": 5,
-          "action": "Complete assignment workflow using touch and screen reader",
-          "expectedResult": "All form fields are accessible via touch, screen reader announces each field and its state, dropdowns work with touch and screen reader gestures, save button is easily tappable and provides haptic feedback on tap"
+          "action": "Check form elements for proper labeling",
+          "expectedResult": "All form inputs have associated <label> elements or aria-label, labels are descriptive ('Select shift template', not just 'Template'), required fields have aria-required='true'"
         },
         {
           "step": 6,
-          "action": "Test pinch-to-zoom gesture on the calendar",
-          "expectedResult": "Pinch-to-zoom is enabled and works smoothly, zoomed content remains readable and functional, user can zoom up to 200% without loss of functionality, double-tap zoom works on calendar sections"
-        },
-        {
-          "step": 7,
-          "action": "Test with screen reader gestures (swipe right to navigate, double-tap to activate)",
-          "expectedResult": "Screen reader navigation follows logical order, all elements are reachable via swipe gestures, double-tap activates buttons and opens dropdowns, screen reader announces all content and state changes"
+          "action": "Verify ARIA live regions for dynamic updates",
+          "expectedResult": "Success/error messages use aria-live='polite' or 'assertive', status updates (e.g., 'Saving...') use aria-live='polite', live regions have aria-atomic='true' where appropriate"
         }
       ],
       "postconditions": [
-        "All touch targets meet minimum size requirements (44x44px or 48x48px)",
-        "Mobile gestures work correctly and intuitively",
-        "Screen reader on mobile provides full access to all functionality",
-        "Mobile layout is responsive and accessible at various zoom levels",
-        "No functionality requires precise tapping or multi-finger gestures"
-      ]
-    },
-    {
-      "id": "TC-ACCE-007",
-      "title": "Form validation and error handling accessibility",
-      "category": "Accessibility",
-      "priority": "High",
-      "preconditions": [
-        "Administrator is logged in with schedule management permissions",
-        "Administrator is on the schedule management page",
-        "Screen reader is running",
-        "Assignment modal is open"
-      ],
-      "steps": [
-        {
-          "step": 1,
-          "action": "Attempt to save assignment without selecting an employee",
-          "expectedResult": "Error message appears: 'Employee selection is required', error is announced by screen reader via aria-live='assertive', focus moves to employee dropdown field, field has aria-invalid='true' and red border, error message has id and field has aria-describedby pointing to error message"
-        },
-        {
-          "step": 2,
-          "action": "Navigate to the employee dropdown using Tab key",
-          "expectedResult": "Screen reader announces: 'Select Employee, combobox, required, invalid, Employee selection is required', error message is included in field announcement, user understands what needs to be corrected"
-        },
-        {
-          "step": 3,
-          "action": "Select an employee that has a scheduling conflict",
-          "expectedResult": "Warning message appears: 'Conflict detected: Employee already assigned to overlapping shift', warning is announced by screen reader, warning icon appears next to employee name, aria-describedby associates warning with field, save button is disabled with aria-disabled='true'"
-        },
-        {
-          "step": 4,
-          "action": "Verify that required fields are properly marked",
-          "expectedResult": "Required fields have visual asterisk (*) indicator, asterisk is not the only indicator (also has 'required' in label or aria-required='true'), screen reader announces 'required' as part of field label, form has clear instructions at top explaining required fields"
-        },
-        {
-          "step": 5,
-          "action": "Trigger a system error (e.g., network failure) during save",
-          "expectedResult": "Error message appears in prominent location, error is announced immediately via aria-live='assertive' and role='alert', error message is clear and actionable: 'Failed to save assignment. Please check your connection and try again.', focus remains on save button or moves to error message, user can retry operation"
-        },
-        {
-          "step": 6,
-          "action": "Correct all errors and successfully save assignment",
-          "expectedResult": "Success message appears and is announced: 'Assignment saved successfully', aria-invalid attributes are removed from fields, error messages are cleared, focus returns to logical location (calendar), user receives clear confirmation of success"
-        }
-      ],
-      "postconditions": [
-        "All form validation errors are accessible to screen reader users",
-        "Error messages are programmatically associated with form fields via aria-describedby",
-        "Required fields are clearly marked both visually and programmatically",
-        "Error and success messages are announced via ARIA live regions",
-        "Users can understand and correct validation errors using assistive technology"
+        "Page structure uses semantic HTML5 elements appropriately",
+        "ARIA landmarks provide clear navigation structure for screen reader users",
+        "Heading hierarchy is logical and complete",
+        "All interactive elements have accessible names and roles"
       ]
     }
   ],
@@ -1234,20 +1093,89 @@
     "accessibility": true
   },
   "userStoryObject": {
-    "id": "db-story-story-2",
+    "id": "story-2",
     "title": "As Administrator, I want to perform employee schedule management to achieve optimal staffing.",
-    "description": "CONTEXT & BACKGROUND:\nManaging employee schedules effectively is crucial for ensuring that all shifts are covered and that employee availability is respected. This feature allows administrators to assign employees to shifts based on the created templates.\n\nCURRENT STATE:\nCurrently, shifts are assigned manually, leading to potential conflicts and inefficiencies.\n\nDESIRED STATE:\nAdministrators can easily assign employees to shifts and view schedules in a user-friendly format.\n\nKEY FUNCTIONALITY:\n• Assign employees to shifts using templates.\n• View schedules in a calendar format.\n• Make adjustments to assignments as needed.\n• Employees can view their shifts in real-time.\n\nUSER INTERACTION FLOW:\n1. Administrator navigates to the employee schedule management page.\n2. Administrator selects a shift template.\n3. Administrator assigns employees to the selected shift.\n4. Administrator saves the schedule.\n5. System confirms the schedule update.\n6. Employees can view their assigned shifts.\n\nTECHNICAL CONSIDERATIONS:\n• Data source: EmployeeSchedules table in the database.\n• Validation rules: Ensure employees are not double-booked.\n• API endpoints: POST /api/employee-schedules for assignments.\n• Security: Only authorized administrators can manage schedules.\n• Performance: System should handle up to 500 employee assignments without performance issues.\n\nOUT OF SCOPE:\n• Employee self-service scheduling is not included in this story.\n\nSUCCESS METRICS:\n• 95% of shifts are filled without conflicts.",
+    "epicId": "epic-1",
     "persona": "Administrator",
-    "personaId": "",
+    "priority": "High",
+    "subtasks": [
+      {
+        "category": "Planning",
+        "description": "Define the data model for employee schedules.",
+        "estimatedHours": 4
+      },
+      {
+        "category": "Backend",
+        "description": "Implement API endpoint for assigning employees to shifts.",
+        "estimatedHours": 6
+      },
+      {
+        "category": "Frontend",
+        "description": "Develop the user interface for employee schedule management.",
+        "estimatedHours": 8
+      },
+      {
+        "category": "Testing",
+        "description": "Create unit tests for the employee schedule management functionality.",
+        "estimatedHours": 4
+      },
+      {
+        "category": "Documentation",
+        "description": "Document the API endpoint and usage for employee schedule management.",
+        "estimatedHours": 3
+      }
+    ],
+    "featureId": "feature-2",
+    "testCases": [
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the employee schedule management page",
+            "result": "Management interface is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Select a shift template and assign employees",
+            "result": "Assignments are displayed without errors"
+          },
+          {
+            "step": 3,
+            "action": "Save the schedule",
+            "result": "Schedule is updated successfully with confirmation message"
+          }
+        ],
+        "title": "Validate successful employee assignment to shifts"
+      },
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the employee schedule management page",
+            "result": "Management interface is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Attempt to assign an employee to overlapping shifts",
+            "result": "Validation error is displayed"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to save the schedule",
+            "result": "Submission is blocked with error message"
+          }
+        ],
+        "title": "Ensure validation for double-booking employees"
+      }
+    ],
+    "description": "CONTEXT & BACKGROUND:\nManaging employee schedules effectively is crucial for ensuring that all shifts are covered and that employee availability is respected. This feature allows administrators to assign employees to shifts based on the created templates.\n\nCURRENT STATE:\nCurrently, shifts are assigned manually, leading to potential conflicts and inefficiencies.\n\nDESIRED STATE:\nAdministrators can easily assign employees to shifts and view schedules in a user-friendly format.\n\nKEY FUNCTIONALITY:\n• Assign employees to shifts using templates.\n• View schedules in a calendar format.\n• Make adjustments to assignments as needed.\n• Employees can view their shifts in real-time.\n\nUSER INTERACTION FLOW:\n1. Administrator navigates to the employee schedule management page.\n2. Administrator selects a shift template.\n3. Administrator assigns employees to the selected shift.\n4. Administrator saves the schedule.\n5. System confirms the schedule update.\n6. Employees can view their assigned shifts.\n\nTECHNICAL CONSIDERATIONS:\n• Data source: EmployeeSchedules table in the database.\n• Validation rules: Ensure employees are not double-booked.\n• API endpoints: POST /api/employee-schedules for assignments.\n• Security: Only authorized administrators can manage schedules.\n• Performance: System should handle up to 500 employee assignments without performance issues.\n\nOUT OF SCOPE:\n• Employee self-service scheduling is not included in this story.\n\nSUCCESS METRICS:\n• 95% of shifts are filled without conflicts.",
+    "storyPoints": 8,
+    "personaSource": "AI Suggested",
     "acceptanceCriteria": [
       "System allows assignment of employees to shifts using templates.",
       "System displays schedules in a calendar format for easy viewing.",
       "Administrators can make adjustments to assignments without errors.",
       "Employees can view their assigned shifts in real-time."
-    ],
-    "priority": "High",
-    "storyPoints": 8,
-    "epicId": "",
-    "status": "Backlog"
+    ]
   }
 }
