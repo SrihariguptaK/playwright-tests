@@ -1,0 +1,1232 @@
+{
+  "storyId": "story-6",
+  "storyTitle": "As Scheduler, I want to view conflict history to analyze patterns and improve scheduling",
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify successful retrieval and display of conflict history with all relevant details",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Scheduler role and valid authentication token",
+        "Conflict history database contains at least 20 historical conflict records",
+        "User has permission to access conflict history page",
+        "Browser is on the main dashboard page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on 'Conflict History' menu item in the left navigation panel",
+          "expectedResult": "Conflict history page loads within 3 seconds and displays a table with columns: Conflict ID, Date, Time, Type, Resources Involved, Status, and Actions"
+        },
+        {
+          "step": 2,
+          "action": "Verify the conflict list displays with pagination showing 10 records per page",
+          "expectedResult": "Table shows 10 conflict records with pagination controls at the bottom showing 'Page 1 of 2' and Next/Previous buttons"
+        },
+        {
+          "step": 3,
+          "action": "Click on any conflict row to view detailed information",
+          "expectedResult": "Conflict detail modal opens displaying full conflict information including: conflict description, affected schedules, resolution status, timestamp, and involved parties"
+        },
+        {
+          "step": 4,
+          "action": "Close the detail modal by clicking the 'X' button in top-right corner",
+          "expectedResult": "Modal closes smoothly and user returns to the conflict history list view"
+        }
+      ],
+      "postconditions": [
+        "User remains on conflict history page with list view displayed",
+        "No data is modified in the conflict history database",
+        "Page state is maintained for further interactions"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify filtering conflict history by date range returns accurate results",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Conflict history contains records spanning from January 1, 2024 to December 31, 2024",
+        "Date range filter controls are visible at the top of the page",
+        "At least 5 conflicts exist within the date range March 1-31, 2024"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on the 'Start Date' calendar input field in the filter section",
+          "expectedResult": "Calendar date picker opens showing current month and year"
+        },
+        {
+          "step": 2,
+          "action": "Select March 1, 2024 from the calendar picker",
+          "expectedResult": "Start Date field displays '03/01/2024' and calendar closes"
+        },
+        {
+          "step": 3,
+          "action": "Click on the 'End Date' calendar input field",
+          "expectedResult": "Calendar date picker opens for end date selection"
+        },
+        {
+          "step": 4,
+          "action": "Select March 31, 2024 from the calendar picker",
+          "expectedResult": "End Date field displays '03/31/2024' and calendar closes"
+        },
+        {
+          "step": 5,
+          "action": "Click the 'Apply Filter' button with blue background",
+          "expectedResult": "Loading spinner appears briefly, then table refreshes showing only conflicts between March 1-31, 2024. Filter summary displays 'Showing conflicts from 03/01/2024 to 03/31/2024' above the table"
+        },
+        {
+          "step": 6,
+          "action": "Verify each displayed conflict has a date within the selected range",
+          "expectedResult": "All visible conflict records show dates between March 1 and March 31, 2024. No records outside this range are displayed"
+        }
+      ],
+      "postconditions": [
+        "Filter remains applied with selected date range visible in filter controls",
+        "Conflict count badge updates to reflect filtered results",
+        "Export and other actions operate only on filtered dataset",
+        "Filter can be cleared or modified for subsequent searches"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify filtering conflict history by conflict type displays only matching records",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Conflict history contains multiple conflict types: Resource Overlap, Time Conflict, Location Conflict, and Capacity Exceeded",
+        "At least 3 conflicts of type 'Resource Overlap' exist in the database",
+        "Conflict type dropdown filter is visible and enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on the 'Conflict Type' dropdown filter in the filter section",
+          "expectedResult": "Dropdown expands showing all available conflict types: All Types, Resource Overlap, Time Conflict, Location Conflict, Capacity Exceeded"
+        },
+        {
+          "step": 2,
+          "action": "Select 'Resource Overlap' from the dropdown options",
+          "expectedResult": "Dropdown closes and displays 'Resource Overlap' as selected value"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'Apply Filter' button",
+          "expectedResult": "Table refreshes and displays only conflicts with type 'Resource Overlap'. Filter badge shows 'Type: Resource Overlap' above the table"
+        },
+        {
+          "step": 4,
+          "action": "Verify the 'Type' column in the table shows only 'Resource Overlap' for all displayed records",
+          "expectedResult": "All visible records in the Type column display 'Resource Overlap' with no other conflict types present"
+        },
+        {
+          "step": 5,
+          "action": "Click the 'Clear Filters' button with gray outline",
+          "expectedResult": "All filters reset, dropdown shows 'All Types', and table displays all conflict records regardless of type"
+        }
+      ],
+      "postconditions": [
+        "Filters are cleared and system returns to unfiltered state",
+        "All conflict types are visible in the table",
+        "Filter controls are reset to default values",
+        "User can apply new filters immediately"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify sorting conflict history by date in ascending and descending order",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Conflict history table displays at least 10 records with varying dates",
+        "Table is currently unsorted or sorted by Conflict ID",
+        "Date column header is clickable with sort icon visible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on the 'Date' column header in the conflict history table",
+          "expectedResult": "Table re-sorts with conflicts displayed in ascending date order (oldest first). Up arrow icon appears next to 'Date' column header"
+        },
+        {
+          "step": 2,
+          "action": "Verify the first record shows the oldest conflict date and last record shows the most recent date",
+          "expectedResult": "Dates are arranged chronologically from oldest to newest when reading top to bottom"
+        },
+        {
+          "step": 3,
+          "action": "Click on the 'Date' column header again",
+          "expectedResult": "Table re-sorts with conflicts displayed in descending date order (newest first). Down arrow icon appears next to 'Date' column header"
+        },
+        {
+          "step": 4,
+          "action": "Verify the first record shows the most recent conflict date and last record shows the oldest date",
+          "expectedResult": "Dates are arranged in reverse chronological order from newest to oldest when reading top to bottom"
+        }
+      ],
+      "postconditions": [
+        "Table remains sorted by date in descending order",
+        "Sort preference is maintained during pagination",
+        "Other columns remain sortable",
+        "Sort state persists until user changes it or refreshes page"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify exporting conflict history generates downloadable file with correct data",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Conflict history table displays at least 5 filtered conflict records",
+        "Date range filter is applied showing conflicts from March 1-31, 2024",
+        "Export button is visible and enabled in the top-right corner of the page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click the 'Export' button with download icon in the top-right corner",
+          "expectedResult": "Export options modal opens displaying format options: CSV, Excel (.xlsx), and PDF"
+        },
+        {
+          "step": 2,
+          "action": "Select 'CSV' format option by clicking the radio button",
+          "expectedResult": "CSV option is selected with radio button filled, and 'Download' button becomes enabled"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'Download' button in the export modal",
+          "expectedResult": "Success message 'Export started. Your file will download shortly.' appears. Modal closes and file download begins within 2 seconds"
+        },
+        {
+          "step": 4,
+          "action": "Open the downloaded CSV file named 'conflict_history_YYYY-MM-DD.csv' in a spreadsheet application",
+          "expectedResult": "CSV file opens successfully containing all filtered conflict records with columns: Conflict ID, Date, Time, Type, Resources Involved, Status, Description"
+        },
+        {
+          "step": 5,
+          "action": "Verify the CSV contains only the filtered conflicts from March 1-31, 2024 and matches the count shown in the UI",
+          "expectedResult": "CSV file contains exactly the same number of records as displayed in the filtered table, all with dates between March 1-31, 2024"
+        }
+      ],
+      "postconditions": [
+        "CSV file is successfully downloaded to user's default download folder",
+        "User remains on conflict history page with filters still applied",
+        "Export action is logged in system audit trail",
+        "No data is modified in the conflict history database"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify combining multiple filters (date range and conflict type) returns accurate intersection of results",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Conflict history contains at least 15 records with various types and dates",
+        "At least 3 'Time Conflict' type conflicts exist between April 1-30, 2024",
+        "Both date range and conflict type filters are available and functional"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Set Start Date to '04/01/2024' and End Date to '04/30/2024' in the date range filter",
+          "expectedResult": "Both date fields display the selected dates correctly"
+        },
+        {
+          "step": 2,
+          "action": "Select 'Time Conflict' from the Conflict Type dropdown",
+          "expectedResult": "Dropdown displays 'Time Conflict' as selected value"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'Apply Filter' button",
+          "expectedResult": "Table refreshes showing only conflicts that are BOTH type 'Time Conflict' AND dated between April 1-30, 2024. Filter summary shows 'Type: Time Conflict | Date: 04/01/2024 - 04/30/2024'"
+        },
+        {
+          "step": 4,
+          "action": "Verify each displayed record matches both filter criteria",
+          "expectedResult": "All visible records show 'Time Conflict' in Type column and dates between April 1-30, 2024 in Date column. No records violating either criterion are displayed"
+        },
+        {
+          "step": 5,
+          "action": "Note the total count of filtered results displayed above the table",
+          "expectedResult": "Count badge shows accurate number like 'Showing 3 of 15 conflicts' matching the filtered results"
+        }
+      ],
+      "postconditions": [
+        "Both filters remain active and visible in the UI",
+        "Filtered dataset is used for any export or analysis actions",
+        "Pagination reflects only the filtered results",
+        "Filters can be individually removed or modified"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify system handles invalid date range where start date is after end date",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Date range filter controls are visible and enabled",
+        "No filters are currently applied",
+        "Validation rules are active for date range inputs"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on the 'Start Date' field and select June 30, 2024",
+          "expectedResult": "Start Date field displays '06/30/2024'"
+        },
+        {
+          "step": 2,
+          "action": "Click on the 'End Date' field and select June 1, 2024 (earlier than start date)",
+          "expectedResult": "End Date field displays '06/01/2024'"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'Apply Filter' button",
+          "expectedResult": "Error message appears in red text below the date fields stating 'End date must be after start date' and filter is not applied"
+        },
+        {
+          "step": 4,
+          "action": "Verify the conflict history table remains unchanged",
+          "expectedResult": "Table continues to display all conflicts without filtering. No loading spinner appears and no API call is made"
+        },
+        {
+          "step": 5,
+          "action": "Verify the 'Apply Filter' button remains enabled for correction",
+          "expectedResult": "Apply Filter button is still clickable and date fields remain editable for user to correct the error"
+        }
+      ],
+      "postconditions": [
+        "No filter is applied to the conflict history",
+        "Error message remains visible until user corrects the date range",
+        "System does not make invalid API requests",
+        "User can correct the dates and retry filtering"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify system handles unauthorized access attempt to conflict history page",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with 'Viewer' role that does not have conflict history access permissions",
+        "User is on the main dashboard page",
+        "Authorization middleware is active and enforcing permissions",
+        "Conflict history page requires 'Scheduler' or 'Admin' role"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to navigate to conflict history page by typing '/conflict-history' in the browser URL bar",
+          "expectedResult": "Page redirects to an 'Access Denied' error page with message 'You do not have permission to view conflict history. Contact your administrator for access.'"
+        },
+        {
+          "step": 2,
+          "action": "Verify the conflict history page content is not displayed",
+          "expectedResult": "No conflict data, filters, or export options are visible. Only the error message and a 'Return to Dashboard' button are shown"
+        },
+        {
+          "step": 3,
+          "action": "Check browser console for any error logs",
+          "expectedResult": "Console shows 403 Forbidden error with message 'Insufficient permissions for resource /api/conflicts/history'"
+        },
+        {
+          "step": 4,
+          "action": "Click the 'Return to Dashboard' button",
+          "expectedResult": "User is redirected back to the main dashboard page they have permission to access"
+        }
+      ],
+      "postconditions": [
+        "User remains logged in but cannot access conflict history",
+        "No conflict data is exposed to unauthorized user",
+        "Security event is logged in audit trail showing unauthorized access attempt",
+        "User session remains valid for accessing permitted pages"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify system handles export attempt when no conflicts match the applied filters",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Filters are applied that result in zero matching conflicts",
+        "Table displays 'No conflicts found matching your criteria' message",
+        "Export button is visible in the UI"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Apply date range filter for January 1-5, 2020 (a period with no conflicts)",
+          "expectedResult": "Table shows empty state with message 'No conflicts found matching your criteria' and displays 'Showing 0 of 150 conflicts'"
+        },
+        {
+          "step": 2,
+          "action": "Click the 'Export' button in the top-right corner",
+          "expectedResult": "Export modal opens but displays warning message 'No data available to export. Please adjust your filters to include conflicts.'"
+        },
+        {
+          "step": 3,
+          "action": "Verify the format selection options are disabled or grayed out",
+          "expectedResult": "CSV, Excel, and PDF radio buttons are disabled and 'Download' button is grayed out and not clickable"
+        },
+        {
+          "step": 4,
+          "action": "Click the 'Close' button on the export modal",
+          "expectedResult": "Modal closes and user returns to the empty conflict history table with filters still applied"
+        }
+      ],
+      "postconditions": [
+        "No file is downloaded or generated",
+        "User remains on conflict history page with filters applied",
+        "User can modify filters to get results",
+        "No unnecessary API calls are made for empty export"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify system handles API timeout when retrieving conflict history",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Network conditions are simulated to cause API timeout (response time > 30 seconds)",
+        "API endpoint GET /api/conflicts/history is configured to timeout",
+        "User has valid authentication token"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the conflict history page by clicking 'Conflict History' in the navigation menu",
+          "expectedResult": "Page loads with loading spinner displayed in the table area showing 'Loading conflict history...'"
+        },
+        {
+          "step": 2,
+          "action": "Wait for 30 seconds while the API request times out",
+          "expectedResult": "After timeout period, loading spinner disappears and error message appears: 'Unable to load conflict history. The request timed out. Please try again.'"
+        },
+        {
+          "step": 3,
+          "action": "Verify a 'Retry' button is displayed below the error message",
+          "expectedResult": "'Retry' button with refresh icon is visible and clickable"
+        },
+        {
+          "step": 4,
+          "action": "Check that no partial or corrupted data is displayed in the table",
+          "expectedResult": "Table area shows only the error message and retry button, with no conflict records or table headers visible"
+        },
+        {
+          "step": 5,
+          "action": "Click the 'Retry' button to attempt reloading",
+          "expectedResult": "Loading spinner appears again and new API request is initiated to GET /api/conflicts/history"
+        }
+      ],
+      "postconditions": [
+        "User can retry loading the conflict history",
+        "No corrupted or partial data is cached",
+        "Error is logged in system error logs with timestamp and user details",
+        "User session remains active and authenticated"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify system handles SQL injection attempt in filter input fields",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Search or text filter field is available for filtering conflicts",
+        "Input validation and SQL injection prevention measures are active",
+        "Backend uses parameterized queries"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Locate the search/filter text input field for conflict description or resource name",
+          "expectedResult": "Text input field is visible and enabled for user input"
+        },
+        {
+          "step": 2,
+          "action": "Enter SQL injection string: \"' OR '1'='1'; DROP TABLE conflicts; --\" in the search field",
+          "expectedResult": "Input is accepted in the field and displays the entered text"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'Apply Filter' or 'Search' button",
+          "expectedResult": "System treats the input as literal search text, not SQL code. Either returns no results or results matching the literal string. No database error occurs"
+        },
+        {
+          "step": 4,
+          "action": "Verify the conflicts table is still functional and database is intact",
+          "expectedResult": "Table loads normally when filters are cleared. No database tables are dropped or modified. System logs show sanitized query was executed"
+        },
+        {
+          "step": 5,
+          "action": "Check system security logs for injection attempt detection",
+          "expectedResult": "Security log contains entry flagging potential SQL injection attempt with user ID, timestamp, and input string"
+        }
+      ],
+      "postconditions": [
+        "Database remains intact with no tables dropped or modified",
+        "Conflict history data is unchanged and accessible",
+        "Security incident is logged for review",
+        "User account may be flagged for security review depending on policy"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify system handles session expiration during conflict history interaction",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "User session is set to expire in 1 minute",
+        "Conflict history page is loaded with data displayed",
+        "Session timeout middleware is active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Wait for user session to expire (simulate by clearing auth token or waiting for timeout)",
+          "expectedResult": "Session expires after configured timeout period"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to apply a filter by selecting a date range and clicking 'Apply Filter'",
+          "expectedResult": "API request returns 401 Unauthorized error. Modal or notification appears stating 'Your session has expired. Please log in again to continue.'"
+        },
+        {
+          "step": 3,
+          "action": "Verify user is redirected to login page after clicking 'OK' on the session expiration message",
+          "expectedResult": "User is redirected to login page with return URL parameter set to /conflict-history for post-login redirect"
+        },
+        {
+          "step": 4,
+          "action": "Verify no conflict data remains visible on the page",
+          "expectedResult": "All conflict data is cleared from the UI and no sensitive information is accessible without authentication"
+        }
+      ],
+      "postconditions": [
+        "User is logged out and on the login page",
+        "No authenticated API calls can be made",
+        "User must re-authenticate to access conflict history",
+        "After successful login, user can be redirected back to conflict history page"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Verify system handles conflict history with maximum allowed records (10,000+ conflicts)",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Conflict history database contains 10,000+ conflict records",
+        "No filters are applied initially",
+        "Pagination is set to display 10 records per page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the conflict history page",
+          "expectedResult": "Page loads within 3 seconds showing first 10 conflicts. Pagination shows 'Page 1 of 1000' and displays total count 'Showing 10 of 10,000+ conflicts'"
+        },
+        {
+          "step": 2,
+          "action": "Click the 'Last Page' button in pagination controls",
+          "expectedResult": "System navigates to the last page within 3 seconds, displaying the final 10 records. Page indicator shows 'Page 1000 of 1000'"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to export all 10,000+ conflicts by clicking Export and selecting CSV format",
+          "expectedResult": "Warning message appears: 'Large dataset detected (10,000+ records). Export may take several minutes. Continue?' with Yes/No options"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Yes' to proceed with export",
+          "expectedResult": "Progress indicator appears showing 'Preparing export... 25%... 50%... 75%... 100%'. File downloads successfully within 60 seconds containing all 10,000+ records"
+        },
+        {
+          "step": 5,
+          "action": "Verify the exported CSV file opens and contains the correct number of records",
+          "expectedResult": "CSV file opens successfully with 10,000+ rows (plus header row). File size is appropriate and data is not truncated"
+        }
+      ],
+      "postconditions": [
+        "System performance remains stable with large dataset",
+        "Memory usage stays within acceptable limits",
+        "User can continue to interact with the page after export",
+        "Large export is logged in system performance logs"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Verify system handles conflict history with zero records in database",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Conflict history database contains zero conflict records (new system or all conflicts deleted)",
+        "User has valid permissions to view conflict history",
+        "API endpoint returns empty array for conflict history"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the conflict history page by clicking 'Conflict History' in navigation menu",
+          "expectedResult": "Page loads successfully within 3 seconds showing empty state illustration with message 'No conflict history available yet'"
+        },
+        {
+          "step": 2,
+          "action": "Verify helpful guidance text is displayed",
+          "expectedResult": "Subtext appears stating 'Conflicts will appear here once scheduling conflicts are detected. Check back later or review your scheduling settings.'"
+        },
+        {
+          "step": 3,
+          "action": "Verify filter controls are disabled or hidden",
+          "expectedResult": "Date range and conflict type filters are either grayed out/disabled or hidden with tooltip 'No data available to filter'"
+        },
+        {
+          "step": 4,
+          "action": "Verify export button is disabled",
+          "expectedResult": "Export button is grayed out and shows tooltip 'No data available to export' when hovered"
+        },
+        {
+          "step": 5,
+          "action": "Verify pagination controls are not displayed",
+          "expectedResult": "No pagination controls are visible. Count shows 'Showing 0 conflicts'"
+        }
+      ],
+      "postconditions": [
+        "User understands why no data is displayed",
+        "Page remains functional and does not show errors",
+        "User can navigate away to other pages normally",
+        "When conflicts are added, page will display them on next visit"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Verify system handles conflict records with special characters and Unicode in descriptions",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Conflict history contains records with special characters: <script>, &, ', \", emojis (🔥, 📅), Unicode (中文, العربية), and newlines",
+        "At least 3 conflicts have descriptions containing these special characters",
+        "Character encoding is set to UTF-8"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the conflict history page and locate conflicts with special characters in descriptions",
+          "expectedResult": "Page loads successfully and displays conflicts. Special characters are properly rendered without breaking the UI layout"
+        },
+        {
+          "step": 2,
+          "action": "Click on a conflict record containing HTML-like tags '<script>alert(\"test\")</script>' in the description",
+          "expectedResult": "Detail modal opens and displays the text as plain text, not executed as HTML/JavaScript. Tags are escaped and shown as literal text: '&lt;script&gt;alert(&quot;test&quot;)&lt;/script&gt;'"
+        },
+        {
+          "step": 3,
+          "action": "Verify a conflict with emoji characters (🔥📅) displays correctly in both table and detail view",
+          "expectedResult": "Emojis render properly in both table cell and detail modal without causing layout issues or character corruption"
+        },
+        {
+          "step": 4,
+          "action": "Export conflict history containing special characters to CSV format",
+          "expectedResult": "CSV file downloads successfully. When opened, special characters are preserved correctly: emojis display, Unicode text is readable, and HTML tags are escaped"
+        },
+        {
+          "step": 5,
+          "action": "Search/filter for a conflict using Unicode characters (e.g., search for '中文')",
+          "expectedResult": "Search successfully finds and displays conflicts containing the Unicode search term. Results are accurate and character encoding is maintained"
+        }
+      ],
+      "postconditions": [
+        "All special characters are properly escaped and displayed",
+        "No XSS vulnerabilities are exposed",
+        "Data integrity is maintained in exports",
+        "Unicode and emoji support is confirmed functional"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Verify system handles rapid consecutive filter applications without race conditions",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Conflict history contains at least 50 records",
+        "Network latency is simulated at 500ms for API responses",
+        "Multiple filter options are available"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Apply date range filter for March 2024 and immediately click 'Apply Filter'",
+          "expectedResult": "Loading spinner appears and API request is initiated for March 2024 data"
+        },
+        {
+          "step": 2,
+          "action": "Before the first request completes, change date range to April 2024 and click 'Apply Filter' again",
+          "expectedResult": "First request is cancelled or ignored. New loading spinner appears for April 2024 request. Previous request does not interfere"
+        },
+        {
+          "step": 3,
+          "action": "Before the second request completes, change conflict type to 'Resource Overlap' and click 'Apply Filter' a third time",
+          "expectedResult": "Second request is cancelled. Third request proceeds with both April 2024 date range AND Resource Overlap type filter"
+        },
+        {
+          "step": 4,
+          "action": "Wait for the final request to complete",
+          "expectedResult": "Table displays results matching the LAST applied filters only (April 2024 + Resource Overlap). No mixed results from previous requests appear. Count and data are consistent"
+        },
+        {
+          "step": 5,
+          "action": "Verify only one set of results is displayed with no duplicate or conflicting data",
+          "expectedResult": "Table shows coherent results matching April 2024 Resource Overlap conflicts. No race condition artifacts like duplicate rows or mixed filter results"
+        }
+      ],
+      "postconditions": [
+        "Only the most recent filter request results are displayed",
+        "No memory leaks from cancelled requests",
+        "System remains responsive for further interactions",
+        "Request cancellation is logged appropriately"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Verify system handles conflict history page at 200% browser zoom level",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Conflict history displays at least 10 records",
+        "Browser zoom is initially set to 100%",
+        "Page is designed to be responsive"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Set browser zoom level to 200% using Ctrl/Cmd + Plus key or browser zoom controls",
+          "expectedResult": "Page content scales up to 200% zoom. All text becomes larger and more readable"
+        },
+        {
+          "step": 2,
+          "action": "Verify the conflict history table remains functional and readable",
+          "expectedResult": "Table columns adjust appropriately. Horizontal scrollbar appears if needed. All text is readable without overlapping. Column headers and data cells maintain proper alignment"
+        },
+        {
+          "step": 3,
+          "action": "Verify filter controls are accessible and usable at 200% zoom",
+          "expectedResult": "Date pickers, dropdowns, and buttons are large enough to click easily. No UI elements are cut off or hidden. Filter section may stack vertically if needed for space"
+        },
+        {
+          "step": 4,
+          "action": "Apply a filter and verify the results display correctly at 200% zoom",
+          "expectedResult": "Filtered results appear properly. Loading states, success messages, and result counts are all visible and readable"
+        },
+        {
+          "step": 5,
+          "action": "Open a conflict detail modal and verify it displays correctly at 200% zoom",
+          "expectedResult": "Modal scales appropriately, remains centered on screen, and all content is accessible. Scrollbar appears within modal if content exceeds viewport. Close button remains accessible"
+        }
+      ],
+      "postconditions": [
+        "Page remains fully functional at 200% zoom",
+        "User can zoom back to 100% without issues",
+        "No layout breaks or content loss occurs",
+        "Responsive design handles zoom levels appropriately"
+      ]
+    },
+    {
+      "id": "TC-EDGE-006",
+      "title": "Verify system handles conflict history with date range spanning multiple years (5+ years)",
+      "category": "Edge Cases",
+      "priority": "Low",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Conflict history database contains records from January 2019 to December 2024 (5+ years)",
+        "At least 1000 conflicts exist across this time period",
+        "Date range filter allows selecting wide date ranges"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Set Start Date to January 1, 2019 in the date range filter",
+          "expectedResult": "Start Date field displays '01/01/2019'"
+        },
+        {
+          "step": 2,
+          "action": "Set End Date to December 31, 2024 in the date range filter",
+          "expectedResult": "End Date field displays '12/31/2024'. System accepts the 5+ year date range without validation errors"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Apply Filter' button",
+          "expectedResult": "Loading indicator appears. System processes the large date range query. Results load within 5 seconds showing conflicts from the entire 5-year period"
+        },
+        {
+          "step": 4,
+          "action": "Verify pagination shows the total count of conflicts across all years",
+          "expectedResult": "Pagination displays accurate total like 'Showing 10 of 1,247 conflicts' spanning from 2019 to 2024"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to export the 5-year conflict history",
+          "expectedResult": "Export warning appears: 'You are exporting 1,247 conflicts spanning 5 years. This may take a few minutes.' Export completes successfully with all records included"
+        },
+        {
+          "step": 6,
+          "action": "Verify the exported file contains conflicts from both the earliest (2019) and latest (2024) dates",
+          "expectedResult": "Exported CSV contains records with dates ranging from January 2019 to December 2024, confirming complete date range coverage"
+        }
+      ],
+      "postconditions": [
+        "System handles multi-year queries without performance degradation",
+        "All conflicts within the date range are accessible",
+        "Export includes complete historical data",
+        "User can narrow the date range for more focused analysis"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Verify complete keyboard navigation through conflict history page and all interactive elements",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Conflict history displays at least 10 records",
+        "Keyboard navigation is enabled in browser",
+        "No mouse or pointing device is used for this test"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key from the page header to move focus to the first interactive element",
+          "expectedResult": "Focus moves to the first filter control (Start Date field) with visible focus indicator (blue outline or highlight)"
+        },
+        {
+          "step": 2,
+          "action": "Continue pressing Tab to navigate through all filter controls: Start Date, End Date, Conflict Type dropdown, Apply Filter button, Clear Filters button",
+          "expectedResult": "Focus moves sequentially through each control in logical order. Each element shows clear focus indicator. Focus does not skip any interactive elements"
+        },
+        {
+          "step": 3,
+          "action": "Press Tab to move focus into the conflict history table, then use Arrow keys to navigate between table rows",
+          "expectedResult": "Focus enters the table and highlights the first conflict row. Down Arrow moves to next row, Up Arrow moves to previous row. Focus indicator clearly shows which row is selected"
+        },
+        {
+          "step": 4,
+          "action": "Press Enter key on a focused conflict row to open the detail modal",
+          "expectedResult": "Conflict detail modal opens and focus automatically moves to the modal's first interactive element (Close button or first focusable content)"
+        },
+        {
+          "step": 5,
+          "action": "Press Escape key to close the modal",
+          "expectedResult": "Modal closes and focus returns to the conflict row that was previously selected in the table"
+        },
+        {
+          "step": 6,
+          "action": "Tab to the Export button and press Enter to open export modal",
+          "expectedResult": "Export modal opens and focus moves to the first format option (CSV radio button)"
+        },
+        {
+          "step": 7,
+          "action": "Use Arrow keys to select different export format options, then Tab to Download button and press Enter",
+          "expectedResult": "Arrow keys change radio button selection. Enter on Download button initiates export. Focus management prevents keyboard trap"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements are reachable via keyboard",
+        "Focus order is logical and predictable",
+        "No keyboard traps exist in the interface",
+        "Focus indicators are visible throughout navigation"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Verify screen reader announces all conflict history content, labels, and state changes correctly",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Screen reader software (NVDA, JAWS, or VoiceOver) is active",
+        "Conflict history displays at least 5 records",
+        "ARIA labels and live regions are implemented"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to conflict history page and listen to screen reader announcement",
+          "expectedResult": "Screen reader announces: 'Conflict History page. Main region. Showing 10 of 50 conflicts. Use filters to narrow results.'"
+        },
+        {
+          "step": 2,
+          "action": "Tab to the Start Date filter field and listen to announcement",
+          "expectedResult": "Screen reader announces: 'Start Date, date picker, edit text. Press Enter to open calendar. Format: MM/DD/YYYY'"
+        },
+        {
+          "step": 3,
+          "action": "Tab to Conflict Type dropdown and listen to announcement",
+          "expectedResult": "Screen reader announces: 'Conflict Type, combo box, All Types selected. Press Alt+Down Arrow to expand options'"
+        },
+        {
+          "step": 4,
+          "action": "Apply a filter and listen to the announcement when results update",
+          "expectedResult": "ARIA live region announces: 'Conflict history updated. Now showing 3 of 50 conflicts. Filtered by date range March 1 to March 31, 2024'"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to the conflict history table and listen to table structure announcement",
+          "expectedResult": "Screen reader announces: 'Conflict history table with 6 columns and 3 rows. Column headers: Conflict ID, Date, Time, Type, Resources Involved, Status'"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to a table cell and listen to content announcement",
+          "expectedResult": "Screen reader announces cell content with context: 'Row 1, Conflict ID column: CF-2024-001. Date column: March 15, 2024. Type column: Resource Overlap'"
+        },
+        {
+          "step": 7,
+          "action": "Open a conflict detail modal and listen to announcement",
+          "expectedResult": "Screen reader announces: 'Conflict details dialog. Conflict ID CF-2024-001. Resource Overlap detected on March 15, 2024. Close button available.'"
+        },
+        {
+          "step": 8,
+          "action": "Initiate an export and listen to progress announcement",
+          "expectedResult": "ARIA live region announces: 'Export started. Preparing file... Export complete. File conflict_history_2024-03-15.csv downloaded.'"
+        }
+      ],
+      "postconditions": [
+        "All content is accessible to screen reader users",
+        "Dynamic content changes are announced via ARIA live regions",
+        "Form labels and instructions are properly associated",
+        "Table structure and relationships are conveyed correctly"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify color contrast ratios meet WCAG 2.1 AA standards (4.5:1 for normal text, 3:1 for large text)",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Conflict history page is fully loaded with data",
+        "Color contrast analyzer tool is available (browser extension or standalone tool)",
+        "Page uses standard color scheme without user customization"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use color contrast analyzer to check the contrast ratio between body text (conflict descriptions) and background",
+          "expectedResult": "Contrast ratio is at least 4.5:1 for normal text (14px or smaller). Example: Black text (#000000) on white background (#FFFFFF) = 21:1, which passes"
+        },
+        {
+          "step": 2,
+          "action": "Check contrast ratio for filter labels and form field text against their backgrounds",
+          "expectedResult": "All label text has minimum 4.5:1 contrast ratio. Field borders have minimum 3:1 contrast against adjacent colors"
+        },
+        {
+          "step": 3,
+          "action": "Check contrast ratio for table header text against header background color",
+          "expectedResult": "Table header text has minimum 4.5:1 contrast ratio. If headers use large text (18px+ or 14px+ bold), minimum 3:1 ratio is acceptable"
+        },
+        {
+          "step": 4,
+          "action": "Check contrast ratio for button text (Apply Filter, Export, etc.) against button background colors in all states (normal, hover, focus, disabled)",
+          "expectedResult": "All button states maintain minimum 4.5:1 contrast for text. Focus indicators have minimum 3:1 contrast against background"
+        },
+        {
+          "step": 5,
+          "action": "Check contrast for status indicators and conflict type badges (colored labels)",
+          "expectedResult": "Status text on colored backgrounds maintains 4.5:1 contrast. If color alone conveys meaning, additional text or icons are present"
+        },
+        {
+          "step": 6,
+          "action": "Check contrast for error messages and validation text",
+          "expectedResult": "Error messages in red have sufficient contrast (4.5:1 minimum). Error state is indicated by more than color alone (icons, text, borders)"
+        },
+        {
+          "step": 7,
+          "action": "Verify link text contrast and underline visibility",
+          "expectedResult": "Link text has 4.5:1 contrast and is distinguishable from surrounding text by more than color (underline, icon, or other visual indicator)"
+        }
+      ],
+      "postconditions": [
+        "All text meets WCAG 2.1 AA contrast requirements",
+        "Information is not conveyed by color alone",
+        "Users with color vision deficiencies can use the interface",
+        "Contrast is maintained in all interactive states"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify focus management and focus trap prevention in modal dialogs",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Conflict history displays at least 3 records",
+        "Keyboard navigation is being used exclusively",
+        "Modal dialogs (conflict detail, export) are functional"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use keyboard to navigate to a conflict row and press Enter to open the conflict detail modal",
+          "expectedResult": "Modal opens and focus automatically moves to the first focusable element inside the modal (typically the Close button or modal heading)"
+        },
+        {
+          "step": 2,
+          "action": "Press Tab repeatedly to cycle through all focusable elements within the modal",
+          "expectedResult": "Focus moves through all interactive elements inside the modal: Close button, any links or buttons in content, action buttons. Focus stays trapped within the modal and does not move to background page elements"
+        },
+        {
+          "step": 3,
+          "action": "After reaching the last focusable element in the modal, press Tab again",
+          "expectedResult": "Focus cycles back to the first focusable element in the modal (Close button), creating a focus loop within the modal"
+        },
+        {
+          "step": 4,
+          "action": "Press Shift+Tab from the first focusable element",
+          "expectedResult": "Focus moves backward to the last focusable element in the modal, allowing reverse navigation within the focus trap"
+        },
+        {
+          "step": 5,
+          "action": "Press Escape key to close the modal",
+          "expectedResult": "Modal closes and focus returns to the exact element that triggered the modal (the conflict row in the table). Focus is not lost or moved to an unexpected location"
+        },
+        {
+          "step": 6,
+          "action": "Open the Export modal using keyboard, then click the Close button instead of using Escape",
+          "expectedResult": "Modal closes and focus returns to the Export button that opened the modal. Focus restoration works regardless of close method"
+        },
+        {
+          "step": 7,
+          "action": "Verify that when a modal is open, background content is not accessible via keyboard",
+          "expectedResult": "Tab and Shift+Tab do not move focus to elements behind the modal. Background content has aria-hidden='true' or inert attribute applied"
+        }
+      ],
+      "postconditions": [
+        "Focus is properly trapped within modal dialogs",
+        "Focus returns to triggering element when modal closes",
+        "Background content is not accessible when modal is open",
+        "Users cannot accidentally interact with hidden content"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify ARIA roles, labels, and properties are correctly implemented for dynamic content",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Browser developer tools or accessibility inspector is available",
+        "Conflict history page has dynamic content (filters, loading states, results)",
+        "ARIA attributes are implemented in the codebase"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Inspect the main conflict history table using accessibility inspector",
+          "expectedResult": "Table has role='table' or uses semantic <table> element. Column headers have role='columnheader' or use <th> elements. Rows have role='row' or use <tr> elements"
+        },
+        {
+          "step": 2,
+          "action": "Inspect the filter section for proper ARIA labels",
+          "expectedResult": "Filter controls have aria-label or associated <label> elements. Dropdown has aria-haspopup='listbox' and aria-expanded state. Date pickers have aria-label describing their purpose"
+        },
+        {
+          "step": 3,
+          "action": "Apply a filter and inspect the results update area",
+          "expectedResult": "Results container has aria-live='polite' or aria-live='assertive' for announcing updates. Loading state has aria-busy='true' while loading, then aria-busy='false' when complete"
+        },
+        {
+          "step": 4,
+          "action": "Inspect the conflict count badge or summary text",
+          "expectedResult": "Count display has aria-live='polite' so updates are announced. Text like 'Showing 3 of 50 conflicts' is programmatically associated with the table via aria-describedby"
+        },
+        {
+          "step": 5,
+          "action": "Inspect modal dialogs for proper ARIA attributes",
+          "expectedResult": "Modal has role='dialog' and aria-modal='true'. Modal has aria-labelledby pointing to modal title. Background content has aria-hidden='true' when modal is open"
+        },
+        {
+          "step": 6,
+          "action": "Inspect buttons for proper ARIA labels, especially icon-only buttons",
+          "expectedResult": "Icon-only buttons (Export, Close, etc.) have aria-label providing text description. Example: Export button has aria-label='Export conflict history'"
+        },
+        {
+          "step": 7,
+          "action": "Inspect error messages and validation feedback",
+          "expectedResult": "Error messages have role='alert' or aria-live='assertive' for immediate announcement. Form fields with errors have aria-invalid='true' and aria-describedby pointing to error message"
+        },
+        {
+          "step": 8,
+          "action": "Verify sortable table columns have appropriate ARIA attributes",
+          "expectedResult": "Sortable column headers have aria-sort='ascending', aria-sort='descending', or aria-sort='none' to indicate current sort state"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements have appropriate ARIA roles",
+        "Dynamic content changes are announced to assistive technologies",
+        "Form validation and errors are properly communicated",
+        "Table structure and sorting states are conveyed accessibly"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "Verify date picker accessibility with keyboard navigation and screen reader support",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler on the conflict history page",
+        "Date range filter with calendar date pickers is visible",
+        "Keyboard navigation is being used exclusively",
+        "Screen reader is active for testing announcements"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Tab to the Start Date field and press Enter or Space to open the calendar picker",
+          "expectedResult": "Calendar picker opens and focus moves to the currently selected date or today's date. Screen reader announces: 'Calendar dialog opened. Use arrow keys to navigate dates. Enter to select. Escape to close.'"
+        },
+        {
+          "step": 2,
+          "action": "Use Arrow keys (Up, Down, Left, Right) to navigate between dates in the calendar",
+          "expectedResult": "Arrow keys move focus between dates. Left/Right move by day, Up/Down move by week. Focus indicator clearly shows which date is selected. Screen reader announces each date as focus moves: 'March 15, 2024, Friday'"
+        },
+        {
+          "step": 3,
+          "action": "Press Page Up and Page Down keys to navigate between months",
+          "expectedResult": "Page Up moves to previous month, Page Down moves to next month. Screen reader announces: 'February 2024' or 'April 2024' when month changes"
+        },
+        {
+          "step": 4,
+          "action": "Press Home key to jump to the first day of the current month, End key to jump to the last day",
+          "expectedResult": "Home key moves focus to the 1st of the month, End key moves to the last day (28th, 30th, or 31st). Screen reader announces the new date"
+        },
+        {
+          "step": 5,
+          "action": "Press Enter to select the focused date",
+          "expectedResult": "Calendar closes, selected date populates the Start Date field, and focus returns to the date input field. Screen reader announces: 'March 15, 2024 selected'"
+        },
+        {
+          "step": 6,
+          "action": "Open the calendar again and press Escape to close without selecting",
+          "expectedResult": "Calendar closes without changing the date value. Focus returns to the date input field. Previous date selection is maintained"
+        },
+        {
+          "step": 7,
+          "action": "Verify the calendar has proper ARIA labels for month/year navigation buttons",
+          "expectedResult": "Previous/Next month buttons have aria-label='Previous month' and aria-label='Next month'. Month/year display has appropriate role and label"
+        }
+      ],
+      "postconditions": [
+        "Date picker is fully operable via keyboard",
+        "All date picker interactions are announced by screen reader",
+        "Focus management works correctly when opening/closing calendar",
+        "Users can efficiently navigate and select dates without a mouse"
+      ]
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true
+  },
+  "userStoryObject": {
+    "id": "story-6",
+    "title": "As Scheduler, I want to view conflict history to analyze patterns and improve scheduling",
+    "epicId": "epic-2",
+    "persona": "Scheduler",
+    "priority": "Medium",
+    "subtasks": [
+      {
+        "category": "Planning",
+        "description": "Define data structure for conflict history storage",
+        "estimatedHours": 4
+      },
+      {
+        "category": "Backend",
+        "description": "Implement API for retrieving conflict history",
+        "estimatedHours": 6
+      },
+      {
+        "category": "Frontend",
+        "description": "Develop UI for displaying conflict history",
+        "estimatedHours": 5
+      },
+      {
+        "category": "Testing",
+        "description": "Create tests for conflict history retrieval and display",
+        "estimatedHours": 4
+      }
+    ],
+    "featureId": "feature-3",
+    "testCases": [
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the conflict history page",
+            "result": "Conflict history UI is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Select filters for date range",
+            "result": "Filtered results are displayed"
+          },
+          {
+            "step": 3,
+            "action": "Export conflict history",
+            "result": "Conflict history file is generated and downloadable"
+          }
+        ],
+        "title": "Validate retrieval of conflict history"
+      },
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the conflict history page",
+            "result": "Conflict history UI is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Apply filter for specific conflict type",
+            "result": "Only relevant conflicts are displayed"
+          },
+          {
+            "step": 3,
+            "action": "Clear filters",
+            "result": "All conflicts are displayed again"
+          }
+        ],
+        "title": "Ensure accurate filtering of conflict history"
+      }
+    ],
+    "description": "CONTEXT & BACKGROUND:\nThis story allows users to review past scheduling conflicts to identify trends and improve future scheduling decisions.\n\nCURRENT STATE:\nCurrently, there is no visibility into past conflicts, making it difficult to analyze scheduling patterns.\n\nDESIRED STATE:\nThe system should provide a history of detected conflicts, allowing users to review and analyze them.\n\nKEY FUNCTIONALITY:\n• Display a list of past conflicts with details.\n• Allow filtering and sorting of conflict history.\n• Provide insights into conflict frequency and types.\n• Enable users to export conflict history for reporting.\n• Allow users to set alerts for recurring conflicts.\n\nUSER INTERACTION FLOW:\n1. User navigates to the conflict history page.\n2. User selects filters for date range and conflict type.\n3. System displays filtered conflict history.\n4. User reviews conflict details.\n5. User exports the conflict history if needed.\n\nTECHNICAL CONSIDERATIONS:\n• Data source: Conflict history database.\n• Validation rules: Ensure accurate filtering and sorting.\n• API endpoints: GET /api/conflicts/history for retrieving conflict data.\n• Security: User authentication required to access history.\n• Performance: Response time under 3 seconds for history retrieval.\n\nOUT OF SCOPE:\n• Real-time analysis of conflicts.\n\nSUCCESS METRICS:\n• 80% of users report improved scheduling decisions based on conflict history.",
+    "storyPoints": 5,
+    "personaSource": "AI Suggested",
+    "acceptanceCriteria": [
+      "System displays a list of past conflicts with relevant details.",
+      "Users can filter and sort conflict history based on various criteria.",
+      "Users can export conflict history for reporting purposes."
+    ]
+  }
+}
