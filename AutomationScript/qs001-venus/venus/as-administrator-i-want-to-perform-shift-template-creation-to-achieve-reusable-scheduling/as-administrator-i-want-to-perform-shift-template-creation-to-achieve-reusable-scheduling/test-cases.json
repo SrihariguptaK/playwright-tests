@@ -8,7 +8,7 @@
       "category": "Functional",
       "priority": "High",
       "preconditions": [
-        "User is logged in with Administrator role and has permissions to create shift templates",
+        "User is logged in with Administrator role and has permission to create shift templates",
         "User is on the shift template management page at /admin/shift-templates",
         "ShiftTemplates database table is accessible and has less than 100 existing templates",
         "Browser is Chrome version 90+ or equivalent modern browser"
@@ -32,29 +32,29 @@
         {
           "step": 4,
           "action": "Select '05:00 PM' from the End Time dropdown picker",
-          "expectedResult": "End Time field displays '05:00 PM' and no validation errors appear"
+          "expectedResult": "End Time field displays '05:00 PM' and system validates that end time is after start time"
         },
         {
           "step": 5,
           "action": "Click 'Add Break' button and enter break time from '12:00 PM' to '01:00 PM'",
-          "expectedResult": "Break time entry is added showing '12:00 PM - 01:00 PM' with no validation errors"
+          "expectedResult": "Break time is added to the template with start '12:00 PM' and end '01:00 PM', displayed in the breaks list"
         },
         {
           "step": 6,
           "action": "Click the 'Save Template' button at the bottom of the form",
-          "expectedResult": "Green success banner appears at top of page with message 'Shift template created successfully' and form closes"
+          "expectedResult": "Green success banner appears at top of page with message 'Shift template created successfully' and form is cleared"
         },
         {
           "step": 7,
           "action": "Verify the newly created template appears in the templates list",
-          "expectedResult": "Template 'Morning Shift' is visible in the list showing Start Time: 08:00 AM, End Time: 05:00 PM, Break: 12:00 PM - 01:00 PM"
+          "expectedResult": "Template 'Morning Shift' is visible in the list with Start Time '08:00 AM', End Time '05:00 PM', and Break '12:00 PM - 01:00 PM'"
         }
       ],
       "postconditions": [
-        "New shift template 'Morning Shift' is saved in ShiftTemplates database table with correct start time, end time, and break times",
-        "User remains on the shift template management page with updated template list displayed",
-        "Template count in database is incremented by 1",
-        "Audit log records template creation with administrator username and timestamp"
+        "New shift template 'Morning Shift' is saved in ShiftTemplates database table with correct times",
+        "User remains on shift template management page with updated list of templates",
+        "Template creation form is reset to empty state",
+        "Success notification is logged in system audit trail with administrator user ID and timestamp"
       ]
     },
     {
@@ -64,176 +64,177 @@
       "priority": "High",
       "preconditions": [
         "User is logged in as Administrator with shift template creation permissions",
-        "User is on the shift template management page",
-        "No existing template with the name 'Extended Shift' exists in the database"
+        "User is on the shift template creation page",
+        "No existing template with the same name exists in the system"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Click 'Create New Template' button",
-          "expectedResult": "Shift template creation form opens with all required fields visible"
+          "action": "Click 'Create New Template' button on shift template management page",
+          "expectedResult": "Template creation form opens with all required fields visible"
         },
         {
           "step": 2,
-          "action": "Enter 'Extended Shift' in Template Name field, set Start Time to '06:00 AM' and End Time to '10:00 PM'",
-          "expectedResult": "All fields accept input without validation errors"
+          "action": "Enter 'Extended Shift' in Template Name field, '07:00 AM' as Start Time, and '11:00 PM' as End Time",
+          "expectedResult": "All fields accept input without validation errors, 16-hour shift duration is calculated and displayed"
         },
         {
           "step": 3,
           "action": "Click 'Add Break' button and add first break from '10:00 AM' to '10:15 AM'",
-          "expectedResult": "First break period is added and displayed in the breaks section"
+          "expectedResult": "First break is added and displayed in breaks section with 15-minute duration"
         },
         {
           "step": 4,
           "action": "Click 'Add Break' button again and add second break from '02:00 PM' to '02:30 PM'",
-          "expectedResult": "Second break period is added and both breaks are displayed without overlap errors"
+          "expectedResult": "Second break is added below first break, both breaks are visible in the list"
         },
         {
           "step": 5,
-          "action": "Click 'Add Break' button again and add third break from '06:00 PM' to '06:15 PM'",
-          "expectedResult": "Third break period is added and all three breaks are displayed in chronological order"
+          "action": "Click 'Add Break' button again and add third break from '06:00 PM' to '06:45 PM'",
+          "expectedResult": "Third break is added, all three breaks are displayed in chronological order"
         },
         {
           "step": 6,
           "action": "Click 'Save Template' button",
-          "expectedResult": "Success message 'Shift template created successfully' appears and template is saved"
+          "expectedResult": "Success message 'Shift template created successfully' appears, template is saved with all three breaks"
         }
       ],
       "postconditions": [
         "Template 'Extended Shift' is saved with three separate break periods in the database",
-        "All break times are stored correctly and associated with the template",
-        "Template appears in the list with all break periods visible"
+        "Template appears in the list showing all break times correctly",
+        "Total break duration is calculated and stored (1 hour 30 minutes)"
       ]
     },
     {
       "id": "TC-FUNC-003",
-      "title": "Verify editing of existing shift template with updated times",
+      "title": "Verify editing of existing shift template updates all fields correctly",
       "category": "Functional",
       "priority": "High",
       "preconditions": [
         "User is logged in as Administrator",
-        "At least one shift template named 'Evening Shift' exists with Start Time: 02:00 PM, End Time: 10:00 PM",
+        "At least one shift template 'Morning Shift' exists in the system with Start Time '08:00 AM' and End Time '05:00 PM'",
         "User is on the shift template management page viewing the list of templates"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Locate 'Evening Shift' template in the list and click the 'Edit' icon/button next to it",
-          "expectedResult": "Edit template form opens pre-populated with existing values: Start Time: 02:00 PM, End Time: 10:00 PM"
+          "action": "Locate 'Morning Shift' template in the list and click the 'Edit' icon button next to it",
+          "expectedResult": "Template edit form opens with pre-populated fields showing current values: Name 'Morning Shift', Start '08:00 AM', End '05:00 PM'"
         },
         {
           "step": 2,
-          "action": "Change End Time from '10:00 PM' to '11:00 PM'",
-          "expectedResult": "End Time field updates to '11:00 PM' with no validation errors"
+          "action": "Change Template Name to 'Updated Morning Shift' and Start Time to '07:30 AM'",
+          "expectedResult": "Fields update with new values, no validation errors appear"
         },
         {
           "step": 3,
-          "action": "Add a new break time from '06:00 PM' to '06:30 PM' by clicking 'Add Break'",
-          "expectedResult": "New break period is added and displayed in the breaks section"
+          "action": "Modify existing break time from '12:00 PM - 01:00 PM' to '12:30 PM - 01:30 PM'",
+          "expectedResult": "Break time is updated in the form, duration remains 1 hour"
         },
         {
           "step": 4,
           "action": "Click 'Update Template' button",
-          "expectedResult": "Success message 'Shift template updated successfully' appears in green banner"
+          "expectedResult": "Blue success banner displays 'Shift template updated successfully' message"
         },
         {
           "step": 5,
-          "action": "Verify the updated template in the list",
-          "expectedResult": "Evening Shift template now shows End Time: 11:00 PM and includes the new break period"
+          "action": "Verify updated template in the list",
+          "expectedResult": "Template now shows 'Updated Morning Shift' with Start Time '07:30 AM' and updated break time '12:30 PM - 01:30 PM'"
         }
       ],
       "postconditions": [
-        "Evening Shift template is updated in the database with new end time and break period",
-        "Original template data is overwritten with updated values",
-        "Audit log records the template modification with timestamp and administrator details"
+        "Template is updated in ShiftTemplates database with new values",
+        "Original template ID remains unchanged, only field values are modified",
+        "Update action is logged in audit trail with timestamp and administrator ID",
+        "Any schedules using this template are not automatically updated (out of scope)"
       ]
     },
     {
       "id": "TC-FUNC-004",
-      "title": "Verify deletion of shift template that is no longer in use",
+      "title": "Verify deletion of shift template removes it from the system",
       "category": "Functional",
-      "priority": "Medium",
+      "priority": "High",
       "preconditions": [
         "User is logged in as Administrator with delete permissions",
-        "A shift template named 'Temporary Shift' exists and is not currently assigned to any employees",
-        "User is on the shift template management page"
+        "At least one shift template 'Test Template' exists and is not currently assigned to any schedules",
+        "User is on shift template management page with templates list visible"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Locate 'Temporary Shift' template in the templates list",
-          "expectedResult": "Template 'Temporary Shift' is visible in the list with a 'Delete' button/icon"
+          "action": "Locate 'Test Template' in the templates list and click the 'Delete' icon button (trash icon)",
+          "expectedResult": "Confirmation modal appears with message 'Are you sure you want to delete this template? This action cannot be undone.'"
         },
         {
           "step": 2,
-          "action": "Click the 'Delete' button/icon next to 'Temporary Shift' template",
-          "expectedResult": "Confirmation dialog appears with message 'Are you sure you want to delete this template? This action cannot be undone.'"
+          "action": "Click 'Confirm Delete' button in the modal",
+          "expectedResult": "Modal closes and red success banner appears with message 'Shift template deleted successfully'"
         },
         {
           "step": 3,
-          "action": "Click 'Confirm' button in the confirmation dialog",
-          "expectedResult": "Success message 'Shift template deleted successfully' appears in green banner at top of page"
+          "action": "Verify 'Test Template' is no longer visible in the templates list",
+          "expectedResult": "Template is removed from the list, total template count decreases by 1"
         },
         {
           "step": 4,
-          "action": "Verify the template is removed from the list",
-          "expectedResult": "Temporary Shift template is no longer visible in the templates list"
+          "action": "Refresh the page using browser refresh button",
+          "expectedResult": "Page reloads and 'Test Template' remains absent from the list, confirming deletion persisted"
         }
       ],
       "postconditions": [
-        "Temporary Shift template is removed from the ShiftTemplates database table",
-        "Template count in database is decremented by 1",
-        "User remains on the shift template management page with updated list",
-        "Deletion is logged in audit trail with administrator username and timestamp"
+        "Template 'Test Template' is permanently deleted from ShiftTemplates database table",
+        "Deletion is logged in system audit trail with administrator ID and timestamp",
+        "User remains on shift template management page",
+        "Template count in database is reduced by 1"
       ]
     },
     {
       "id": "TC-FUNC-005",
-      "title": "Verify viewing complete list of all created shift templates with pagination",
+      "title": "Verify viewing list of all created shift templates displays complete information",
       "category": "Functional",
       "priority": "Medium",
       "preconditions": [
         "User is logged in as Administrator",
-        "At least 15 shift templates exist in the database",
-        "User navigates to the shift template management page"
+        "At least 5 different shift templates exist in the system with varying start times, end times, and breaks",
+        "User navigates to shift template management page at /admin/shift-templates"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Observe the shift template management page upon loading",
-          "expectedResult": "Page displays a table/list of shift templates with columns: Template Name, Start Time, End Time, Break Times, Actions"
+          "action": "Observe the shift templates list on the management page",
+          "expectedResult": "All templates are displayed in a table or card layout with columns for Template Name, Start Time, End Time, Break Times, and Actions"
         },
         {
           "step": 2,
-          "action": "Verify the first 10 templates are displayed on page 1",
-          "expectedResult": "First 10 templates are visible with complete details including all break times"
+          "action": "Verify each template row displays complete information including template name, start time, end time, and all break periods",
+          "expectedResult": "Each template shows all fields populated correctly with readable time format (12-hour with AM/PM)"
         },
         {
           "step": 3,
-          "action": "Click 'Next' or page '2' button in pagination controls at bottom of list",
-          "expectedResult": "Page 2 loads showing templates 11-15 with same column structure"
+          "action": "Check that Edit and Delete action buttons are visible for each template",
+          "expectedResult": "Each template row has 'Edit' and 'Delete' icon buttons that are clickable and properly styled"
         },
         {
           "step": 4,
-          "action": "Click on any template name to view full details",
-          "expectedResult": "Template details modal/panel opens showing all information: name, start time, end time, all break periods"
+          "action": "Verify the total count of templates is displayed at the top of the list",
+          "expectedResult": "Template count shows 'Showing 5 templates' or similar indicator matching actual number of templates"
         }
       ],
       "postconditions": [
-        "All templates remain in database unchanged",
-        "User can navigate between pages to view all templates",
-        "Template list accurately reflects current database state"
+        "All templates remain in their current state (no data modified)",
+        "User remains on shift template management page",
+        "List view is ready for further interactions (create, edit, delete)"
       ]
     },
     {
       "id": "TC-FUNC-006",
-      "title": "Verify shift template creation with minimum valid duration (1 hour shift)",
+      "title": "Verify shift template creation with break time at shift boundaries",
       "category": "Functional",
       "priority": "Medium",
       "preconditions": [
         "User is logged in as Administrator",
-        "User is on the shift template creation page",
-        "System allows minimum 1-hour shift duration"
+        "User is on shift template creation page",
+        "System allows breaks to be scheduled at the start or end of shifts"
       ],
       "steps": [
         {
@@ -243,101 +244,124 @@
         },
         {
           "step": 2,
-          "action": "Enter 'Short Shift' in Template Name, set Start Time to '09:00 AM' and End Time to '10:00 AM'",
-          "expectedResult": "All fields accept input with no validation errors for 1-hour duration"
+          "action": "Enter 'Boundary Break Shift' as Template Name, '09:00 AM' as Start Time, '06:00 PM' as End Time",
+          "expectedResult": "All fields accept input without errors"
         },
         {
           "step": 3,
-          "action": "Leave break times empty (no breaks added)",
-          "expectedResult": "Form allows submission without mandatory break times"
+          "action": "Add break from '09:00 AM' to '09:15 AM' (break starting exactly at shift start time)",
+          "expectedResult": "Break is accepted and added to the template without validation errors"
         },
         {
           "step": 4,
+          "action": "Add second break from '05:45 PM' to '06:00 PM' (break ending exactly at shift end time)",
+          "expectedResult": "Second break is accepted and both breaks are displayed in the list"
+        },
+        {
+          "step": 5,
           "action": "Click 'Save Template' button",
-          "expectedResult": "Success message appears and template is created successfully"
+          "expectedResult": "Template is saved successfully with confirmation message 'Shift template created successfully'"
         }
       ],
       "postconditions": [
-        "Short Shift template is saved in database with 1-hour duration and no breaks",
-        "Template appears in the list with correct times displayed"
+        "Template is saved with breaks at shift boundaries",
+        "Template appears in list with both boundary breaks correctly displayed",
+        "No validation errors are recorded for boundary break times"
       ]
     }
   ],
   "negative": [
     {
       "id": "TC-NEGA-001",
-      "title": "Verify system prevents template creation when end time is before start time",
+      "title": "Verify system prevents creation of shift template with end time before start time",
       "category": "Negative",
       "priority": "High",
       "preconditions": [
         "User is logged in as Administrator",
-        "User is on the shift template creation page",
-        "Template creation form is displayed and ready for input"
+        "User is on shift template creation page",
+        "Validation rules are active for time field relationships"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Enter 'Invalid Shift' in Template Name field",
-          "expectedResult": "Template Name field accepts the input"
+          "action": "Click 'Create New Template' button",
+          "expectedResult": "Template creation form is displayed with empty fields"
         },
         {
           "step": 2,
-          "action": "Select '05:00 PM' from the Start Time dropdown",
-          "expectedResult": "Start Time field displays '05:00 PM'"
+          "action": "Enter 'Invalid Time Shift' in Template Name field",
+          "expectedResult": "Template Name field accepts input"
         },
         {
           "step": 3,
-          "action": "Select '08:00 AM' from the End Time dropdown (earlier than start time)",
-          "expectedResult": "Red validation error message appears below End Time field stating 'End time must be after start time'"
+          "action": "Select '05:00 PM' as Start Time",
+          "expectedResult": "Start Time field displays '05:00 PM'"
         },
         {
           "step": 4,
-          "action": "Attempt to click 'Save Template' button",
-          "expectedResult": "Save button is disabled or clicking it shows error message 'Please fix validation errors before saving' and form is not submitted"
+          "action": "Select '08:00 AM' as End Time (earlier than start time)",
+          "expectedResult": "Red validation error message appears below End Time field stating 'End time must be after start time'"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Save Template' button",
+          "expectedResult": "Form submission is blocked, error message persists, and red border appears around End Time field"
+        },
+        {
+          "step": 6,
+          "action": "Verify no template is created in the templates list",
+          "expectedResult": "Templates list remains unchanged, no new template is added"
         }
       ],
       "postconditions": [
-        "No template is created in the database",
-        "User remains on the creation form with validation errors displayed",
-        "Form fields retain entered values for correction"
+        "No template is saved to ShiftTemplates database",
+        "User remains on creation form with error message visible",
+        "Form fields retain entered values for correction",
+        "Error is logged in validation error log"
       ]
     },
     {
       "id": "TC-NEGA-002",
-      "title": "Verify system prevents template creation with overlapping break times",
+      "title": "Verify system prevents creation of shift template with overlapping break times",
       "category": "Negative",
       "priority": "High",
       "preconditions": [
         "User is logged in as Administrator",
-        "User is on the shift template creation page with form displayed",
-        "Valid start time (08:00 AM) and end time (05:00 PM) are already entered"
+        "User is on shift template creation page",
+        "Break time overlap validation is enabled"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Enter 'Overlapping Break Shift' in Template Name field",
-          "expectedResult": "Template Name is accepted"
+          "action": "Click 'Create New Template' button and enter 'Overlapping Break Shift' as Template Name",
+          "expectedResult": "Form is displayed with Template Name populated"
         },
         {
           "step": 2,
-          "action": "Click 'Add Break' and enter first break from '12:00 PM' to '01:00 PM'",
-          "expectedResult": "First break is added successfully without errors"
+          "action": "Enter '08:00 AM' as Start Time and '05:00 PM' as End Time",
+          "expectedResult": "Time fields accept valid values without errors"
         },
         {
           "step": 3,
-          "action": "Click 'Add Break' again and enter second break from '12:30 PM' to '01:30 PM' (overlaps with first break)",
-          "expectedResult": "Red validation error appears stating 'Break times cannot overlap with existing breaks' below the second break entry"
+          "action": "Click 'Add Break' and enter first break from '12:00 PM' to '01:00 PM'",
+          "expectedResult": "First break is added successfully to the breaks list"
         },
         {
           "step": 4,
+          "action": "Click 'Add Break' again and enter second break from '12:30 PM' to '01:30 PM' (overlaps with first break)",
+          "expectedResult": "Red validation error appears stating 'Break times cannot overlap with existing breaks' below the second break time fields"
+        },
+        {
+          "step": 5,
           "action": "Attempt to click 'Save Template' button",
-          "expectedResult": "Form submission is blocked and error message 'Please resolve break time conflicts before saving' is displayed"
+          "expectedResult": "Form submission is prevented, error message remains visible, and overlapping break is highlighted in red"
         }
       ],
       "postconditions": [
-        "No template is saved to the database",
-        "User remains on the form with overlapping break times highlighted in red",
-        "First valid break remains in the form, second invalid break can be edited"
+        "No template is saved to database due to validation failure",
+        "User remains on creation form with error state visible",
+        "First break remains valid, second break shows error state",
+        "Validation error is logged with details of overlapping times"
       ]
     },
     {
@@ -348,170 +372,153 @@
       "preconditions": [
         "User is logged in as Administrator",
         "User is on shift template creation page",
-        "Start Time is set to '09:00 AM' and End Time is set to '05:00 PM'"
+        "Break time validation against shift boundaries is active"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Enter 'Invalid Break Shift' in Template Name field",
-          "expectedResult": "Template Name is accepted"
+          "action": "Click 'Create New Template' and enter 'Out of Bounds Break' as Template Name",
+          "expectedResult": "Template creation form opens with name field populated"
         },
         {
           "step": 2,
-          "action": "Click 'Add Break' and attempt to enter break time from '06:00 PM' to '06:30 PM' (after shift end time)",
-          "expectedResult": "Validation error appears stating 'Break time must be within shift hours (09:00 AM - 05:00 PM)'"
+          "action": "Enter '09:00 AM' as Start Time and '05:00 PM' as End Time",
+          "expectedResult": "Valid shift times are accepted"
         },
         {
           "step": 3,
-          "action": "Attempt to save the template by clicking 'Save Template' button",
-          "expectedResult": "Save action is prevented and error message persists indicating break time is invalid"
+          "action": "Click 'Add Break' and enter break from '08:00 AM' to '08:30 AM' (before shift start time)",
+          "expectedResult": "Red validation error appears stating 'Break time must be within shift hours (09:00 AM - 05:00 PM)'"
+        },
+        {
+          "step": 4,
+          "action": "Correct the break to '10:00 AM' to '10:30 AM' and add another break from '05:30 PM' to '06:00 PM' (after shift end time)",
+          "expectedResult": "First break is accepted, second break shows validation error 'Break time must be within shift hours (09:00 AM - 05:00 PM)'"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to click 'Save Template' button",
+          "expectedResult": "Form submission is blocked with error message, invalid break is highlighted"
         }
       ],
       "postconditions": [
-        "No template is created in the database",
-        "Form remains open with validation error displayed",
-        "User can correct the break time to be within shift hours"
+        "No template is created in database",
+        "Form remains in error state with validation messages visible",
+        "User can correct break times and retry submission"
       ]
     },
     {
       "id": "TC-NEGA-004",
-      "title": "Verify unauthorized user cannot access shift template creation functionality",
+      "title": "Verify system prevents unauthorized user from accessing shift template creation",
       "category": "Negative",
       "priority": "High",
       "preconditions": [
         "User is logged in with 'Employee' role (non-administrator)",
         "User does not have shift template creation permissions",
-        "User attempts to navigate to /admin/shift-templates URL directly"
+        "Authorization middleware is active on template creation endpoints"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Enter '/admin/shift-templates' in browser address bar and press Enter",
-          "expectedResult": "System redirects to access denied page or displays error message 'You do not have permission to access this page'"
+          "action": "Attempt to navigate directly to /admin/shift-templates URL by typing in browser address bar",
+          "expectedResult": "User is redirected to unauthorized access page or dashboard with error message 'You do not have permission to access this page'"
         },
         {
           "step": 2,
-          "action": "Attempt to access the API endpoint POST /api/shift-templates directly using browser developer tools or API client",
-          "expectedResult": "API returns 403 Forbidden status code with error message 'Insufficient permissions'"
+          "action": "Attempt to access template creation page at /admin/shift-templates/create via direct URL",
+          "expectedResult": "HTTP 403 Forbidden error is returned, user is redirected with message 'Access denied: Administrator privileges required'"
+        },
+        {
+          "step": 3,
+          "action": "Use browser developer tools to attempt POST request to /api/shift-templates endpoint with valid template data",
+          "expectedResult": "API returns 403 Forbidden status with JSON response {'error': 'Unauthorized', 'message': 'Administrator role required'}"
         }
       ],
       "postconditions": [
-        "No template creation form is displayed to unauthorized user",
-        "User is redirected to appropriate page (dashboard or access denied)",
-        "Security log records unauthorized access attempt with user details and timestamp"
+        "No template is created in database",
+        "Unauthorized access attempt is logged in security audit log with user ID and timestamp",
+        "User remains on their current authorized page or is redirected to dashboard"
       ]
     },
     {
       "id": "TC-NEGA-005",
-      "title": "Verify system prevents template creation with empty required fields",
+      "title": "Verify system prevents template creation with empty or missing required fields",
       "category": "Negative",
       "priority": "High",
       "preconditions": [
         "User is logged in as Administrator",
-        "User is on the shift template creation page",
-        "Form is displayed with all fields empty"
+        "User is on shift template creation page",
+        "Required field validation is enabled"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Leave Template Name field empty",
-          "expectedResult": "Field remains empty with no input"
+          "action": "Click 'Create New Template' button to open creation form",
+          "expectedResult": "Empty template creation form is displayed"
         },
         {
           "step": 2,
-          "action": "Leave Start Time field empty (not selected)",
-          "expectedResult": "Start Time shows placeholder text or default empty state"
+          "action": "Leave Template Name field empty and click 'Save Template' button",
+          "expectedResult": "Red validation error 'Template name is required' appears below Template Name field, form submission is blocked"
         },
         {
           "step": 3,
-          "action": "Leave End Time field empty (not selected)",
-          "expectedResult": "End Time shows placeholder text or default empty state"
+          "action": "Enter 'Test Template' in Template Name but leave Start Time empty, then click 'Save Template'",
+          "expectedResult": "Validation error 'Start time is required' appears below Start Time field"
         },
         {
           "step": 4,
-          "action": "Click 'Save Template' button without entering any data",
-          "expectedResult": "Multiple validation errors appear: 'Template Name is required', 'Start Time is required', 'End Time is required' in red text below respective fields"
+          "action": "Select '08:00 AM' as Start Time but leave End Time empty, then click 'Save Template'",
+          "expectedResult": "Validation error 'End time is required' appears below End Time field"
         },
         {
           "step": 5,
-          "action": "Verify form submission is blocked",
-          "expectedResult": "No API call is made and no template is created, user remains on form with errors displayed"
+          "action": "Verify all error messages are displayed simultaneously when multiple fields are empty",
+          "expectedResult": "All required field errors are shown at once, form has red borders around invalid fields"
         }
       ],
       "postconditions": [
         "No template is saved to database",
-        "Form remains open with all validation errors visible",
-        "Required field indicators (asterisks) remain visible"
+        "Form remains in error state with all validation messages visible",
+        "User can fill in required fields and resubmit"
       ]
     },
     {
       "id": "TC-NEGA-006",
-      "title": "Verify system prevents deletion of shift template currently assigned to employees",
-      "category": "Negative",
-      "priority": "High",
-      "preconditions": [
-        "User is logged in as Administrator",
-        "A shift template named 'Active Shift' exists and is currently assigned to at least one employee",
-        "User is on the shift template management page viewing the templates list"
-      ],
-      "steps": [
-        {
-          "step": 1,
-          "action": "Locate 'Active Shift' template in the list and click the 'Delete' button",
-          "expectedResult": "Confirmation dialog appears asking for deletion confirmation"
-        },
-        {
-          "step": 2,
-          "action": "Click 'Confirm' button in the deletion confirmation dialog",
-          "expectedResult": "Error message appears stating 'Cannot delete template: currently assigned to 3 employee(s). Please reassign employees before deleting.' in red banner"
-        },
-        {
-          "step": 3,
-          "action": "Verify template still exists in the list",
-          "expectedResult": "Active Shift template remains in the templates list unchanged"
-        }
-      ],
-      "postconditions": [
-        "Template remains in database with all assignments intact",
-        "No employee schedules are affected",
-        "Error is logged indicating attempted deletion of in-use template"
-      ]
-    },
-    {
-      "id": "TC-NEGA-007",
-      "title": "Verify system handles network failure during template creation gracefully",
+      "title": "Verify system handles API failure gracefully during template creation",
       "category": "Negative",
       "priority": "Medium",
       "preconditions": [
         "User is logged in as Administrator",
         "User is on shift template creation page with valid data entered",
-        "Network connection can be simulated to fail (using browser dev tools or network simulator)"
+        "API endpoint /api/shift-templates is temporarily unavailable or returns 500 error"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Enter valid template data: Name 'Network Test', Start Time '09:00 AM', End Time '05:00 PM'",
-          "expectedResult": "All fields accept valid input without errors"
+          "action": "Enter valid template data: Name 'API Test Shift', Start Time '09:00 AM', End Time '05:00 PM'",
+          "expectedResult": "All fields accept valid input without client-side validation errors"
         },
         {
           "step": 2,
-          "action": "Simulate network disconnection using browser developer tools (set to offline mode)",
-          "expectedResult": "Network is offline but form remains functional"
+          "action": "Simulate API failure (or wait for actual failure) and click 'Save Template' button",
+          "expectedResult": "Loading spinner appears briefly, then red error banner displays 'Failed to create template. Please try again later.'"
         },
         {
           "step": 3,
-          "action": "Click 'Save Template' button",
-          "expectedResult": "Error message appears stating 'Network error: Unable to save template. Please check your connection and try again.' with a 'Retry' button"
+          "action": "Verify form data is retained after error",
+          "expectedResult": "All entered values remain in form fields, user does not lose their input"
         },
         {
           "step": 4,
-          "action": "Verify form data is retained",
-          "expectedResult": "All entered data remains in the form fields and is not lost"
+          "action": "Check that no template was created in the templates list",
+          "expectedResult": "Templates list remains unchanged, no partial or duplicate template is created"
         }
       ],
       "postconditions": [
-        "No template is created in database due to network failure",
-        "User can retry submission after network is restored",
+        "No template is saved to database due to API failure",
+        "Error is logged in system error log with stack trace and timestamp",
+        "User can retry submission after API is restored",
         "Form data is preserved for retry attempt"
       ]
     }
@@ -519,13 +526,13 @@
   "edgeCases": [
     {
       "id": "TC-EDGE-001",
-      "title": "Verify template creation with maximum allowed shift duration (24 hours)",
+      "title": "Verify system handles creation of shift template with maximum allowed duration (24 hours)",
       "category": "Edge Cases",
       "priority": "Medium",
       "preconditions": [
         "User is logged in as Administrator",
         "User is on shift template creation page",
-        "System allows maximum 24-hour shift duration"
+        "System allows shift duration up to 24 hours"
       ],
       "steps": [
         {
@@ -535,127 +542,125 @@
         },
         {
           "step": 2,
-          "action": "Enter '24 Hour Shift' in Template Name field",
-          "expectedResult": "Template Name is accepted"
+          "action": "Enter '24 Hour Shift' as Template Name, '12:00 AM' as Start Time, and '11:59 PM' as End Time",
+          "expectedResult": "All fields accept input, system calculates duration as 23 hours 59 minutes"
         },
         {
           "step": 3,
-          "action": "Set Start Time to '12:00 AM' (midnight) and End Time to '11:59 PM'",
-          "expectedResult": "Both times are accepted without validation errors"
+          "action": "Add break from '06:00 AM' to '06:30 AM'",
+          "expectedResult": "Break is added successfully within the 24-hour shift"
         },
         {
           "step": 4,
-          "action": "Add break time from '12:00 PM' to '01:00 PM'",
-          "expectedResult": "Break time is accepted and displayed"
+          "action": "Click 'Save Template' button",
+          "expectedResult": "Template is saved successfully with confirmation message, no duration limit errors appear"
         },
         {
           "step": 5,
-          "action": "Click 'Save Template' button",
-          "expectedResult": "Template is created successfully with confirmation message 'Shift template created successfully'"
+          "action": "Verify template appears in list with correct 24-hour duration displayed",
+          "expectedResult": "Template shows Start '12:00 AM', End '11:59 PM', and break time correctly"
         }
       ],
       "postconditions": [
-        "Template with 24-hour duration is saved in database",
-        "Template appears in list showing full 24-hour span",
-        "System correctly calculates total shift hours as 23 hours 59 minutes"
+        "Template with maximum duration is saved in database",
+        "Template is usable for scheduling purposes",
+        "Duration calculation is accurate and displayed correctly"
       ]
     },
     {
       "id": "TC-EDGE-002",
-      "title": "Verify system behavior when creating exactly 100 templates (performance limit)",
+      "title": "Verify system handles creation of shift template with minimum duration (1 minute)",
       "category": "Edge Cases",
       "priority": "Medium",
       "preconditions": [
         "User is logged in as Administrator",
-        "Exactly 99 shift templates already exist in the database",
-        "System performance limit is set to 100 templates",
-        "User is on shift template creation page"
+        "User is on shift template creation page",
+        "System allows very short shift durations"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Click 'Create New Template' button",
-          "expectedResult": "Template creation form opens normally"
+          "action": "Click 'Create New Template' and enter 'Minimal Shift' as Template Name",
+          "expectedResult": "Template creation form opens with name populated"
         },
         {
           "step": 2,
-          "action": "Enter '100th Template' in Template Name, set Start Time to '09:00 AM' and End Time to '05:00 PM'",
-          "expectedResult": "All fields accept input without errors"
+          "action": "Select '09:00 AM' as Start Time and '09:01 AM' as End Time (1 minute duration)",
+          "expectedResult": "Times are accepted, system calculates 1-minute duration"
         },
         {
           "step": 3,
-          "action": "Click 'Save Template' button",
-          "expectedResult": "Template is created successfully and confirmation message appears"
+          "action": "Attempt to add a break (if system allows breaks in very short shifts)",
+          "expectedResult": "System either prevents break addition with message 'Shift too short for breaks' or allows it based on business rules"
         },
         {
           "step": 4,
-          "action": "Attempt to create the 101st template by clicking 'Create New Template' again",
-          "expectedResult": "Warning message appears: 'Maximum template limit (100) reached. Please delete unused templates before creating new ones.' and creation button is disabled"
-        },
-        {
-          "step": 5,
-          "action": "Verify system performance with 100 templates loaded",
-          "expectedResult": "Template list loads within 3 seconds and remains responsive"
+          "action": "Click 'Save Template' button",
+          "expectedResult": "Template is saved with confirmation message or validation error if minimum duration policy exists"
         }
       ],
       "postconditions": [
-        "Exactly 100 templates exist in database",
-        "System prevents creation of additional templates beyond limit",
-        "Performance remains acceptable with maximum templates loaded"
+        "Template is saved if system allows 1-minute shifts, or appropriate validation error is shown",
+        "System behavior is consistent with business rules for minimum shift duration"
       ]
     },
     {
       "id": "TC-EDGE-003",
-      "title": "Verify template creation with special characters and Unicode in template name",
+      "title": "Verify system handles creation of 100th shift template (performance boundary)",
       "category": "Edge Cases",
-      "priority": "Low",
+      "priority": "High",
       "preconditions": [
         "User is logged in as Administrator",
-        "User is on shift template creation page",
-        "System supports UTF-8 character encoding"
+        "Exactly 99 shift templates already exist in the system",
+        "System performance requirement states handling up to 100 templates without degradation"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Click 'Create New Template' button",
-          "expectedResult": "Template creation form is displayed"
+          "action": "Navigate to shift template management page and verify current count shows 99 templates",
+          "expectedResult": "Page loads within 2 seconds, displays '99 templates' count"
         },
         {
           "step": 2,
-          "action": "Enter 'Shift™ Café-Ñoño 早班 🌅' (containing trademark symbol, accented characters, Chinese characters, and emoji) in Template Name field",
-          "expectedResult": "Template Name field accepts and displays all special characters and Unicode correctly"
+          "action": "Click 'Create New Template' button",
+          "expectedResult": "Form opens within 1 second without performance lag"
         },
         {
           "step": 3,
-          "action": "Set Start Time to '06:00 AM' and End Time to '02:00 PM'",
-          "expectedResult": "Times are accepted without errors"
+          "action": "Enter '100th Template' as name, '08:00 AM' as Start Time, '05:00 PM' as End Time",
+          "expectedResult": "All fields accept input without delay"
         },
         {
           "step": 4,
-          "action": "Click 'Save Template' button",
-          "expectedResult": "Template is created successfully with confirmation message"
+          "action": "Click 'Save Template' button and measure response time",
+          "expectedResult": "Template is created within 3 seconds, success message appears, no performance degradation"
         },
         {
           "step": 5,
-          "action": "Verify template appears in list with correct name rendering",
-          "expectedResult": "Template name 'Shift™ Café-Ñoño 早班 🌅' is displayed correctly in the list without character corruption"
+          "action": "Verify templates list now shows 100 templates and page remains responsive",
+          "expectedResult": "List displays all 100 templates, scrolling is smooth, page load time remains under 3 seconds"
+        },
+        {
+          "step": 6,
+          "action": "Attempt to create 101st template",
+          "expectedResult": "System either allows creation (if no hard limit) or shows message 'Maximum template limit reached (100)'"
         }
       ],
       "postconditions": [
-        "Template is saved in database with all special characters preserved",
-        "Template name displays correctly across all pages and components",
-        "No character encoding issues occur in database or UI"
+        "100 templates exist in database",
+        "System performance remains acceptable per requirements",
+        "Template list pagination or virtualization works correctly if implemented"
       ]
     },
     {
       "id": "TC-EDGE-004",
-      "title": "Verify template creation with maximum allowed template name length (255 characters)",
+      "title": "Verify system handles template name with special characters and maximum length",
       "category": "Edge Cases",
-      "priority": "Low",
+      "priority": "Medium",
       "preconditions": [
         "User is logged in as Administrator",
         "User is on shift template creation page",
-        "Template Name field has maximum length of 255 characters"
+        "Template name field has character limit (assume 100 characters)"
       ],
       "steps": [
         {
@@ -665,105 +670,105 @@
         },
         {
           "step": 2,
-          "action": "Enter a 255-character string in Template Name field: 'A' repeated 255 times",
-          "expectedResult": "Field accepts exactly 255 characters and displays character count '255/255' below field"
+          "action": "Enter template name with special characters: 'Shift #1 - Morning/Evening (Mon-Fri) @Location_A & B'",
+          "expectedResult": "Template Name field accepts special characters without errors"
         },
         {
           "step": 3,
-          "action": "Attempt to enter one more character (256th character)",
-          "expectedResult": "Field prevents input beyond 255 characters or truncates to 255"
+          "action": "Enter valid Start Time '08:00 AM' and End Time '05:00 PM', then save",
+          "expectedResult": "Template is created successfully, special characters are preserved in name"
         },
         {
           "step": 4,
-          "action": "Set Start Time to '08:00 AM' and End Time to '04:00 PM', then click 'Save Template'",
-          "expectedResult": "Template is created successfully with full 255-character name"
+          "action": "Create another template with name at maximum length (100 characters): 'A' repeated 100 times",
+          "expectedResult": "Field accepts exactly 100 characters, prevents input beyond limit, template saves successfully"
         },
         {
           "step": 5,
-          "action": "Verify template in list displays name with ellipsis or truncation if needed for UI",
-          "expectedResult": "Template appears in list with name truncated for display but full name visible on hover or in details view"
+          "action": "Verify both templates display correctly in the list with full names visible or truncated with tooltip",
+          "expectedResult": "Template names are displayed correctly, long names are handled with ellipsis and hover tooltip showing full name"
         }
       ],
       "postconditions": [
-        "Template is saved with complete 255-character name in database",
-        "UI handles long template names gracefully without breaking layout",
-        "Full name is accessible through tooltip or detail view"
+        "Templates with special characters and maximum length are saved correctly in database",
+        "Special characters do not cause SQL injection or XSS vulnerabilities",
+        "UI handles long names gracefully without breaking layout"
       ]
     },
     {
       "id": "TC-EDGE-005",
-      "title": "Verify template creation with break time exactly at shift boundaries",
+      "title": "Verify system handles rapid consecutive template creation attempts",
       "category": "Edge Cases",
       "priority": "Medium",
       "preconditions": [
         "User is logged in as Administrator",
         "User is on shift template creation page",
-        "Start Time is set to '09:00 AM' and End Time is set to '05:00 PM'"
+        "System has rate limiting or duplicate submission prevention"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Enter 'Boundary Break Shift' in Template Name field",
-          "expectedResult": "Template Name is accepted"
+          "action": "Enter valid template data: Name 'Rapid Test 1', Start '08:00 AM', End '05:00 PM'",
+          "expectedResult": "Form accepts all valid input"
         },
         {
           "step": 2,
-          "action": "Click 'Add Break' and set break start time to '09:00 AM' (exactly at shift start) and break end time to '09:15 AM'",
-          "expectedResult": "System either accepts the break at boundary or shows validation message 'Break cannot start at shift start time' depending on business rules"
+          "action": "Click 'Save Template' button multiple times rapidly (5 clicks within 2 seconds)",
+          "expectedResult": "System prevents duplicate submissions, only one template is created, button is disabled after first click"
         },
         {
           "step": 3,
-          "action": "If first break is rejected, add break from '04:45 PM' to '05:00 PM' (ending exactly at shift end time)",
-          "expectedResult": "System either accepts the break at boundary or shows validation message 'Break cannot end at shift end time' depending on business rules"
+          "action": "Verify only one 'Rapid Test 1' template appears in the list",
+          "expectedResult": "Exactly one template is created, no duplicates exist"
         },
         {
           "step": 4,
-          "action": "Adjust break times to be within boundaries if needed and click 'Save Template'",
-          "expectedResult": "Template is saved with appropriate validation feedback based on business rules for boundary breaks"
+          "action": "Immediately create another template 'Rapid Test 2' right after first one completes",
+          "expectedResult": "Second template is created successfully without interference from first submission"
         }
       ],
       "postconditions": [
-        "System behavior for boundary breaks is consistent with business rules",
-        "Template is saved correctly if breaks are valid",
-        "Clear validation messages guide user if boundary breaks are not allowed"
+        "No duplicate templates are created in database",
+        "System handles rapid submissions gracefully with proper button state management",
+        "All created templates are valid and complete"
       ]
     },
     {
       "id": "TC-EDGE-006",
-      "title": "Verify simultaneous template creation by multiple administrators",
+      "title": "Verify system handles template creation with break duration equal to shift duration",
       "category": "Edge Cases",
-      "priority": "Medium",
+      "priority": "Low",
       "preconditions": [
-        "Two administrators (Admin A and Admin B) are logged in on different browsers/sessions",
-        "Both are on the shift template creation page simultaneously",
-        "Database supports concurrent write operations"
+        "User is logged in as Administrator",
+        "User is on shift template creation page",
+        "System allows breaks to span entire shift duration"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Admin A enters 'Concurrent Shift A' with times 08:00 AM - 04:00 PM and clicks 'Save Template'",
-          "expectedResult": "Admin A's template is created successfully with confirmation message"
+          "action": "Click 'Create New Template' and enter 'Full Break Shift' as name",
+          "expectedResult": "Template creation form opens"
         },
         {
           "step": 2,
-          "action": "Simultaneously (within 1 second), Admin B enters 'Concurrent Shift B' with times 09:00 AM - 05:00 PM and clicks 'Save Template'",
-          "expectedResult": "Admin B's template is also created successfully with confirmation message"
+          "action": "Enter '09:00 AM' as Start Time and '05:00 PM' as End Time (8-hour shift)",
+          "expectedResult": "Valid shift times are accepted"
         },
         {
           "step": 3,
-          "action": "Both administrators refresh their template lists",
-          "expectedResult": "Both templates appear in both administrators' lists showing correct data without conflicts"
+          "action": "Add break from '09:00 AM' to '05:00 PM' (break equals entire shift duration)",
+          "expectedResult": "System either accepts this edge case or shows validation error 'Break cannot equal entire shift duration'"
         },
         {
           "step": 4,
-          "action": "Verify database contains both templates with correct data and unique IDs",
-          "expectedResult": "Database shows two separate templates with no data corruption or overwrites"
+          "action": "Attempt to save the template",
+          "expectedResult": "System behavior is consistent with business rules - either saves with warning or prevents with clear error message"
         }
       ],
       "postconditions": [
-        "Both templates are saved correctly in database with unique identifiers",
-        "No race conditions or data conflicts occur",
-        "Both administrators see accurate template lists"
+        "System handles edge case according to business rules",
+        "If saved, template is marked or flagged for review",
+        "If rejected, clear validation message explains the constraint"
       ]
     }
   ],
@@ -777,291 +782,302 @@
         "User is logged in as Administrator",
         "User is on shift template management page",
         "Screen reader is not active (testing keyboard only)",
-        "Browser is focused on the page content"
+        "Browser is Chrome, Firefox, or Edge"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Press Tab key repeatedly from page load to navigate through all interactive elements",
-          "expectedResult": "Focus moves in logical order: 'Create New Template' button → Template Name field → Start Time dropdown → End Time dropdown → Add Break button → Save Template button, with visible focus indicator (blue outline) on each element"
+          "action": "Press Tab key to navigate to 'Create New Template' button and verify visible focus indicator (blue outline)",
+          "expectedResult": "Button receives focus with clearly visible 2px blue outline, focus indicator has 3:1 contrast ratio against background"
         },
         {
           "step": 2,
-          "action": "Press Enter key when 'Create New Template' button has focus",
-          "expectedResult": "Template creation form opens and focus automatically moves to Template Name field"
+          "action": "Press Enter key to activate 'Create New Template' button",
+          "expectedResult": "Template creation form opens, focus automatically moves to Template Name field"
         },
         {
           "step": 3,
-          "action": "Type 'Keyboard Test Shift' in Template Name field without using mouse",
-          "expectedResult": "Text is entered successfully in the field"
+          "action": "Type 'Keyboard Test Shift' in Template Name field, then press Tab to move to Start Time field",
+          "expectedResult": "Focus moves to Start Time dropdown, visible focus indicator appears around field"
         },
         {
           "step": 4,
-          "action": "Press Tab to move to Start Time dropdown, then press Space or Enter to open dropdown, use Arrow keys to select '09:00 AM', press Enter to confirm",
-          "expectedResult": "Dropdown opens with keyboard, time can be selected using arrow keys, selection is confirmed, and focus returns to dropdown trigger showing selected time"
+          "action": "Press Space or Enter to open Start Time dropdown, use Arrow Down key to select '08:00 AM', press Enter to confirm",
+          "expectedResult": "Dropdown opens, arrow keys navigate through time options, Enter selects time and closes dropdown"
         },
         {
           "step": 5,
-          "action": "Press Tab to End Time, repeat dropdown interaction to select '05:00 PM' using only keyboard",
-          "expectedResult": "End Time is selected successfully using keyboard navigation"
+          "action": "Press Tab to move to End Time field, repeat time selection using keyboard only",
+          "expectedResult": "End Time field receives focus, keyboard selection works identically to Start Time"
         },
         {
           "step": 6,
-          "action": "Press Tab to 'Save Template' button and press Enter",
-          "expectedResult": "Form is submitted successfully and success message appears with focus moved to the message for screen reader announcement"
+          "action": "Press Tab to navigate to 'Add Break' button, press Enter to add break, then use Tab and keyboard to enter break times",
+          "expectedResult": "Break fields are added, all break time inputs are keyboard accessible with same interaction pattern"
         },
         {
           "step": 7,
-          "action": "Press Escape key when form is open",
-          "expectedResult": "Form closes and focus returns to 'Create New Template' button"
+          "action": "Press Tab to navigate to 'Save Template' button, press Enter to submit form",
+          "expectedResult": "Form submits successfully, success message receives focus and is announced"
+        },
+        {
+          "step": 8,
+          "action": "Press Escape key while form is open to test cancel/close functionality",
+          "expectedResult": "Form closes or cancel confirmation appears, focus returns to 'Create New Template' button"
         }
       ],
       "postconditions": [
-        "All form interactions can be completed without mouse",
-        "Focus is never trapped in any component",
-        "Focus indicators are visible throughout navigation",
-        "Keyboard shortcuts work as expected"
+        "All form interactions are completable using keyboard only",
+        "Focus order is logical and follows visual layout",
+        "No keyboard traps exist in the form",
+        "Focus indicators are visible throughout entire workflow"
       ]
     },
     {
       "id": "TC-ACCE-002",
-      "title": "Verify screen reader announces all form elements, labels, and validation errors correctly",
+      "title": "Verify screen reader announces all form elements and validation errors correctly",
       "category": "Accessibility",
       "priority": "High",
       "preconditions": [
         "User is logged in as Administrator",
         "NVDA or JAWS screen reader is active and running",
-        "User is on shift template creation page",
-        "Screen reader is in forms mode"
+        "User is on shift template management page",
+        "Screen reader verbosity is set to default level"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Navigate to 'Create New Template' button using screen reader navigation",
+          "action": "Navigate to 'Create New Template' button using screen reader navigation (Tab or virtual cursor)",
           "expectedResult": "Screen reader announces 'Create New Template, button' with role and accessible name"
         },
         {
           "step": 2,
           "action": "Activate button and navigate to Template Name field",
-          "expectedResult": "Screen reader announces 'Template Name, required, edit text' indicating field label, required status, and input type"
+          "expectedResult": "Screen reader announces 'Template Name, edit, required' indicating field type and required status"
         },
         {
           "step": 3,
-          "action": "Navigate to Start Time dropdown",
-          "expectedResult": "Screen reader announces 'Start Time, required, combo box, collapsed' with current value if any"
+          "action": "Navigate to Start Time field without entering value",
+          "expectedResult": "Screen reader announces 'Start Time, combobox, required, collapsed' with current state"
         },
         {
           "step": 4,
-          "action": "Leave Template Name empty and navigate to Save button, then activate it",
-          "expectedResult": "Screen reader announces validation error 'Error: Template Name is required' and focus moves to Template Name field with error announcement"
+          "action": "Attempt to submit form with empty required fields",
+          "expectedResult": "Screen reader announces 'Error: Template name is required' and 'Error: Start time is required' for each validation error, focus moves to first error field"
         },
         {
           "step": 5,
-          "action": "Navigate to 'Add Break' button and activate it",
-          "expectedResult": "Screen reader announces 'Add Break, button' and when activated announces 'Break time fields added' or similar confirmation"
+          "action": "Navigate to error messages using screen reader",
+          "expectedResult": "Each error message is announced with role 'alert' or is in aria-live region, errors are associated with fields via aria-describedby"
         },
         {
           "step": 6,
-          "action": "Complete form with valid data and submit",
-          "expectedResult": "Screen reader announces success message 'Success: Shift template created successfully' in ARIA live region"
+          "action": "Fill form correctly and submit, listen for success message announcement",
+          "expectedResult": "Screen reader announces 'Success: Shift template created successfully' from aria-live region without moving focus"
+        },
+        {
+          "step": 7,
+          "action": "Navigate to templates list and verify each template is announced with complete information",
+          "expectedResult": "Screen reader announces 'Morning Shift, Start Time 8:00 AM, End Time 5:00 PM, Edit button, Delete button' for each template row"
         }
       ],
       "postconditions": [
-        "All form elements have proper ARIA labels and roles",
-        "Required fields are announced as required",
-        "Error messages are associated with fields and announced",
-        "Success/failure messages are announced via ARIA live regions"
+        "All interactive elements have proper ARIA labels and roles",
+        "Validation errors are programmatically associated with form fields",
+        "Success and error messages are announced via aria-live regions",
+        "Screen reader users can complete entire workflow independently"
       ]
     },
     {
       "id": "TC-ACCE-003",
-      "title": "Verify sufficient color contrast ratios for all text and interactive elements (WCAG 2.1 AA)",
+      "title": "Verify form maintains proper focus management during dynamic content changes",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Administrator",
+        "User is on shift template creation form",
+        "Keyboard navigation is being used"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to 'Add Break' button using Tab key and press Enter to add first break",
+          "expectedResult": "Break fields are added to form, focus automatically moves to first break Start Time field"
+        },
+        {
+          "step": 2,
+          "action": "Enter break times, then click 'Add Break' again to add second break",
+          "expectedResult": "Second break fields appear, focus moves to new break's Start Time field, focus is not lost"
+        },
+        {
+          "step": 3,
+          "action": "Navigate to 'Remove Break' button (if exists) next to first break and press Enter",
+          "expectedResult": "Break is removed, focus moves to logical next element (next break or 'Add Break' button), focus is not lost to body"
+        },
+        {
+          "step": 4,
+          "action": "Submit form with validation errors, observe focus behavior",
+          "expectedResult": "Focus automatically moves to first field with error, error message is announced"
+        },
+        {
+          "step": 5,
+          "action": "Successfully submit form and observe focus after success message",
+          "expectedResult": "Focus moves to success message or remains on form with clear indication of success, user can continue navigation logically"
+        }
+      ],
+      "postconditions": [
+        "Focus is never lost during dynamic content updates",
+        "Focus movement is predictable and logical",
+        "Users always know where focus is located",
+        "No focus traps are created by dynamic content"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify color contrast ratios meet WCAG 2.1 AA standards throughout template management interface",
       "category": "Accessibility",
       "priority": "High",
       "preconditions": [
         "User is on shift template management page",
         "Color contrast analyzer tool is available (browser extension or standalone)",
-        "Page is displayed in default theme/colors"
+        "Page is displayed at 100% zoom in standard lighting conditions"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Use color contrast analyzer to check 'Create New Template' button text against button background",
+          "action": "Use color contrast analyzer to measure contrast ratio of 'Create New Template' button text against button background",
           "expectedResult": "Contrast ratio is at least 4.5:1 for normal text or 3:1 for large text (18pt+), meeting WCAG AA standards"
         },
         {
           "step": 2,
-          "action": "Check form field labels (Template Name, Start Time, End Time) against page background",
-          "expectedResult": "All labels have contrast ratio of at least 4.5:1 against background"
+          "action": "Measure contrast ratio of form field labels (Template Name, Start Time, End Time) against page background",
+          "expectedResult": "All labels have minimum 4.5:1 contrast ratio against background"
         },
         {
           "step": 3,
-          "action": "Check error message text color against background",
-          "expectedResult": "Error messages (typically red text) have contrast ratio of at least 4.5:1 and do not rely solely on color to convey error state (icon or text indicator present)"
+          "action": "Measure contrast ratio of error messages (red text) against background",
+          "expectedResult": "Error text has at least 4.5:1 contrast ratio, errors are not conveyed by color alone (icon or text indicator present)"
         },
         {
           "step": 4,
-          "action": "Check success message text color against background",
-          "expectedResult": "Success messages have contrast ratio of at least 4.5:1"
+          "action": "Measure contrast ratio of success message (green banner) text against banner background",
+          "expectedResult": "Success message text has minimum 4.5:1 contrast ratio"
         },
         {
           "step": 5,
-          "action": "Check focus indicator outline color against both element background and page background",
-          "expectedResult": "Focus indicators have contrast ratio of at least 3:1 against adjacent colors"
+          "action": "Check focus indicators on all interactive elements for contrast against background",
+          "expectedResult": "Focus indicators have at least 3:1 contrast ratio against adjacent colors per WCAG 2.1 AA"
         },
         {
           "step": 6,
-          "action": "Check disabled button state text and background contrast",
-          "expectedResult": "Disabled buttons are visually distinguishable but not required to meet contrast ratios per WCAG (informational only)"
+          "action": "Verify that information is not conveyed by color alone (e.g., required fields, validation states)",
+          "expectedResult": "Required fields have asterisk or 'required' text, errors have icons, success has icon, not just color coding"
         }
       ],
       "postconditions": [
-        "All active text elements meet WCAG 2.1 AA contrast requirements",
-        "Error states use multiple indicators beyond color alone",
-        "Focus indicators are clearly visible"
+        "All text meets WCAG 2.1 AA contrast requirements (4.5:1 for normal, 3:1 for large)",
+        "Focus indicators meet 3:1 contrast requirement",
+        "Information is conveyed through multiple means, not color alone",
+        "Interface is usable for users with color vision deficiencies"
       ]
     },
     {
-      "id": "TC-ACCE-004",
-      "title": "Verify form remains functional and readable at 200% browser zoom level",
+      "id": "TC-ACCE-005",
+      "title": "Verify interface remains functional and readable at 200% browser zoom",
       "category": "Accessibility",
       "priority": "Medium",
       "preconditions": [
         "User is logged in as Administrator",
-        "User is on shift template creation page",
+        "User is on shift template management page",
         "Browser zoom is set to 100% initially",
         "Browser window is at standard desktop resolution (1920x1080)"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Press Ctrl and + (or Cmd and + on Mac) repeatedly to zoom browser to 200%",
-          "expectedResult": "Page content scales proportionally to 200% zoom level"
+          "action": "Increase browser zoom to 200% using Ctrl/Cmd + Plus key or browser zoom controls",
+          "expectedResult": "Page content scales proportionally, no horizontal scrolling is required, layout remains intact"
         },
         {
           "step": 2,
-          "action": "Click 'Create New Template' button at 200% zoom",
-          "expectedResult": "Button is fully visible, clickable, and form opens without horizontal scrolling required for form fields"
+          "action": "Verify 'Create New Template' button is fully visible and clickable without scrolling",
+          "expectedResult": "Button is visible, text is not truncated, button remains functional"
         },
         {
           "step": 3,
-          "action": "Verify all form fields (Template Name, Start Time, End Time) are visible and accessible",
-          "expectedResult": "All fields are visible, labels are not truncated, and fields can be interacted with without horizontal scrolling"
+          "action": "Open template creation form and verify all form fields are visible and usable",
+          "expectedResult": "Form fields stack vertically if needed, all labels are visible, no content is cut off or overlapping"
         },
         {
           "step": 4,
-          "action": "Enter data in all fields and verify dropdowns open correctly at 200% zoom",
-          "expectedResult": "Dropdowns open fully visible, options are readable, and selection works correctly"
+          "action": "Verify dropdown menus (Start Time, End Time) open correctly and display all options",
+          "expectedResult": "Dropdowns function normally, options are readable, no layout breaks occur"
         },
         {
           "step": 5,
-          "action": "Scroll vertically if needed and verify 'Save Template' button is accessible",
-          "expectedResult": "Save button is visible and clickable, form can be submitted successfully at 200% zoom"
+          "action": "Submit form and verify success message is fully visible at 200% zoom",
+          "expectedResult": "Success banner displays completely, text is readable, no content overflow"
         },
         {
           "step": 6,
-          "action": "Verify success/error messages are fully visible and readable at 200% zoom",
-          "expectedResult": "Messages appear completely within viewport without text cutoff or requiring horizontal scroll"
+          "action": "Verify templates list displays correctly with all columns readable",
+          "expectedResult": "Table or list layout adapts to zoom level, all data is accessible, horizontal scrolling is minimal or absent"
         }
       ],
       "postconditions": [
-        "All functionality works correctly at 200% zoom",
+        "All functionality remains available at 200% zoom",
         "No content is lost or becomes inaccessible",
-        "Layout adapts responsively without breaking",
-        "No horizontal scrolling is required for single-column content"
-      ]
-    },
-    {
-      "id": "TC-ACCE-005",
-      "title": "Verify proper focus management and focus trap in modal dialog for template creation",
-      "category": "Accessibility",
-      "priority": "High",
-      "preconditions": [
-        "User is logged in as Administrator",
-        "User is on shift template management page",
-        "Template creation opens in a modal dialog (if applicable to implementation)"
-      ],
-      "steps": [
-        {
-          "step": 1,
-          "action": "Click or press Enter on 'Create New Template' button to open modal",
-          "expectedResult": "Modal opens and focus automatically moves to first interactive element (Template Name field) inside modal"
-        },
-        {
-          "step": 2,
-          "action": "Press Tab repeatedly to cycle through all focusable elements in modal",
-          "expectedResult": "Focus cycles through: Template Name → Start Time → End Time → Add Break → Save Template → Cancel/Close button, then returns to Template Name (focus is trapped within modal)"
-        },
-        {
-          "step": 3,
-          "action": "Press Shift+Tab from first element (Template Name)",
-          "expectedResult": "Focus moves backward to last element (Cancel/Close button), confirming bidirectional focus trap"
-        },
-        {
-          "step": 4,
-          "action": "Verify background content (page behind modal) is not focusable",
-          "expectedResult": "Tab navigation does not reach elements outside modal, background is inert with aria-hidden='true' or inert attribute"
-        },
-        {
-          "step": 5,
-          "action": "Press Escape key while modal is open",
-          "expectedResult": "Modal closes and focus returns to 'Create New Template' button that originally opened the modal"
-        },
-        {
-          "step": 6,
-          "action": "Open modal again and click 'Save Template' button",
-          "expectedResult": "After successful save, modal closes and focus returns to appropriate element (newly created template in list or Create button)"
-        }
-      ],
-      "postconditions": [
-        "Focus is properly managed throughout modal lifecycle",
-        "Focus never escapes modal while open",
-        "Focus returns to logical element when modal closes",
-        "Background content is properly inert while modal is active"
+        "Layout adapts responsively to increased text size",
+        "Users with low vision can use interface effectively"
       ]
     },
     {
       "id": "TC-ACCE-006",
-      "title": "Verify ARIA landmarks and semantic HTML structure for assistive technology navigation",
+      "title": "Verify proper ARIA landmarks and semantic HTML structure for assistive technology navigation",
       "category": "Accessibility",
       "priority": "Medium",
       "preconditions": [
         "User is on shift template management page",
         "Screen reader is active (NVDA or JAWS)",
-        "Page HTML is rendered and accessible"
+        "Browser developer tools are available for inspecting HTML"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Use screen reader landmark navigation (NVDA: D key, JAWS: ; key) to navigate through page regions",
-          "expectedResult": "Screen reader announces distinct landmarks: 'main region' for main content, 'navigation region' for menu, 'banner region' for header if present"
+          "action": "Use screen reader landmarks navigation (NVDA: D key, JAWS: ; key) to navigate through page regions",
+          "expectedResult": "Screen reader announces distinct landmarks: 'banner' or 'header', 'navigation', 'main', 'contentinfo' or 'footer'"
         },
         {
           "step": 2,
-          "action": "Navigate to the template creation form and verify it has appropriate role",
-          "expectedResult": "Form is announced as 'form region' or has role='form' with accessible name 'Create Shift Template' or similar"
+          "action": "Verify template creation form is within a <form> element or has role='form' with accessible name",
+          "expectedResult": "Screen reader announces 'form, Create Shift Template' or similar when entering form region"
         },
         {
           "step": 3,
-          "action": "Use screen reader heading navigation (H key) to navigate through page headings",
-          "expectedResult": "Headings are announced in logical hierarchy: H1 for page title 'Shift Template Management', H2 for sections like 'Create Template', proper nesting without skipped levels"
+          "action": "Use screen reader headings navigation (H key) to navigate through page structure",
+          "expectedResult": "Headings are properly nested (h1 for page title, h2 for sections, h3 for subsections), no heading levels are skipped"
         },
         {
           "step": 4,
-          "action": "Navigate to the templates list and verify it uses semantic list structure",
-          "expectedResult": "Screen reader announces 'list with X items' and each template as 'list item' with proper structure"
+          "action": "Inspect form fields to verify proper label associations using <label> elements or aria-labelledby",
+          "expectedResult": "All form inputs have programmatically associated labels, clicking label focuses corresponding input"
         },
         {
           "step": 5,
-          "action": "Verify buttons use <button> elements and links use <a> elements appropriately",
-          "expectedResult": "Screen reader announces 'button' for action elements (Create, Save, Delete) and 'link' only for navigation elements"
+          "action": "Verify buttons use <button> elements (not <div> or <span> with click handlers)",
+          "expectedResult": "All interactive buttons are semantic <button> elements with proper type attribute (button, submit)"
+        },
+        {
+          "step": 6,
+          "action": "Check that templates list uses semantic table (<table>) or list (<ul>/<ol>) markup",
+          "expectedResult": "Data is structured semantically, screen reader announces 'table with X rows' or 'list with X items'"
         }
       ],
       "postconditions": [
-        "Page structure uses semantic HTML5 elements",
-        "ARIA landmarks are properly implemented",
-        "Heading hierarchy is logical and complete",
-        "Screen reader users can efficiently navigate page structure"
+        "Page structure is semantically correct and navigable by landmarks",
+        "All interactive elements use appropriate HTML elements",
+        "Screen reader users can efficiently navigate page structure",
+        "Form relationships are programmatically determinable"
       ]
     }
   ],
