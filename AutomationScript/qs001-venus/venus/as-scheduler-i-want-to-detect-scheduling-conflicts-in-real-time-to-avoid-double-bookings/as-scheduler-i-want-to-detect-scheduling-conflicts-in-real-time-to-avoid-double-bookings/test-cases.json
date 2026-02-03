@@ -1,0 +1,1168 @@
+{
+  "storyId": "story-4",
+  "storyTitle": "As Scheduler, I want to detect scheduling conflicts in real-time to avoid double bookings",
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify real-time conflict detection for overlapping time slots with existing schedule",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "User is on the scheduling dashboard page",
+        "Existing schedule exists: Resource 'Conference Room A' booked from 10:00 AM to 11:00 AM on current date",
+        "Scheduling database is accessible and responsive"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click 'Create New Schedule' button in the top-right corner of the dashboard",
+          "expectedResult": "Scheduling form modal opens with empty fields for Resource, Start Time, End Time, and Description"
+        },
+        {
+          "step": 2,
+          "action": "Select 'Conference Room A' from the Resource dropdown menu",
+          "expectedResult": "Resource field displays 'Conference Room A' as selected"
+        },
+        {
+          "step": 3,
+          "action": "Enter Start Time as '10:15 AM' and End Time as '11:15 AM' for current date",
+          "expectedResult": "Time fields display entered values with proper formatting"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Check Availability' button or tab out of the End Time field to trigger real-time validation",
+          "expectedResult": "Red alert banner appears below the form stating 'Conflict Detected: Conference Room A is already booked from 10:00 AM to 11:00 AM' with conflict details and existing booking information"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to 'Conflict Log' section from the left sidebar menu",
+          "expectedResult": "Conflict log page displays the detected conflict with timestamp, resource name, conflicting time slots, and status 'Detected - Not Resolved'"
+        }
+      ],
+      "postconditions": [
+        "Scheduling request is not saved to the database",
+        "Conflict is logged in the conflict_log table with status 'detected'",
+        "User remains on the scheduling form with conflict alert visible",
+        "Existing schedule for Conference Room A remains unchanged"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify successful schedule creation when no conflicts exist",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "User is on the scheduling dashboard page",
+        "No existing schedules for 'Conference Room B' between 2:00 PM and 3:00 PM on current date",
+        "System response time is under 2 seconds for conflict detection"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click 'Create New Schedule' button in the top-right corner",
+          "expectedResult": "Scheduling form modal opens with all required fields visible"
+        },
+        {
+          "step": 2,
+          "action": "Select 'Conference Room B' from Resource dropdown, enter Start Time '2:00 PM', End Time '3:00 PM', and Description 'Team Meeting'",
+          "expectedResult": "All fields display entered values correctly"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Check Availability' button to trigger real-time conflict detection",
+          "expectedResult": "Green success message appears stating 'No conflicts detected. Resource is available.' within 2 seconds"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save Schedule' button at the bottom of the form",
+          "expectedResult": "Success notification 'Schedule created successfully' appears in green banner at top of page, modal closes automatically"
+        },
+        {
+          "step": 5,
+          "action": "Verify the new schedule appears in the dashboard calendar view for Conference Room B at 2:00 PM - 3:00 PM",
+          "expectedResult": "Schedule entry is visible with correct resource, time, and description details"
+        }
+      ],
+      "postconditions": [
+        "New schedule is saved to scheduling database with status 'active'",
+        "No conflict log entry is created for this successful scheduling",
+        "User is returned to the scheduling dashboard with updated calendar view",
+        "Conference Room B shows as booked for the specified time slot"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify conflict resolution by modifying scheduling request after conflict detection",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "Existing schedule: 'Projector #1' booked from 1:00 PM to 2:00 PM on current date",
+        "User has already attempted to book 'Projector #1' from 1:30 PM to 2:30 PM and received conflict alert",
+        "Scheduling form is still open with conflict alert displayed"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Review the conflict alert message displaying 'Conflict Detected: Projector #1 is already booked from 1:00 PM to 2:00 PM'",
+          "expectedResult": "Conflict details are clearly visible with red alert styling and specific time overlap information"
+        },
+        {
+          "step": 2,
+          "action": "Modify the Start Time field from '1:30 PM' to '2:15 PM' and End Time from '2:30 PM' to '3:15 PM'",
+          "expectedResult": "Time fields update with new values"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Check Availability' button or tab out of End Time field to re-trigger conflict detection",
+          "expectedResult": "System re-evaluates the request within 2 seconds and displays green success message 'No conflicts detected. Resource is available.' The red conflict alert disappears"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save Schedule' button to confirm the booking",
+          "expectedResult": "Success notification 'Schedule created successfully' appears, modal closes, and new schedule is visible on dashboard"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to 'Conflict Log' and verify the original conflict entry",
+          "expectedResult": "Conflict log shows the original conflict with status updated to 'Resolved - Time Modified' with timestamp of resolution"
+        }
+      ],
+      "postconditions": [
+        "Modified schedule is saved successfully for Projector #1 from 2:15 PM to 3:15 PM",
+        "Original conflict log entry is updated with resolution status and method",
+        "No active conflicts exist for Projector #1",
+        "User is on the scheduling dashboard with updated calendar view"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify conflict detection for exact time match with existing schedule",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "Existing schedule: 'Meeting Room 3' booked from 9:00 AM to 10:00 AM on current date",
+        "User is on the scheduling form page",
+        "Conflict detection API endpoint POST /api/schedule/check is operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select 'Meeting Room 3' from Resource dropdown",
+          "expectedResult": "Resource field shows 'Meeting Room 3' as selected"
+        },
+        {
+          "step": 2,
+          "action": "Enter Start Time as '9:00 AM' and End Time as '10:00 AM' (exact match with existing booking)",
+          "expectedResult": "Time fields display the entered values"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Check Availability' button to trigger conflict detection",
+          "expectedResult": "Red conflict alert appears stating 'Conflict Detected: Meeting Room 3 is already booked from 9:00 AM to 10:00 AM. This is an exact time match with existing booking.' Response time is under 2 seconds"
+        },
+        {
+          "step": 4,
+          "action": "Click 'View Conflict Details' link in the alert message",
+          "expectedResult": "Conflict details modal opens showing existing booking information including booker name, purpose, and contact information"
+        }
+      ],
+      "postconditions": [
+        "Scheduling request is blocked and not saved",
+        "Conflict is logged with type 'exact_match' in conflict_log table",
+        "User remains on scheduling form with ability to modify request",
+        "Existing schedule remains unchanged and active"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify conflict detection for partial overlap at the end of existing schedule",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "Existing schedule: 'Training Room A' booked from 3:00 PM to 5:00 PM on current date",
+        "User is on the scheduling dashboard",
+        "Real-time conflict detection is enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click 'Create New Schedule' button and open the scheduling form",
+          "expectedResult": "Scheduling form modal opens with empty fields"
+        },
+        {
+          "step": 2,
+          "action": "Select 'Training Room A' from Resource dropdown, enter Start Time '4:30 PM' and End Time '6:00 PM'",
+          "expectedResult": "All fields display entered values correctly"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Check Availability' button to trigger real-time validation",
+          "expectedResult": "Red conflict alert appears: 'Conflict Detected: Training Room A is already booked from 3:00 PM to 5:00 PM. Your requested time (4:30 PM - 6:00 PM) overlaps by 30 minutes.' Alert includes visual timeline showing the overlap"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Suggest Alternative Times' button in the conflict alert",
+          "expectedResult": "System displays 3 alternative time slots: '5:00 PM - 6:30 PM', '2:00 PM - 3:30 PM', and '6:00 PM - 7:30 PM' as available options"
+        }
+      ],
+      "postconditions": [
+        "Scheduling request is not saved due to detected conflict",
+        "Conflict is logged with overlap details (30 minutes) in the system",
+        "User can select an alternative time or modify the original request",
+        "Existing Training Room A schedule remains active and unchanged"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify conflict log displays complete history of all detected conflicts with filtering options",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "At least 5 conflicts have been detected and logged in the system within the past 7 days",
+        "Conflicts include various statuses: 'Detected - Not Resolved', 'Resolved - Time Modified', 'Resolved - Resource Changed'",
+        "User has access to the Conflict Log section"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click 'Conflict Log' menu item in the left sidebar navigation",
+          "expectedResult": "Conflict Log page loads displaying a table with columns: Conflict ID, Date/Time, Resource, Requested Time, Conflicting Time, Status, and Actions"
+        },
+        {
+          "step": 2,
+          "action": "Verify all logged conflicts are displayed in reverse chronological order (newest first)",
+          "expectedResult": "All 5+ conflicts are visible with complete details including timestamps, resource names, time slots, and current status"
+        },
+        {
+          "step": 3,
+          "action": "Click on the 'Status' filter dropdown and select 'Detected - Not Resolved'",
+          "expectedResult": "Table updates to show only unresolved conflicts, other conflicts are hidden"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Export to CSV' button at the top-right of the conflict log table",
+          "expectedResult": "CSV file downloads containing all filtered conflict records with all column data"
+        },
+        {
+          "step": 5,
+          "action": "Click on a specific conflict row to view detailed information",
+          "expectedResult": "Conflict details panel expands showing full information: requester name, original request details, conflicting booking details, resolution history, and notes"
+        }
+      ],
+      "postconditions": [
+        "Conflict log data remains unchanged after viewing",
+        "Filter selections are maintained during the session",
+        "CSV export file is saved to user's download folder",
+        "User remains on the Conflict Log page with ability to perform additional actions"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify system handles scheduling request with missing required fields",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "User is on the scheduling form page",
+        "All form fields are empty by default",
+        "Form validation is enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Leave Resource dropdown unselected (empty)",
+          "expectedResult": "Resource field remains empty with placeholder text 'Select a resource'"
+        },
+        {
+          "step": 2,
+          "action": "Leave Start Time and End Time fields empty",
+          "expectedResult": "Time fields show placeholder text 'Select time'"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Check Availability' button without filling any required fields",
+          "expectedResult": "Red error messages appear below each required field: 'Resource is required', 'Start time is required', 'End time is required'. Check Availability action is blocked"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to click 'Save Schedule' button",
+          "expectedResult": "'Save Schedule' button is disabled (grayed out) and clicking produces no action. Tooltip appears stating 'Please fill all required fields'"
+        }
+      ],
+      "postconditions": [
+        "No scheduling request is sent to the server",
+        "No conflict detection API call is made",
+        "No data is saved to the database",
+        "User remains on the scheduling form with validation errors displayed"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify system rejects scheduling request with End Time before Start Time",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "User is on the scheduling form page",
+        "Resource 'Lab Equipment #5' is available",
+        "Time validation rules are active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select 'Lab Equipment #5' from Resource dropdown",
+          "expectedResult": "Resource field displays 'Lab Equipment #5'"
+        },
+        {
+          "step": 2,
+          "action": "Enter Start Time as '3:00 PM' in the Start Time field",
+          "expectedResult": "Start Time field displays '3:00 PM'"
+        },
+        {
+          "step": 3,
+          "action": "Enter End Time as '2:00 PM' (1 hour before Start Time) in the End Time field",
+          "expectedResult": "End Time field displays '2:00 PM'"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Check Availability' button or tab out of End Time field",
+          "expectedResult": "Red error message appears below End Time field: 'End time must be after start time. Please enter a valid time range.' Conflict detection is not triggered"
+        },
+        {
+          "step": 5,
+          "action": "Verify 'Save Schedule' button state",
+          "expectedResult": "'Save Schedule' button is disabled and cannot be clicked"
+        }
+      ],
+      "postconditions": [
+        "No API call is made to conflict detection endpoint",
+        "No schedule is created in the database",
+        "Form validation error remains visible until corrected",
+        "User must correct the time values before proceeding"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify system handles conflict detection when database connection fails",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "User is on the scheduling form page",
+        "Scheduling database connection is temporarily unavailable or timing out",
+        "Error handling mechanisms are in place"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select 'Conference Room C' from Resource dropdown, enter Start Time '11:00 AM' and End Time '12:00 PM'",
+          "expectedResult": "All fields display entered values correctly"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Check Availability' button to trigger conflict detection",
+          "expectedResult": "Loading spinner appears for up to 2 seconds, then yellow warning banner displays: 'Unable to check for conflicts. Database connection error. Please try again or contact support if the issue persists.'"
+        },
+        {
+          "step": 3,
+          "action": "Verify 'Save Schedule' button state during database error",
+          "expectedResult": "'Save Schedule' button is disabled with tooltip 'Cannot save schedule without conflict verification'"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Retry' button in the warning banner",
+          "expectedResult": "System attempts to reconnect and check for conflicts again. If still failing, same error message appears"
+        }
+      ],
+      "postconditions": [
+        "No schedule is saved to the database",
+        "Error is logged in system error logs with timestamp and user information",
+        "User remains on the scheduling form with ability to retry",
+        "System does not crash or become unresponsive"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify system prevents unauthorized user without Scheduler role from creating schedules",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with 'Viewer' role (no scheduling permissions)",
+        "User attempts to access scheduling functionality",
+        "Role-based access control is enforced",
+        "Authentication tokens are valid but permissions are restricted"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the scheduling dashboard URL directly by typing '/scheduling/dashboard' in the browser",
+          "expectedResult": "System redirects to 'Access Denied' page with message 'You do not have permission to access scheduling features. Please contact your administrator.'"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to access the scheduling API endpoint directly using browser console: POST /api/schedule/check with valid schedule data",
+          "expectedResult": "API returns 403 Forbidden status code with JSON response: {\"error\": \"Insufficient permissions\", \"message\": \"Scheduler role required\"}"
+        },
+        {
+          "step": 3,
+          "action": "Verify that 'Create New Schedule' button is not visible on any accessible pages",
+          "expectedResult": "Scheduling action buttons are hidden or disabled for users without Scheduler role"
+        }
+      ],
+      "postconditions": [
+        "No scheduling request is processed",
+        "Unauthorized access attempt is logged in security audit log",
+        "User session remains active but restricted to permitted features",
+        "No data is modified in the scheduling database"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify system handles scheduling request with invalid date format and special characters",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "User is on the scheduling form page",
+        "Input validation is enabled for all fields",
+        "XSS and SQL injection protection is active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select 'Meeting Room 1' from Resource dropdown",
+          "expectedResult": "Resource field displays 'Meeting Room 1'"
+        },
+        {
+          "step": 2,
+          "action": "Enter Start Time as '<script>alert(\"XSS\")</script>' in the Start Time field",
+          "expectedResult": "Field either strips the script tags and shows empty value, or displays error 'Invalid time format. Please use HH:MM AM/PM format'"
+        },
+        {
+          "step": 3,
+          "action": "Enter End Time as 'DROP TABLE schedules; --' attempting SQL injection",
+          "expectedResult": "Field validation rejects the input with error message 'Invalid time format. Please enter a valid time.'"
+        },
+        {
+          "step": 4,
+          "action": "Enter Description field with 10,000 characters of text (exceeding maximum limit)",
+          "expectedResult": "Character counter shows '10000/500 characters' in red, and error message appears: 'Description cannot exceed 500 characters'"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to click 'Check Availability' button",
+          "expectedResult": "Button is disabled and validation errors prevent any API calls. No malicious code is executed"
+        }
+      ],
+      "postconditions": [
+        "No malicious code is executed or stored in the database",
+        "All input is properly sanitized and validated",
+        "Security event is logged for attempted injection",
+        "User remains on form with validation errors displayed"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify system handles conflict detection timeout when response exceeds 2 seconds",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "User is on the scheduling form page",
+        "Network latency is simulated or server response is delayed beyond 2 seconds",
+        "Timeout threshold is set to 2 seconds as per performance requirements"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select 'Auditorium' from Resource dropdown, enter Start Time '7:00 PM' and End Time '9:00 PM'",
+          "expectedResult": "All fields display entered values correctly"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Check Availability' button to trigger conflict detection",
+          "expectedResult": "Loading spinner appears and continues for more than 2 seconds"
+        },
+        {
+          "step": 3,
+          "action": "Wait for timeout to occur (after 2 seconds)",
+          "expectedResult": "Loading spinner stops and yellow warning message appears: 'Conflict check is taking longer than expected. The system may be experiencing high load. Please try again.'"
+        },
+        {
+          "step": 4,
+          "action": "Verify the state of 'Save Schedule' button",
+          "expectedResult": "'Save Schedule' button remains disabled with message 'Conflict verification required before saving'"
+        }
+      ],
+      "postconditions": [
+        "No schedule is saved due to incomplete conflict verification",
+        "Timeout event is logged in system performance logs",
+        "User can retry the conflict check",
+        "System remains responsive and does not hang"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Verify conflict detection for scheduling request spanning midnight (crosses day boundary)",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "User is on the scheduling form page",
+        "No existing schedules for 'Server Room Access' between 11:00 PM today and 2:00 AM tomorrow",
+        "System supports multi-day scheduling"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select 'Server Room Access' from Resource dropdown",
+          "expectedResult": "Resource field displays 'Server Room Access'"
+        },
+        {
+          "step": 2,
+          "action": "Enter Start Time as '11:00 PM' for current date and End Time as '2:00 AM' for next date",
+          "expectedResult": "System recognizes the time span crosses midnight and displays both dates: 'Start: [Today] 11:00 PM, End: [Tomorrow] 2:00 AM'"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Check Availability' button to trigger conflict detection",
+          "expectedResult": "System successfully checks for conflicts across both days and displays 'No conflicts detected. Resource is available for the entire duration (5 hours spanning two days).'"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save Schedule' button",
+          "expectedResult": "Schedule is created successfully with proper date/time handling. Success message appears: 'Schedule created for 5 hours from [Today] 11:00 PM to [Tomorrow] 2:00 AM'"
+        },
+        {
+          "step": 5,
+          "action": "Verify the schedule appears correctly in the calendar view spanning both days",
+          "expectedResult": "Calendar shows the booking starting on current day at 11:00 PM and continuing into the next day until 2:00 AM"
+        }
+      ],
+      "postconditions": [
+        "Schedule is saved with correct start and end timestamps across day boundary",
+        "Calendar view correctly displays the multi-day booking",
+        "Future conflict detection properly considers this cross-midnight booking",
+        "No duplicate entries are created for the two days"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Verify system handles multiple concurrent scheduling requests for the same resource simultaneously",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "Two or more users are logged in with Scheduler role permissions on different browser sessions",
+        "All users are attempting to book 'Presentation Equipment Set' for the same time slot",
+        "Database supports transaction locking and race condition handling",
+        "System has concurrent request handling enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "User A and User B simultaneously open scheduling forms and select 'Presentation Equipment Set' as resource",
+          "expectedResult": "Both users see the resource selected in their respective forms"
+        },
+        {
+          "step": 2,
+          "action": "Both users enter identical time slots: Start Time '1:00 PM', End Time '2:00 PM' for the same date",
+          "expectedResult": "Both forms display the entered time values"
+        },
+        {
+          "step": 3,
+          "action": "Both users click 'Check Availability' button within 1 second of each other",
+          "expectedResult": "Both users initially receive 'No conflicts detected' message as the checks happen before either schedule is saved"
+        },
+        {
+          "step": 4,
+          "action": "Both users click 'Save Schedule' button simultaneously (within milliseconds)",
+          "expectedResult": "First request to reach the database is processed successfully. Second request is rejected with message: 'Conflict Detected: This resource was just booked by another user. Please check availability again.'"
+        },
+        {
+          "step": 5,
+          "action": "User B (who received rejection) clicks 'Check Availability' again",
+          "expectedResult": "System now shows conflict alert: 'Conflict Detected: Presentation Equipment Set is already booked from 1:00 PM to 2:00 PM by [User A name]'"
+        }
+      ],
+      "postconditions": [
+        "Only one schedule is saved in the database for the resource at that time",
+        "Both requests are logged in conflict log with details of the race condition",
+        "No data corruption or duplicate bookings occur",
+        "Second user is prompted to select alternative time"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Verify conflict detection with minimum time duration (1 minute) and maximum duration (24 hours)",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "User is on the scheduling form page",
+        "System allows scheduling durations from 1 minute to 24 hours",
+        "Resource 'Quick Access Terminal' is available"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select 'Quick Access Terminal' from Resource dropdown, enter Start Time '10:00 AM' and End Time '10:01 AM' (1 minute duration)",
+          "expectedResult": "System accepts the 1-minute duration and displays 'Duration: 1 minute'"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Check Availability' button",
+          "expectedResult": "Conflict detection processes successfully and returns result within 2 seconds. Message displays 'No conflicts detected' or shows any existing conflicts"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Save Schedule' button for the 1-minute booking",
+          "expectedResult": "Schedule is saved successfully with message 'Schedule created for 1 minute duration'"
+        },
+        {
+          "step": 4,
+          "action": "Create a new schedule for 'Data Center Access' with Start Time '12:00 AM' and End Time '11:59 PM' (24 hours minus 1 minute)",
+          "expectedResult": "System accepts the duration and displays 'Duration: 23 hours 59 minutes'"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Check Availability' for the 24-hour booking",
+          "expectedResult": "System successfully checks entire 24-hour period for conflicts and returns results within 2 seconds"
+        }
+      ],
+      "postconditions": [
+        "Both extreme duration schedules are saved correctly in the database",
+        "Conflict detection works accurately for both minimum and maximum durations",
+        "Calendar view displays both schedules with appropriate visual representation",
+        "Future conflict checks properly consider these edge-duration bookings"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Verify conflict detection when scheduling request exactly touches but does not overlap existing schedule",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "Existing schedule: 'Workshop Space' booked from 9:00 AM to 11:00 AM on current date",
+        "User is on the scheduling form page",
+        "System defines conflict rules for adjacent time slots"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select 'Workshop Space' from Resource dropdown",
+          "expectedResult": "Resource field displays 'Workshop Space'"
+        },
+        {
+          "step": 2,
+          "action": "Enter Start Time as '11:00 AM' (exactly when previous booking ends) and End Time as '1:00 PM'",
+          "expectedResult": "Time fields display the entered values with 'Duration: 2 hours'"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Check Availability' button to trigger conflict detection",
+          "expectedResult": "System analyzes the adjacent time slots and displays 'No conflicts detected. Your booking starts immediately after the previous booking ends at 11:00 AM.' Green success message appears"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save Schedule' button",
+          "expectedResult": "Schedule is saved successfully with message 'Schedule created successfully. Note: This booking is back-to-back with another booking.'"
+        },
+        {
+          "step": 5,
+          "action": "Verify calendar view shows both bookings as adjacent without gap or overlap",
+          "expectedResult": "Calendar displays first booking (9:00 AM - 11:00 AM) and second booking (11:00 AM - 1:00 PM) as consecutive blocks with no visual overlap"
+        }
+      ],
+      "postconditions": [
+        "Both schedules exist in the database without conflict status",
+        "No conflict log entry is created for adjacent bookings",
+        "System correctly interprets that end time of one booking equals start time of next as non-conflicting",
+        "Both bookings are active and valid"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Verify conflict detection performance with large dataset of 10,000+ existing schedules",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "Database contains 10,000+ existing schedules across various resources and dates",
+        "User is on the scheduling form page",
+        "Performance requirement: conflict detection must complete within 2 seconds"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select any resource from dropdown that has 500+ existing bookings",
+          "expectedResult": "Resource dropdown loads and displays selection within acceptable time"
+        },
+        {
+          "step": 2,
+          "action": "Enter Start Time and End Time for a date that has 200+ other bookings for various resources",
+          "expectedResult": "Time fields accept input without delay"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Check Availability' button and start timer to measure response time",
+          "expectedResult": "System queries the large dataset and returns conflict detection results within 2 seconds. Loading indicator shows progress"
+        },
+        {
+          "step": 4,
+          "action": "Verify the accuracy of conflict detection result against the large dataset",
+          "expectedResult": "System correctly identifies any conflicts or confirms availability despite the large number of existing schedules. Result is accurate and complete"
+        },
+        {
+          "step": 5,
+          "action": "Check system performance metrics and database query logs",
+          "expectedResult": "Database queries are optimized with proper indexing. Query execution time is logged and within acceptable limits. No system slowdown or timeout occurs"
+        }
+      ],
+      "postconditions": [
+        "System performance remains within 2-second requirement even with large dataset",
+        "Database indexes are utilized effectively for quick lookups",
+        "No memory leaks or performance degradation occurs",
+        "User experience remains smooth without noticeable delays"
+      ]
+    },
+    {
+      "id": "TC-EDGE-006",
+      "title": "Verify conflict detection when user session expires during scheduling process",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "User is on the scheduling form with partially filled data",
+        "Session timeout is set to expire during the test",
+        "Authentication token expiration is configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select 'Executive Boardroom' from Resource dropdown and enter Start Time '3:00 PM', End Time '5:00 PM'",
+          "expectedResult": "Form fields display entered values correctly"
+        },
+        {
+          "step": 2,
+          "action": "Wait for session to expire (simulate by clearing authentication token or waiting for timeout period)",
+          "expectedResult": "Session expires but user remains on the form page"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Check Availability' button after session expiration",
+          "expectedResult": "System detects expired session and displays modal: 'Your session has expired. Please log in again to continue.' with 'Login' button"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Login' button in the modal",
+          "expectedResult": "User is redirected to login page. Form data is preserved in browser session storage with message 'Your unsaved scheduling request will be restored after login'"
+        },
+        {
+          "step": 5,
+          "action": "Log in again with valid credentials",
+          "expectedResult": "After successful login, user is redirected back to scheduling form with all previously entered data restored (Resource, Start Time, End Time)"
+        }
+      ],
+      "postconditions": [
+        "User is logged in with new valid session",
+        "Previously entered form data is restored and available",
+        "User can continue with conflict check and save the schedule",
+        "No data loss occurs due to session expiration"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Verify complete keyboard navigation through scheduling form and conflict detection workflow",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "User is on the scheduling dashboard page",
+        "Keyboard navigation is enabled",
+        "No mouse or pointing device is used during test"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key repeatedly to navigate through page elements starting from the top",
+          "expectedResult": "Focus moves sequentially through all interactive elements: navigation menu, 'Create New Schedule' button, calendar controls, etc. Visible focus indicator (blue outline) appears on each element"
+        },
+        {
+          "step": 2,
+          "action": "When focus reaches 'Create New Schedule' button, press Enter key",
+          "expectedResult": "Scheduling form modal opens and focus automatically moves to the first form field (Resource dropdown)"
+        },
+        {
+          "step": 3,
+          "action": "Press Space bar or Enter to open Resource dropdown, use Arrow Down/Up keys to navigate options, press Enter to select 'Conference Room A'",
+          "expectedResult": "Dropdown opens with keyboard, options are navigable with arrow keys, selected option is confirmed with Enter, and focus moves to Start Time field"
+        },
+        {
+          "step": 4,
+          "action": "Type '10:00 AM' in Start Time field, press Tab to move to End Time field, type '11:00 AM'",
+          "expectedResult": "Time values are entered successfully, Tab key moves focus between fields in logical order"
+        },
+        {
+          "step": 5,
+          "action": "Press Tab to reach 'Check Availability' button and press Enter",
+          "expectedResult": "Conflict detection is triggered, and if conflict exists, focus moves to the conflict alert message which is announced by screen readers"
+        },
+        {
+          "step": 6,
+          "action": "Press Escape key while modal is open",
+          "expectedResult": "Modal closes and focus returns to 'Create New Schedule' button that originally opened the modal"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements are accessible via keyboard",
+        "Focus order is logical and follows visual layout",
+        "Focus is never trapped in any component",
+        "Escape key properly closes modals and returns focus appropriately"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Verify screen reader announces conflict detection results and all critical information",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "Screen reader software (NVDA, JAWS, or VoiceOver) is active",
+        "User is on the scheduling form page",
+        "Existing schedule: 'Meeting Room 5' booked from 2:00 PM to 3:00 PM"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to scheduling form using screen reader and verify page title is announced",
+          "expectedResult": "Screen reader announces 'Create New Schedule - Scheduling Dashboard' and describes the page purpose"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to Resource dropdown field using screen reader",
+          "expectedResult": "Screen reader announces 'Resource, combo box, required' with instructions 'Use arrow keys to navigate options'"
+        },
+        {
+          "step": 3,
+          "action": "Select 'Meeting Room 5', enter Start Time '2:15 PM' and End Time '3:15 PM', navigate to 'Check Availability' button",
+          "expectedResult": "Screen reader announces each field label, current value, and field type. Button is announced as 'Check Availability, button'"
+        },
+        {
+          "step": 4,
+          "action": "Activate 'Check Availability' button and wait for conflict detection",
+          "expectedResult": "Screen reader announces 'Checking for conflicts, please wait' followed by 'Alert: Conflict Detected. Meeting Room 5 is already booked from 2:00 PM to 3:00 PM. Your requested time overlaps by 45 minutes.' ARIA live region updates are announced immediately"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to the conflict alert message using screen reader",
+          "expectedResult": "Screen reader announces full conflict details including resource name, conflicting times, overlap duration, and available actions like 'View Details' or 'Suggest Alternatives'"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to 'Conflict Log' link and verify announcement",
+          "expectedResult": "Screen reader announces 'Conflict Log, link, navigate to view all detected conflicts' with proper context"
+        }
+      ],
+      "postconditions": [
+        "All form labels are properly associated with inputs and announced",
+        "ARIA live regions announce dynamic content changes",
+        "Error and success messages are announced immediately when they appear",
+        "All interactive elements have descriptive accessible names"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify focus management and focus indicators throughout conflict detection workflow",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "User is on the scheduling dashboard",
+        "Browser zoom is set to 100%",
+        "High contrast mode is disabled initially"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Tab through the page and observe focus indicators on all interactive elements",
+          "expectedResult": "Every focusable element displays a visible focus indicator with minimum 3:1 contrast ratio against background. Focus indicator is at least 2px thick and clearly visible"
+        },
+        {
+          "step": 2,
+          "action": "Open scheduling form modal and verify focus is automatically moved to the first input field",
+          "expectedResult": "When modal opens, focus automatically moves to Resource dropdown field. Focus is not left on the background page or the button that opened the modal"
+        },
+        {
+          "step": 3,
+          "action": "Trigger a conflict alert by entering conflicting schedule details and clicking 'Check Availability'",
+          "expectedResult": "When conflict alert appears, focus automatically moves to the alert container or the first actionable element within the alert. Alert has role='alert' or aria-live='assertive'"
+        },
+        {
+          "step": 4,
+          "action": "Enable Windows High Contrast Mode or browser high contrast extension and verify focus indicators",
+          "expectedResult": "Focus indicators remain visible in high contrast mode. All UI elements maintain sufficient contrast and remain distinguishable"
+        },
+        {
+          "step": 5,
+          "action": "Tab through conflict alert actions ('View Details', 'Suggest Alternatives', 'Modify Request') and verify focus order",
+          "expectedResult": "Focus moves through alert actions in logical order matching visual layout. Focus never gets trapped within the alert"
+        }
+      ],
+      "postconditions": [
+        "Focus indicators meet WCAG 2.1 Level AA requirements (3:1 contrast)",
+        "Focus is managed programmatically for dynamic content",
+        "Focus order is logical and predictable",
+        "High contrast mode does not break focus visibility"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify ARIA labels, roles, and properties are correctly implemented for conflict detection components",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "User is on the scheduling form page",
+        "Browser developer tools are available for inspecting ARIA attributes",
+        "Accessibility testing extension (axe DevTools or similar) is installed"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Inspect the scheduling form modal using browser developer tools",
+          "expectedResult": "Modal has role='dialog', aria-labelledby pointing to modal title, and aria-modal='true'. Modal title has unique ID matching aria-labelledby"
+        },
+        {
+          "step": 2,
+          "action": "Inspect Resource dropdown field for ARIA attributes",
+          "expectedResult": "Dropdown has role='combobox', aria-required='true', aria-expanded='false' (when closed) or 'true' (when open), and aria-label or associated label element"
+        },
+        {
+          "step": 3,
+          "action": "Trigger a conflict alert and inspect the alert container",
+          "expectedResult": "Alert container has role='alert' or aria-live='assertive', aria-atomic='true'. Alert message is contained within this region for immediate screen reader announcement"
+        },
+        {
+          "step": 4,
+          "action": "Inspect the 'Check Availability' button during loading state",
+          "expectedResult": "Button has aria-busy='true' while processing, aria-disabled='true' if disabled, and aria-label describes the action clearly: 'Check availability for selected resource and time'"
+        },
+        {
+          "step": 5,
+          "action": "Run automated accessibility scan using axe DevTools on the scheduling page",
+          "expectedResult": "No critical or serious ARIA-related violations are reported. All interactive elements have accessible names. All ARIA attributes are used correctly according to WAI-ARIA specifications"
+        },
+        {
+          "step": 6,
+          "action": "Inspect the Conflict Log table for proper ARIA table semantics",
+          "expectedResult": "Table has role='table' or uses semantic <table> element, column headers have role='columnheader' or <th> elements, and aria-label describes the table purpose: 'Conflict history log'"
+        }
+      ],
+      "postconditions": [
+        "All ARIA roles are used correctly and appropriately",
+        "ARIA properties accurately reflect component states",
+        "No ARIA violations are present in automated scans",
+        "Screen readers can properly interpret all ARIA markup"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify color contrast ratios meet WCAG 2.1 Level AA standards for all conflict detection UI elements",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "User is on the scheduling dashboard and form pages",
+        "Color contrast analyzer tool is available (browser extension or standalone)",
+        "All UI states are testable (default, hover, focus, error, success)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use color contrast analyzer to check normal text (form labels, body text) against background",
+          "expectedResult": "All normal text (under 18pt or 14pt bold) has minimum 4.5:1 contrast ratio against background. Examples: form labels, descriptions, table text"
+        },
+        {
+          "step": 2,
+          "action": "Check large text (headings, button text) contrast ratios",
+          "expectedResult": "All large text (18pt and larger, or 14pt bold and larger) has minimum 3:1 contrast ratio. Examples: page headings, button labels, modal titles"
+        },
+        {
+          "step": 3,
+          "action": "Trigger a conflict alert (red error state) and measure contrast of error text and icons",
+          "expectedResult": "Red error text has minimum 4.5:1 contrast against background. Error icons have 3:1 contrast. Error state is not conveyed by color alone - icons or text patterns are also used"
+        },
+        {
+          "step": 4,
+          "action": "Trigger a success message (green success state) and measure contrast",
+          "expectedResult": "Green success text has minimum 4.5:1 contrast against background. Success icons have 3:1 contrast. Success state uses icons or text in addition to color"
+        },
+        {
+          "step": 5,
+          "action": "Check focus indicators on all interactive elements (buttons, links, form fields)",
+          "expectedResult": "Focus indicators have minimum 3:1 contrast ratio against adjacent colors. Focus indicator is clearly visible on all elements"
+        },
+        {
+          "step": 6,
+          "action": "Verify that information is not conveyed by color alone in conflict visualization",
+          "expectedResult": "Conflict status uses icons, text labels, or patterns in addition to color coding. Users with color blindness can distinguish between conflict states"
+        }
+      ],
+      "postconditions": [
+        "All text meets WCAG 2.1 Level AA contrast requirements",
+        "UI components and graphical objects meet 3:1 contrast requirement",
+        "Information is not conveyed by color alone",
+        "Interface is usable for users with color vision deficiencies"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "Verify scheduling interface remains functional and readable at 200% browser zoom",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Scheduler role permissions",
+        "User is on the scheduling dashboard page",
+        "Browser zoom is initially set to 100%",
+        "Responsive design is implemented"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Set browser zoom to 200% using Ctrl/Cmd + Plus key or browser zoom controls",
+          "expectedResult": "Page content scales to 200% zoom. All text remains readable without horizontal scrolling on a 1280px wide viewport"
+        },
+        {
+          "step": 2,
+          "action": "Navigate through the scheduling dashboard at 200% zoom",
+          "expectedResult": "All navigation elements, buttons, and interactive components remain accessible and clickable. No content is cut off or hidden. Layout adapts responsively"
+        },
+        {
+          "step": 3,
+          "action": "Open the scheduling form modal at 200% zoom",
+          "expectedResult": "Modal displays completely within viewport. All form fields are visible and accessible. Vertical scrolling within modal is available if needed, but horizontal scrolling is not required"
+        },
+        {
+          "step": 4,
+          "action": "Fill out the scheduling form and trigger conflict detection at 200% zoom",
+          "expectedResult": "All form fields are usable. Conflict alert message is fully visible and readable. Action buttons remain accessible and properly sized for interaction"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to Conflict Log page at 200% zoom",
+          "expectedResult": "Conflict log table adapts to zoom level. Table may switch to card layout or allow horizontal scrolling, but all data remains accessible and readable"
+        },
+        {
+          "step": 6,
+          "action": "Test all interactive elements (buttons, dropdowns, links) at 200% zoom",
+          "expectedResult": "All interactive elements have sufficient size (minimum 44x44 CSS pixels) and spacing for easy interaction. Touch targets do not overlap"
+        }
+      ],
+      "postconditions": [
+        "Interface meets WCAG 2.1 Success Criterion 1.4.4 Resize text",
+        "All functionality remains available at 200% zoom",
+        "No loss of content or functionality occurs",
+        "Layout adapts appropriately to increased text size"
+      ]
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true
+  },
+  "userStoryObject": {
+    "id": "story-4",
+    "title": "As Scheduler, I want to detect scheduling conflicts in real-time to avoid double bookings",
+    "epicId": "epic-2",
+    "persona": "Scheduler",
+    "priority": "High",
+    "subtasks": [
+      {
+        "category": "Planning",
+        "description": "Define conflict detection rules and parameters",
+        "estimatedHours": 4
+      },
+      {
+        "category": "Backend",
+        "description": "Implement conflict detection logic in the scheduling service",
+        "estimatedHours": 8
+      },
+      {
+        "category": "Testing",
+        "description": "Create unit tests for conflict detection logic",
+        "estimatedHours": 6
+      },
+      {
+        "category": "Documentation",
+        "description": "Document conflict detection rules and API usage",
+        "estimatedHours": 3
+      }
+    ],
+    "featureId": "feature-3",
+    "testCases": [
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Submit a scheduling request that overlaps with an existing schedule",
+            "result": "System detects a conflict and alerts the user"
+          },
+          {
+            "step": 2,
+            "action": "Check the conflict log",
+            "result": "Conflict is recorded in the system"
+          },
+          {
+            "step": 3,
+            "action": "Modify the scheduling request",
+            "result": "System re-evaluates and confirms no conflict exists"
+          }
+        ],
+        "title": "Validate conflict detection with overlapping schedules"
+      },
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Simultaneously submit multiple scheduling requests",
+            "result": "System processes all requests without errors"
+          },
+          {
+            "step": 2,
+            "action": "Verify conflict alerts for overlapping requests",
+            "result": "Users receive alerts for conflicting requests"
+          },
+          {
+            "step": 3,
+            "action": "Check the conflict log",
+            "result": "All conflicts are recorded correctly"
+          }
+        ],
+        "title": "Ensure system handles multiple concurrent scheduling requests"
+      }
+    ],
+    "description": "CONTEXT & BACKGROUND:\nThis story exists to ensure that scheduling conflicts are identified as they occur, preventing double bookings and resource misallocation.\n\nCURRENT STATE:\nCurrently, scheduling conflicts are identified only after the fact, leading to operational inefficiencies and user dissatisfaction.\n\nDESIRED STATE:\nThe system should proactively detect conflicts as scheduling requests are made, allowing for immediate resolution.\n\nKEY FUNCTIONALITY:\n• Analyze incoming scheduling requests against existing schedules.\n• Identify overlaps and conflicts based on predefined rules.\n• Provide immediate feedback on conflict status.\n• Log conflict occurrences for reporting.\n• Allow users to view conflict history.\n\nUSER INTERACTION FLOW:\n1. User submits a scheduling request.\n2. System checks for existing schedules.\n3. System identifies any conflicts.\n4. User receives immediate feedback on the conflict.\n5. User can modify the request based on feedback.\n\nTECHNICAL CONSIDERATIONS:\n• Data source: Scheduling database tables.\n• Validation rules: Check for overlapping time slots.\n• API endpoints: POST /api/schedule/check for conflict detection.\n• Security: User authentication required for scheduling actions.\n• Performance: Response time under 2 seconds for conflict detection.\n\nOUT OF SCOPE:\n• Historical conflict analysis.\n\nSUCCESS METRICS:\n• 90% of conflicts detected in real-time.",
+    "storyPoints": 8,
+    "personaSource": "AI Suggested",
+    "acceptanceCriteria": [
+      "System analyzes scheduling requests in real-time and identifies conflicts based on predefined rules.",
+      "System provides immediate feedback to users when a conflict is detected.",
+      "System logs all detected conflicts for reporting purposes."
+    ]
+  }
+}
