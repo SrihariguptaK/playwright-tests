@@ -1,0 +1,1239 @@
+{
+  "storyId": "story-5",
+  "storyTitle": "As Scheduler, I want to receive real-time alerts for scheduling conflicts to take immediate action",
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify real-time alert delivery via email when scheduling conflict is detected",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler with valid credentials",
+        "User has email notification enabled in alert preferences",
+        "User email address is verified and active (scheduler@test.com)",
+        "Scheduling system is operational and connected to notification service",
+        "At least one existing appointment exists in the schedule"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the scheduling dashboard and create a new appointment that overlaps with an existing appointment (e.g., both scheduled for 2:00 PM - 3:00 PM on the same date)",
+          "expectedResult": "System detects the scheduling conflict immediately and displays a conflict warning on the UI"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Confirm' button to proceed with the conflicting appointment creation",
+          "expectedResult": "System triggers the alert notification process and displays 'Alert sent' confirmation message"
+        },
+        {
+          "step": 3,
+          "action": "Check the registered email inbox within 5 seconds of conflict creation",
+          "expectedResult": "Email alert is received with subject line 'Scheduling Conflict Detected' containing conflict details including appointment times, resources involved, and conflict ID"
+        },
+        {
+          "step": 4,
+          "action": "Open the email and review the conflict details section",
+          "expectedResult": "Email displays complete conflict information: conflicting appointment IDs, time slots, resources, and suggested resolutions (reschedule, cancel, or reassign)"
+        },
+        {
+          "step": 5,
+          "action": "Click the 'Resolve Conflict' link in the email",
+          "expectedResult": "Browser opens and navigates to the conflict resolution page with the specific conflict pre-loaded and highlighted"
+        }
+      ],
+      "postconditions": [
+        "Alert is logged in the notification history with timestamp and delivery status",
+        "Scheduling conflict remains unresolved and marked as 'Pending' in the system",
+        "User remains on the conflict resolution page ready to take action",
+        "Email delivery status is recorded as 'Delivered' in the notification service logs"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify real-time alert delivery via SMS when scheduling conflict is detected",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler with valid credentials",
+        "User has SMS notification enabled in alert preferences",
+        "User mobile number is verified and active (+1-555-0123)",
+        "SMS gateway service is operational and configured",
+        "Notification service has sufficient SMS credits available"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create a scheduling conflict by double-booking a resource (e.g., Conference Room A for 10:00 AM - 11:00 AM)",
+          "expectedResult": "System detects the conflict and initiates alert notification process"
+        },
+        {
+          "step": 2,
+          "action": "Check the registered mobile phone for SMS message within 5 seconds",
+          "expectedResult": "SMS alert is received with text: 'Scheduling Conflict: Conference Room A double-booked at 10:00 AM. Conflict ID: #12345. View details: [short link]'"
+        },
+        {
+          "step": 3,
+          "action": "Click the short link provided in the SMS message",
+          "expectedResult": "Mobile browser opens and displays the conflict resolution page with conflict #12345 details loaded"
+        },
+        {
+          "step": 4,
+          "action": "Review the conflict details on the mobile interface",
+          "expectedResult": "Page displays conflict information in mobile-optimized format with action buttons: 'Reschedule', 'Cancel Appointment', and 'Reassign Resource'"
+        }
+      ],
+      "postconditions": [
+        "SMS delivery is logged in notification history with timestamp and carrier response",
+        "Conflict remains active and visible in the scheduling dashboard",
+        "User session is maintained on mobile device for conflict resolution",
+        "SMS delivery cost is deducted from account credits"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify real-time in-app notification alert for scheduling conflict with acknowledgment capability",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler and actively viewing the scheduling dashboard",
+        "User has in-app notifications enabled in alert preferences",
+        "Browser notifications are allowed for the application domain",
+        "WebSocket connection is established between client and notification service",
+        "User has 'Manage Conflicts' permission enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "While on the scheduling dashboard, create a conflict by assigning the same staff member to two overlapping appointments (1:00 PM - 2:00 PM)",
+          "expectedResult": "System detects the conflict immediately and displays a red notification badge on the bell icon in the top-right corner"
+        },
+        {
+          "step": 2,
+          "action": "Observe the in-app notification banner that appears at the top of the screen",
+          "expectedResult": "Banner displays with red background, alert icon, message 'Scheduling Conflict Detected: Staff member John Doe double-booked at 1:00 PM', and 'View Details' and 'Acknowledge' buttons"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'View Details' button on the notification banner",
+          "expectedResult": "Notification expands to show full conflict details including: Conflict ID, affected appointments, staff member name, time slots, and three suggested resolutions with action buttons"
+        },
+        {
+          "step": 4,
+          "action": "Click the 'Acknowledge' button on the expanded notification",
+          "expectedResult": "Notification is marked as acknowledged, banner changes to yellow background with message 'Conflict acknowledged - awaiting resolution', and notification badge count decreases by 1"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to the 'Notifications History' page from the user menu",
+          "expectedResult": "Acknowledged conflict appears in the history list with status 'Acknowledged', timestamp, and 'Resolve' action button available"
+        }
+      ],
+      "postconditions": [
+        "Conflict acknowledgment is logged with user ID and timestamp in the database",
+        "Notification remains in history with 'Acknowledged' status until resolved",
+        "Conflict still appears in the active conflicts list on the dashboard",
+        "System tracks time-to-acknowledgment metric for reporting purposes"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify user can customize alert preferences for notification channels and conflict types",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler with valid credentials",
+        "User has access to Settings or Preferences menu",
+        "Default alert preferences are set to email notifications only",
+        "User has verified email (scheduler@test.com) and mobile number (+1-555-0123)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Settings menu and click on 'Alert Preferences' option",
+          "expectedResult": "Alert Preferences page loads displaying current notification settings with sections for 'Notification Channels' and 'Conflict Types'"
+        },
+        {
+          "step": 2,
+          "action": "In the 'Notification Channels' section, check the checkboxes for 'Email', 'SMS', and 'In-App Notifications'",
+          "expectedResult": "All three checkboxes are selected and highlighted in blue, indicating multiple channels are enabled"
+        },
+        {
+          "step": 3,
+          "action": "In the 'Conflict Types' section, select 'Resource Conflicts', 'Staff Conflicts', and 'Time Conflicts' from the available options",
+          "expectedResult": "Selected conflict types are highlighted, and a preview message shows 'You will receive alerts for 3 conflict types via 3 channels'"
+        },
+        {
+          "step": 4,
+          "action": "Set the 'Alert Frequency' dropdown to 'Immediate (Real-time)' and toggle 'Quiet Hours' to OFF",
+          "expectedResult": "Dropdown displays 'Immediate (Real-time)' and Quiet Hours toggle shows as disabled (gray)"
+        },
+        {
+          "step": 5,
+          "action": "Click the 'Save Preferences' button at the bottom of the page",
+          "expectedResult": "Success message appears: 'Alert preferences saved successfully' in green banner, and page remains on preferences screen with updated settings displayed"
+        },
+        {
+          "step": 6,
+          "action": "Create a test scheduling conflict (resource double-booking) to verify new preferences",
+          "expectedResult": "User receives alerts via all three channels (email, SMS, and in-app notification) within 5 seconds of conflict detection"
+        }
+      ],
+      "postconditions": [
+        "User preferences are saved in the database with timestamp of last update",
+        "All future alerts are sent according to the new preference settings",
+        "Preference change is logged in the audit trail with user ID and changes made",
+        "User remains logged in and on the Alert Preferences page"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify alert includes suggested resolutions and user can resolve conflict directly from alert",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler with conflict resolution permissions",
+        "User has in-app notifications enabled",
+        "A scheduling conflict exists with ID #67890 (room double-booking)",
+        "System has calculated suggested resolutions for the conflict",
+        "User is viewing the scheduling dashboard"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Observe the in-app notification that appears for conflict #67890",
+          "expectedResult": "Notification displays with conflict details and a 'Suggested Resolutions' section showing 3 options: '1. Reschedule Appointment B to 3:00 PM', '2. Move to Conference Room B', '3. Cancel Appointment A'"
+        },
+        {
+          "step": 2,
+          "action": "Click on the first suggested resolution: 'Reschedule Appointment B to 3:00 PM'",
+          "expectedResult": "A confirmation dialog appears with message: 'Reschedule Appointment B from 2:00 PM to 3:00 PM? This will resolve the conflict.' with 'Confirm' and 'Cancel' buttons"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'Confirm' button in the dialog",
+          "expectedResult": "System processes the resolution, displays loading spinner for 1-2 seconds, then shows success message: 'Conflict resolved successfully. Appointment B rescheduled to 3:00 PM.'"
+        },
+        {
+          "step": 4,
+          "action": "Verify the notification banner updates after resolution",
+          "expectedResult": "Notification banner changes to green background with message 'Conflict #67890 resolved' and automatically dismisses after 3 seconds"
+        },
+        {
+          "step": 5,
+          "action": "Check the scheduling dashboard calendar view",
+          "expectedResult": "Appointment B now appears at 3:00 PM slot with no conflict indicator, and the conflict warning icon is removed from the calendar"
+        }
+      ],
+      "postconditions": [
+        "Conflict #67890 is marked as 'Resolved' in the database with resolution method and timestamp",
+        "Appointment B is successfully rescheduled to 3:00 PM in the schedule",
+        "Resolution action is logged in audit trail with user ID and resolution details",
+        "Affected parties receive notification of the schedule change via their preferred channels"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify alert history logging and audit trail for all conflict notifications",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler with admin privileges",
+        "Multiple scheduling conflicts have been created and resolved in the past 7 days",
+        "At least 10 alert notifications have been sent via various channels",
+        "User has access to 'Notification History' and 'Audit Logs' sections"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the main menu and click on 'Notification History' option",
+          "expectedResult": "Notification History page loads displaying a table with columns: Date/Time, Conflict ID, Type, Channel, Status, Recipient, and Actions"
+        },
+        {
+          "step": 2,
+          "action": "Review the list of notifications and verify the most recent entry",
+          "expectedResult": "Most recent notification shows: timestamp within last 24 hours, conflict ID, type (e.g., 'Resource Conflict'), channel (e.g., 'Email'), status ('Delivered'), and recipient email address"
+        },
+        {
+          "step": 3,
+          "action": "Click on a specific notification entry to view detailed information",
+          "expectedResult": "Detail modal opens showing: full conflict details, notification content sent, delivery timestamp, acknowledgment status, resolution status, and user actions taken"
+        },
+        {
+          "step": 4,
+          "action": "Apply filter to show only 'SMS' notifications from the 'Channel' dropdown",
+          "expectedResult": "Table updates to display only SMS notifications, and a filter tag 'Channel: SMS' appears above the table with count of filtered results"
+        },
+        {
+          "step": 5,
+          "action": "Click the 'Export to CSV' button at the top-right of the page",
+          "expectedResult": "CSV file downloads with filename 'notification_history_[date].csv' containing all filtered notification records with complete details"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to 'Audit Logs' section from the admin menu",
+          "expectedResult": "Audit Logs page displays entries for all notification-related actions including: alert generation, delivery attempts, acknowledgments, and resolutions with user IDs and timestamps"
+        }
+      ],
+      "postconditions": [
+        "All notification history remains intact and accessible for future auditing",
+        "CSV export file is saved to user's downloads folder",
+        "User remains logged in and on the Audit Logs page",
+        "No data is modified during the history review process"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify system handles alert delivery failure when notification service is unavailable",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler with email notifications enabled",
+        "Notification service is temporarily down or unreachable",
+        "Network connectivity between application and notification service is disrupted",
+        "User creates a scheduling conflict that should trigger an alert"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Simulate notification service failure by disconnecting the notification service endpoint",
+          "expectedResult": "Notification service returns 503 Service Unavailable or connection timeout error"
+        },
+        {
+          "step": 2,
+          "action": "Create a scheduling conflict by double-booking a resource",
+          "expectedResult": "System detects the conflict and attempts to send alert notification"
+        },
+        {
+          "step": 3,
+          "action": "Observe the system behavior when notification delivery fails",
+          "expectedResult": "System displays error message: 'Alert notification could not be sent. The conflict has been logged and you will be notified when service is restored.' in yellow warning banner"
+        },
+        {
+          "step": 4,
+          "action": "Check the notification queue or retry mechanism",
+          "expectedResult": "Failed notification is added to retry queue with status 'Pending Retry' and scheduled for automatic retry in 2 minutes"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to Notification History page",
+          "expectedResult": "Failed notification appears with status 'Failed - Service Unavailable' and retry count showing '0 of 3 attempts'"
+        }
+      ],
+      "postconditions": [
+        "Conflict is still logged in the system with 'Unresolved' status",
+        "Failed notification is queued for retry with exponential backoff strategy",
+        "System logs the failure with error details for troubleshooting",
+        "User is aware of the notification failure and can manually check for conflicts"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify system behavior when user has invalid or unverified email address for alert delivery",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "User has email notification enabled in preferences",
+        "User's email address is invalid (e.g., 'invalid-email@') or unverified",
+        "Scheduling system is operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create a scheduling conflict to trigger an email alert",
+          "expectedResult": "System detects conflict and attempts to send email notification"
+        },
+        {
+          "step": 2,
+          "action": "Observe the notification delivery attempt",
+          "expectedResult": "Email service returns validation error: 'Invalid recipient email address' or 'Email address not verified'"
+        },
+        {
+          "step": 3,
+          "action": "Check for error notification displayed to the user",
+          "expectedResult": "System displays error message: 'Alert could not be sent to invalid-email@. Please update your email address in Settings.' with a 'Go to Settings' button"
+        },
+        {
+          "step": 4,
+          "action": "Review the notification history for this failed alert",
+          "expectedResult": "Notification entry shows status 'Failed - Invalid Email' with error details and no retry scheduled"
+        },
+        {
+          "step": 5,
+          "action": "Verify that in-app notification is still delivered as fallback",
+          "expectedResult": "In-app notification appears with conflict details and additional message: 'Email delivery failed. Please verify your email address.'"
+        }
+      ],
+      "postconditions": [
+        "Failed email delivery is logged with specific error reason",
+        "User is prompted to update email address before receiving future email alerts",
+        "Conflict remains active and visible in the dashboard",
+        "System does not retry sending to invalid email address"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify system handles alert delivery when user has disabled all notification channels",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "User has disabled all notification channels (Email: OFF, SMS: OFF, In-App: OFF) in alert preferences",
+        "User has saved these preferences successfully",
+        "Scheduling system is operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create a scheduling conflict by double-booking a staff member",
+          "expectedResult": "System detects the scheduling conflict successfully"
+        },
+        {
+          "step": 2,
+          "action": "Observe whether any notification is sent or displayed",
+          "expectedResult": "No email, SMS, or in-app notification is sent to the user as per their preferences"
+        },
+        {
+          "step": 3,
+          "action": "Check the notification history page",
+          "expectedResult": "Notification entry exists with status 'Not Sent - User Preferences' and note: 'All notification channels disabled by user'"
+        },
+        {
+          "step": 4,
+          "action": "Verify that conflict is still logged and visible in the system",
+          "expectedResult": "Conflict appears in the scheduling dashboard with red warning icon and 'Unresolved' status"
+        },
+        {
+          "step": 5,
+          "action": "Check if system displays a warning about disabled notifications",
+          "expectedResult": "Dashboard shows a persistent banner: 'You have disabled all alert notifications. You may miss important scheduling conflicts. Enable notifications in Settings.'"
+        }
+      ],
+      "postconditions": [
+        "Conflict is logged in the system with timestamp and details",
+        "No notifications are sent respecting user preferences",
+        "User is responsible for manually checking dashboard for conflicts",
+        "System logs that notification was suppressed due to user preferences"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify system behavior when alert delivery exceeds 5-second performance threshold",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler with email notifications enabled",
+        "Notification service is experiencing high latency (simulated delay of 10 seconds)",
+        "System performance monitoring is active",
+        "Scheduling system is operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Simulate network latency by introducing 10-second delay in notification service response",
+          "expectedResult": "Notification service response time is artificially delayed to 10 seconds"
+        },
+        {
+          "step": 2,
+          "action": "Create a scheduling conflict to trigger an alert",
+          "expectedResult": "System detects conflict and initiates alert notification process"
+        },
+        {
+          "step": 3,
+          "action": "Monitor the time taken for alert delivery",
+          "expectedResult": "Alert delivery takes 10 seconds, exceeding the 5-second SLA threshold"
+        },
+        {
+          "step": 4,
+          "action": "Check if system logs a performance warning",
+          "expectedResult": "System logs warning: 'Alert delivery SLA breach - Delivered in 10 seconds (threshold: 5 seconds)' with conflict ID and timestamp"
+        },
+        {
+          "step": 5,
+          "action": "Verify that alert is still delivered despite delay",
+          "expectedResult": "Email alert is eventually delivered with all conflict details intact, but with delayed timestamp"
+        },
+        {
+          "step": 6,
+          "action": "Check the notification history for SLA breach indicator",
+          "expectedResult": "Notification entry shows status 'Delivered - SLA Breach' with actual delivery time of 10 seconds highlighted in red"
+        }
+      ],
+      "postconditions": [
+        "Alert is delivered successfully despite exceeding performance threshold",
+        "SLA breach is logged for performance monitoring and reporting",
+        "System administrators are notified of performance degradation",
+        "User receives the alert but with delay beyond acceptable threshold"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify system handles unauthorized access attempt to alert preferences by non-Scheduler user",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with 'Viewer' role (no Scheduler permissions)",
+        "User attempts to access Alert Preferences page directly via URL",
+        "Authorization middleware is active and enforcing role-based access",
+        "User does not have 'Manage Alert Preferences' permission"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to navigate to '/settings/alert-preferences' URL directly by typing in browser address bar",
+          "expectedResult": "System intercepts the request and checks user permissions"
+        },
+        {
+          "step": 2,
+          "action": "Observe the system response to unauthorized access attempt",
+          "expectedResult": "System redirects to error page displaying '403 Forbidden - You do not have permission to access Alert Preferences' with a 'Return to Dashboard' button"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to access alert preferences via API endpoint POST /api/user/preferences/alerts with modified payload",
+          "expectedResult": "API returns 403 Forbidden response with JSON: {\"error\": \"Insufficient permissions\", \"required_role\": \"Scheduler\"}"
+        },
+        {
+          "step": 4,
+          "action": "Check if unauthorized access attempt is logged in security audit trail",
+          "expectedResult": "Security log contains entry: 'Unauthorized access attempt to alert preferences by user ID [viewer_id] at [timestamp]'"
+        }
+      ],
+      "postconditions": [
+        "User remains on error page or is redirected to dashboard",
+        "No alert preferences are modified or accessed",
+        "Security incident is logged for review by administrators",
+        "User session remains active but access is denied"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify system handles malformed or missing conflict data when generating alert notification",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler with notifications enabled",
+        "Database contains a conflict record with missing or corrupted data fields",
+        "Notification service is operational",
+        "System attempts to generate alert for the malformed conflict"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Trigger alert generation for a conflict record with missing appointment details (null appointment ID)",
+          "expectedResult": "System attempts to retrieve conflict details but encounters null or missing data"
+        },
+        {
+          "step": 2,
+          "action": "Observe how system handles the missing data during alert generation",
+          "expectedResult": "System logs error: 'Unable to generate alert - Missing required conflict data: appointment_id' and does not send incomplete alert"
+        },
+        {
+          "step": 3,
+          "action": "Check if user receives any notification about the error",
+          "expectedResult": "User receives generic in-app notification: 'A scheduling conflict was detected but details could not be retrieved. Please check the scheduling dashboard.' with 'View Dashboard' button"
+        },
+        {
+          "step": 4,
+          "action": "Verify that the malformed conflict is flagged in the system",
+          "expectedResult": "Conflict appears in dashboard with special indicator 'Data Error' and status 'Requires Manual Review'"
+        },
+        {
+          "step": 5,
+          "action": "Check notification history for the failed alert generation",
+          "expectedResult": "Notification history shows entry with status 'Failed - Data Error' and error message detailing missing fields"
+        }
+      ],
+      "postconditions": [
+        "No incomplete or malformed alert is sent to the user",
+        "Error is logged with details for technical team to investigate",
+        "Conflict is flagged for manual review and data correction",
+        "System continues to function normally for other conflicts"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Verify alert delivery when multiple conflicts are detected simultaneously within same second",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler with all notification channels enabled",
+        "System is configured to handle concurrent conflict detection",
+        "Notification service has sufficient capacity for burst notifications",
+        "Test environment allows creation of multiple simultaneous conflicts"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create 5 different scheduling conflicts simultaneously using automated script or bulk import (e.g., 5 different resources double-booked at the same time)",
+          "expectedResult": "System detects all 5 conflicts within the same second and queues them for alert processing"
+        },
+        {
+          "step": 2,
+          "action": "Monitor alert delivery for all 5 conflicts",
+          "expectedResult": "System sends 5 separate alert notifications, each within 5 seconds of detection, with unique conflict IDs and details"
+        },
+        {
+          "step": 3,
+          "action": "Check in-app notification center for multiple alerts",
+          "expectedResult": "Notification bell icon shows badge with number '5', and notification panel displays all 5 conflicts in chronological order with timestamps"
+        },
+        {
+          "step": 4,
+          "action": "Verify email inbox for multiple alert emails",
+          "expectedResult": "5 separate emails are received, each with unique subject line including different conflict IDs, all delivered within 5-10 seconds"
+        },
+        {
+          "step": 5,
+          "action": "Check notification history to verify all alerts were logged",
+          "expectedResult": "Notification history shows 5 entries with sequential timestamps (within same second), all with status 'Delivered', and correct conflict details"
+        }
+      ],
+      "postconditions": [
+        "All 5 conflicts are properly logged with unique IDs in the database",
+        "All 5 alerts are delivered successfully via all enabled channels",
+        "System performance remains stable with no degradation",
+        "No alerts are lost or duplicated during concurrent processing"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Verify alert delivery when conflict is detected and immediately resolved before alert is sent",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler with email notifications enabled",
+        "System has slight processing delay (1-2 seconds) between conflict detection and alert dispatch",
+        "User has quick access to conflict resolution interface",
+        "Notification service is operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create a scheduling conflict by double-booking a resource",
+          "expectedResult": "System detects the conflict and begins alert generation process"
+        },
+        {
+          "step": 2,
+          "action": "Immediately resolve the conflict within 1 second by rescheduling one of the appointments before alert is sent",
+          "expectedResult": "Conflict is marked as 'Resolved' in the database before notification dispatch completes"
+        },
+        {
+          "step": 3,
+          "action": "Check if alert is still sent or if it is cancelled",
+          "expectedResult": "System detects that conflict is already resolved and cancels the pending alert, or sends modified alert stating 'Conflict was detected and automatically resolved'"
+        },
+        {
+          "step": 4,
+          "action": "Verify notification history for this conflict",
+          "expectedResult": "Notification history shows entry with status 'Cancelled - Conflict Resolved' or 'Sent - Already Resolved' with timestamp showing resolution occurred before dispatch"
+        },
+        {
+          "step": 5,
+          "action": "Check that no unnecessary alert is delivered to user's email",
+          "expectedResult": "Either no email is sent, or email contains message: 'This conflict has been resolved. No action required.' with resolution details"
+        }
+      ],
+      "postconditions": [
+        "Conflict is marked as resolved in the system",
+        "User does not receive unnecessary alert for already-resolved conflict",
+        "System logs the race condition scenario for monitoring",
+        "Alert cancellation or modification is properly handled without errors"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Verify alert delivery when user changes notification preferences during active alert processing",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler with email notifications enabled",
+        "A scheduling conflict is created and alert processing is initiated",
+        "User has Settings page open in another browser tab",
+        "Alert is in queue but not yet dispatched (1-2 second processing window)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create a scheduling conflict to trigger alert generation",
+          "expectedResult": "System detects conflict and queues alert for email delivery"
+        },
+        {
+          "step": 2,
+          "action": "Immediately switch to Settings tab and change notification preference from 'Email' to 'SMS only'",
+          "expectedResult": "Preference change is saved with timestamp in database"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Save Preferences' button before the queued alert is dispatched",
+          "expectedResult": "System saves new preferences: Email OFF, SMS ON"
+        },
+        {
+          "step": 4,
+          "action": "Monitor which notification channel receives the alert",
+          "expectedResult": "System either: (a) sends alert via original channel (email) based on preferences at time of conflict detection, or (b) respects new preferences and sends via SMS instead"
+        },
+        {
+          "step": 5,
+          "action": "Check notification history to see which preference was applied",
+          "expectedResult": "Notification history shows the channel used and includes note about preference change timing if applicable"
+        }
+      ],
+      "postconditions": [
+        "Alert is delivered via one of the channels (email or SMS) without duplication",
+        "System behavior is consistent and documented regarding preference change timing",
+        "No alerts are lost during preference update",
+        "Future alerts use the updated preferences"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Verify alert delivery when user account is deactivated immediately after conflict detection",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler with active account status",
+        "Administrator has access to deactivate user accounts",
+        "A scheduling conflict is created triggering alert generation",
+        "Alert is queued but not yet dispatched"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create a scheduling conflict as the Scheduler user",
+          "expectedResult": "System detects conflict and queues alert notification for delivery"
+        },
+        {
+          "step": 2,
+          "action": "Have administrator immediately deactivate the Scheduler user account before alert is dispatched",
+          "expectedResult": "User account status changes to 'Deactivated' in the database"
+        },
+        {
+          "step": 3,
+          "action": "Monitor whether alert is still sent to the deactivated account",
+          "expectedResult": "System detects account is deactivated and either: (a) cancels the alert, or (b) sends alert to account administrator/supervisor instead"
+        },
+        {
+          "step": 4,
+          "action": "Check notification history for handling of this scenario",
+          "expectedResult": "Notification history shows status 'Cancelled - Account Deactivated' or 'Redirected to Supervisor' with details of the action taken"
+        },
+        {
+          "step": 5,
+          "action": "Verify that conflict remains logged and visible to authorized users",
+          "expectedResult": "Conflict appears in system dashboard accessible to administrators with note 'Created by deactivated user [username]'"
+        }
+      ],
+      "postconditions": [
+        "Alert is handled appropriately without causing system errors",
+        "Conflict data is preserved for audit and resolution purposes",
+        "Deactivated user does not receive notifications",
+        "Appropriate personnel are notified if conflict requires attention"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Verify alert delivery with maximum character limits in conflict details and suggested resolutions",
+      "category": "Edge Cases",
+      "priority": "Low",
+      "preconditions": [
+        "User is logged in as Scheduler with email and SMS notifications enabled",
+        "System allows creation of appointments with very long names and descriptions",
+        "Conflict involves appointments with maximum allowed character lengths (e.g., 500 characters for appointment name)",
+        "Notification templates have character limits for SMS (160 chars) and email subject (78 chars)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create two appointments with maximum length names (500 characters each) and descriptions (1000 characters each) that conflict",
+          "expectedResult": "System detects the conflict between appointments with very long names"
+        },
+        {
+          "step": 2,
+          "action": "Observe the email alert that is generated",
+          "expectedResult": "Email subject line is truncated appropriately (e.g., 'Scheduling Conflict: [First 50 chars of appointment name]...'), and email body contains full conflict details without truncation"
+        },
+        {
+          "step": 3,
+          "action": "Check the SMS alert that is sent",
+          "expectedResult": "SMS message is intelligently truncated to 160 characters with format: 'Conflict: [shortened appointment name]... at [time]. View: [short link]' ensuring critical information is preserved"
+        },
+        {
+          "step": 4,
+          "action": "Review the in-app notification display",
+          "expectedResult": "In-app notification shows truncated preview with ellipsis, and 'View Full Details' button that expands to show complete conflict information"
+        },
+        {
+          "step": 5,
+          "action": "Click through to view full conflict details from the alert",
+          "expectedResult": "Full conflict details page displays all information without truncation, including complete appointment names, descriptions, and suggested resolutions"
+        }
+      ],
+      "postconditions": [
+        "All alerts are delivered successfully despite long content",
+        "No data is lost, only intelligently truncated for display purposes",
+        "Users can access full details through provided links",
+        "System handles maximum character limits gracefully without errors"
+      ]
+    },
+    {
+      "id": "TC-EDGE-006",
+      "title": "Verify alert delivery during system maintenance window or scheduled downtime",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "System maintenance window is scheduled and active (e.g., 2:00 AM - 3:00 AM)",
+        "Notification service is in maintenance mode with limited functionality",
+        "User creates a scheduling conflict during the maintenance window",
+        "System has maintenance mode banner displayed"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create a scheduling conflict during the active maintenance window",
+          "expectedResult": "System detects the conflict despite being in maintenance mode"
+        },
+        {
+          "step": 2,
+          "action": "Observe whether alert is sent immediately or queued",
+          "expectedResult": "System displays message: 'System is in maintenance mode. Alert notifications will be queued and sent when maintenance is complete.' and queues the alert"
+        },
+        {
+          "step": 3,
+          "action": "Check notification queue status",
+          "expectedResult": "Alert appears in notification queue with status 'Queued - Maintenance Mode' and scheduled dispatch time showing 'After 3:00 AM'"
+        },
+        {
+          "step": 4,
+          "action": "Wait for maintenance window to end (or simulate end of maintenance)",
+          "expectedResult": "System exits maintenance mode and begins processing queued notifications"
+        },
+        {
+          "step": 5,
+          "action": "Verify that queued alert is delivered after maintenance completes",
+          "expectedResult": "Alert is delivered within 5 seconds of maintenance completion via all enabled channels, with note in alert: 'This alert was delayed due to system maintenance'"
+        }
+      ],
+      "postconditions": [
+        "All queued alerts are delivered successfully after maintenance",
+        "No alerts are lost during maintenance window",
+        "Conflicts remain logged and visible throughout maintenance",
+        "System resumes normal alert delivery after maintenance completion"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Verify complete keyboard navigation for alert notifications and conflict resolution workflow",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler using keyboard only (no mouse)",
+        "Screen is displaying the scheduling dashboard",
+        "A scheduling conflict exists triggering an in-app notification",
+        "Browser is set to show focus indicators clearly"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key repeatedly to navigate through page elements until focus reaches the notification bell icon in the header",
+          "expectedResult": "Notification bell icon receives visible focus indicator (blue outline, 2px solid) and badge showing '1' is clearly visible"
+        },
+        {
+          "step": 2,
+          "action": "Press Enter key to open the notification panel",
+          "expectedResult": "Notification panel opens, focus automatically moves to the first notification item, and panel is announced by screen reader as 'Notifications panel opened, 1 unread notification'"
+        },
+        {
+          "step": 3,
+          "action": "Press Tab key to navigate through notification elements: conflict title, details, and action buttons",
+          "expectedResult": "Focus moves sequentially through: notification heading, conflict details text, 'View Details' button, 'Acknowledge' button, and 'Dismiss' button, each with visible focus indicator"
+        },
+        {
+          "step": 4,
+          "action": "Press Enter key on the 'View Details' button",
+          "expectedResult": "Conflict details modal opens, focus moves to modal heading 'Conflict Details', and modal is announced as 'Dialog opened: Conflict Details'"
+        },
+        {
+          "step": 5,
+          "action": "Press Tab to navigate through suggested resolutions and press Enter on first resolution option",
+          "expectedResult": "Focus moves through resolution options, confirmation dialog opens when Enter is pressed, and focus moves to 'Confirm' button in the dialog"
+        },
+        {
+          "step": 6,
+          "action": "Press Escape key to close the confirmation dialog",
+          "expectedResult": "Dialog closes, focus returns to the resolution option that triggered the dialog, maintaining user's position in the workflow"
+        },
+        {
+          "step": 7,
+          "action": "Press Escape key again to close the conflict details modal",
+          "expectedResult": "Modal closes, focus returns to the 'View Details' button in the notification panel that originally opened the modal"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements are accessible via keyboard navigation",
+        "Focus order is logical and follows visual layout",
+        "Focus is never trapped in any component",
+        "User can complete entire conflict resolution workflow using keyboard only"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Verify screen reader announcements for real-time alert notifications and conflict details",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler with screen reader enabled (NVDA or JAWS)",
+        "Screen reader is configured to announce live regions and notifications",
+        "User is on the scheduling dashboard",
+        "System is ready to detect scheduling conflicts"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create a scheduling conflict to trigger an in-app alert notification",
+          "expectedResult": "Screen reader immediately announces: 'Alert: Scheduling conflict detected. Conference Room A is double-booked at 2:00 PM. Press Alt+N to view notification.' using assertive ARIA live region"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to the notification bell icon using screen reader navigation commands",
+          "expectedResult": "Screen reader announces: 'Notifications button, 1 unread notification, collapsed' with clear indication of interactive element and state"
+        },
+        {
+          "step": 3,
+          "action": "Activate the notification bell to open the notification panel",
+          "expectedResult": "Screen reader announces: 'Notifications panel, expanded, region. Heading level 2: Scheduling Conflict. 1 of 1 notifications. Conflict ID 12345.'"
+        },
+        {
+          "step": 4,
+          "action": "Navigate through the conflict details in the notification",
+          "expectedResult": "Screen reader reads: 'Conflict details: Conference Room A is double-booked. Appointment A: 2:00 PM to 3:00 PM. Appointment B: 2:00 PM to 3:00 PM. Suggested resolutions: List with 3 items.'"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to and activate the 'View Details' button",
+          "expectedResult": "Screen reader announces: 'View Details button' when focused, then 'Dialog opened: Conflict Details' when activated, followed by reading the modal content"
+        },
+        {
+          "step": 6,
+          "action": "Navigate through suggested resolutions in the modal",
+          "expectedResult": "Screen reader announces each resolution as: 'Option 1 of 3: Reschedule Appointment B to 3:00 PM, button' with clear numbering and action type"
+        },
+        {
+          "step": 7,
+          "action": "Activate a resolution and listen to confirmation announcement",
+          "expectedResult": "Screen reader announces: 'Conflict resolved successfully. Appointment B has been rescheduled to 3:00 PM. Notification dismissed.' using polite ARIA live region"
+        }
+      ],
+      "postconditions": [
+        "All critical information is announced by screen reader",
+        "Announcements are clear, concise, and provide context",
+        "Live regions are used appropriately (assertive for urgent alerts, polite for confirmations)",
+        "User can understand and act on alerts using screen reader alone"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify ARIA labels, roles, and properties for alert notification components",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is on the scheduling dashboard with browser developer tools open",
+        "Accessibility inspector or axe DevTools extension is active",
+        "A scheduling conflict notification is displayed",
+        "User has access to inspect HTML and ARIA attributes"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Inspect the notification bell icon element in the header",
+          "expectedResult": "Element has: role='button', aria-label='Notifications, 1 unread', aria-expanded='false', aria-haspopup='true', and aria-controls='notification-panel'"
+        },
+        {
+          "step": 2,
+          "action": "Inspect the notification badge showing unread count",
+          "expectedResult": "Badge has: aria-label='1 unread notification' and is not just decorative, ensuring count is announced to screen readers"
+        },
+        {
+          "step": 3,
+          "action": "Open notification panel and inspect the panel container",
+          "expectedResult": "Panel has: role='region', aria-label='Notifications', aria-live='polite', and aria-atomic='false' for dynamic content updates"
+        },
+        {
+          "step": 4,
+          "action": "Inspect individual notification item for conflict alert",
+          "expectedResult": "Notification has: role='article', aria-labelledby='notification-title-12345', and contains proper heading structure (h2 for title, h3 for sections)"
+        },
+        {
+          "step": 5,
+          "action": "Inspect the conflict details modal dialog",
+          "expectedResult": "Modal has: role='dialog', aria-modal='true', aria-labelledby='dialog-title', aria-describedby='dialog-description', and focus trap implemented"
+        },
+        {
+          "step": 6,
+          "action": "Inspect suggested resolution buttons",
+          "expectedResult": "Each button has: descriptive aria-label like 'Reschedule Appointment B to 3:00 PM, option 1 of 3', and aria-pressed or aria-selected states where applicable"
+        },
+        {
+          "step": 7,
+          "action": "Inspect the alert success/error messages after resolution",
+          "expectedResult": "Messages use: role='alert' or aria-live='assertive' for errors, aria-live='polite' for success, ensuring immediate announcement without user action"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements have appropriate ARIA roles and labels",
+        "Dynamic content updates are announced via live regions",
+        "Relationships between elements are clearly defined with ARIA properties",
+        "No ARIA violations are detected by automated accessibility tools"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify color contrast and visual indicators for alert notifications meet WCAG 2.1 AA standards",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is viewing the scheduling dashboard in standard display mode",
+        "Color contrast analyzer tool is available (e.g., WebAIM Contrast Checker)",
+        "Alert notifications are displayed with various states (unread, acknowledged, resolved)",
+        "System displays error and success messages"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Measure color contrast ratio between notification badge background (red) and text (white) showing unread count",
+          "expectedResult": "Contrast ratio is at least 4.5:1 for normal text or 3:1 for large text (18pt+), meeting WCAG 2.1 AA standards"
+        },
+        {
+          "step": 2,
+          "action": "Measure contrast ratio for alert notification banner background and text",
+          "expectedResult": "Red alert banner with white text has contrast ratio of at least 4.5:1, and yellow warning banner with black text has contrast ratio of at least 7:1"
+        },
+        {
+          "step": 3,
+          "action": "Verify that conflict severity is not indicated by color alone",
+          "expectedResult": "High-priority conflicts use red color PLUS icon (exclamation mark) and text label 'High Priority', ensuring information is conveyed through multiple means"
+        },
+        {
+          "step": 4,
+          "action": "Check focus indicators on interactive elements (buttons, links) for sufficient contrast",
+          "expectedResult": "Focus indicator (blue outline) has contrast ratio of at least 3:1 against background, and is at least 2px thick, clearly visible on all elements"
+        },
+        {
+          "step": 5,
+          "action": "Verify success and error messages use sufficient contrast and multiple indicators",
+          "expectedResult": "Success message (green background) has 4.5:1 contrast with text and includes checkmark icon. Error message (red background) has 4.5:1 contrast and includes X icon"
+        },
+        {
+          "step": 6,
+          "action": "Test notification visibility in Windows High Contrast Mode",
+          "expectedResult": "All notifications, borders, and interactive elements remain visible and distinguishable in high contrast mode, with proper contrast maintained"
+        }
+      ],
+      "postconditions": [
+        "All text and interactive elements meet WCAG 2.1 AA contrast requirements (4.5:1 for normal text, 3:1 for large text and UI components)",
+        "Information is not conveyed by color alone",
+        "Visual indicators are clear and distinguishable for users with color vision deficiencies",
+        "Interface remains usable in high contrast modes"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify alert preferences customization page is fully accessible with keyboard and screen reader",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler using keyboard and screen reader",
+        "User navigates to Settings > Alert Preferences page",
+        "Page contains multiple form controls (checkboxes, dropdowns, toggles)",
+        "Screen reader is active (NVDA, JAWS, or VoiceOver)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Alert Preferences page and verify page title announcement",
+          "expectedResult": "Screen reader announces: 'Alert Preferences, heading level 1. Configure your notification settings for scheduling conflicts.' providing clear context"
+        },
+        {
+          "step": 2,
+          "action": "Tab to the 'Notification Channels' fieldset and verify grouping announcement",
+          "expectedResult": "Screen reader announces: 'Notification Channels, group. Select your preferred channels for receiving alerts.' with fieldset legend clearly identified"
+        },
+        {
+          "step": 3,
+          "action": "Navigate through checkbox options (Email, SMS, In-App) using Tab key",
+          "expectedResult": "Each checkbox is announced as: 'Email notifications, checkbox, checked' with current state clearly indicated, and spacebar toggles the checkbox"
+        },
+        {
+          "step": 4,
+          "action": "Tab to 'Alert Frequency' dropdown and activate with Enter or Space",
+          "expectedResult": "Dropdown opens, screen reader announces: 'Alert Frequency, combobox, collapsed. Currently selected: Immediate. Use arrow keys to navigate options.' and arrow keys navigate options"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to 'Quiet Hours' toggle switch and verify announcement",
+          "expectedResult": "Screen reader announces: 'Quiet Hours, switch, off. Enable to suppress notifications during specified hours.' with clear on/off state and purpose"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to form validation errors by submitting invalid preferences",
+          "expectedResult": "Focus moves to first error, screen reader announces: 'Error: At least one notification channel must be enabled. 1 error found.' and errors are listed with links to fields"
+        },
+        {
+          "step": 7,
+          "action": "Successfully save preferences and verify confirmation announcement",
+          "expectedResult": "Screen reader announces: 'Success: Alert preferences saved successfully. Your changes have been applied.' using polite ARIA live region"
+        }
+      ],
+      "postconditions": [
+        "All form controls are accessible and operable via keyboard",
+        "Form labels are properly associated with inputs",
+        "Current states and values are clearly announced",
+        "Error messages are descriptive and programmatically associated with fields",
+        "Success confirmations are announced without requiring user action"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "Verify alert notifications remain accessible and functional at 200% browser zoom level",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler on the scheduling dashboard",
+        "Browser zoom is set to 100% initially",
+        "A scheduling conflict notification is displayed",
+        "Browser supports zoom functionality (Chrome, Firefox, Edge)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Increase browser zoom to 200% using Ctrl + Plus (or Cmd + Plus on Mac)",
+          "expectedResult": "Page content scales to 200%, notification bell icon and badge remain visible in header without being cut off or overlapping other elements"
+        },
+        {
+          "step": 2,
+          "action": "Click the notification bell icon at 200% zoom",
+          "expectedResult": "Notification panel opens and displays properly scaled, with all content readable and no horizontal scrolling required within the panel"
+        },
+        {
+          "step": 3,
+          "action": "Review conflict details in the notification at 200% zoom",
+          "expectedResult": "All text is readable (minimum 16px at 200% zoom = 32px effective size), buttons are at least 44x44px touch target size, and content reflows without truncation"
+        },
+        {
+          "step": 4,
+          "action": "Open conflict details modal at 200% zoom",
+          "expectedResult": "Modal displays properly centered, content is readable without horizontal scrolling, and all interactive elements remain accessible and properly sized"
+        },
+        {
+          "step": 5,
+          "action": "Navigate through suggested resolutions and action buttons at 200% zoom",
+          "expectedResult": "All buttons and links are large enough to click accurately (minimum 44x44px), text does not overlap, and layout remains functional"
+        },
+        {
+          "step": 6,
+          "action": "Test alert preferences page at 200% zoom",
+          "expectedResult": "Form controls (checkboxes, dropdowns, toggles) are properly sized and spaced, labels remain associated with inputs, and page is usable without horizontal scrolling"
+        }
+      ],
+      "postconditions": [
+        "All content and functionality remains accessible at 200% zoom",
+        "No loss of information or functionality occurs due to zooming",
+        "Text reflows properly without requiring horizontal scrolling",
+        "Interactive elements maintain minimum touch target size of 44x44px",
+        "Layout adapts responsively to increased zoom levels"
+      ]
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true
+  },
+  "userStoryObject": {
+    "id": "story-5",
+    "title": "As Scheduler, I want to receive real-time alerts for scheduling conflicts to take immediate action",
+    "epicId": "epic-2",
+    "persona": "Scheduler",
+    "priority": "High",
+    "subtasks": [
+      {
+        "category": "Planning",
+        "description": "Define alert notification channels and formats",
+        "estimatedHours": 3
+      },
+      {
+        "category": "Backend",
+        "description": "Implement notification service for sending alerts",
+        "estimatedHours": 6
+      },
+      {
+        "category": "Testing",
+        "description": "Create integration tests for alert notification service",
+        "estimatedHours": 5
+      },
+      {
+        "category": "Documentation",
+        "description": "Document alert notification process and user preferences",
+        "estimatedHours": 2
+      }
+    ],
+    "featureId": "feature-4",
+    "testCases": [
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Trigger a scheduling conflict",
+            "result": "System detects the conflict"
+          },
+          {
+            "step": 2,
+            "action": "Check the user's preferred notification channel",
+            "result": "User receives an alert notification"
+          },
+          {
+            "step": 3,
+            "action": "Review the alert details",
+            "result": "Alert contains accurate conflict information"
+          }
+        ],
+        "title": "Validate alert delivery for detected conflicts"
+      },
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to alert preferences settings",
+            "result": "User accesses alert customization options"
+          },
+          {
+            "step": 2,
+            "action": "Change notification channel to SMS",
+            "result": "System saves the new preference"
+          },
+          {
+            "step": 3,
+            "action": "Trigger a scheduling conflict",
+            "result": "User receives alert via SMS"
+          }
+        ],
+        "title": "Ensure users can customize alert preferences"
+      }
+    ],
+    "description": "CONTEXT & BACKGROUND:\nThis story ensures that users are promptly informed of any scheduling conflicts, allowing for quick resolutions.\n\nCURRENT STATE:\nCurrently, users are not notified until after a conflict has occurred, leading to delays in resolution.\n\nDESIRED STATE:\nThe system should provide immediate alerts to users when conflicts are detected, enabling them to take corrective actions swiftly.\n\nKEY FUNCTIONALITY:\n• Send alerts via email, SMS, or in-app notifications.\n• Include details of the conflict in the alert.\n• Allow users to acknowledge or resolve conflicts directly from the alert.\n• Log alert history for auditing.\n• Provide options for users to customize alert preferences.\n\nUSER INTERACTION FLOW:\n1. System detects a scheduling conflict.\n2. System generates an alert notification.\n3. User receives the alert via their preferred channel.\n4. User reviews the conflict details.\n5. User takes action to resolve the conflict.\n\nTECHNICAL CONSIDERATIONS:\n• Data source: Notification service.\n• Validation rules: Ensure alerts are sent to the correct users.\n• API endpoints: POST /api/notifications/send for alert dispatch.\n• Security: Ensure user preferences are securely stored.\n• Performance: Alerts sent within 5 seconds of conflict detection.\n\nOUT OF SCOPE:\n• Historical alert analysis.\n\nSUCCESS METRICS:\n• 95% of alerts delivered within 5 seconds.",
+    "storyPoints": 5,
+    "personaSource": "AI Suggested",
+    "acceptanceCriteria": [
+      "System sends alerts to users within 5 seconds of detecting a scheduling conflict.",
+      "Alerts include details of the conflict and suggested resolutions.",
+      "Users can customize their alert preferences."
+    ]
+  }
+}
