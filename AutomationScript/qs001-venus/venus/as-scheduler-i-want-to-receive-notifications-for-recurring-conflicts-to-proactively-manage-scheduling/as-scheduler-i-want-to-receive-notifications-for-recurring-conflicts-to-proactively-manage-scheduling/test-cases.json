@@ -1,0 +1,1158 @@
+{
+  "storyId": "story-7",
+  "storyTitle": "As Scheduler, I want to receive notifications for recurring conflicts to proactively manage scheduling",
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify system identifies and notifies user of recurring conflicts based on historical data",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler with valid authentication token",
+        "Historical conflict database contains at least 3 instances of the same conflict pattern within the last 30 days",
+        "User has default notification preferences enabled for recurring conflicts",
+        "System has completed analysis of historical conflict data within the last hour"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the Scheduling Dashboard page",
+          "expectedResult": "Dashboard loads successfully displaying the main scheduling interface with notification bell icon in top-right corner"
+        },
+        {
+          "step": 2,
+          "action": "Trigger a scheduling conflict that matches an existing recurring pattern (e.g., schedule Resource A for Room 101 on Monday 9 AM when it has conflicted 3+ times previously)",
+          "expectedResult": "System analyzes the conflict against historical data and identifies it as a recurring conflict within 5 seconds"
+        },
+        {
+          "step": 3,
+          "action": "Click on the notification bell icon in the top-right corner",
+          "expectedResult": "Notification panel opens displaying a new notification with title 'Recurring Conflict Detected' and red indicator badge showing '1' unread notification"
+        },
+        {
+          "step": 4,
+          "action": "Click on the recurring conflict notification to view details",
+          "expectedResult": "Notification expands showing detailed information including: conflict type, resources involved (Resource A, Room 101), time slot (Monday 9 AM), frequency (occurred 4 times in last 30 days), and suggested actions"
+        },
+        {
+          "step": 5,
+          "action": "Review the 'View Conflict History' link within the notification",
+          "expectedResult": "Link is clickable and displays tooltip 'See all instances of this recurring conflict'"
+        }
+      ],
+      "postconditions": [
+        "Notification is marked as delivered in the system logs with timestamp",
+        "User remains on the Scheduling Dashboard with notification panel open",
+        "Recurring conflict data is stored in user's notification history",
+        "System continues monitoring for additional recurring conflicts"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify user can customize notification preferences for recurring conflicts",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler with administrative privileges",
+        "User is on the main Scheduling Dashboard page",
+        "Default notification settings are currently active (email and in-app notifications enabled)",
+        "Browser supports local storage for saving user preferences"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on the user profile icon in the top-right corner and select 'Notification Preferences' from the dropdown menu",
+          "expectedResult": "Notification Preferences page loads displaying sections for different notification types including 'Recurring Conflicts' section"
+        },
+        {
+          "step": 2,
+          "action": "Locate the 'Recurring Conflicts' section and verify available options: 'In-App Notifications', 'Email Notifications', 'SMS Notifications', and 'Notification Frequency' dropdown",
+          "expectedResult": "All four options are visible with checkboxes for notification channels and dropdown showing options: 'Immediate', 'Daily Digest', 'Weekly Digest'"
+        },
+        {
+          "step": 3,
+          "action": "Uncheck 'Email Notifications', keep 'In-App Notifications' checked, and select 'Daily Digest' from the Notification Frequency dropdown",
+          "expectedResult": "Checkboxes update to reflect selections, dropdown displays 'Daily Digest' as selected value"
+        },
+        {
+          "step": 4,
+          "action": "Scroll down and click the 'Save Preferences' button at the bottom of the page",
+          "expectedResult": "Green success message appears at top of page stating 'Your notification preferences have been saved successfully' and page remains on Notification Preferences"
+        },
+        {
+          "step": 5,
+          "action": "Navigate back to Scheduling Dashboard and trigger a recurring conflict scenario",
+          "expectedResult": "In-app notification appears in notification bell, but no email is sent immediately (verified by checking email inbox)"
+        }
+      ],
+      "postconditions": [
+        "User preferences are saved to database with timestamp of last update",
+        "Email notification channel is disabled for recurring conflicts for this user",
+        "In-app notifications remain active and will be delivered as daily digest",
+        "User remains logged in and on the Scheduling Dashboard"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify notification contains accurate details about recurring conflict frequency and pattern",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "Historical database contains exactly 5 instances of the same conflict: Resource 'Conference Room A' conflicting with 'Team Meeting' every Monday at 10:00 AM",
+        "System has successfully identified this as a recurring conflict pattern",
+        "User has in-app notifications enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Trigger the 6th instance of the recurring conflict by scheduling 'Team Meeting' in 'Conference Room A' for Monday at 10:00 AM",
+          "expectedResult": "System detects the recurring pattern and generates a notification within 5 seconds"
+        },
+        {
+          "step": 2,
+          "action": "Open the notification panel by clicking the notification bell icon",
+          "expectedResult": "Notification panel displays the recurring conflict notification with title 'Recurring Conflict: Conference Room A - Team Meeting'"
+        },
+        {
+          "step": 3,
+          "action": "Click on the notification to expand full details",
+          "expectedResult": "Notification expands showing: Conflict Type: 'Resource Double Booking', Resources: 'Conference Room A, Team Meeting', Frequency: 'Occurs every Monday at 10:00 AM', Historical Occurrences: '6 times in the last 42 days', Last Occurrence: [current date]"
+        },
+        {
+          "step": 4,
+          "action": "Click on the 'View Pattern Analysis' button within the notification",
+          "expectedResult": "Modal window opens displaying a timeline chart showing all 6 occurrences with dates, a pattern summary stating 'Weekly recurrence on Mondays', and suggested resolution: 'Consider permanent booking or alternative resource'"
+        }
+      ],
+      "postconditions": [
+        "Notification data matches actual historical conflict records in database",
+        "Frequency calculation is accurate (6 occurrences over 42 days)",
+        "Pattern analysis is stored for future reference",
+        "User can access this notification from notification history"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify user can take corrective action directly from recurring conflict notification",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler with edit permissions",
+        "A recurring conflict notification is present in the notification panel",
+        "The conflicting schedule items are still in draft or editable state",
+        "System has identified suggested alternative time slots"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Open the notification panel and click on the recurring conflict notification",
+          "expectedResult": "Notification expands showing conflict details and action buttons: 'Resolve Conflict', 'View Alternatives', 'Ignore', and 'Set Reminder'"
+        },
+        {
+          "step": 2,
+          "action": "Click the 'View Alternatives' button",
+          "expectedResult": "Modal opens displaying 3-5 alternative time slots or resources that do not have conflicts, each with a 'Select' button"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Select' on the first alternative option (e.g., Tuesday 10:00 AM instead of Monday 10:00 AM)",
+          "expectedResult": "Confirmation dialog appears asking 'Apply this change to resolve the recurring conflict?' with 'Confirm' and 'Cancel' buttons"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Confirm' button in the confirmation dialog",
+          "expectedResult": "Schedule is updated with the new time slot, success message displays 'Conflict resolved successfully. Schedule updated to Tuesday 10:00 AM', and notification is marked as resolved with green checkmark"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to the Schedule Calendar view",
+          "expectedResult": "Calendar displays the updated schedule with the meeting moved to Tuesday 10:00 AM, and no conflict indicator is shown"
+        }
+      ],
+      "postconditions": [
+        "Schedule database is updated with the new time slot",
+        "Conflict is marked as resolved in the conflicts table",
+        "Notification status changes to 'Resolved' with timestamp",
+        "Audit log records the corrective action taken by the user"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify GET /api/conflicts/recurring endpoint returns accurate recurring conflict data",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is authenticated with valid JWT token",
+        "API endpoint GET /api/conflicts/recurring is accessible",
+        "Database contains at least 3 different recurring conflict patterns for the authenticated user",
+        "Test environment has network connectivity to API server"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send GET request to /api/conflicts/recurring with valid authentication token in header",
+          "expectedResult": "API responds with HTTP status code 200 OK within 5 seconds"
+        },
+        {
+          "step": 2,
+          "action": "Examine the response body JSON structure",
+          "expectedResult": "Response contains array of recurring conflicts, each object includes fields: conflictId, conflictType, resources, frequency, occurrences, lastOccurrence, pattern, suggestedActions"
+        },
+        {
+          "step": 3,
+          "action": "Verify the 'occurrences' count for the first conflict in the response",
+          "expectedResult": "Occurrences count matches the actual number of instances in the historical database (e.g., if database shows 4 instances, API returns occurrences: 4)"
+        },
+        {
+          "step": 4,
+          "action": "Check the 'pattern' field for pattern recognition accuracy",
+          "expectedResult": "Pattern field contains accurate description such as 'Weekly on Mondays at 10:00 AM' or 'Every 3 days at 14:00' matching the actual historical pattern"
+        },
+        {
+          "step": 5,
+          "action": "Verify response includes pagination metadata if more than 10 conflicts exist",
+          "expectedResult": "Response includes metadata object with fields: totalCount, currentPage, pageSize, totalPages"
+        }
+      ],
+      "postconditions": [
+        "API request is logged in system access logs with timestamp",
+        "No data is modified in the database (GET request is read-only)",
+        "Authentication token remains valid for subsequent requests",
+        "Response data can be used to populate UI notifications"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify multiple notification channels deliver recurring conflict alerts simultaneously",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "User has enabled all notification channels: in-app, email, and SMS in preferences",
+        "User's email address and phone number are verified in the system",
+        "A recurring conflict pattern exists and is about to be triggered"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Trigger a recurring conflict by creating a schedule that matches an existing conflict pattern",
+          "expectedResult": "System identifies the recurring conflict within 5 seconds and initiates notification process"
+        },
+        {
+          "step": 2,
+          "action": "Check the in-app notification bell icon",
+          "expectedResult": "Notification bell shows red badge with '1' and clicking it displays the recurring conflict notification with full details"
+        },
+        {
+          "step": 3,
+          "action": "Check the email inbox associated with the user account within 30 seconds",
+          "expectedResult": "Email received with subject 'Recurring Conflict Alert: [Conflict Details]' containing conflict information, frequency data, and link to view in application"
+        },
+        {
+          "step": 4,
+          "action": "Check the mobile phone for SMS message within 30 seconds",
+          "expectedResult": "SMS received with text: 'Recurring conflict detected: [Brief description]. View details at [short link]'"
+        },
+        {
+          "step": 5,
+          "action": "Verify all three notifications contain consistent information about the same conflict",
+          "expectedResult": "Conflict ID, resource names, time slot, and frequency information are identical across all three notification channels"
+        }
+      ],
+      "postconditions": [
+        "All three notification channels have successfully delivered the alert",
+        "Notification delivery status is logged for each channel with timestamps",
+        "User can access conflict details from any notification channel",
+        "Notification preferences remain unchanged"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify system handles unauthorized access to recurring conflict notifications gracefully",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is not logged in (no authentication token present)",
+        "Browser has cleared all cookies and session storage",
+        "API endpoint GET /api/conflicts/recurring is active",
+        "System has recurring conflicts in database"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to send GET request to /api/conflicts/recurring without authentication token in header",
+          "expectedResult": "API responds with HTTP status code 401 Unauthorized"
+        },
+        {
+          "step": 2,
+          "action": "Examine the error response body",
+          "expectedResult": "Response contains JSON with error message: 'Authentication required. Please log in to access recurring conflict notifications' and errorCode: 'AUTH_REQUIRED'"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to access notification preferences page by directly entering URL /settings/notifications without being logged in",
+          "expectedResult": "System redirects to login page with message 'Please log in to access notification settings' and returnUrl parameter set to /settings/notifications"
+        },
+        {
+          "step": 4,
+          "action": "Try to access notification panel UI component without valid session",
+          "expectedResult": "Notification bell icon is either hidden or disabled, clicking it shows tooltip 'Login required to view notifications'"
+        }
+      ],
+      "postconditions": [
+        "No sensitive conflict data is exposed to unauthenticated user",
+        "Failed authentication attempt is logged in security audit log",
+        "User remains on login page or public area of application",
+        "No session or token is created"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify system handles expired authentication token when accessing recurring conflicts",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User was previously logged in with valid authentication token",
+        "Authentication token has expired (past expiration timestamp)",
+        "User is on the Scheduling Dashboard page",
+        "Browser still has expired token in local storage"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on the notification bell icon to view recurring conflict notifications",
+          "expectedResult": "System attempts to fetch notifications using expired token"
+        },
+        {
+          "step": 2,
+          "action": "Observe the API response and UI behavior",
+          "expectedResult": "API returns HTTP status code 401 Unauthorized with message 'Session expired. Please log in again', and UI displays modal dialog with message 'Your session has expired for security reasons'"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Login Again' button in the modal dialog",
+          "expectedResult": "User is redirected to login page, expired token is cleared from local storage, and returnUrl is set to current page"
+        },
+        {
+          "step": 4,
+          "action": "After redirect, verify that no notification data was cached or displayed",
+          "expectedResult": "No recurring conflict data is visible, notification panel is empty, and no sensitive information remains in browser memory or DOM"
+        }
+      ],
+      "postconditions": [
+        "Expired token is removed from local storage and session",
+        "User is logged out and redirected to login page",
+        "Security event is logged with details of expired token access attempt",
+        "No recurring conflict data is accessible until re-authentication"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify system handles insufficient historical data for recurring conflict detection",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "Historical conflict database contains only 1 instance of a specific conflict pattern (below threshold of 3 required for recurring classification)",
+        "User has notifications enabled",
+        "System is configured to require minimum 3 occurrences to classify as recurring"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Trigger the same conflict pattern for the 2nd time (still below threshold of 3)",
+          "expectedResult": "System detects the conflict but does not classify it as recurring, no recurring conflict notification is generated"
+        },
+        {
+          "step": 2,
+          "action": "Check the notification panel for recurring conflict alerts",
+          "expectedResult": "Notification panel shows standard conflict notification (not recurring), with message 'Scheduling conflict detected' without recurring pattern information"
+        },
+        {
+          "step": 3,
+          "action": "Send GET request to /api/conflicts/recurring",
+          "expectedResult": "API returns HTTP status code 200 OK with empty array [] or message 'No recurring conflicts detected yet' since threshold is not met"
+        },
+        {
+          "step": 4,
+          "action": "Trigger the same conflict pattern for the 3rd time (meeting threshold)",
+          "expectedResult": "System now classifies it as recurring and generates recurring conflict notification with message 'Recurring pattern detected: This conflict has occurred 3 times'"
+        }
+      ],
+      "postconditions": [
+        "System correctly applies threshold logic for recurring classification",
+        "No false positive recurring conflict notifications are sent",
+        "Conflict data is stored in historical database for future pattern analysis",
+        "User receives appropriate notification type based on occurrence count"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify system handles invalid notification preference values gracefully",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "User is on the Notification Preferences page",
+        "Browser developer tools are open to manipulate form data",
+        "Current preferences are set to valid default values"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Using browser developer tools, modify the notification frequency dropdown value to an invalid option 'InvalidFrequency' before submitting",
+          "expectedResult": "Form validation detects invalid value before submission"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Save Preferences' button with the manipulated invalid value",
+          "expectedResult": "Client-side validation displays error message 'Invalid notification frequency selected. Please choose a valid option: Immediate, Daily Digest, or Weekly Digest' in red text below the dropdown"
+        },
+        {
+          "step": 3,
+          "action": "Bypass client-side validation and send POST request directly to API with payload containing invalid frequency value",
+          "expectedResult": "API responds with HTTP status code 400 Bad Request and error message 'Invalid notification frequency value. Accepted values: immediate, daily, weekly'"
+        },
+        {
+          "step": 4,
+          "action": "Verify that preferences were not saved by refreshing the page",
+          "expectedResult": "Notification preferences page loads with previous valid settings intact, invalid values were rejected and not persisted to database"
+        },
+        {
+          "step": 5,
+          "action": "Check system logs for validation error",
+          "expectedResult": "Validation error is logged with timestamp, user ID, attempted invalid value, and rejection reason"
+        }
+      ],
+      "postconditions": [
+        "User preferences remain unchanged with previous valid values",
+        "No invalid data is stored in the database",
+        "Validation error is logged for security monitoring",
+        "User remains on Notification Preferences page with error message displayed"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify system handles API timeout when fetching recurring conflicts",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "Network conditions are simulated to cause API timeout (using browser dev tools or proxy)",
+        "API endpoint GET /api/conflicts/recurring is configured with 5-second timeout",
+        "User is on Scheduling Dashboard attempting to view notifications"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enable network throttling in browser developer tools to simulate slow connection (e.g., 50 Kbps)",
+          "expectedResult": "Network throttling is active as shown in developer tools network tab"
+        },
+        {
+          "step": 2,
+          "action": "Click on notification bell icon to fetch recurring conflict notifications",
+          "expectedResult": "Loading spinner appears in notification panel indicating data is being fetched"
+        },
+        {
+          "step": 3,
+          "action": "Wait for API request to exceed 5-second timeout threshold",
+          "expectedResult": "After 5 seconds, loading spinner disappears and error message displays: 'Unable to load notifications. Request timed out. Please try again.'"
+        },
+        {
+          "step": 4,
+          "action": "Observe the notification panel UI",
+          "expectedResult": "Panel shows 'Retry' button and 'Close' button, no partial or corrupted data is displayed, previous notifications (if any) remain visible"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Retry' button to attempt fetching notifications again",
+          "expectedResult": "New API request is initiated, loading spinner appears again, and system attempts to fetch data with fresh timeout window"
+        }
+      ],
+      "postconditions": [
+        "No application crash or freeze occurs due to timeout",
+        "User can retry the operation without refreshing the page",
+        "Timeout error is logged in system error logs with request details",
+        "User remains logged in and can continue using other features"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify system prevents SQL injection attempts in recurring conflict queries",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "System has search or filter functionality for recurring conflicts",
+        "Database contains recurring conflict records",
+        "Application uses parameterized queries for database access"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to recurring conflicts search page or filter interface",
+          "expectedResult": "Search interface loads with input field for filtering conflicts by resource name or other criteria"
+        },
+        {
+          "step": 2,
+          "action": "Enter SQL injection payload in search field: \"' OR '1'='1\" and submit search",
+          "expectedResult": "System sanitizes input and treats entire string as literal search term, no SQL injection occurs"
+        },
+        {
+          "step": 3,
+          "action": "Observe search results",
+          "expectedResult": "Either no results found (if no resource matches the literal string) or only legitimate results matching the sanitized search term, no unauthorized data exposure"
+        },
+        {
+          "step": 4,
+          "action": "Attempt another injection payload: \"'; DROP TABLE conflicts; --\" in the search field",
+          "expectedResult": "Input is sanitized, parameterized query prevents execution of DROP command, search executes safely without database modification"
+        },
+        {
+          "step": 5,
+          "action": "Check database integrity and system logs",
+          "expectedResult": "Database tables remain intact, no data loss, security log records the injection attempt with user ID, timestamp, and attempted payload"
+        }
+      ],
+      "postconditions": [
+        "Database remains secure and unmodified",
+        "All conflict data is intact and accessible",
+        "Security incident is logged for review",
+        "User account may be flagged for suspicious activity depending on security policy"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Verify system handles maximum number of simultaneous recurring conflicts",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "System is configured with maximum limit of 100 recurring conflict patterns per user",
+        "Database currently contains 99 recurring conflict patterns for the test user",
+        "System performance monitoring is active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Trigger the 100th unique recurring conflict pattern by creating a new schedule conflict that repeats",
+          "expectedResult": "System successfully identifies and stores the 100th recurring conflict, notification is generated within 5 seconds"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to trigger a 101st unique recurring conflict pattern",
+          "expectedResult": "System either accepts it with warning message 'You have reached the maximum number of tracked recurring conflicts (100). Oldest patterns may be archived.' or prevents creation with message 'Maximum recurring conflict limit reached'"
+        },
+        {
+          "step": 3,
+          "action": "Open notification panel and scroll through all recurring conflict notifications",
+          "expectedResult": "Notification panel implements pagination or virtual scrolling, displays 'Showing 1-20 of 100' with 'Load More' button, UI remains responsive without lag"
+        },
+        {
+          "step": 4,
+          "action": "Send GET request to /api/conflicts/recurring with no pagination parameters",
+          "expectedResult": "API returns first page of results (default 20 items) with pagination metadata showing totalCount: 100, and includes links to next page"
+        },
+        {
+          "step": 5,
+          "action": "Measure page load time and API response time",
+          "expectedResult": "Page loads within 3 seconds, API responds within 5 seconds even with 100 recurring conflicts, no browser freeze or memory issues"
+        }
+      ],
+      "postconditions": [
+        "System maintains performance with maximum number of recurring conflicts",
+        "All 100 recurring conflicts are accessible through pagination",
+        "Database queries remain optimized with proper indexing",
+        "User can still interact with the application without performance degradation"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Verify system handles recurring conflict with extremely long resource names and descriptions",
+      "category": "Edge Cases",
+      "priority": "Low",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "System allows resource names up to 255 characters",
+        "Test data includes resources with names at maximum character limit",
+        "Notification UI has responsive design for various content lengths"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create a recurring conflict involving a resource with 255-character name: 'Conference Room A with Extended Description Including Location Building 5 Floor 3 West Wing Near Elevator Bank With Video Conferencing Capabilities and Whiteboard and Projector and Seating Capacity of Twenty Five People and Windows Facing North and Access to Kitchen'",
+          "expectedResult": "System accepts the resource name and successfully creates the conflict record"
+        },
+        {
+          "step": 2,
+          "action": "Trigger the recurring conflict pattern 3 times to generate recurring conflict notification",
+          "expectedResult": "System identifies recurring pattern and generates notification within 5 seconds"
+        },
+        {
+          "step": 3,
+          "action": "Open notification panel and view the recurring conflict notification",
+          "expectedResult": "Notification displays resource name with text truncation (e.g., 'Conference Room A with Extended Description Including Location Building 5 Floor 3 West Wing Near Elevator Bank With Video Conferencing Capabilities and Whiteboard and Projector and Seating Capacity of Twenty Five People and Windows Facing North and Access to Kitchen' shows as 'Conference Room A with Extended Description Including Location Building 5 Floor 3 West Wing Near Elevator Bank With Video Conferencing Capabilities and Whiteboard and Projector and Seating Capacity of Twenty Five People and Windows Facing North and Access to Kitchen' with ellipsis and 'Show More' link)"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Show More' link or hover over truncated text",
+          "expectedResult": "Full resource name is displayed in tooltip or expanded view without breaking UI layout, text wraps properly within notification container"
+        },
+        {
+          "step": 5,
+          "action": "Export or download recurring conflict report",
+          "expectedResult": "Full resource name is included in export file without truncation, CSV or PDF format handles long text appropriately"
+        }
+      ],
+      "postconditions": [
+        "UI remains functional and visually correct with long resource names",
+        "No text overflow or layout breaking occurs",
+        "Full data is preserved in database and exports",
+        "Notification remains readable and accessible"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Verify system handles recurring conflict detection across different time zones",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler with account timezone set to EST (UTC-5)",
+        "System supports multiple time zones for scheduling",
+        "Historical conflicts exist for 'Monday 10:00 AM EST' occurring 3 times",
+        "User is about to create a schedule in PST (UTC-8) timezone"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Change user's timezone preference to PST (UTC-8) in account settings",
+          "expectedResult": "Timezone preference is saved, confirmation message displays 'Timezone updated to Pacific Standard Time (PST)'"
+        },
+        {
+          "step": 2,
+          "action": "Create a schedule conflict for 'Monday 1:00 PM PST' (which is equivalent to 'Monday 10:00 AM EST' in previous timezone)",
+          "expectedResult": "System converts time to UTC for comparison and recognizes this as the same recurring conflict pattern"
+        },
+        {
+          "step": 3,
+          "action": "Check notification panel for recurring conflict alert",
+          "expectedResult": "Recurring conflict notification is generated showing 'This conflict has occurred 4 times' with times displayed in user's current timezone (PST): 'Monday 1:00 PM PST'"
+        },
+        {
+          "step": 4,
+          "action": "Click 'View Conflict History' to see all previous occurrences",
+          "expectedResult": "History shows all 4 occurrences with times converted to PST: 3 previous instances shown as 'Monday 1:00 PM PST' and current instance, with note '(Previously scheduled in EST)' for historical entries"
+        },
+        {
+          "step": 5,
+          "action": "Verify API response from GET /api/conflicts/recurring includes timezone information",
+          "expectedResult": "API response includes timezone field for each occurrence, times are returned in ISO 8601 format with timezone offset (e.g., '2024-01-15T13:00:00-08:00')"
+        }
+      ],
+      "postconditions": [
+        "Recurring conflict detection works correctly across timezone changes",
+        "All times are displayed consistently in user's current timezone",
+        "Historical data maintains original timezone information",
+        "No duplicate conflict patterns are created due to timezone differences"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Verify system handles recurring conflicts when historical data is exactly at threshold boundary",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "System is configured to classify conflicts as recurring when they occur exactly 3 times (minimum threshold)",
+        "Historical database contains exactly 2 instances of a specific conflict pattern",
+        "System uses inclusive threshold logic (3 or more = recurring)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Trigger the same conflict pattern for the 3rd time (exactly at threshold)",
+          "expectedResult": "System detects that occurrence count equals threshold (3) and classifies it as recurring conflict"
+        },
+        {
+          "step": 2,
+          "action": "Check notification panel immediately after triggering 3rd occurrence",
+          "expectedResult": "Recurring conflict notification appears within 5 seconds with message 'Recurring pattern detected: This conflict has occurred 3 times'"
+        },
+        {
+          "step": 3,
+          "action": "Send GET request to /api/conflicts/recurring",
+          "expectedResult": "API response includes this conflict pattern in the array with occurrences: 3, classified as recurring: true"
+        },
+        {
+          "step": 4,
+          "action": "Delete one of the historical conflict instances to bring count back to 2",
+          "expectedResult": "System recalculates pattern frequency, occurrence count drops to 2"
+        },
+        {
+          "step": 5,
+          "action": "Refresh notification panel and send new GET request to /api/conflicts/recurring",
+          "expectedResult": "Conflict pattern is removed from recurring conflicts list since it no longer meets threshold, notification is archived or marked as resolved"
+        }
+      ],
+      "postconditions": [
+        "System correctly applies threshold boundary logic (inclusive of threshold value)",
+        "Recurring classification is dynamic and updates when occurrence count changes",
+        "Notifications accurately reflect current recurring status",
+        "Historical data changes trigger recalculation of patterns"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Verify system handles notification delivery when user has disabled all notification channels",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "User has disabled all notification channels: in-app, email, and SMS are all unchecked in preferences",
+        "Notification preferences are saved with all channels disabled",
+        "A recurring conflict pattern exists and is about to be triggered"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Verify notification preferences show all channels disabled",
+          "expectedResult": "Notification Preferences page displays all checkboxes unchecked for 'In-App Notifications', 'Email Notifications', and 'SMS Notifications' under Recurring Conflicts section"
+        },
+        {
+          "step": 2,
+          "action": "Trigger a recurring conflict by creating a schedule matching an existing pattern",
+          "expectedResult": "System detects recurring conflict and processes it normally, conflict is logged in database"
+        },
+        {
+          "step": 3,
+          "action": "Check notification bell icon in the application",
+          "expectedResult": "Notification bell shows no badge or indicator, clicking it shows empty state message 'You have disabled notifications for recurring conflicts. Update your preferences to receive alerts.'"
+        },
+        {
+          "step": 4,
+          "action": "Check email inbox and phone for any notifications",
+          "expectedResult": "No email or SMS is received, notification channels respect user's disabled preferences"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to Conflict History or Dashboard to verify conflict was still detected",
+          "expectedResult": "Recurring conflict is visible in Conflict History page with indicator showing 'Notification not sent (user preferences)', conflict data is complete and accessible"
+        }
+      ],
+      "postconditions": [
+        "No notifications are sent through any channel",
+        "Conflict detection and logging still functions normally",
+        "User preferences are respected and not overridden",
+        "Conflict data remains accessible through direct navigation to conflict views"
+      ]
+    },
+    {
+      "id": "TC-EDGE-006",
+      "title": "Verify system performance when analyzing large historical dataset for recurring patterns",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "Historical conflict database contains 10,000+ conflict records spanning 2 years",
+        "System is configured to analyze last 90 days of data for recurring patterns",
+        "Performance monitoring tools are active to measure response times"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Trigger a new conflict that requires system to analyze historical data for pattern matching",
+          "expectedResult": "System initiates pattern analysis query against historical database"
+        },
+        {
+          "step": 2,
+          "action": "Measure time taken for system to identify if conflict is recurring",
+          "expectedResult": "Pattern analysis completes within 5 seconds as per performance requirement, notification is generated within the SLA"
+        },
+        {
+          "step": 3,
+          "action": "Monitor database query performance and resource utilization",
+          "expectedResult": "Database query uses proper indexes, execution plan shows index seek (not table scan), CPU usage remains below 70%, memory usage is stable"
+        },
+        {
+          "step": 4,
+          "action": "Trigger 5 different conflicts simultaneously (simulate multiple schedulers working concurrently)",
+          "expectedResult": "System handles concurrent pattern analysis requests, all 5 conflicts are analyzed within 5 seconds each, no query deadlocks or timeouts occur"
+        },
+        {
+          "step": 5,
+          "action": "Verify notification delivery for all 5 concurrent conflicts",
+          "expectedResult": "All recurring conflict notifications are generated and delivered successfully, notification queue processes all items without backlog, no notifications are lost or delayed beyond 5-second SLA"
+        }
+      ],
+      "postconditions": [
+        "System maintains performance SLA with large historical dataset",
+        "Database queries are optimized with proper indexing",
+        "Concurrent users do not experience degraded performance",
+        "All notifications are delivered within specified timeframe"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Verify complete keyboard navigation for recurring conflict notifications",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "At least one recurring conflict notification is present in the notification panel",
+        "User is on the Scheduling Dashboard page",
+        "Screen reader is not active (testing keyboard-only navigation)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key repeatedly from the top of the page until focus reaches the notification bell icon",
+          "expectedResult": "Notification bell icon receives visible focus indicator (2px solid blue outline), focus order is logical following visual layout"
+        },
+        {
+          "step": 2,
+          "action": "Press Enter key or Space bar while notification bell has focus",
+          "expectedResult": "Notification panel opens, focus automatically moves to first notification item in the panel, panel has role='dialog' and aria-label='Notifications'"
+        },
+        {
+          "step": 3,
+          "action": "Press Tab key to navigate through notification items and action buttons",
+          "expectedResult": "Focus moves sequentially through: notification title, 'View Details' button, 'Resolve Conflict' button, 'View Alternatives' button, 'Dismiss' button, each element shows visible focus indicator"
+        },
+        {
+          "step": 4,
+          "action": "Press Escape key while focus is within the notification panel",
+          "expectedResult": "Notification panel closes, focus returns to notification bell icon, panel closure is announced to assistive technologies"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to notification preferences page using Tab key, locate 'Save Preferences' button, and press Enter",
+          "expectedResult": "All form controls (checkboxes, dropdowns) are keyboard accessible, preferences are saved, success message receives focus and is announced"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements are keyboard accessible without mouse",
+        "Focus order is logical and follows visual layout",
+        "Focus indicators are visible on all interactive elements",
+        "No keyboard traps exist in notification interface"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Verify screen reader announces recurring conflict notifications with complete context",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "NVDA or JAWS screen reader is active and running",
+        "A new recurring conflict notification has just been generated",
+        "User is on the Scheduling Dashboard page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Wait for recurring conflict notification to be generated by the system",
+          "expectedResult": "Screen reader announces via ARIA live region: 'Alert: New recurring conflict notification. Conference Room A conflict has occurred 4 times. Press Alt+N to view details.' with assertive politeness level"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to notification bell icon using screen reader navigation commands",
+          "expectedResult": "Screen reader announces: 'Notifications button, 1 unread notification, collapsed' with proper role and state information"
+        },
+        {
+          "step": 3,
+          "action": "Activate notification bell icon using Enter key",
+          "expectedResult": "Screen reader announces: 'Notifications dialog opened, 1 notification. Recurring Conflict: Conference Room A - Team Meeting, occurred 4 times in last 30 days, link, button View Details, button Resolve Conflict'"
+        },
+        {
+          "step": 4,
+          "action": "Navigate through notification details using arrow keys",
+          "expectedResult": "Screen reader reads all notification content including: conflict type, resources involved, frequency data, last occurrence date, and available actions with proper semantic structure (headings, lists, buttons)"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to 'View Alternatives' button and activate it",
+          "expectedResult": "Screen reader announces: 'Alternatives dialog opened, 3 alternative time slots available, list with 3 items' and reads each alternative with proper context"
+        }
+      ],
+      "postconditions": [
+        "All notification content is accessible to screen reader users",
+        "ARIA live regions announce dynamic content changes",
+        "Semantic HTML and ARIA labels provide complete context",
+        "Screen reader users can understand and act on notifications independently"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify color contrast ratios meet WCAG 2.1 AA standards for notification elements",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "Recurring conflict notification is visible in notification panel",
+        "Color contrast analyzer tool is available (e.g., browser extension or WAVE tool)",
+        "Application is displayed at 100% zoom level"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use color contrast analyzer to measure contrast ratio between notification title text and background",
+          "expectedResult": "Contrast ratio is at least 4.5:1 for normal text (e.g., black text #000000 on white background #FFFFFF = 21:1, passes WCAG AA)"
+        },
+        {
+          "step": 2,
+          "action": "Measure contrast ratio for notification badge indicator (red badge showing unread count)",
+          "expectedResult": "Badge background color has contrast ratio of at least 3:1 against adjacent colors, white text on red badge has ratio of at least 4.5:1"
+        },
+        {
+          "step": 3,
+          "action": "Check contrast for action buttons ('Resolve Conflict', 'View Alternatives') in normal state",
+          "expectedResult": "Button text has contrast ratio of at least 4.5:1 against button background, button border has contrast of at least 3:1 against page background"
+        },
+        {
+          "step": 4,
+          "action": "Check contrast for action buttons in hover and focus states",
+          "expectedResult": "Hover and focus states maintain minimum 4.5:1 contrast ratio for text, focus indicator has at least 3:1 contrast against background"
+        },
+        {
+          "step": 5,
+          "action": "Verify color is not the only means of conveying information (e.g., recurring conflict severity)",
+          "expectedResult": "High-priority conflicts use both red color AND icon (exclamation mark) or text label ('High Priority'), information is not conveyed by color alone"
+        }
+      ],
+      "postconditions": [
+        "All text meets WCAG 2.1 AA contrast requirements (4.5:1 for normal text, 3:1 for large text)",
+        "UI components and graphical objects meet 3:1 contrast requirement",
+        "Color is not the sole means of conveying information",
+        "Interface is usable for users with color vision deficiencies"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify notification interface remains functional and readable at 200% zoom level",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "Browser is set to 100% zoom level initially",
+        "Recurring conflict notification is present in notification panel",
+        "Browser window is at standard desktop resolution (1920x1080)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Increase browser zoom level to 200% using Ctrl + Plus key (or Cmd + Plus on Mac)",
+          "expectedResult": "Page content scales proportionally, notification bell icon remains visible and accessible in viewport"
+        },
+        {
+          "step": 2,
+          "action": "Click notification bell icon to open notification panel at 200% zoom",
+          "expectedResult": "Notification panel opens and fits within viewport without horizontal scrolling, content reflows appropriately, all text remains readable"
+        },
+        {
+          "step": 3,
+          "action": "Verify all notification content is visible without requiring horizontal scroll",
+          "expectedResult": "Notification title, description, frequency data, and action buttons are all visible, text wraps appropriately, no content is cut off or hidden"
+        },
+        {
+          "step": 4,
+          "action": "Navigate to notification preferences page at 200% zoom",
+          "expectedResult": "Form controls (checkboxes, dropdowns, buttons) remain functional and properly sized, labels are associated with controls, no overlapping elements"
+        },
+        {
+          "step": 5,
+          "action": "Test all interactive elements (buttons, links, form controls) at 200% zoom",
+          "expectedResult": "All interactive elements remain clickable with adequate touch target size (minimum 44x44 pixels), no functionality is lost due to zoom level"
+        }
+      ],
+      "postconditions": [
+        "Interface remains fully functional at 200% zoom per WCAG 2.1 AA requirement",
+        "No horizontal scrolling is required to view content",
+        "All text is readable and all functionality is accessible",
+        "Layout adapts responsively to increased zoom level"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify ARIA live regions announce dynamic notification updates appropriately",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "Screen reader (NVDA or JAWS) is active",
+        "User is on Scheduling Dashboard with notification panel closed",
+        "System is about to detect a new recurring conflict"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Trigger a recurring conflict while user is focused on a different part of the page",
+          "expectedResult": "ARIA live region with aria-live='assertive' announces: 'New recurring conflict detected. Conference Room A has conflicted 4 times.' without interrupting user's current task"
+        },
+        {
+          "step": 2,
+          "action": "Open notification panel and mark a notification as read",
+          "expectedResult": "ARIA live region with aria-live='polite' announces: 'Notification marked as read' after user completes current action"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Resolve Conflict' button and wait for system to process resolution",
+          "expectedResult": "ARIA live region announces: 'Processing conflict resolution...' followed by 'Conflict resolved successfully. Schedule updated.' with appropriate timing"
+        },
+        {
+          "step": 4,
+          "action": "Verify notification count badge updates when new notification arrives",
+          "expectedResult": "Badge count updates visually AND aria-label updates from 'Notifications button, 1 unread' to 'Notifications button, 2 unread', screen reader announces update"
+        },
+        {
+          "step": 5,
+          "action": "Test error scenario: attempt to resolve conflict when network is offline",
+          "expectedResult": "ARIA live region with aria-live='assertive' immediately announces: 'Error: Unable to resolve conflict. Network connection lost. Please try again.' with role='alert'"
+        }
+      ],
+      "postconditions": [
+        "All dynamic content changes are announced to screen reader users",
+        "ARIA live regions use appropriate politeness levels (assertive for urgent, polite for non-urgent)",
+        "Announcements provide complete context without being overly verbose",
+        "Error messages are announced immediately with assertive politeness"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "Verify focus management when opening and closing notification modals and dialogs",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Scheduler",
+        "Recurring conflict notification is present",
+        "User is navigating using keyboard only",
+        "Focus is currently on a button in the main content area"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key until notification bell icon receives focus, then press Enter to open notification panel",
+          "expectedResult": "Notification panel opens, focus automatically moves to first focusable element inside panel (close button or first notification), focus is trapped within panel (Tab cycles through panel elements only)"
+        },
+        {
+          "step": 2,
+          "action": "Press Tab key repeatedly to cycle through all focusable elements in notification panel",
+          "expectedResult": "Focus cycles through: close button, notification items, action buttons, and returns to close button, focus never escapes to background content"
+        },
+        {
+          "step": 3,
+          "action": "Click 'View Alternatives' button to open alternatives modal",
+          "expectedResult": "Alternatives modal opens, focus moves to modal's first focusable element (close button or first alternative option), notification panel remains open in background but is not focusable"
+        },
+        {
+          "step": 4,
+          "action": "Press Escape key to close alternatives modal",
+          "expectedResult": "Alternatives modal closes, focus returns to 'View Alternatives' button in notification panel (the element that triggered the modal)"
+        },
+        {
+          "step": 5,
+          "action": "Press Escape key again to close notification panel",
+          "expectedResult": "Notification panel closes, focus returns to notification bell icon (the element that opened the panel), user can continue keyboard navigation from that point"
+        }
+      ],
+      "postconditions": [
+        "Focus is properly managed when opening and closing dialogs",
+        "Focus returns to triggering element when dialogs close",
+        "Focus is trapped within modal dialogs (cannot Tab to background)",
+        "Escape key closes dialogs and returns focus appropriately"
+      ]
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true
+  },
+  "userStoryObject": {
+    "id": "story-7",
+    "title": "As Scheduler, I want to receive notifications for recurring conflicts to proactively manage scheduling",
+    "epicId": "epic-2",
+    "persona": "Scheduler",
+    "priority": "Medium",
+    "subtasks": [
+      {
+        "category": "Planning",
+        "description": "Define criteria for identifying recurring conflicts",
+        "estimatedHours": 3
+      },
+      {
+        "category": "Backend",
+        "description": "Implement logic for detecting recurring conflicts",
+        "estimatedHours": 6
+      },
+      {
+        "category": "Testing",
+        "description": "Create tests for recurring conflict detection and notification",
+        "estimatedHours": 5
+      },
+      {
+        "category": "Documentation",
+        "description": "Document the process for identifying and notifying recurring conflicts",
+        "estimatedHours": 2
+      }
+    ],
+    "featureId": "feature-4",
+    "testCases": [
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Trigger a recurring conflict scenario",
+            "result": "System identifies the recurring conflict"
+          },
+          {
+            "step": 2,
+            "action": "Check the user's notification channel",
+            "result": "User receives a notification about the recurring conflict"
+          },
+          {
+            "step": 3,
+            "action": "Review the notification details",
+            "result": "Notification contains accurate information about the recurring conflict"
+          }
+        ],
+        "title": "Validate notification for recurring conflicts"
+      },
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to notification preferences",
+            "result": "User accesses notification settings"
+          },
+          {
+            "step": 2,
+            "action": "Change notification settings for recurring conflicts",
+            "result": "System saves the new preferences"
+          },
+          {
+            "step": 3,
+            "action": "Trigger a recurring conflict",
+            "result": "User receives notification based on updated preferences"
+          }
+        ],
+        "title": "Ensure users can customize preferences for recurring conflict notifications"
+      }
+    ],
+    "description": "CONTEXT & BACKGROUND:\nThis story allows users to be notified of recurring scheduling conflicts, enabling proactive management of scheduling.\n\nCURRENT STATE:\nCurrently, users are unaware of recurring conflicts, leading to repeated scheduling issues.\n\nDESIRED STATE:\nThe system should notify users of any recurring conflicts, allowing them to adjust schedules accordingly.\n\nKEY FUNCTIONALITY:\n• Identify recurring conflicts based on historical data.\n• Send notifications for recurring conflicts.\n• Allow users to set preferences for recurring conflict notifications.\n• Provide insights into the frequency of recurring conflicts.\n• Enable users to take corrective actions based on notifications.\n\nUSER INTERACTION FLOW:\n1. System analyzes historical conflict data for patterns.\n2. System identifies recurring conflicts.\n3. System sends notifications to users about recurring conflicts.\n4. User reviews the notifications.\n5. User adjusts scheduling as necessary.\n\nTECHNICAL CONSIDERATIONS:\n• Data source: Historical conflict database.\n• Validation rules: Ensure accurate identification of recurring conflicts.\n• API endpoints: GET /api/conflicts/recurring for retrieving recurring conflict data.\n• Security: User authentication required for accessing notifications.\n• Performance: Notifications sent within 5 seconds of detection.\n\nOUT OF SCOPE:\n• Analysis of one-time conflicts.\n\nSUCCESS METRICS:\n• 75% of users report improved scheduling due to awareness of recurring conflicts.",
+    "storyPoints": 5,
+    "personaSource": "AI Suggested",
+    "acceptanceCriteria": [
+      "System identifies recurring conflicts based on historical data.",
+      "Users receive notifications for any recurring conflicts detected.",
+      "Users can customize their preferences for recurring conflict notifications."
+    ]
+  }
+}
