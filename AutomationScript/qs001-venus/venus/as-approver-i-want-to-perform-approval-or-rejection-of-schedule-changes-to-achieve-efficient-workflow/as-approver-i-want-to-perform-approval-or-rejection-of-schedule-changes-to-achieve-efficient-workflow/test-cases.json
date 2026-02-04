@@ -1,0 +1,1238 @@
+{
+  "storyId": "story-9",
+  "storyTitle": "As Approver, I want to perform approval or rejection of schedule changes to achieve efficient workflow.",
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify approver can successfully approve a pending schedule change request with comments",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Approver role and has valid session token",
+        "At least one pending schedule change request exists in the system",
+        "Approver has permission to access the pending requests section",
+        "Database connection is active and Schedule Change Requests table is accessible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the approver dashboard by clicking 'Dashboard' in the main navigation menu",
+          "expectedResult": "Dashboard page loads successfully within 2 seconds showing overview of pending requests count"
+        },
+        {
+          "step": 2,
+          "action": "Click on 'Pending Requests' tab or section in the dashboard",
+          "expectedResult": "List of all pending schedule change requests is displayed with columns: Request ID, Requester Name, Date Submitted, Schedule Details, and Action buttons"
+        },
+        {
+          "step": 3,
+          "action": "Select a specific pending request by clicking on the request row to view full details",
+          "expectedResult": "Request details modal or page opens showing complete information including requester name, current schedule, proposed schedule, reason for change, and submission date"
+        },
+        {
+          "step": 4,
+          "action": "Click the 'Approve' button in the request details view",
+          "expectedResult": "Comment text area appears with optional label 'Add approval comments (optional)' and 'Confirm Approval' button is enabled"
+        },
+        {
+          "step": 5,
+          "action": "Enter approval comment 'Approved due to valid business justification' in the comment text area",
+          "expectedResult": "Text is entered successfully in the comment field with character count displayed if applicable"
+        },
+        {
+          "step": 6,
+          "action": "Click 'Confirm Approval' button to submit the approval decision",
+          "expectedResult": "Success message 'Schedule change request has been approved successfully' appears in green banner at top of page, request status updates to 'Approved', and page refreshes to show updated pending requests list"
+        },
+        {
+          "step": 7,
+          "action": "Verify notification was sent by checking system notifications or email logs",
+          "expectedResult": "Notification is sent to the requester containing approval decision, approver name, approval comments, and timestamp"
+        }
+      ],
+      "postconditions": [
+        "Request status is updated to 'Approved' in Schedule Change Requests table",
+        "Approval decision with comments and timestamp is recorded in the request history",
+        "Requester receives notification via email and in-app notification about the approval",
+        "Approver remains on the pending requests page with updated list excluding the approved request"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify approver can successfully reject a pending schedule change request with mandatory comments",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Approver role and valid authentication",
+        "At least one pending schedule change request exists in the system",
+        "Approver has necessary permissions to reject requests",
+        "System is connected to notification service for sending rejection alerts"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Log into the system using valid approver credentials (username: approver@company.com, password: valid_password)",
+          "expectedResult": "Login successful and approver dashboard is displayed with 'Welcome, [Approver Name]' message"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to 'Pending Requests' section by clicking the menu item in left sidebar",
+          "expectedResult": "Pending requests page loads showing table with all pending schedule change requests sorted by submission date (newest first)"
+        },
+        {
+          "step": 3,
+          "action": "Click on a specific request row to open the request details",
+          "expectedResult": "Request details panel expands or modal opens showing full request information including requester details, current vs proposed schedule, and reason for change"
+        },
+        {
+          "step": 4,
+          "action": "Click the 'Reject' button located at the bottom of the request details",
+          "expectedResult": "Rejection comment dialog appears with mandatory text area labeled 'Rejection reason (required)' marked with red asterisk, and 'Confirm Rejection' button is initially disabled"
+        },
+        {
+          "step": 5,
+          "action": "Enter rejection reason 'Request conflicts with operational requirements and staffing constraints' in the mandatory comment field",
+          "expectedResult": "Text is entered successfully, character count shows remaining characters (if limit exists), and 'Confirm Rejection' button becomes enabled"
+        },
+        {
+          "step": 6,
+          "action": "Click 'Confirm Rejection' button to submit the rejection decision",
+          "expectedResult": "Success message 'Schedule change request has been rejected' appears, request status updates to 'Rejected', and the request is removed from pending list or moved to rejected section"
+        }
+      ],
+      "postconditions": [
+        "Request status is updated to 'Rejected' in the database with rejection timestamp",
+        "Rejection comments are saved and associated with the request in history log",
+        "Requester receives notification containing rejection decision, reason, and approver information",
+        "Request no longer appears in pending requests list but is accessible in history or rejected requests section"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify pending requests list displays all relevant information and filters correctly",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "Multiple pending schedule change requests exist in the system (at least 5 requests)",
+        "Requests have different submission dates and requesters",
+        "Browser cache is cleared to ensure fresh data load"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the pending requests section from the approver dashboard",
+          "expectedResult": "Pending requests page loads within 2 seconds displaying a table with columns: Request ID, Requester Name, Submission Date, Current Schedule, Proposed Schedule, Status, and Actions"
+        },
+        {
+          "step": 2,
+          "action": "Verify all pending requests are displayed with status 'Pending'",
+          "expectedResult": "All requests in the list show 'Pending' status badge in yellow or orange color, and no approved or rejected requests are visible"
+        },
+        {
+          "step": 3,
+          "action": "Check that each request row displays complete information including requester name, dates, and action buttons",
+          "expectedResult": "Each row shows full requester name, formatted submission date (MM/DD/YYYY), schedule details, and both 'Approve' and 'Reject' action buttons are visible and enabled"
+        },
+        {
+          "step": 4,
+          "action": "Click on column headers to sort the list (e.g., click 'Submission Date' header)",
+          "expectedResult": "List is sorted by submission date in descending order (newest first), and sort indicator (arrow icon) appears next to column header"
+        },
+        {
+          "step": 5,
+          "action": "Use search or filter functionality if available to filter by requester name",
+          "expectedResult": "List filters to show only requests matching the search criteria, with result count displayed"
+        }
+      ],
+      "postconditions": [
+        "All pending requests remain in 'Pending' status",
+        "No data is modified during view-only operations",
+        "User session remains active",
+        "Page state is maintained for subsequent actions"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify approval decision history is maintained and accessible for audit purposes",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "At least one schedule change request has been previously approved or rejected",
+        "Request history feature is enabled in the system",
+        "User has permission to view historical decisions"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to 'Request History' or 'All Requests' section from the main navigation menu",
+          "expectedResult": "History page loads showing table with all requests including pending, approved, and rejected statuses"
+        },
+        {
+          "step": 2,
+          "action": "Filter the list to show only 'Approved' or 'Rejected' requests using status filter dropdown",
+          "expectedResult": "List updates to display only requests with selected status, showing approval/rejection date, approver name, and decision comments"
+        },
+        {
+          "step": 3,
+          "action": "Click on a previously approved or rejected request to view full decision history",
+          "expectedResult": "Request details page opens showing complete audit trail including: original submission details, approval/rejection decision, approver name, decision timestamp, and all comments provided"
+        },
+        {
+          "step": 4,
+          "action": "Verify that decision timestamp is accurate and matches the actual approval/rejection time",
+          "expectedResult": "Timestamp is displayed in format 'MM/DD/YYYY HH:MM AM/PM' and matches the time when decision was made"
+        },
+        {
+          "step": 5,
+          "action": "Check that approver name and comments are correctly recorded in the history",
+          "expectedResult": "Approver's full name is displayed, and all comments entered during approval/rejection are visible and complete"
+        }
+      ],
+      "postconditions": [
+        "Historical data remains unchanged and intact",
+        "Audit trail is complete and accurate for compliance purposes",
+        "User can export or print history if needed",
+        "No modifications are made to historical records"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify notification is sent to requester immediately upon approval with correct content",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "A pending schedule change request exists submitted by a valid requester",
+        "Notification service is running and configured correctly",
+        "Requester has valid email address and notification preferences enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to pending requests and select a request submitted by a specific requester",
+          "expectedResult": "Request details are displayed showing requester email address and contact information"
+        },
+        {
+          "step": 2,
+          "action": "Approve the request by clicking 'Approve' button and adding comment 'Approved for next quarter'",
+          "expectedResult": "Approval is processed successfully and confirmation message appears"
+        },
+        {
+          "step": 3,
+          "action": "Check the requester's email inbox or in-app notifications within 30 seconds",
+          "expectedResult": "Notification is received containing: subject line 'Your schedule change request has been approved', approver name, approval date/time, approval comments, and link to view request details"
+        },
+        {
+          "step": 4,
+          "action": "Verify notification content includes all required information: request ID, decision, approver, comments, and timestamp",
+          "expectedResult": "All required fields are present in the notification with accurate information matching the approval decision"
+        },
+        {
+          "step": 5,
+          "action": "Click the link in the notification to view request details",
+          "expectedResult": "Link redirects to the request details page showing approved status and full approval information"
+        }
+      ],
+      "postconditions": [
+        "Notification is successfully delivered to requester via email and in-app notification",
+        "Notification log records the successful delivery with timestamp",
+        "Requester is informed of the approval decision within acceptable timeframe",
+        "No duplicate notifications are sent"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify system performance meets requirement of response time under 2 seconds for approval actions",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "System is under normal load conditions",
+        "At least one pending request exists",
+        "Performance monitoring tools are available to measure response time"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Start performance timer and navigate to pending requests section",
+          "expectedResult": "Pending requests page loads and timer records the load time"
+        },
+        {
+          "step": 2,
+          "action": "Select a pending request and click 'Approve' button, measure time from click to success message",
+          "expectedResult": "Approval action completes and success message appears within 2 seconds, timer shows elapsed time less than 2000ms"
+        },
+        {
+          "step": 3,
+          "action": "Verify API response time by checking network tab in browser developer tools for PUT /api/scheduleChangeRequests/{id} call",
+          "expectedResult": "API call completes with status 200 OK and response time is under 2 seconds as shown in network timing"
+        },
+        {
+          "step": 4,
+          "action": "Repeat the approval action for multiple requests (at least 3) to verify consistent performance",
+          "expectedResult": "All approval actions complete within 2 seconds consistently, with average response time under 1.5 seconds"
+        }
+      ],
+      "postconditions": [
+        "All approval actions meet the performance requirement of under 2 seconds",
+        "System performance metrics are logged for monitoring",
+        "No performance degradation is observed during testing",
+        "User experience is smooth without noticeable delays"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify system prevents approval/rejection when mandatory rejection comment is empty",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "At least one pending schedule change request exists",
+        "System enforces mandatory comments for rejection actions",
+        "User is on the request details page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to pending requests and select a request to reject",
+          "expectedResult": "Request details are displayed with 'Reject' button visible"
+        },
+        {
+          "step": 2,
+          "action": "Click the 'Reject' button to open rejection dialog",
+          "expectedResult": "Rejection dialog appears with mandatory comment field marked with red asterisk and 'Confirm Rejection' button is disabled"
+        },
+        {
+          "step": 3,
+          "action": "Leave the rejection comment field empty and attempt to click 'Confirm Rejection' button",
+          "expectedResult": "'Confirm Rejection' button remains disabled and cannot be clicked"
+        },
+        {
+          "step": 4,
+          "action": "Enter only whitespace characters (spaces, tabs) in the comment field and try to submit",
+          "expectedResult": "Validation error message 'Rejection reason is required' appears in red text below the comment field, and submission is prevented"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Confirm Rejection' button if it becomes enabled",
+          "expectedResult": "Form validation prevents submission and error message 'Please provide a valid rejection reason' is displayed"
+        }
+      ],
+      "postconditions": [
+        "Request status remains 'Pending' and is not changed to 'Rejected'",
+        "No notification is sent to the requester",
+        "No database update occurs for the request",
+        "User remains on the rejection dialog with error message visible"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify unauthorized user without Approver role cannot access pending requests or perform approval actions",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with non-Approver role (e.g., Regular Employee, Viewer)",
+        "Pending schedule change requests exist in the system",
+        "Role-based access control is properly configured",
+        "User does not have approval permissions in their role"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to navigate to pending requests section by typing URL directly: /approver/pending-requests",
+          "expectedResult": "Access is denied with error message 'Access Denied: You do not have permission to view this page' or redirect to unauthorized page (403 Forbidden)"
+        },
+        {
+          "step": 2,
+          "action": "Try to access the approver dashboard from main navigation menu",
+          "expectedResult": "Approver-specific menu items are not visible or are disabled for non-approver users"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to make direct API call to approve a request: PUT /api/scheduleChangeRequests/123 with approval payload",
+          "expectedResult": "API returns 403 Forbidden status with error message 'Insufficient permissions to perform this action'"
+        },
+        {
+          "step": 4,
+          "action": "Try to access request details by direct URL if request ID is known",
+          "expectedResult": "Access is denied or page shows error 'You do not have permission to view or modify this request'"
+        }
+      ],
+      "postconditions": [
+        "No requests are approved or rejected by unauthorized user",
+        "Security audit log records the unauthorized access attempt with user ID and timestamp",
+        "User session remains active but access to approver functions is blocked",
+        "No data is modified or exposed to unauthorized user"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify system handles network failure gracefully during approval submission",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "A pending request is selected for approval",
+        "Network connectivity can be simulated to fail (using browser dev tools or network proxy)",
+        "User is on the approval confirmation screen"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select a pending request and click 'Approve' button, enter approval comments",
+          "expectedResult": "Approval dialog is displayed with comments entered and 'Confirm Approval' button is ready"
+        },
+        {
+          "step": 2,
+          "action": "Simulate network failure by disconnecting network or using browser dev tools to set offline mode",
+          "expectedResult": "Network is disconnected successfully"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Confirm Approval' button to submit the approval",
+          "expectedResult": "Loading indicator appears briefly, then error message 'Network error: Unable to submit approval. Please check your connection and try again.' is displayed in red banner"
+        },
+        {
+          "step": 4,
+          "action": "Verify that request status has not changed in the database",
+          "expectedResult": "Request remains in 'Pending' status and no partial update has occurred"
+        },
+        {
+          "step": 5,
+          "action": "Restore network connection and click 'Retry' button or resubmit the approval",
+          "expectedResult": "Approval is submitted successfully and success message appears"
+        }
+      ],
+      "postconditions": [
+        "No data corruption occurs due to network failure",
+        "Request status is not partially updated",
+        "User can retry the action after network is restored",
+        "Error is logged in system error logs with appropriate details"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify system prevents double submission when approver clicks approve button multiple times rapidly",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "A pending schedule change request exists",
+        "User is on the approval confirmation screen",
+        "System should have double-submission prevention mechanism"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to pending requests and select a request to approve",
+          "expectedResult": "Request details are displayed with 'Approve' button visible"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Approve' button and enter approval comments 'Approved for implementation'",
+          "expectedResult": "Approval dialog appears with comments entered"
+        },
+        {
+          "step": 3,
+          "action": "Rapidly click 'Confirm Approval' button multiple times (5-10 clicks) in quick succession",
+          "expectedResult": "Button becomes disabled after first click, loading indicator appears, and subsequent clicks are ignored"
+        },
+        {
+          "step": 4,
+          "action": "Check the request status and notification logs after submission completes",
+          "expectedResult": "Request is approved only once, status shows 'Approved' with single timestamp, and only one notification is sent to requester"
+        },
+        {
+          "step": 5,
+          "action": "Verify in database that only one approval record exists for this request",
+          "expectedResult": "Database shows single approval entry with one timestamp and no duplicate records"
+        }
+      ],
+      "postconditions": [
+        "Request is approved exactly once despite multiple clicks",
+        "Only one notification is sent to the requester",
+        "No duplicate approval records exist in the database",
+        "System maintains data integrity and prevents race conditions"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify system handles expired session gracefully when approver attempts to approve request",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "Session timeout is configured (e.g., 30 minutes of inactivity)",
+        "A pending request is displayed on screen",
+        "User session is about to expire or has expired"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Log in as approver and navigate to pending requests page",
+          "expectedResult": "Pending requests are displayed successfully"
+        },
+        {
+          "step": 2,
+          "action": "Wait for session to expire (or manually expire session token in browser storage/cookies)",
+          "expectedResult": "Session expires after configured timeout period"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to approve a request by clicking 'Approve' button and submitting approval",
+          "expectedResult": "System detects expired session and displays error message 'Your session has expired. Please log in again to continue.' with redirect to login page"
+        },
+        {
+          "step": 4,
+          "action": "Verify that no approval action was processed with expired session",
+          "expectedResult": "Request status remains 'Pending' and no database update occurred"
+        },
+        {
+          "step": 5,
+          "action": "Log in again and verify the request is still pending and can be approved",
+          "expectedResult": "After re-login, request is still in pending status and can be successfully approved"
+        }
+      ],
+      "postconditions": [
+        "No approval action is processed with expired session token",
+        "User is redirected to login page to re-authenticate",
+        "Request data remains unchanged and secure",
+        "After re-login, user can complete the approval action successfully"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify system handles invalid or non-existent request ID gracefully",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "User has access to pending requests section",
+        "System has valid pending requests in database",
+        "User can manipulate URL or API calls"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to access request details by entering invalid request ID in URL: /requests/99999999 (non-existent ID)",
+          "expectedResult": "System displays error page with message 'Request not found' or '404 - The requested schedule change request does not exist'"
+        },
+        {
+          "step": 2,
+          "action": "Try to access request with alphanumeric or special characters in ID: /requests/ABC@123",
+          "expectedResult": "System returns error 'Invalid request ID format' or 400 Bad Request"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to approve non-existent request via API call: PUT /api/scheduleChangeRequests/99999999 with approval payload",
+          "expectedResult": "API returns 404 Not Found with error message 'Schedule change request with ID 99999999 not found'"
+        },
+        {
+          "step": 4,
+          "action": "Try to approve a request that has already been approved or rejected (using ID of processed request)",
+          "expectedResult": "System displays error 'This request has already been processed and cannot be modified' or returns 409 Conflict status"
+        }
+      ],
+      "postconditions": [
+        "No invalid data is processed or stored in database",
+        "Appropriate error messages are displayed to user",
+        "System logs the invalid request attempt for security monitoring",
+        "User is redirected back to pending requests list or error page"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Verify system handles approval comment at maximum character limit boundary",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "A pending schedule change request exists",
+        "System has defined maximum character limit for comments (e.g., 1000 characters)",
+        "User is on the approval dialog screen"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to pending requests and select a request to approve",
+          "expectedResult": "Request details and approval dialog are displayed"
+        },
+        {
+          "step": 2,
+          "action": "Enter approval comment with exactly maximum allowed characters (e.g., 1000 characters)",
+          "expectedResult": "All characters are accepted, character counter shows '1000/1000' or '0 characters remaining', and 'Confirm Approval' button remains enabled"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to enter one more character beyond the maximum limit",
+          "expectedResult": "Additional character is not accepted, input field prevents further typing, or shows validation message 'Maximum character limit reached'"
+        },
+        {
+          "step": 4,
+          "action": "Submit the approval with maximum length comment by clicking 'Confirm Approval'",
+          "expectedResult": "Approval is processed successfully, success message appears, and full comment is saved without truncation"
+        },
+        {
+          "step": 5,
+          "action": "Verify the saved comment in request history displays the complete text without truncation",
+          "expectedResult": "Full comment text (all 1000 characters) is visible in request history and notification sent to requester"
+        }
+      ],
+      "postconditions": [
+        "Approval is recorded with complete comment text at maximum length",
+        "No data truncation or loss occurs",
+        "Comment is fully visible in all views (history, notifications, audit logs)",
+        "Database field accommodates the maximum character limit"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Verify system behavior when approver has pending requests list with zero items",
+      "category": "Edge Cases",
+      "priority": "Low",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "No pending schedule change requests exist in the system (all requests are either approved or rejected)",
+        "User has permission to access pending requests section",
+        "Database is accessible and functioning"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the pending requests section from approver dashboard",
+          "expectedResult": "Pending requests page loads successfully within 2 seconds"
+        },
+        {
+          "step": 2,
+          "action": "Observe the display when no pending requests exist",
+          "expectedResult": "Empty state message is displayed: 'No pending requests at this time' or 'All requests have been processed' with appropriate icon or illustration"
+        },
+        {
+          "step": 3,
+          "action": "Verify that table headers and filter options are still visible",
+          "expectedResult": "Table structure remains visible with column headers, but no data rows are shown, and filters/search remain functional"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to use search or filter functionality on empty list",
+          "expectedResult": "Search and filter controls remain functional and show 'No results found' message when applied"
+        },
+        {
+          "step": 5,
+          "action": "Refresh the page to ensure empty state persists correctly",
+          "expectedResult": "Page reloads and continues to show empty state message without errors"
+        }
+      ],
+      "postconditions": [
+        "No errors or crashes occur when viewing empty pending requests list",
+        "User interface displays appropriate empty state messaging",
+        "User can navigate away from empty list without issues",
+        "System performance is not degraded by empty data set"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Verify system handles approval comment with special characters, Unicode, and emojis",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "A pending schedule change request exists",
+        "System supports UTF-8 character encoding",
+        "User is on the approval dialog screen"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to pending requests and select a request to approve",
+          "expectedResult": "Approval dialog is displayed with comment text area"
+        },
+        {
+          "step": 2,
+          "action": "Enter approval comment containing special characters: 'Approved! @#$%^&*()_+-={}[]|:;<>?,./~`'",
+          "expectedResult": "All special characters are accepted and displayed correctly in the text area"
+        },
+        {
+          "step": 3,
+          "action": "Add Unicode characters and emojis to the comment: 'Approved ✓ 👍 Great work! Café résumé naïve'",
+          "expectedResult": "Unicode characters and emojis are accepted, displayed correctly, and character count updates appropriately"
+        },
+        {
+          "step": 4,
+          "action": "Submit the approval with special characters and Unicode by clicking 'Confirm Approval'",
+          "expectedResult": "Approval is processed successfully without encoding errors, and success message appears"
+        },
+        {
+          "step": 5,
+          "action": "Verify the saved comment displays correctly in request history and notification",
+          "expectedResult": "All special characters, Unicode, and emojis are preserved and displayed correctly in history view and email notification without corruption or replacement characters"
+        }
+      ],
+      "postconditions": [
+        "Comment with special characters is saved correctly in database with proper encoding",
+        "All characters display correctly across different views and platforms",
+        "No character corruption or data loss occurs",
+        "Notification email renders special characters and emojis properly"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Verify system performance when approver views pending requests list with very large dataset (1000+ requests)",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "System contains 1000 or more pending schedule change requests in database",
+        "Pagination or lazy loading is implemented for large datasets",
+        "System is under normal load conditions"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to pending requests section with 1000+ pending requests",
+          "expectedResult": "Page loads within 2 seconds showing first page of results (e.g., 50 or 100 requests per page) with pagination controls visible"
+        },
+        {
+          "step": 2,
+          "action": "Verify that pagination controls display total count: 'Showing 1-50 of 1000 requests'",
+          "expectedResult": "Pagination information is accurate and controls (Next, Previous, Page numbers) are functional"
+        },
+        {
+          "step": 3,
+          "action": "Navigate to different pages using pagination controls (page 2, page 10, last page)",
+          "expectedResult": "Each page loads within 2 seconds, displays correct subset of requests, and maintains consistent performance"
+        },
+        {
+          "step": 4,
+          "action": "Use search functionality to filter large dataset by requester name or date range",
+          "expectedResult": "Search results return within 2 seconds with accurate filtered results and updated pagination"
+        },
+        {
+          "step": 5,
+          "action": "Sort the large dataset by different columns (submission date, requester name)",
+          "expectedResult": "Sorting completes within 2 seconds and results are correctly ordered across all pages"
+        }
+      ],
+      "postconditions": [
+        "System maintains performance requirements with large dataset",
+        "No browser freezing or unresponsiveness occurs",
+        "Memory usage remains within acceptable limits",
+        "All requests remain accessible and functional through pagination"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Verify system handles concurrent approval attempts by multiple approvers on the same request",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "Two or more users are logged in with Approver role in different browser sessions",
+        "A single pending schedule change request exists and is visible to all approvers",
+        "System has concurrency control mechanism implemented",
+        "Both approvers are viewing the same request details simultaneously"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Approver 1 navigates to pending requests and selects request ID 12345 to approve",
+          "expectedResult": "Request details are displayed for Approver 1 with 'Approve' button enabled"
+        },
+        {
+          "step": 2,
+          "action": "Approver 2 simultaneously navigates to the same request ID 12345 in a different browser session",
+          "expectedResult": "Request details are displayed for Approver 2 with 'Approve' button enabled"
+        },
+        {
+          "step": 3,
+          "action": "Approver 1 clicks 'Approve', enters comment 'Approved by Manager A', and clicks 'Confirm Approval'",
+          "expectedResult": "Approval is processed successfully for Approver 1, success message appears, and request status updates to 'Approved'"
+        },
+        {
+          "step": 4,
+          "action": "Approver 2 attempts to approve the same request immediately after (within seconds) by clicking 'Approve' and 'Confirm Approval'",
+          "expectedResult": "System detects request has already been processed and displays error message 'This request has already been approved by another approver' or 'Request status has changed. Please refresh to see current status.'"
+        },
+        {
+          "step": 5,
+          "action": "Verify in database that only one approval record exists with Approver 1's information",
+          "expectedResult": "Database shows single approval entry with Approver 1's name, timestamp, and comments. No duplicate or conflicting approval exists."
+        }
+      ],
+      "postconditions": [
+        "Request is approved exactly once by the first approver to submit",
+        "Second approver's attempt is rejected with appropriate error message",
+        "Only one notification is sent to the requester",
+        "Data integrity is maintained with no conflicting approval records"
+      ]
+    },
+    {
+      "id": "TC-EDGE-006",
+      "title": "Verify system behavior when notification service is unavailable during approval submission",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "A pending schedule change request exists",
+        "Notification service can be simulated as unavailable or down",
+        "System has fallback mechanism or retry logic for notifications"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Simulate notification service failure (disable email service or mock API to return error)",
+          "expectedResult": "Notification service is unavailable or returning error responses"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to pending requests and select a request to approve",
+          "expectedResult": "Request details are displayed normally"
+        },
+        {
+          "step": 3,
+          "action": "Approve the request by clicking 'Approve', entering comments, and clicking 'Confirm Approval'",
+          "expectedResult": "Approval is processed and request status is updated to 'Approved' in database, but notification fails to send"
+        },
+        {
+          "step": 4,
+          "action": "Verify system displays appropriate message about notification failure: 'Request approved successfully, but notification could not be sent. It will be retried automatically.'",
+          "expectedResult": "User sees success message for approval with warning about notification failure, and approval is still recorded"
+        },
+        {
+          "step": 5,
+          "action": "Check notification queue or retry mechanism to ensure notification is queued for retry",
+          "expectedResult": "Failed notification is added to retry queue with request details, and system will attempt to resend when service is available"
+        },
+        {
+          "step": 6,
+          "action": "Restore notification service and verify notification is eventually sent",
+          "expectedResult": "Once service is restored, queued notification is sent successfully to requester with all approval details"
+        }
+      ],
+      "postconditions": [
+        "Approval decision is saved successfully despite notification failure",
+        "Request status is correctly updated to 'Approved'",
+        "Notification failure is logged for monitoring and troubleshooting",
+        "System implements retry mechanism to ensure eventual notification delivery"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Verify complete keyboard navigation for approval workflow without mouse interaction",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "At least one pending schedule change request exists",
+        "User is on the approver dashboard",
+        "Keyboard is the only input device being used (no mouse)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key repeatedly to navigate through dashboard elements to reach 'Pending Requests' link",
+          "expectedResult": "Focus indicator (visible outline or highlight) moves sequentially through interactive elements, and 'Pending Requests' link receives visible focus with clear border or background change"
+        },
+        {
+          "step": 2,
+          "action": "Press Enter key when 'Pending Requests' link has focus to navigate to pending requests page",
+          "expectedResult": "Pending requests page loads successfully, and focus moves to first interactive element on the page (skip link or first request in list)"
+        },
+        {
+          "step": 3,
+          "action": "Use Tab key to navigate through the list of pending requests, and press Enter on a specific request to view details",
+          "expectedResult": "Focus moves through each request row with visible focus indicator, and pressing Enter opens request details modal or page"
+        },
+        {
+          "step": 4,
+          "action": "In request details, use Tab to navigate to 'Approve' button and press Enter to open approval dialog",
+          "expectedResult": "Approval dialog opens, focus automatically moves to first interactive element in dialog (comment text area), and focus is trapped within the modal"
+        },
+        {
+          "step": 5,
+          "action": "Type approval comment using keyboard, then Tab to 'Confirm Approval' button and press Enter",
+          "expectedResult": "Comment is entered successfully, Tab moves focus to 'Confirm Approval' button with visible focus indicator, and Enter key submits the approval"
+        },
+        {
+          "step": 6,
+          "action": "After approval, verify focus returns to appropriate element (pending requests list or success message)",
+          "expectedResult": "Focus is managed properly after modal closes, returning to logical position (e.g., next request in list or success banner), and user can continue keyboard navigation"
+        },
+        {
+          "step": 7,
+          "action": "Press Escape key when approval dialog is open to test cancel functionality",
+          "expectedResult": "Dialog closes without submitting approval, and focus returns to the element that triggered the dialog ('Approve' button)"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements are accessible via keyboard navigation",
+        "Focus order is logical and follows visual layout",
+        "Focus is never trapped in a way that prevents navigation",
+        "User can complete entire approval workflow using only keyboard"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Verify screen reader announces all critical information and state changes during approval process",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "Screen reader software is active (NVDA, JAWS, or VoiceOver)",
+        "At least one pending schedule change request exists",
+        "User is on the pending requests page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to pending requests page and listen to screen reader announcement",
+          "expectedResult": "Screen reader announces page title 'Pending Schedule Change Requests', main heading level 1, and number of pending requests 'You have 5 pending requests'"
+        },
+        {
+          "step": 2,
+          "action": "Navigate through the pending requests table using screen reader table navigation commands",
+          "expectedResult": "Screen reader announces table structure: 'Table with 5 rows and 6 columns', column headers 'Request ID, Requester Name, Submission Date, Status, Actions', and cell content for each row"
+        },
+        {
+          "step": 3,
+          "action": "Focus on 'Approve' button for a specific request and listen to announcement",
+          "expectedResult": "Screen reader announces 'Approve button, for request ID 12345 submitted by John Doe' with appropriate role and state information"
+        },
+        {
+          "step": 4,
+          "action": "Activate 'Approve' button and listen to dialog announcement",
+          "expectedResult": "Screen reader announces 'Approval dialog, heading level 2: Approve Schedule Change Request', 'Comment text area, optional', and 'Confirm Approval button'"
+        },
+        {
+          "step": 5,
+          "action": "Enter comment in text area and listen to character echo and word feedback",
+          "expectedResult": "Screen reader provides character echo as user types and announces 'Comment text area, has text' when content is entered"
+        },
+        {
+          "step": 6,
+          "action": "Submit approval and listen to success message announcement",
+          "expectedResult": "Screen reader announces live region update: 'Success: Schedule change request has been approved successfully' with appropriate alert or status role"
+        },
+        {
+          "step": 7,
+          "action": "Navigate to request history and verify approved request is announced with updated status",
+          "expectedResult": "Screen reader announces 'Request ID 12345, Status: Approved, Approved by [Approver Name] on [Date]' with all relevant details"
+        }
+      ],
+      "postconditions": [
+        "All page elements have appropriate ARIA labels and roles",
+        "State changes are announced via ARIA live regions",
+        "Screen reader users can understand all information and complete tasks independently",
+        "No critical information is conveyed by visual means only"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify focus management and focus trap behavior in approval and rejection modals",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "At least one pending schedule change request exists",
+        "User is on the pending requests page",
+        "Keyboard is being used for navigation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to a pending request using Tab key and press Enter on 'Approve' button to open approval modal",
+          "expectedResult": "Approval modal opens and focus automatically moves to the first focusable element inside the modal (comment text area or close button)"
+        },
+        {
+          "step": 2,
+          "action": "Press Tab key repeatedly to cycle through all focusable elements within the modal",
+          "expectedResult": "Focus moves through: comment text area, 'Confirm Approval' button, 'Cancel' button, and close icon (X), then cycles back to first element. Focus remains trapped within modal and does not move to background content."
+        },
+        {
+          "step": 3,
+          "action": "Press Shift+Tab to navigate backwards through modal elements",
+          "expectedResult": "Focus moves in reverse order through modal elements, and when reaching first element, Shift+Tab moves focus to last element (circular focus trap)"
+        },
+        {
+          "step": 4,
+          "action": "Press Escape key to close the modal",
+          "expectedResult": "Modal closes and focus returns to the 'Approve' button that originally triggered the modal, with visible focus indicator"
+        },
+        {
+          "step": 5,
+          "action": "Open approval modal again, then click 'Cancel' button using keyboard (Tab to button, press Enter)",
+          "expectedResult": "Modal closes and focus returns to the 'Approve' button with visible focus indicator"
+        },
+        {
+          "step": 6,
+          "action": "Open rejection modal by pressing Enter on 'Reject' button and verify focus trap behavior",
+          "expectedResult": "Rejection modal opens with focus on comment text area (mandatory field), focus trap works correctly, and Escape key or Cancel button returns focus to 'Reject' button"
+        }
+      ],
+      "postconditions": [
+        "Focus is properly trapped within modal dialogs",
+        "Focus returns to triggering element when modal closes",
+        "Background content is not accessible while modal is open",
+        "Keyboard users can easily navigate and exit modals"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify color contrast ratios meet WCAG 2.1 AA standards for all text and interactive elements",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "Pending requests page is displayed with various UI elements",
+        "Color contrast checking tool is available (e.g., browser extension, WAVE, axe DevTools)",
+        "Page includes text, buttons, links, and status indicators"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use color contrast checker tool to measure contrast ratio of page heading 'Pending Schedule Change Requests' against background",
+          "expectedResult": "Contrast ratio is at least 4.5:1 for normal text (or 3:1 for large text 18pt+) meeting WCAG 2.1 AA standard"
+        },
+        {
+          "step": 2,
+          "action": "Check contrast ratio of body text in pending requests table (requester names, dates, request details) against background",
+          "expectedResult": "All body text has contrast ratio of at least 4.5:1 against background color"
+        },
+        {
+          "step": 3,
+          "action": "Measure contrast ratio of 'Approve' and 'Reject' buttons in default state (text color vs button background)",
+          "expectedResult": "Button text has contrast ratio of at least 4.5:1 against button background, and button background has at least 3:1 contrast against page background"
+        },
+        {
+          "step": 4,
+          "action": "Check contrast ratio of buttons in hover and focus states",
+          "expectedResult": "Hover and focus states maintain minimum 4.5:1 contrast ratio for text, and focus indicator has at least 3:1 contrast against background"
+        },
+        {
+          "step": 5,
+          "action": "Verify contrast of status indicators (Pending, Approved, Rejected badges) including text and background colors",
+          "expectedResult": "Status badge text has 4.5:1 contrast against badge background, and badges are distinguishable by more than color alone (icons or text labels)"
+        },
+        {
+          "step": 6,
+          "action": "Check contrast of error messages, success messages, and validation text",
+          "expectedResult": "All feedback messages have sufficient contrast (4.5:1 minimum) and are not conveyed by color alone"
+        },
+        {
+          "step": 7,
+          "action": "Test link text contrast in different states (default, visited, hover, focus)",
+          "expectedResult": "Links have 4.5:1 contrast in all states and are distinguishable from surrounding text by more than color (underline or other visual indicator)"
+        }
+      ],
+      "postconditions": [
+        "All text meets WCAG 2.1 AA contrast requirements (4.5:1 for normal text, 3:1 for large text)",
+        "Interactive elements have sufficient contrast in all states",
+        "Information is not conveyed by color alone",
+        "Users with low vision or color blindness can read all content"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify page functionality and layout at 200% browser zoom level",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "Pending requests page is displayed in browser",
+        "Browser zoom is set to default 100% level",
+        "Browser window is at standard desktop resolution (1920x1080 or 1366x768)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Set browser zoom to 200% using Ctrl/Cmd + Plus key or browser zoom controls",
+          "expectedResult": "Page content scales to 200% zoom level, and all content remains visible without horizontal scrolling (or minimal horizontal scrolling)"
+        },
+        {
+          "step": 2,
+          "action": "Verify that pending requests table is still readable and functional at 200% zoom",
+          "expectedResult": "Table columns adjust responsively, text is readable without overlapping, and all data is accessible (may require vertical scrolling but not excessive horizontal scrolling)"
+        },
+        {
+          "step": 3,
+          "action": "Navigate through the page using keyboard and verify all interactive elements are accessible",
+          "expectedResult": "All buttons, links, and form fields remain accessible and functional, focus indicators are visible, and no content is cut off or hidden"
+        },
+        {
+          "step": 4,
+          "action": "Open approval modal at 200% zoom and verify modal content is fully visible",
+          "expectedResult": "Modal dialog scales appropriately, all content (heading, comment field, buttons) is visible without scrolling within modal, and modal can be closed using keyboard"
+        },
+        {
+          "step": 5,
+          "action": "Test approval workflow at 200% zoom: select request, approve with comments, and verify success message",
+          "expectedResult": "Entire approval workflow functions correctly at 200% zoom, all text is readable, buttons are clickable, and success message is fully visible"
+        },
+        {
+          "step": 6,
+          "action": "Check that navigation menu, header, and footer elements remain functional at 200% zoom",
+          "expectedResult": "Navigation elements scale appropriately, remain accessible, and do not overlap with main content"
+        }
+      ],
+      "postconditions": [
+        "All functionality works correctly at 200% zoom level",
+        "Content reflows appropriately without loss of information",
+        "No horizontal scrolling is required (or minimal scrolling for wide tables)",
+        "Users with low vision can use the application effectively at high zoom levels"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "Verify ARIA labels, roles, and live regions are properly implemented for dynamic content updates",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Approver role",
+        "Pending requests page is displayed",
+        "Browser developer tools are open to inspect ARIA attributes",
+        "Screen reader is available for testing announcements (optional but recommended)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Inspect pending requests table in browser dev tools and verify ARIA attributes",
+          "expectedResult": "Table has role='table' or uses semantic <table> element, rows have role='row', column headers have role='columnheader', and data cells have role='cell' or appropriate semantic markup"
+        },
+        {
+          "step": 2,
+          "action": "Inspect 'Approve' and 'Reject' buttons and verify they have descriptive aria-label attributes",
+          "expectedResult": "Buttons have aria-label like 'Approve schedule change request for John Doe, submitted on 01/15/2024' providing context beyond visible button text"
+        },
+        {
+          "step": 3,
+          "action": "Open approval modal and verify modal has proper ARIA attributes: role='dialog', aria-modal='true', aria-labelledby pointing to modal heading",
+          "expectedResult": "Modal has role='dialog', aria-modal='true', aria-labelledby references heading ID, and aria-describedby references description if present"
+        },
+        {
+          "step": 4,
+          "action": "Verify comment text area has proper labels: <label> element or aria-label, and aria-required='false' for optional field",
+          "expectedResult": "Text area has associated label (visible or aria-label), aria-required attribute matches field requirement (false for optional, true for mandatory in rejection)"
+        },
+        {
+          "step": 5,
+          "action": "Submit approval and inspect success message for ARIA live region attributes",
+          "expectedResult": "Success message container has role='status' or role='alert' and aria-live='polite' or 'assertive', ensuring screen readers announce the message automatically"
+        },
+        {
+          "step": 6,
+          "action": "Verify that status badges (Pending, Approved, Rejected) have aria-label providing full context",
+          "expectedResult": "Status indicators have aria-label like 'Status: Pending' or use semantic markup with visually hidden text for screen readers"
+        },
+        {
+          "step": 7,
+          "action": "Check that loading indicators during approval submission have appropriate ARIA attributes",
+          "expectedResult": "Loading spinner or progress indicator has role='status', aria-live='polite', and aria-label='Processing approval request' to inform screen reader users of loading state"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements have appropriate ARIA roles and labels",
+        "Dynamic content updates are announced to screen reader users via live regions",
+        "Modal dialogs are properly marked up for accessibility",
+        "Screen reader users receive equivalent information to visual users"
+      ]
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true
+  },
+  "userStoryObject": {
+    "id": "story-9",
+    "title": "As Approver, I want to perform approval or rejection of schedule changes to achieve efficient workflow.",
+    "epicId": "epic-3",
+    "persona": "Approver",
+    "priority": "High",
+    "subtasks": [
+      {
+        "category": "Planning",
+        "description": "Define the workflow for approval and rejection of requests.",
+        "estimatedHours": 4
+      },
+      {
+        "category": "Backend",
+        "description": "Implement API endpoint for approving or rejecting requests.",
+        "estimatedHours": 6
+      },
+      {
+        "category": "Frontend",
+        "description": "Develop the user interface for approvers to manage requests.",
+        "estimatedHours": 8
+      },
+      {
+        "category": "Testing",
+        "description": "Create unit tests for the approval and rejection functionality.",
+        "estimatedHours": 4
+      },
+      {
+        "category": "Documentation",
+        "description": "Document the approval workflow and API endpoints.",
+        "estimatedHours": 3
+      }
+    ],
+    "featureId": "feature-6",
+    "testCases": [
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Approver logs into the system",
+            "result": "Dashboard is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to pending requests",
+            "result": "List of requests is displayed"
+          },
+          {
+            "step": 3,
+            "action": "Select a request and approve it",
+            "result": "Request status is updated to approved and notification sent"
+          }
+        ],
+        "title": "Validate approval of schedule change request"
+      },
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Approver logs into the system",
+            "result": "Dashboard is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Navigate to pending requests",
+            "result": "List of requests is displayed"
+          },
+          {
+            "step": 3,
+            "action": "Select a request and reject it with comments",
+            "result": "Request status is updated to rejected and notification sent with comments"
+          }
+        ],
+        "title": "Verify rejection of schedule change request"
+      }
+    ],
+    "description": "CONTEXT & BACKGROUND:\nThis story allows approvers to manage schedule change requests effectively, ensuring that all changes are authorized.\n\nCURRENT STATE:\nApprovers currently lack a streamlined process for reviewing requests, leading to delays.\n\nDESIRED STATE:\nApprovers can easily review and respond to schedule change requests, facilitating a smooth workflow.\n\nKEY FUNCTIONALITY:\n• Approvers can view all pending requests.\n• System allows approval or rejection with comments.\n• Notifications are sent to requesters.\n• History of decisions is maintained.\n\nUSER INTERACTION FLOW:\n1. Approver logs into the system.\n2. Approver navigates to the pending requests section.\n3. Approver reviews request details.\n4. Approver selects approve or reject.\n5. Approver adds comments if necessary.\n6. System updates the request status and notifies the requester.\n\nTECHNICAL CONSIDERATIONS:\n• Data source: Schedule Change Requests table.\n• API endpoints: PUT /api/scheduleChangeRequests/{id}.\n• Security: Role-based access control for approvers.\n• Performance: Response time under 2 seconds.\n\nOUT OF SCOPE:\n• Changes to requests after approval.\n\nSUCCESS METRICS:\n• 95% of requests are processed within 24 hours.\n• Feedback from requesters indicates satisfaction with the approval process.",
+    "storyPoints": 8,
+    "personaSource": "AI Suggested",
+    "acceptanceCriteria": [
+      "Approvers can view all pending schedule change requests.",
+      "System allows approvers to approve or reject requests with a comment option.",
+      "Notification is sent to the requester upon approval or rejection of the request."
+    ]
+  }
+}
