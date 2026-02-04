@@ -1,0 +1,1069 @@
+{
+  "storyId": "story-8",
+  "storyTitle": "As Employee, I want to perform schedule change requests to achieve timely modifications.",
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify successful schedule change request submission with all valid fields",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as an authenticated employee with active status",
+        "User is on the schedule change request page at /schedule-change-request",
+        "User has at least one existing schedule entry in the system",
+        "Browser session is active and not expired"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the schedule change request page by clicking 'Request Schedule Change' in the main navigation menu",
+          "expectedResult": "Schedule change request form is displayed with fields for Date, Time, Reason, and a 'Submit Request' button"
+        },
+        {
+          "step": 2,
+          "action": "Enter a valid future date '2024-06-15' in the 'Date' field using the date picker",
+          "expectedResult": "Date field accepts the input and displays '06/15/2024' in the correct format"
+        },
+        {
+          "step": 3,
+          "action": "Enter a valid time '09:00 AM' in the 'Time' field using the time picker",
+          "expectedResult": "Time field accepts the input and displays '09:00 AM' in 12-hour format"
+        },
+        {
+          "step": 4,
+          "action": "Enter a valid reason 'Medical appointment' in the 'Reason' text area with at least 10 characters",
+          "expectedResult": "Reason field accepts the text input and displays character count indicator showing '20/500 characters'"
+        },
+        {
+          "step": 5,
+          "action": "Click the 'Submit Request' button at the bottom of the form",
+          "expectedResult": "Green success banner appears at the top of the page displaying 'Schedule change request submitted successfully. Request ID: SCR-12345' and form fields are cleared"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to 'My Requests' page from the navigation menu",
+          "expectedResult": "Newly submitted request appears in the list with status 'Pending Approval', showing Date: 06/15/2024, Time: 09:00 AM, and Reason: Medical appointment"
+        }
+      ],
+      "postconditions": [
+        "Schedule change request is saved in the database with status 'Pending Approval'",
+        "User receives an email notification confirming request submission with request ID",
+        "Request appears in the manager's approval queue",
+        "User remains logged in and on the confirmation page"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify real-time validation displays for incomplete mandatory fields",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User is on the schedule change request page",
+        "Form is in its initial empty state",
+        "JavaScript is enabled in the browser"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click into the 'Date' field and then click outside without entering any value",
+          "expectedResult": "Red error message 'Date is required' appears below the Date field with a red border around the field"
+        },
+        {
+          "step": 2,
+          "action": "Click into the 'Time' field and then click outside without entering any value",
+          "expectedResult": "Red error message 'Time is required' appears below the Time field with a red border around the field"
+        },
+        {
+          "step": 3,
+          "action": "Click into the 'Reason' field and then click outside without entering any value",
+          "expectedResult": "Red error message 'Reason is required (minimum 10 characters)' appears below the Reason field with a red border around the field"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to click the 'Submit Request' button while all fields are empty",
+          "expectedResult": "Submit button is disabled (grayed out) and displays tooltip 'Please complete all required fields' on hover"
+        },
+        {
+          "step": 5,
+          "action": "Fill in the Date field with '06/15/2024'",
+          "expectedResult": "Red error message for Date field disappears, red border is removed, and green checkmark icon appears next to the field"
+        }
+      ],
+      "postconditions": [
+        "No data is submitted to the server",
+        "Form remains in edit mode with validation messages displayed",
+        "User remains on the schedule change request page",
+        "No database records are created"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify user can view status of submitted schedule change requests",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User has previously submitted at least 3 schedule change requests with different statuses (Pending, Approved, Rejected)",
+        "User is on the dashboard or any page with access to 'My Requests' link",
+        "Test data includes requests with IDs: SCR-001 (Pending), SCR-002 (Approved), SCR-003 (Rejected)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on 'My Requests' link in the main navigation menu",
+          "expectedResult": "My Requests page loads displaying a table with columns: Request ID, Date, Time, Reason, Status, Submitted On, Actions"
+        },
+        {
+          "step": 2,
+          "action": "Locate request SCR-001 in the table",
+          "expectedResult": "Request SCR-001 is displayed with status badge showing 'Pending Approval' in yellow/orange color"
+        },
+        {
+          "step": 3,
+          "action": "Locate request SCR-002 in the table",
+          "expectedResult": "Request SCR-002 is displayed with status badge showing 'Approved' in green color with checkmark icon"
+        },
+        {
+          "step": 4,
+          "action": "Locate request SCR-003 in the table",
+          "expectedResult": "Request SCR-003 is displayed with status badge showing 'Rejected' in red color with X icon and 'View Reason' link"
+        },
+        {
+          "step": 5,
+          "action": "Click on request ID 'SCR-001' to view details",
+          "expectedResult": "Modal or detail page opens showing full request details including Date, Time, Reason, Submitted On timestamp, Current Status, and Status History timeline"
+        }
+      ],
+      "postconditions": [
+        "User can see all their submitted requests with current status",
+        "Status information is accurate and matches database records",
+        "User remains logged in",
+        "No changes are made to request data"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify notification is sent upon successful schedule change request submission",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with email address 'employee@company.com'",
+        "User is on the schedule change request page",
+        "Email notification service is configured and running",
+        "User has notification preferences enabled for schedule changes"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Fill in all required fields: Date '06/20/2024', Time '02:00 PM', Reason 'Personal appointment'",
+          "expectedResult": "All fields accept the input and display validation checkmarks"
+        },
+        {
+          "step": 2,
+          "action": "Click the 'Submit Request' button",
+          "expectedResult": "Success message 'Schedule change request submitted successfully. Request ID: SCR-12346. A confirmation email has been sent to employee@company.com' is displayed"
+        },
+        {
+          "step": 3,
+          "action": "Check the email inbox for 'employee@company.com' within 2 minutes",
+          "expectedResult": "Email with subject 'Schedule Change Request Submitted - SCR-12346' is received containing request details, submission timestamp, and next steps"
+        },
+        {
+          "step": 4,
+          "action": "Check the in-app notifications bell icon in the top-right corner",
+          "expectedResult": "Notification badge shows '1' and clicking it displays notification 'Your schedule change request SCR-12346 has been submitted and is pending approval'"
+        }
+      ],
+      "postconditions": [
+        "Email notification is sent to user's registered email address",
+        "In-app notification is created and visible in notification center",
+        "Notification record is logged in the system",
+        "Manager receives notification in their approval queue"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify API endpoint POST /api/scheduleChangeRequests processes request correctly",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is authenticated with valid JWT token",
+        "API endpoint POST /api/scheduleChangeRequests is accessible",
+        "Database connection is active",
+        "User has employee role with userId: 'EMP-12345'"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/scheduleChangeRequests with headers: Authorization: Bearer {valid_token}, Content-Type: application/json, and body: {\"date\": \"2024-06-25\", \"time\": \"10:00\", \"reason\": \"Family emergency\", \"userId\": \"EMP-12345\"}",
+          "expectedResult": "API returns HTTP status code 201 Created"
+        },
+        {
+          "step": 2,
+          "action": "Verify the response body structure",
+          "expectedResult": "Response contains JSON with fields: {\"success\": true, \"requestId\": \"SCR-12347\", \"status\": \"Pending\", \"message\": \"Schedule change request created successfully\", \"timestamp\": \"2024-01-15T10:30:00Z\"}"
+        },
+        {
+          "step": 3,
+          "action": "Check the response time of the API call",
+          "expectedResult": "API response time is under 2 seconds as per performance requirement"
+        },
+        {
+          "step": 4,
+          "action": "Query the database table 'schedule_change_requests' for the newly created record with requestId 'SCR-12347'",
+          "expectedResult": "Record exists with correct values: date='2024-06-25', time='10:00', reason='Family emergency', userId='EMP-12345', status='Pending', createdAt timestamp is current"
+        }
+      ],
+      "postconditions": [
+        "New record is persisted in schedule_change_requests table",
+        "Request ID is generated and returned in response",
+        "Audit log entry is created for the request submission",
+        "Response time meets performance SLA of under 2 seconds"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify submission is blocked when Date field is left empty",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User is on the schedule change request page",
+        "Form is in its initial state",
+        "All validation rules are active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Leave the 'Date' field empty",
+          "expectedResult": "Date field remains empty with placeholder text 'Select date'"
+        },
+        {
+          "step": 2,
+          "action": "Enter valid time '03:00 PM' in the Time field",
+          "expectedResult": "Time field accepts the input"
+        },
+        {
+          "step": 3,
+          "action": "Enter valid reason 'Doctor appointment' in the Reason field",
+          "expectedResult": "Reason field accepts the input"
+        },
+        {
+          "step": 4,
+          "action": "Click the 'Submit Request' button",
+          "expectedResult": "Form submission is prevented, red error message 'Date is required' appears below the Date field, and focus moves to the Date field with red border"
+        },
+        {
+          "step": 5,
+          "action": "Check the browser console for any API calls",
+          "expectedResult": "No POST request is sent to /api/scheduleChangeRequests endpoint"
+        }
+      ],
+      "postconditions": [
+        "No data is submitted to the server",
+        "No database record is created",
+        "User remains on the form page with error message displayed",
+        "Form data in Time and Reason fields is preserved"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify system rejects schedule change request with past date",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User is on the schedule change request page",
+        "Current date is 2024-01-15",
+        "Date validation rules include no past dates allowed"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter a past date '2024-01-10' in the Date field",
+          "expectedResult": "Date field accepts the input initially"
+        },
+        {
+          "step": 2,
+          "action": "Enter valid time '11:00 AM' in the Time field",
+          "expectedResult": "Time field accepts the input"
+        },
+        {
+          "step": 3,
+          "action": "Enter valid reason 'Schedule adjustment needed' in the Reason field",
+          "expectedResult": "Reason field accepts the input"
+        },
+        {
+          "step": 4,
+          "action": "Click the 'Submit Request' button",
+          "expectedResult": "Form submission is blocked, error message 'Date cannot be in the past. Please select a current or future date.' appears in red below the Date field"
+        },
+        {
+          "step": 5,
+          "action": "Verify no API call is made",
+          "expectedResult": "Network tab shows no POST request to /api/scheduleChangeRequests"
+        }
+      ],
+      "postconditions": [
+        "No schedule change request is created in the database",
+        "User remains on the form with error message displayed",
+        "Form fields retain entered values for correction",
+        "No notification is sent"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify system rejects Reason field with less than minimum character requirement",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User is on the schedule change request page",
+        "Reason field has minimum character requirement of 10 characters",
+        "Form validation is active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter valid future date '2024-06-30' in the Date field",
+          "expectedResult": "Date field accepts the input with green checkmark"
+        },
+        {
+          "step": 2,
+          "action": "Enter valid time '01:00 PM' in the Time field",
+          "expectedResult": "Time field accepts the input with green checkmark"
+        },
+        {
+          "step": 3,
+          "action": "Enter only 5 characters 'Sick' in the Reason field",
+          "expectedResult": "Character counter shows '4/500 characters' and field displays warning indicator"
+        },
+        {
+          "step": 4,
+          "action": "Click outside the Reason field to trigger validation",
+          "expectedResult": "Red error message 'Reason must be at least 10 characters long. Current: 4 characters' appears below the Reason field"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to click the 'Submit Request' button",
+          "expectedResult": "Submit button is disabled and shows tooltip 'Please provide a reason with at least 10 characters' on hover"
+        }
+      ],
+      "postconditions": [
+        "Form submission is prevented",
+        "No API request is sent to the server",
+        "No database record is created",
+        "User remains on the form with validation error displayed"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify system handles unauthorized access attempt without valid authentication",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is not logged in or session has expired",
+        "User attempts to access /schedule-change-request URL directly",
+        "Authentication middleware is active",
+        "Session timeout is set to 30 minutes"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate directly to /schedule-change-request URL without being logged in",
+          "expectedResult": "User is redirected to the login page at /login with message 'Please log in to access this page'"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to send POST request to /api/scheduleChangeRequests without Authorization header using API testing tool",
+          "expectedResult": "API returns HTTP status code 401 Unauthorized with response body: {\"error\": \"Authentication required\", \"message\": \"No valid authentication token provided\"}"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to send POST request with expired JWT token in Authorization header",
+          "expectedResult": "API returns HTTP status code 401 Unauthorized with response body: {\"error\": \"Token expired\", \"message\": \"Please log in again\"}"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to send POST request with invalid/malformed JWT token",
+          "expectedResult": "API returns HTTP status code 401 Unauthorized with response body: {\"error\": \"Invalid token\", \"message\": \"Authentication token is invalid\"}"
+        }
+      ],
+      "postconditions": [
+        "No schedule change request is created",
+        "User is redirected to login page",
+        "Security event is logged in audit trail",
+        "No unauthorized access to protected resources is granted"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify system handles SQL injection attempt in Reason field",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User is on the schedule change request page",
+        "Input sanitization and parameterized queries are implemented",
+        "Security monitoring is active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter valid date '2024-07-01' in the Date field",
+          "expectedResult": "Date field accepts the input"
+        },
+        {
+          "step": 2,
+          "action": "Enter valid time '04:00 PM' in the Time field",
+          "expectedResult": "Time field accepts the input"
+        },
+        {
+          "step": 3,
+          "action": "Enter SQL injection payload 'Test reason'; DROP TABLE schedule_change_requests; --' in the Reason field",
+          "expectedResult": "Reason field accepts the text as plain text string"
+        },
+        {
+          "step": 4,
+          "action": "Click the 'Submit Request' button",
+          "expectedResult": "Request is submitted successfully, SQL injection is treated as plain text, and confirmation message 'Schedule change request submitted successfully' is displayed"
+        },
+        {
+          "step": 5,
+          "action": "Verify the database table 'schedule_change_requests' still exists and contains the new record with the SQL payload stored as plain text in the reason field",
+          "expectedResult": "Table exists, new record is created with reason field containing the exact text 'Test reason'; DROP TABLE schedule_change_requests; --' as a string, and no SQL commands were executed"
+        }
+      ],
+      "postconditions": [
+        "Database tables remain intact and unaffected",
+        "SQL injection attempt is logged in security audit log",
+        "Request is stored with malicious input sanitized or escaped",
+        "No database structure is modified"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify system handles API timeout and displays appropriate error message",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User is on the schedule change request page with all fields filled correctly",
+        "API timeout is configured to 30 seconds",
+        "Network simulation tool is available to simulate slow response"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Fill in all required fields with valid data: Date '2024-07-15', Time '10:30 AM', Reason 'Training session attendance'",
+          "expectedResult": "All fields accept the input with validation checkmarks"
+        },
+        {
+          "step": 2,
+          "action": "Simulate network delay causing API response time to exceed 30 seconds",
+          "expectedResult": "Loading spinner appears on the Submit button with text 'Submitting...'"
+        },
+        {
+          "step": 3,
+          "action": "Wait for timeout to occur (30+ seconds)",
+          "expectedResult": "Error message appears in red banner at top of page: 'Request timeout. Please check your connection and try again.' and Submit button returns to enabled state"
+        },
+        {
+          "step": 4,
+          "action": "Check the database for any partial records created",
+          "expectedResult": "No record is created in the schedule_change_requests table due to transaction rollback"
+        },
+        {
+          "step": 5,
+          "action": "Verify form data is preserved after timeout",
+          "expectedResult": "All entered field values remain in the form for user to retry submission"
+        }
+      ],
+      "postconditions": [
+        "No incomplete or corrupted data is saved to database",
+        "User can retry submission without re-entering data",
+        "Error is logged in application error log",
+        "User remains on the form page"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Verify system handles Reason field at maximum character limit boundary (500 characters)",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User is on the schedule change request page",
+        "Reason field has maximum character limit of 500 characters",
+        "Character counter is visible and functional"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter valid date '2024-08-01' and time '09:00 AM' in respective fields",
+          "expectedResult": "Date and Time fields accept the input with validation checkmarks"
+        },
+        {
+          "step": 2,
+          "action": "Enter exactly 500 characters in the Reason field (use a pre-prepared 500-character string)",
+          "expectedResult": "Reason field accepts all 500 characters and character counter displays '500/500 characters' in neutral color"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to type one additional character (501st character)",
+          "expectedResult": "Field prevents input of additional character, character counter remains at '500/500', and no additional character appears in the field"
+        },
+        {
+          "step": 4,
+          "action": "Click the 'Submit Request' button",
+          "expectedResult": "Form submits successfully with confirmation message 'Schedule change request submitted successfully' and full 500-character reason is saved"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to 'My Requests' and view the submitted request details",
+          "expectedResult": "Full 500-character reason is displayed correctly without truncation in the request details view"
+        }
+      ],
+      "postconditions": [
+        "Request is saved with complete 500-character reason text",
+        "Database field stores all 500 characters without truncation",
+        "Character limit enforcement works correctly",
+        "No data loss occurs at boundary limit"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Verify system handles special characters and Unicode in Reason field",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User is on the schedule change request page",
+        "System supports UTF-8 character encoding",
+        "Database is configured to store Unicode characters"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter valid date '2024-08-10' and time '02:00 PM' in respective fields",
+          "expectedResult": "Date and Time fields accept the input"
+        },
+        {
+          "step": 2,
+          "action": "Enter reason with special characters and Unicode: 'Need time for café meeting & discussion about résumé. Cost: $50-$100. Email: test@example.com. Emoji: 😊 ✓ ★'",
+          "expectedResult": "Reason field accepts all special characters, accented letters, symbols, and emojis, displaying them correctly"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'Submit Request' button",
+          "expectedResult": "Form submits successfully with confirmation message displayed"
+        },
+        {
+          "step": 4,
+          "action": "Navigate to 'My Requests' and view the submitted request",
+          "expectedResult": "All special characters, accented letters, symbols, and emojis are displayed correctly: 'Need time for café meeting & discussion about résumé. Cost: $50-$100. Email: test@example.com. Emoji: 😊 ✓ ★'"
+        },
+        {
+          "step": 5,
+          "action": "Query the database directly to verify stored data",
+          "expectedResult": "Database record contains all special characters and Unicode symbols correctly encoded and stored"
+        }
+      ],
+      "postconditions": [
+        "All special characters and Unicode are preserved in database",
+        "Display rendering handles special characters correctly",
+        "No character encoding issues occur",
+        "Data integrity is maintained for international characters"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Verify system handles multiple rapid consecutive submissions (double-click prevention)",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User is on the schedule change request page with all fields filled correctly",
+        "Submit button click handler includes debounce or disable mechanism",
+        "Network latency is simulated to be 2-3 seconds"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Fill in all required fields with valid data: Date '2024-08-20', Time '11:00 AM', Reason 'Conference attendance required'",
+          "expectedResult": "All fields accept the input with validation checkmarks"
+        },
+        {
+          "step": 2,
+          "action": "Rapidly click the 'Submit Request' button 5 times in quick succession (within 1 second)",
+          "expectedResult": "Submit button becomes disabled after first click, shows loading spinner with text 'Submitting...', and subsequent clicks have no effect"
+        },
+        {
+          "step": 3,
+          "action": "Wait for the API response to complete",
+          "expectedResult": "Single success message appears: 'Schedule change request submitted successfully. Request ID: SCR-12348'"
+        },
+        {
+          "step": 4,
+          "action": "Check the database for duplicate records",
+          "expectedResult": "Only one record is created in schedule_change_requests table with the submitted data"
+        },
+        {
+          "step": 5,
+          "action": "Check the API server logs for number of POST requests received",
+          "expectedResult": "Server logs show only one POST request to /api/scheduleChangeRequests was processed"
+        }
+      ],
+      "postconditions": [
+        "No duplicate requests are created in the database",
+        "Only one API call is made despite multiple clicks",
+        "User sees single confirmation message",
+        "Submit button re-enables after successful submission or error"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Verify system handles schedule change request submission at exactly midnight (00:00)",
+      "category": "Edge Cases",
+      "priority": "Low",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User is on the schedule change request page",
+        "System time is set to 23:59:50 (10 seconds before midnight)",
+        "Time picker allows selection of 00:00 (midnight)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter valid future date '2024-09-01' in the Date field",
+          "expectedResult": "Date field accepts the input"
+        },
+        {
+          "step": 2,
+          "action": "Select time '12:00 AM' (midnight) from the time picker",
+          "expectedResult": "Time field displays '12:00 AM' or '00:00' depending on format setting"
+        },
+        {
+          "step": 3,
+          "action": "Enter valid reason 'Night shift coverage needed' in the Reason field",
+          "expectedResult": "Reason field accepts the input"
+        },
+        {
+          "step": 4,
+          "action": "Wait until system clock reaches exactly 00:00:00 and immediately click 'Submit Request' button",
+          "expectedResult": "Form submits successfully with confirmation message displayed"
+        },
+        {
+          "step": 5,
+          "action": "Verify the submitted request in 'My Requests' page and check the timestamp",
+          "expectedResult": "Request is saved with correct date, time shows '12:00 AM', and submission timestamp reflects the correct date transition (new day)"
+        }
+      ],
+      "postconditions": [
+        "Request is saved with correct midnight time value",
+        "Date handling correctly manages day boundary transition",
+        "Timestamp in database reflects accurate submission time",
+        "No date/time calculation errors occur"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Verify system handles browser back button after successful submission",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User has successfully submitted a schedule change request",
+        "User is on the confirmation page showing success message",
+        "Browser history contains the form page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "After successful submission showing 'Schedule change request submitted successfully. Request ID: SCR-12349', click the browser back button",
+          "expectedResult": "User is navigated back to the schedule change request form page"
+        },
+        {
+          "step": 2,
+          "action": "Observe the state of the form fields",
+          "expectedResult": "Form fields are cleared/reset to empty state, not showing previously submitted data"
+        },
+        {
+          "step": 3,
+          "action": "Check for any warning or informational message on the page",
+          "expectedResult": "Informational message appears: 'Your previous request (SCR-12349) was submitted successfully. You can submit a new request below.'"
+        },
+        {
+          "step": 4,
+          "action": "Fill in the form with new data and click 'Submit Request' button",
+          "expectedResult": "New request is submitted successfully with a different Request ID (SCR-12350)"
+        },
+        {
+          "step": 5,
+          "action": "Verify in 'My Requests' that both requests exist",
+          "expectedResult": "Both requests SCR-12349 and SCR-12350 are listed as separate entries with status 'Pending Approval'"
+        }
+      ],
+      "postconditions": [
+        "No duplicate submission occurs from browser back navigation",
+        "Form is properly reset for new submission",
+        "Both requests exist as separate records in database",
+        "User can submit multiple requests without issues"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Verify complete keyboard navigation through schedule change request form",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User is on the schedule change request page",
+        "Screen reader is not active (testing keyboard only)",
+        "Browser is set to show focus indicators"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key from the page header",
+          "expectedResult": "Focus moves to the Date field with visible blue focus ring (minimum 2px width) around the field"
+        },
+        {
+          "step": 2,
+          "action": "Press Tab key again",
+          "expectedResult": "Focus moves to the Time field with visible focus indicator"
+        },
+        {
+          "step": 3,
+          "action": "Press Tab key again",
+          "expectedResult": "Focus moves to the Reason textarea field with visible focus indicator"
+        },
+        {
+          "step": 4,
+          "action": "Press Tab key again",
+          "expectedResult": "Focus moves to the 'Submit Request' button with visible focus indicator and button shows hover state"
+        },
+        {
+          "step": 5,
+          "action": "Press Shift+Tab to navigate backwards",
+          "expectedResult": "Focus moves back to Reason field, then Time field, then Date field in reverse order, each showing focus indicator"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to Date field, press Space or Enter to open date picker",
+          "expectedResult": "Date picker opens and focus is on current date, arrow keys navigate between dates, Enter selects date, Escape closes picker"
+        },
+        {
+          "step": 7,
+          "action": "Fill all fields using keyboard only and press Enter on Submit button",
+          "expectedResult": "Form submits successfully and success message receives focus with announcement"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements are reachable via keyboard",
+        "Focus order is logical and follows visual layout",
+        "Focus indicators are clearly visible on all elements",
+        "No keyboard traps exist in the form"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Verify screen reader announces form fields, labels, and validation errors correctly",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User is on the schedule change request page",
+        "NVDA or JAWS screen reader is active and running",
+        "Screen reader is set to verbose mode",
+        "Form has proper ARIA labels and roles"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the Date field using Tab key with screen reader active",
+          "expectedResult": "Screen reader announces: 'Date, required, edit, date picker. Press Space to open calendar.'"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to the Time field using Tab key",
+          "expectedResult": "Screen reader announces: 'Time, required, edit, time picker. Enter time in format HH:MM AM/PM.'"
+        },
+        {
+          "step": 3,
+          "action": "Navigate to the Reason field using Tab key",
+          "expectedResult": "Screen reader announces: 'Reason, required, edit, multi-line. Minimum 10 characters, maximum 500 characters.'"
+        },
+        {
+          "step": 4,
+          "action": "Leave Date field empty and Tab out to trigger validation error",
+          "expectedResult": "Screen reader announces: 'Date is required. Error. Date, required, invalid entry, edit.'"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to submit form with empty fields",
+          "expectedResult": "Screen reader announces: 'Form has 3 errors. Please correct the following: Date is required, Time is required, Reason is required.' and focus moves to first error field"
+        },
+        {
+          "step": 6,
+          "action": "Fill all fields correctly and submit the form",
+          "expectedResult": "Screen reader announces: 'Schedule change request submitted successfully. Request ID: SCR-12350. Status region.'"
+        }
+      ],
+      "postconditions": [
+        "All form labels are properly associated with inputs",
+        "Required fields are announced as required",
+        "Validation errors are announced immediately",
+        "Success messages are announced in ARIA live region"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify color contrast ratios meet WCAG 2.1 AA standards (4.5:1 for normal text)",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is on the schedule change request page",
+        "Color contrast analyzer tool is available (e.g., WAVE, axe DevTools)",
+        "Page is rendered in default theme/color scheme",
+        "All form elements are visible on screen"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use color contrast analyzer to check the contrast ratio between form field labels (text color) and background",
+          "expectedResult": "Contrast ratio is at least 4.5:1 for normal text labels (e.g., 'Date', 'Time', 'Reason')"
+        },
+        {
+          "step": 2,
+          "action": "Check contrast ratio of error messages (red text) against background",
+          "expectedResult": "Error message text has contrast ratio of at least 4.5:1 against white/light background"
+        },
+        {
+          "step": 3,
+          "action": "Check contrast ratio of the 'Submit Request' button text against button background color",
+          "expectedResult": "Button text has contrast ratio of at least 4.5:1 in normal state and at least 3:1 in hover/focus states"
+        },
+        {
+          "step": 4,
+          "action": "Check contrast ratio of placeholder text in input fields",
+          "expectedResult": "Placeholder text has contrast ratio of at least 4.5:1 or is supplemented with visible labels"
+        },
+        {
+          "step": 5,
+          "action": "Check contrast ratio of success message (green banner) text against background",
+          "expectedResult": "Success message text has contrast ratio of at least 4.5:1 against green background"
+        },
+        {
+          "step": 6,
+          "action": "Verify that validation status is not conveyed by color alone",
+          "expectedResult": "Error states use red border PLUS error icon PLUS error text; success states use green checkmark PLUS border color"
+        }
+      ],
+      "postconditions": [
+        "All text meets WCAG 2.1 AA contrast requirements",
+        "Information is not conveyed by color alone",
+        "Form is usable by users with color blindness",
+        "Visual indicators supplement color coding"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify form remains functional and readable at 200% browser zoom level",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User is on the schedule change request page",
+        "Browser zoom is set to 100% initially",
+        "Browser window is at standard desktop resolution (1920x1080)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Increase browser zoom to 200% using Ctrl + Plus key or browser zoom controls",
+          "expectedResult": "Page content scales proportionally, all text is larger and readable, no horizontal scrolling is required for form content"
+        },
+        {
+          "step": 2,
+          "action": "Verify all form fields are visible and accessible without horizontal scrolling",
+          "expectedResult": "Date, Time, and Reason fields are fully visible, labels are not truncated, and fields are properly aligned vertically"
+        },
+        {
+          "step": 3,
+          "action": "Verify the 'Submit Request' button is fully visible and clickable",
+          "expectedResult": "Submit button is visible without scrolling, text is not truncated, and button remains functional"
+        },
+        {
+          "step": 4,
+          "action": "Fill in all form fields at 200% zoom level",
+          "expectedResult": "All fields accept input normally, date/time pickers open and function correctly, text is readable in all states"
+        },
+        {
+          "step": 5,
+          "action": "Trigger validation errors by leaving fields empty and verify error messages are readable",
+          "expectedResult": "Error messages are fully visible, not truncated, and positioned correctly below respective fields"
+        },
+        {
+          "step": 6,
+          "action": "Submit the form successfully at 200% zoom",
+          "expectedResult": "Form submits successfully, success message is fully visible and readable at 200% zoom"
+        }
+      ],
+      "postconditions": [
+        "Form is fully functional at 200% zoom level",
+        "No content is cut off or requires horizontal scrolling",
+        "Text remains readable and properly sized",
+        "Layout adapts responsively to zoom level"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify focus management and focus trap in date picker modal",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User is on the schedule change request page",
+        "Date field has an accessible date picker component",
+        "Keyboard navigation is being used"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Tab to the Date field and press Space or Enter to open the date picker",
+          "expectedResult": "Date picker modal opens and focus automatically moves to the current date in the calendar grid"
+        },
+        {
+          "step": 2,
+          "action": "Press Tab key repeatedly while date picker is open",
+          "expectedResult": "Focus cycles through interactive elements within the date picker only (month/year selectors, dates, close button) and does not escape to page content behind modal"
+        },
+        {
+          "step": 3,
+          "action": "Use Arrow keys (Up, Down, Left, Right) to navigate between dates in the calendar",
+          "expectedResult": "Focus moves between dates logically, each date is announced by screen reader with day, date, and month information"
+        },
+        {
+          "step": 4,
+          "action": "Press Escape key while date picker is open",
+          "expectedResult": "Date picker closes and focus returns to the Date input field, no date is selected if none was chosen"
+        },
+        {
+          "step": 5,
+          "action": "Reopen date picker, navigate to a date using arrow keys, and press Enter",
+          "expectedResult": "Selected date is populated in the Date field, date picker closes, and focus returns to the Date field showing the selected value"
+        },
+        {
+          "step": 6,
+          "action": "Verify that clicking outside the date picker or on a close button also returns focus correctly",
+          "expectedResult": "Date picker closes and focus returns to the Date field in all closure scenarios"
+        }
+      ],
+      "postconditions": [
+        "Focus is properly trapped within date picker modal when open",
+        "Focus returns to triggering element when modal closes",
+        "All date picker interactions are keyboard accessible",
+        "No focus is lost or moved to unexpected elements"
+      ]
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true
+  },
+  "userStoryObject": {
+    "id": "story-8",
+    "title": "As Employee, I want to perform schedule change requests to achieve timely modifications.",
+    "epicId": "epic-3",
+    "persona": "Employee",
+    "priority": "Medium",
+    "subtasks": [
+      {
+        "category": "Planning",
+        "description": "Define the data model for schedule change requests.",
+        "estimatedHours": 4
+      },
+      {
+        "category": "Backend",
+        "description": "Implement API endpoint for submitting schedule change requests.",
+        "estimatedHours": 6
+      },
+      {
+        "category": "Frontend",
+        "description": "Develop the user interface for schedule change requests.",
+        "estimatedHours": 8
+      },
+      {
+        "category": "Testing",
+        "description": "Create unit tests for the schedule change request submission.",
+        "estimatedHours": 4
+      },
+      {
+        "category": "Documentation",
+        "description": "Document the API endpoint and request structure.",
+        "estimatedHours": 3
+      }
+    ],
+    "featureId": "feature-5",
+    "testCases": [
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule change request page",
+            "result": "Page is displayed with input fields"
+          },
+          {
+            "step": 2,
+            "action": "Enter valid details for the schedule change",
+            "result": "All inputs accept data without validation errors"
+          },
+          {
+            "step": 3,
+            "action": "Submit the request",
+            "result": "Confirmation message is displayed"
+          }
+        ],
+        "title": "Validate successful schedule change request submission"
+      },
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to the schedule change request page",
+            "result": "Page is displayed with input fields"
+          },
+          {
+            "step": 2,
+            "action": "Leave mandatory fields empty",
+            "result": "Real-time validation highlights missing fields"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to submit the request",
+            "result": "Submission is blocked, error messages are displayed"
+          }
+        ],
+        "title": "Verify validation for incomplete request submission"
+      }
+    ],
+    "description": "CONTEXT & BACKGROUND:\nThis story exists to allow employees to request changes to their schedules, ensuring that their needs are met while adhering to organizational policies.\n\nCURRENT STATE:\nCurrently, employees have no formal way to request schedule changes, leading to confusion and delays.\n\nDESIRED STATE:\nEmployees can easily submit requests for schedule changes, which are then processed through an approval workflow.\n\nKEY FUNCTIONALITY:\n• Users can enter details of the schedule change request.\n• System validates the request for completeness.\n• Confirmation is provided upon successful submission.\n• Users can view the status of their requests.\n• Notifications are sent for any updates.\n\nUSER INTERACTION FLOW:\n1. User navigates to the schedule change request page.\n2. User inputs details of the change.\n3. System validates the input.\n4. User submits the request.\n5. System confirms submission.\n6. User receives a notification of the request status.\n\nTECHNICAL CONSIDERATIONS:\n• Data source: Schedule Change Requests table.\n• Validation rules: All fields must be completed.\n• API endpoints: POST /api/scheduleChangeRequests.\n• Security: User authentication required.\n• Performance: Response time under 2 seconds.\n\nOUT OF SCOPE:\n• Changes to schedule that do not require approval.\n\nSUCCESS METRICS:\n• 90% of requests submitted successfully without errors.\n• Average processing time for requests under 5 minutes.",
+    "storyPoints": 5,
+    "personaSource": "AI Suggested",
+    "acceptanceCriteria": [
+      "Users can input details of the schedule change request including date, time, and reason.",
+      "System validates the request for completeness before submission.",
+      "Confirmation message is displayed upon successful submission of the request."
+    ]
+  }
+}
