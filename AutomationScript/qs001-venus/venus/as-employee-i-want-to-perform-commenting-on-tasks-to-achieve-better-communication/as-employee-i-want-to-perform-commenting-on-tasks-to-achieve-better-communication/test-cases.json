@@ -8,177 +8,173 @@
       "category": "Functional",
       "priority": "High",
       "preconditions": [
-        "User is logged in as an authenticated employee with valid credentials",
-        "User has navigated to a task details page with a valid task ID",
-        "Comment input field is visible and enabled on the task details page",
-        "Database connection is active and comments table is accessible"
+        "User is logged in as an authenticated employee",
+        "User has navigated to a valid task details page",
+        "Task details page is fully loaded with comment section visible",
+        "User has permission to comment on the task"
       ],
       "steps": [
         {
           "step": 1,
           "action": "Locate the comment input field at the bottom of the task details section",
-          "expectedResult": "Comment input field is visible with placeholder text 'Add a comment...'"
+          "expectedResult": "Comment input field is visible and enabled with placeholder text 'Add a comment...'"
         },
         {
           "step": 2,
-          "action": "Click inside the comment input field to focus it",
-          "expectedResult": "Input field receives focus with visible cursor and border highlight"
+          "action": "Click inside the comment input field and type 'This is a test comment for task progress update'",
+          "expectedResult": "Text appears in the input field as typed, character counter shows '52/500 characters'"
         },
         {
           "step": 3,
-          "action": "Type the comment text 'This task is progressing well. Expected completion by Friday.'",
-          "expectedResult": "Text appears in the input field as typed with character counter showing '68/500'"
+          "action": "Click the 'Save' button located next to the comment input field",
+          "expectedResult": "Loading indicator appears briefly, then success message 'Comment added successfully' displays in green banner at top of page"
         },
         {
           "step": 4,
-          "action": "Click the 'Save' button located to the right of the comment input field",
-          "expectedResult": "Loading indicator appears briefly on the Save button"
+          "action": "Scroll to the comments section below the input field",
+          "expectedResult": "New comment appears at the bottom of the comments list with employee name, timestamp, and comment text 'This is a test comment for task progress update'"
         },
         {
           "step": 5,
-          "action": "Wait for the system to process the comment submission",
-          "expectedResult": "Success message 'Comment added successfully' appears in a green banner at the top of the page"
-        },
-        {
-          "step": 6,
-          "action": "Scroll to the comments section below the input field",
-          "expectedResult": "New comment is displayed with employee name, timestamp, and comment text in chronological order"
+          "action": "Verify the timestamp format on the newly added comment",
+          "expectedResult": "Timestamp displays in format 'Just now' or 'X minutes ago' with exact date/time on hover"
         }
       ],
       "postconditions": [
-        "Comment is saved in the comments table in the database with correct task ID association",
-        "Comment appears in the comments list with accurate timestamp and author information",
-        "Notifications are queued for relevant team members about the new comment",
+        "Comment is saved to the database and persists on page refresh",
+        "Comment appears in chronological order in the comments list",
+        "Relevant team members receive notification about the new comment",
         "Comment input field is cleared and ready for new input"
       ]
     },
     {
       "id": "TC-FUNC-002",
-      "title": "Verify comments are displayed in chronological order with newest first",
+      "title": "Verify comments are displayed in chronological order (oldest to newest)",
       "category": "Functional",
       "priority": "High",
       "preconditions": [
         "User is logged in as an authenticated employee",
-        "Task details page is loaded with at least 3 existing comments from different timestamps",
-        "Comments have been added at different times (oldest: 2 days ago, middle: 1 day ago, newest: 1 hour ago)",
-        "Page has fully loaded with all comments rendered"
+        "Task details page contains at least 3 existing comments with different timestamps",
+        "User has navigated to the task details page",
+        "Comments section is visible on the page"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Navigate to the comments section on the task details page",
-          "expectedResult": "Comments section is visible below the task description"
+          "action": "Scroll to the comments section on the task details page",
+          "expectedResult": "Comments section is visible with header 'Comments' and list of existing comments"
         },
         {
           "step": 2,
-          "action": "Observe the order of comments from top to bottom",
-          "expectedResult": "Comments are arranged with the newest comment (1 hour ago) at the top"
+          "action": "Review the timestamps of all displayed comments from top to bottom",
+          "expectedResult": "Comments are ordered with oldest comment at the top and newest comment at the bottom, timestamps show progressive chronological order"
         },
         {
           "step": 3,
-          "action": "Verify the timestamp of each comment in sequence",
-          "expectedResult": "Timestamps show: '1 hour ago' (top), '1 day ago' (middle), '2 days ago' (bottom)"
+          "action": "Add a new comment 'Latest comment for chronological test' and click 'Save'",
+          "expectedResult": "Comment is saved successfully with success message displayed"
         },
         {
           "step": 4,
-          "action": "Add a new comment 'Latest update on the task' and click Save",
-          "expectedResult": "New comment appears at the very top of the comments list with 'Just now' timestamp"
+          "action": "Verify the position of the newly added comment in the comments list",
+          "expectedResult": "New comment appears at the bottom of the list as the most recent comment with 'Just now' timestamp"
         }
       ],
       "postconditions": [
-        "All comments remain in correct chronological order with newest first",
-        "Timestamps are accurately displayed relative to current time",
-        "No comments are missing or duplicated in the display"
+        "All comments remain in chronological order (oldest to newest)",
+        "New comment is positioned correctly at the bottom of the list",
+        "Page maintains scroll position or scrolls to show new comment",
+        "Comment count is updated to reflect the new total"
       ]
     },
     {
       "id": "TC-FUNC-003",
-      "title": "Verify character counter displays correctly and enforces 500 character limit",
+      "title": "Verify character counter updates correctly as user types comment",
       "category": "Functional",
-      "priority": "High",
+      "priority": "Medium",
       "preconditions": [
         "User is logged in as an authenticated employee",
-        "Task details page is open with comment input field visible",
+        "User is on the task details page with comment input field visible",
         "Comment input field is empty and ready for input",
-        "Character counter is visible below or within the input field"
+        "Character counter displays '0/500 characters'"
       ],
       "steps": [
         {
           "step": 1,
           "action": "Click inside the comment input field to focus it",
-          "expectedResult": "Character counter displays '0/500' below the input field"
+          "expectedResult": "Input field is focused with cursor blinking, character counter shows '0/500 characters'"
         },
         {
           "step": 2,
-          "action": "Type a short comment 'Good progress' (13 characters)",
-          "expectedResult": "Character counter updates in real-time to show '13/500'"
+          "action": "Type 'Testing character count' (23 characters including spaces)",
+          "expectedResult": "Character counter updates in real-time to show '23/500 characters'"
         },
         {
           "step": 3,
-          "action": "Continue typing until reaching exactly 500 characters",
-          "expectedResult": "Character counter shows '500/500' and changes color to amber/warning color"
+          "action": "Continue typing until reaching approximately 250 characters",
+          "expectedResult": "Character counter shows '250/500 characters', counter remains in normal color (black or gray)"
         },
         {
           "step": 4,
-          "action": "Attempt to type additional characters beyond 500",
-          "expectedResult": "Input field prevents further character entry and counter remains at '500/500'"
+          "action": "Continue typing until reaching 490 characters",
+          "expectedResult": "Character counter shows '490/500 characters', counter may change to warning color (orange/yellow) indicating approaching limit"
         },
         {
           "step": 5,
-          "action": "Click the Save button with exactly 500 characters",
-          "expectedResult": "Comment is successfully saved with success message displayed"
+          "action": "Delete 50 characters using backspace",
+          "expectedResult": "Character counter decreases to '440/500 characters', warning color (if present) returns to normal"
         }
       ],
       "postconditions": [
-        "Comment with 500 characters is saved successfully in the database",
-        "Character counter resets to '0/500' after successful save",
-        "Saved comment displays all 500 characters without truncation"
+        "Character counter accurately reflects the current character count",
+        "Input field allows typing and deletion without errors",
+        "User can see remaining characters available before hitting limit",
+        "No comment is saved during this test (input field still contains draft text)"
       ]
     },
     {
       "id": "TC-FUNC-004",
-      "title": "Verify notifications are sent to relevant team members when a new comment is added",
+      "title": "Verify notification system sends alerts to relevant team members when comment is added",
       "category": "Functional",
       "priority": "High",
       "preconditions": [
-        "User A (commenter) is logged in as an authenticated employee",
-        "User B (task assignee) and User C (task watcher) are relevant team members for the task",
-        "Task details page is open for a task assigned to User B and watched by User C",
-        "Notification system is enabled and functioning",
-        "Users B and C have notification preferences enabled for task comments"
+        "User A is logged in as an authenticated employee",
+        "User B (team member) is assigned to the same task and logged in on different browser/device",
+        "Both users have notification permissions enabled",
+        "User A is on the task details page ready to add a comment"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "As User A, type comment 'Need clarification on requirements' in the comment input field",
-          "expectedResult": "Comment text appears in the input field"
+          "action": "As User A, type 'Notification test comment - please review' in the comment input field",
+          "expectedResult": "Text appears in input field, character counter shows '44/500 characters'"
         },
         {
           "step": 2,
-          "action": "Click the Save button to submit the comment",
-          "expectedResult": "Success message 'Comment added successfully' appears and comment is displayed"
+          "action": "Click the 'Save' button to submit the comment",
+          "expectedResult": "Success message 'Comment added successfully' appears, comment is displayed in the comments list"
         },
         {
           "step": 3,
-          "action": "Log in as User B (task assignee) in a different browser session",
-          "expectedResult": "User B sees a notification badge on the notifications icon in the header"
+          "action": "As User B, check the notification icon/bell in the top navigation bar",
+          "expectedResult": "Notification badge shows '1' new notification, notification icon is highlighted or animated"
         },
         {
           "step": 4,
-          "action": "Click the notifications icon to view notifications",
-          "expectedResult": "Notification displays 'User A commented on task: Need clarification on requirements' with timestamp"
+          "action": "As User B, click on the notification icon to open notification dropdown",
+          "expectedResult": "Notification dropdown opens showing new notification: 'User A commented on Task [Task Name]' with timestamp 'Just now'"
         },
         {
           "step": 5,
-          "action": "Log in as User C (task watcher) in another browser session",
-          "expectedResult": "User C also sees a notification badge and the same comment notification"
+          "action": "As User B, click on the notification to navigate to the task",
+          "expectedResult": "User B is redirected to the task details page, new comment is visible and highlighted, notification is marked as read"
         }
       ],
       "postconditions": [
-        "Notifications are successfully delivered to all relevant team members (User B and User C)",
-        "Notification records are created in the notifications table",
-        "Email notifications are queued if email preferences are enabled",
-        "Notification badges update correctly for all recipients"
+        "Notification is successfully delivered to all relevant team members",
+        "Notification contains correct information (commenter name, task name, timestamp)",
+        "Clicking notification navigates to the correct task details page",
+        "Notification is marked as read after being clicked"
       ]
     },
     {
@@ -188,614 +184,601 @@
       "priority": "Medium",
       "preconditions": [
         "User is logged in as an authenticated employee",
-        "Task details page is loaded with network conditions at normal speed",
-        "Comment input field is visible and ready for input",
-        "Browser developer tools are open to measure performance timing"
+        "User is on a task details page with stable internet connection",
+        "Browser developer tools are open with Network tab active to measure timing",
+        "Comment input field is visible and ready for input"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Start a timer or use browser performance tools to track timing",
-          "expectedResult": "Performance monitoring is active and recording"
+          "action": "Start a timer or note the current timestamp in browser developer tools",
+          "expectedResult": "Timer is ready to measure response time"
         },
         {
           "step": 2,
-          "action": "Type comment 'Testing performance of comment submission' in the input field",
-          "expectedResult": "Comment text is entered successfully"
+          "action": "Type 'Performance test comment' in the comment input field and click 'Save' button",
+          "expectedResult": "Save button is clicked, loading indicator appears"
         },
         {
           "step": 3,
-          "action": "Click the Save button and immediately start measuring response time",
-          "expectedResult": "Save button shows loading state immediately"
+          "action": "Monitor the Network tab in developer tools for the POST request to /api/tasks/{id}/comments",
+          "expectedResult": "POST request is sent to the API endpoint, response status is 200 OK"
         },
         {
           "step": 4,
-          "action": "Observe when the comment appears in the comments list",
-          "expectedResult": "Comment is displayed in the comments section within 2 seconds of clicking Save"
+          "action": "Measure the time from clicking 'Save' until the comment appears in the comments list",
+          "expectedResult": "Comment appears in the comments list within 2 seconds, success message is displayed"
         },
         {
           "step": 5,
-          "action": "Check the network tab in developer tools for API response time",
-          "expectedResult": "POST /api/tasks/{id}/comments endpoint responds within 1.5 seconds"
+          "action": "Verify the total response time in the Network tab",
+          "expectedResult": "API response time is under 2000ms, total time including UI update is within 2 seconds"
         }
       ],
       "postconditions": [
-        "Comment is successfully saved and displayed within performance requirements",
-        "Page remains responsive during comment submission",
-        "No performance degradation observed in subsequent operations"
+        "Comment is displayed within the 2-second performance requirement",
+        "System meets performance SLA for comment submission",
+        "No performance degradation or timeout errors occur",
+        "User experience is smooth without noticeable delays"
       ]
     },
     {
       "id": "TC-FUNC-006",
-      "title": "Verify only authenticated employees can add comments with proper security validation",
+      "title": "Verify only authenticated employees can add comments to tasks",
       "category": "Functional",
       "priority": "High",
       "preconditions": [
-        "User is logged in as an authenticated employee with valid session token",
-        "Task details page is loaded with comment functionality visible",
-        "API endpoint POST /api/tasks/{id}/comments requires authentication header",
-        "Session management is active and tracking user authentication state"
+        "User is logged in as an authenticated employee with valid session",
+        "User has navigated to a task details page",
+        "Comment input field and Save button are visible",
+        "User has appropriate permissions to comment on tasks"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Verify the presence of authentication token in browser session storage or cookies",
-          "expectedResult": "Valid authentication token is present and not expired"
+          "action": "Verify the comment input field is enabled and accessible",
+          "expectedResult": "Comment input field is enabled, placeholder text is visible, Save button is enabled"
         },
         {
           "step": 2,
-          "action": "Type comment 'Authenticated user comment test' in the input field",
-          "expectedResult": "Comment text is entered successfully"
+          "action": "Type 'Authentication test comment' in the comment input field",
+          "expectedResult": "Text appears in the input field without any authentication errors"
         },
         {
           "step": 3,
-          "action": "Open browser developer tools and monitor the network request when clicking Save",
-          "expectedResult": "POST request includes Authorization header with valid bearer token"
+          "action": "Click the 'Save' button to submit the comment",
+          "expectedResult": "Comment is saved successfully, success message appears, comment is displayed with the authenticated user's name"
         },
         {
           "step": 4,
-          "action": "Click the Save button to submit the comment",
-          "expectedResult": "API returns 200 OK status and comment is saved successfully"
-        },
-        {
-          "step": 5,
-          "action": "Verify the saved comment shows the correct author name matching the logged-in employee",
-          "expectedResult": "Comment displays with the authenticated employee's name and profile picture"
+          "action": "Verify the comment shows the correct author name (logged-in employee name)",
+          "expectedResult": "Comment displays with author name matching the logged-in employee, timestamp shows 'Just now'"
         }
       ],
       "postconditions": [
-        "Comment is associated with the correct authenticated employee ID in the database",
-        "Audit log records the comment creation with employee ID and timestamp",
-        "No unauthorized access was possible during the comment submission process"
+        "Comment is saved with correct authentication credentials",
+        "Comment is attributed to the correct authenticated employee",
+        "System maintains security by validating authentication before saving",
+        "User session remains active after comment submission"
       ]
     }
   ],
   "negative": [
     {
       "id": "TC-NEGA-001",
-      "title": "Verify system rejects comment submission when input field is empty",
+      "title": "Verify system prevents submission of empty comment",
       "category": "Negative",
       "priority": "High",
       "preconditions": [
         "User is logged in as an authenticated employee",
-        "Task details page is loaded with comment input field visible",
+        "User is on the task details page with comment input field visible",
         "Comment input field is empty with no text entered",
         "Save button is visible and enabled"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Locate the empty comment input field on the task details page",
-          "expectedResult": "Input field is visible and empty with placeholder text"
+          "action": "Ensure the comment input field is completely empty (no spaces or characters)",
+          "expectedResult": "Input field is empty, character counter shows '0/500 characters'"
         },
         {
           "step": 2,
-          "action": "Without entering any text, click the Save button directly",
-          "expectedResult": "Error message 'Comment cannot be empty' appears in red text below the input field"
+          "action": "Click the 'Save' button without entering any text",
+          "expectedResult": "Error message 'Comment cannot be empty' appears in red text below the input field or in error banner"
         },
         {
           "step": 3,
-          "action": "Verify that no API request is sent to the server",
-          "expectedResult": "Network tab shows no POST request to /api/tasks/{id}/comments endpoint"
+          "action": "Verify that no comment is added to the comments list",
+          "expectedResult": "Comments list remains unchanged, no new comment appears, comment count does not increase"
         },
         {
           "step": 4,
-          "action": "Check the comments section for any new entries",
-          "expectedResult": "No new comment is added to the comments list"
+          "action": "Check the Network tab in developer tools for API calls",
+          "expectedResult": "No POST request is sent to /api/tasks/{id}/comments endpoint, validation occurs on client-side"
         }
       ],
       "postconditions": [
-        "No comment record is created in the database",
-        "Input field remains empty and focused for user to enter valid text",
-        "No notifications are sent to team members",
-        "Save button remains enabled for retry"
+        "No empty comment is saved to the database",
+        "User remains on the task details page with input field still empty",
+        "Error message is displayed to guide user to enter valid comment",
+        "No notification is sent to team members"
       ]
     },
     {
       "id": "TC-NEGA-002",
-      "title": "Verify system rejects comment exceeding 500 character limit",
+      "title": "Verify system prevents submission of comment exceeding 500 character limit",
       "category": "Negative",
       "priority": "High",
       "preconditions": [
         "User is logged in as an authenticated employee",
-        "Task details page is loaded with comment input field visible",
-        "Test data prepared with 501 characters of text ready to paste",
-        "Character counter is visible and functional"
+        "User is on the task details page with comment input field visible",
+        "User has prepared text with exactly 501 characters ready to paste",
+        "Comment input field is empty and ready for input"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Click inside the comment input field to focus it",
-          "expectedResult": "Input field receives focus with character counter showing '0/500'"
+          "action": "Paste or type text containing exactly 501 characters into the comment input field",
+          "expectedResult": "Input field either truncates text at 500 characters or displays all 501 characters with character counter showing '501/500 characters' in red"
         },
         {
           "step": 2,
-          "action": "Attempt to paste or type 501 characters into the input field",
-          "expectedResult": "Input field only accepts first 500 characters and prevents entry of the 501st character"
+          "action": "Observe the character counter and any validation messages",
+          "expectedResult": "Character counter shows '501/500 characters' in red/error color, error message 'Comment exceeds maximum length of 500 characters' appears"
         },
         {
           "step": 3,
-          "action": "Observe the character counter display",
-          "expectedResult": "Character counter shows '500/500' in warning color (amber or red)"
+          "action": "Click the 'Save' button to attempt submission",
+          "expectedResult": "Save button is either disabled or clicking it shows error message 'Comment must be 500 characters or less', comment is not submitted"
         },
         {
           "step": 4,
-          "action": "Attempt to manually type additional characters",
-          "expectedResult": "System prevents any additional character input beyond 500"
-        },
-        {
-          "step": 5,
-          "action": "If somehow 501 characters were entered, click Save button",
-          "expectedResult": "Error message 'Comment must not exceed 500 characters' appears and submission is blocked"
+          "action": "Verify no comment appears in the comments list",
+          "expectedResult": "Comments list remains unchanged, no new comment is added, API request is blocked or returns validation error"
         }
       ],
       "postconditions": [
-        "No comment exceeding 500 characters is saved to the database",
-        "Input field enforces the character limit at the UI level",
-        "User is clearly informed of the character limit violation",
-        "No invalid data is sent to the API endpoint"
+        "Comment exceeding 500 characters is not saved to database",
+        "User receives clear error message about character limit violation",
+        "Input field retains the entered text allowing user to edit and reduce length",
+        "No notification is sent to team members"
       ]
     },
     {
       "id": "TC-NEGA-003",
-      "title": "Verify system handles comment submission when user session has expired",
+      "title": "Verify system prevents unauthenticated users from adding comments",
       "category": "Negative",
       "priority": "High",
       "preconditions": [
-        "User was previously logged in as an authenticated employee",
-        "Task details page is loaded and has been idle for extended period",
-        "User session token has expired (simulate by clearing session or waiting for timeout)",
-        "Comment input field is visible with text ready to submit"
+        "User session has expired or user is not logged in",
+        "User attempts to access task details page directly via URL",
+        "Browser has no valid authentication token or session cookie",
+        "Task details page URL is known and accessible"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Manually expire the session by clearing authentication token from browser storage or waiting for session timeout",
-          "expectedResult": "Session token is no longer valid but page remains displayed"
+          "action": "Navigate to the task details page URL without being logged in",
+          "expectedResult": "System redirects to login page with message 'Please log in to continue' or shows 401 Unauthorized error"
         },
         {
           "step": 2,
-          "action": "Type comment 'This comment should fail due to expired session' in the input field",
-          "expectedResult": "Comment text is entered successfully in the UI"
+          "action": "If page loads, verify the state of the comment input field",
+          "expectedResult": "Comment input field is either hidden, disabled, or shows message 'Login required to comment'"
         },
         {
           "step": 3,
-          "action": "Click the Save button to attempt comment submission",
-          "expectedResult": "API request is sent but returns 401 Unauthorized status code"
+          "action": "Attempt to submit a POST request to /api/tasks/{id}/comments using browser developer tools or API client without authentication token",
+          "expectedResult": "API returns 401 Unauthorized status code with error message 'Authentication required'"
         },
         {
           "step": 4,
-          "action": "Observe the system response to the authentication failure",
-          "expectedResult": "Error message 'Your session has expired. Please log in again.' appears in red banner"
-        },
-        {
-          "step": 5,
-          "action": "Verify user is redirected to login page or shown login modal",
-          "expectedResult": "User is redirected to login page with return URL preserved to come back to the task"
+          "action": "Verify no comment is added to the task",
+          "expectedResult": "No comment is saved, database remains unchanged, security validation prevents unauthorized access"
         }
       ],
       "postconditions": [
-        "No comment is saved to the database due to authentication failure",
-        "User's entered comment text is preserved in browser storage for recovery after re-login",
-        "User is required to re-authenticate before proceeding",
-        "Security audit log records the failed authentication attempt"
+        "Unauthenticated user cannot add comments to tasks",
+        "System maintains security by requiring valid authentication",
+        "User is redirected to login page or shown appropriate error message",
+        "No data is compromised or saved without proper authentication"
       ]
     },
     {
       "id": "TC-NEGA-004",
-      "title": "Verify system handles API endpoint failure with appropriate error messaging",
-      "category": "Negative",
-      "priority": "High",
-      "preconditions": [
-        "User is logged in as an authenticated employee",
-        "Task details page is loaded with comment input field visible",
-        "API endpoint POST /api/tasks/{id}/comments is temporarily unavailable or returning 500 error",
-        "Network connection is active but server is experiencing issues"
-      ],
-      "steps": [
-        {
-          "step": 1,
-          "action": "Type valid comment 'Testing error handling for API failure' in the input field",
-          "expectedResult": "Comment text is entered successfully with character counter showing valid count"
-        },
-        {
-          "step": 2,
-          "action": "Click the Save button to submit the comment",
-          "expectedResult": "Loading indicator appears on the Save button"
-        },
-        {
-          "step": 3,
-          "action": "Wait for the API to respond with 500 Internal Server Error",
-          "expectedResult": "Request times out or returns error status after attempting submission"
-        },
-        {
-          "step": 4,
-          "action": "Observe the error message displayed to the user",
-          "expectedResult": "Error message 'Unable to save comment. Please try again later.' appears in red banner at top of page"
-        },
-        {
-          "step": 5,
-          "action": "Verify the comment text remains in the input field",
-          "expectedResult": "User's entered comment text is preserved in the input field for retry"
-        }
-      ],
-      "postconditions": [
-        "No comment is saved to the database due to API failure",
-        "User's comment text is not lost and can be resubmitted",
-        "Error is logged in the application error tracking system",
-        "Save button returns to enabled state for retry attempt"
-      ]
-    },
-    {
-      "id": "TC-NEGA-005",
-      "title": "Verify system rejects comment with only whitespace characters",
+      "title": "Verify system handles comment submission with only whitespace characters",
       "category": "Negative",
       "priority": "Medium",
       "preconditions": [
         "User is logged in as an authenticated employee",
-        "Task details page is loaded with comment input field visible",
-        "Input field is empty and ready for input",
-        "Client-side validation is active"
+        "User is on the task details page with comment input field visible",
+        "Comment input field is empty and ready for input",
+        "Save button is visible and enabled"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Click inside the comment input field to focus it",
-          "expectedResult": "Input field receives focus with cursor visible"
+          "action": "Click inside the comment input field and press spacebar 20 times to enter only spaces",
+          "expectedResult": "Input field contains 20 space characters, character counter shows '20/500 characters'"
         },
         {
           "step": 2,
-          "action": "Enter only whitespace characters (spaces, tabs, newlines) totaling 20 characters",
-          "expectedResult": "Whitespace characters appear in the input field and character counter shows '20/500'"
+          "action": "Click the 'Save' button to attempt submission",
+          "expectedResult": "System validates input and shows error message 'Comment cannot contain only whitespace' or 'Please enter a valid comment'"
         },
         {
           "step": 3,
-          "action": "Click the Save button to attempt submission",
-          "expectedResult": "Validation error message 'Comment cannot contain only whitespace' appears below input field"
+          "action": "Try entering a mix of spaces, tabs, and newline characters (e.g., '    \\n\\n    \\t\\t')",
+          "expectedResult": "Character counter updates but Save button shows validation error when clicked"
         },
         {
           "step": 4,
-          "action": "Verify no API request is sent to the server",
-          "expectedResult": "Network tab shows no POST request to the comments endpoint"
+          "action": "Verify no comment appears in the comments list",
+          "expectedResult": "Comments list remains unchanged, no whitespace-only comment is saved"
         }
       ],
       "postconditions": [
-        "No comment is saved to the database",
-        "Input field is cleared or remains with whitespace for user to correct",
-        "User is prompted to enter valid comment text",
-        "No notifications are sent to team members"
+        "System prevents saving comments containing only whitespace",
+        "Validation trims whitespace and checks for actual content",
+        "User receives clear error message about invalid input",
+        "Database integrity is maintained without empty/whitespace comments"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify system handles network failure during comment submission",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User is on the task details page with comment input field visible",
+        "Browser developer tools are open to simulate network conditions",
+        "Network throttling or offline mode can be enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Type 'Network failure test comment' in the comment input field",
+          "expectedResult": "Text appears in input field, character counter shows '30/500 characters'"
+        },
+        {
+          "step": 2,
+          "action": "Open browser developer tools, go to Network tab, and set network to 'Offline' mode",
+          "expectedResult": "Network is disabled, browser shows offline indicator"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'Save' button to attempt comment submission",
+          "expectedResult": "Loading indicator appears briefly, then error message 'Network error: Unable to save comment. Please check your connection and try again.' appears in red banner"
+        },
+        {
+          "step": 4,
+          "action": "Verify the comment text remains in the input field",
+          "expectedResult": "Input field retains the entered text 'Network failure test comment', allowing user to retry without re-typing"
+        },
+        {
+          "step": 5,
+          "action": "Re-enable network connection and click 'Save' again",
+          "expectedResult": "Comment is successfully saved, success message appears, comment is displayed in comments list"
+        }
+      ],
+      "postconditions": [
+        "System gracefully handles network failures with appropriate error messages",
+        "User data (comment text) is preserved during network errors",
+        "User can retry submission after network is restored",
+        "No partial or corrupted data is saved to database"
       ]
     },
     {
       "id": "TC-NEGA-006",
-      "title": "Verify system handles unauthorized access attempt to add comment on restricted task",
+      "title": "Verify system handles SQL injection attempts in comment input",
       "category": "Negative",
       "priority": "High",
       "preconditions": [
-        "User is logged in as an authenticated employee without permissions for specific task",
-        "Task is restricted to specific team members only",
-        "User attempts to access task details page via direct URL manipulation",
-        "Authorization rules are enforced at API level"
+        "User is logged in as an authenticated employee",
+        "User is on the task details page with comment input field visible",
+        "Comment input field is empty and ready for input",
+        "Database has proper input sanitization and parameterized queries"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Navigate to task details page for a restricted task by entering URL directly",
-          "expectedResult": "Page loads but comment input field may be visible or hidden based on permissions"
+          "action": "Type SQL injection string \"'; DROP TABLE comments; --\" in the comment input field",
+          "expectedResult": "Text appears in input field as plain text, character counter shows '29/500 characters'"
         },
         {
           "step": 2,
-          "action": "If comment field is visible, type comment 'Unauthorized comment attempt' in the input field",
-          "expectedResult": "Comment text is entered in the UI"
+          "action": "Click the 'Save' button to submit the comment",
+          "expectedResult": "Comment is saved successfully, SQL injection string is treated as plain text and not executed"
         },
         {
           "step": 3,
-          "action": "Click the Save button to attempt comment submission",
-          "expectedResult": "API request is sent but returns 403 Forbidden status code"
+          "action": "Verify the comment appears in the comments list with the SQL string displayed as text",
+          "expectedResult": "Comment displays exactly as entered: \"'; DROP TABLE comments; --\" without executing any SQL commands"
         },
         {
           "step": 4,
-          "action": "Observe the error message displayed to the user",
-          "expectedResult": "Error message 'You do not have permission to comment on this task' appears in red banner"
+          "action": "Verify the comments table still exists and other comments are intact",
+          "expectedResult": "All existing comments remain visible, database table is not dropped, system properly sanitized the input"
         }
       ],
       "postconditions": [
-        "No comment is saved to the database due to authorization failure",
-        "Security audit log records the unauthorized access attempt with user ID and task ID",
-        "User permissions remain unchanged",
-        "No notifications are sent to team members"
+        "SQL injection attempt is neutralized and treated as plain text",
+        "Database integrity is maintained, no tables are dropped or modified",
+        "Comment is saved with special characters properly escaped",
+        "System demonstrates proper input sanitization and security measures"
       ]
     }
   ],
   "edgeCases": [
     {
       "id": "TC-EDGE-001",
-      "title": "Verify system handles comment with exactly 500 characters including special characters and Unicode",
+      "title": "Verify system handles comment with exactly 500 characters (boundary limit)",
       "category": "Edge Cases",
-      "priority": "Medium",
+      "priority": "High",
       "preconditions": [
         "User is logged in as an authenticated employee",
-        "Task details page is loaded with comment input field visible",
-        "Test data prepared with exactly 500 characters including emojis, special chars, and Unicode",
-        "Character counter is visible and functional"
+        "User is on the task details page with comment input field visible",
+        "User has prepared text with exactly 500 characters ready to paste",
+        "Comment input field is empty and ready for input"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Click inside the comment input field to focus it",
-          "expectedResult": "Input field receives focus with character counter showing '0/500'"
+          "action": "Paste or type text containing exactly 500 characters into the comment input field",
+          "expectedResult": "All 500 characters appear in the input field, character counter shows '500/500 characters' in normal or warning color"
         },
         {
           "step": 2,
-          "action": "Paste or type exactly 500 characters including: 'Test comment with émojis 😀🎉, spëcial çhars @#$%, ünïcödé 中文, and symbols ™©®' filling to exactly 500 chars",
-          "expectedResult": "All characters including emojis and Unicode are accepted and counter shows '500/500'"
+          "action": "Verify the Save button state and any validation messages",
+          "expectedResult": "Save button remains enabled, no error message appears, system accepts 500 characters as valid"
         },
         {
           "step": 3,
-          "action": "Click the Save button to submit the comment",
-          "expectedResult": "Comment is successfully submitted with success message displayed"
+          "action": "Click the 'Save' button to submit the comment",
+          "expectedResult": "Comment is saved successfully, success message 'Comment added successfully' appears"
         },
         {
           "step": 4,
-          "action": "Verify the saved comment displays all special characters and Unicode correctly",
-          "expectedResult": "Comment appears in the list with all emojis, special characters, and Unicode rendered properly"
+          "action": "Verify the complete 500-character comment appears in the comments list",
+          "expectedResult": "Full comment text is displayed without truncation, all 500 characters are visible and properly formatted"
         },
         {
           "step": 5,
-          "action": "Check the database record for proper UTF-8 encoding",
-          "expectedResult": "Database stores the comment with correct UTF-8 encoding preserving all characters"
+          "action": "Refresh the page and verify the comment persists with all 500 characters",
+          "expectedResult": "Comment remains intact after page refresh, all 500 characters are retrieved from database and displayed correctly"
         }
       ],
       "postconditions": [
-        "Comment with 500 characters including special chars is saved successfully",
-        "All Unicode and emoji characters are preserved without corruption",
-        "Character count calculation correctly handles multi-byte characters",
-        "Display rendering handles all character types without breaking layout"
+        "Comment with exactly 500 characters is saved successfully to database",
+        "Full comment text is displayed without truncation or data loss",
+        "Character limit boundary is properly handled at maximum allowed value",
+        "Database field accommodates 500 characters without overflow"
       ]
     },
     {
       "id": "TC-EDGE-002",
-      "title": "Verify system handles rapid successive comment submissions from same user",
+      "title": "Verify system handles comment with special characters and Unicode (emojis, accents)",
       "category": "Edge Cases",
       "priority": "Medium",
       "preconditions": [
         "User is logged in as an authenticated employee",
-        "Task details page is loaded with comment input field visible",
-        "Network connection is stable and fast",
-        "No rate limiting is expected to block legitimate rapid submissions"
+        "User is on the task details page with comment input field visible",
+        "Comment input field is empty and ready for input",
+        "Database supports UTF-8 encoding for special characters"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Type first comment 'Comment 1' in the input field and click Save",
-          "expectedResult": "First comment submission begins processing with loading indicator"
+          "action": "Type comment with special characters: 'Great work! 👍 Café résumé naïve <script>alert(\"test\")</script> @user #task'",
+          "expectedResult": "All characters including emojis, accents, HTML tags, and special symbols appear in input field, character counter updates correctly"
         },
         {
           "step": 2,
-          "action": "Immediately type second comment 'Comment 2' and click Save before first completes",
-          "expectedResult": "Second comment is queued or Save button is disabled until first completes"
+          "action": "Click the 'Save' button to submit the comment",
+          "expectedResult": "Comment is saved successfully, success message appears"
         },
         {
           "step": 3,
-          "action": "Repeat for third comment 'Comment 3' in rapid succession",
-          "expectedResult": "System handles multiple rapid submissions gracefully without errors"
+          "action": "Verify the comment appears in the comments list with all special characters properly displayed",
+          "expectedResult": "Comment displays: 'Great work! 👍 Café résumé naïve <script>alert(\"test\")</script> @user #task' with emojis rendered, accents preserved, HTML tags escaped (not executed)"
         },
         {
           "step": 4,
-          "action": "Wait for all submissions to complete and verify comments list",
-          "expectedResult": "All three comments appear in the list in correct chronological order"
+          "action": "Verify no JavaScript execution occurs from the <script> tag",
+          "expectedResult": "Script tag is displayed as plain text or stripped, no alert popup appears, XSS attack is prevented"
         },
         {
           "step": 5,
-          "action": "Verify no duplicate comments were created",
-          "expectedResult": "Each comment appears exactly once with unique IDs and timestamps"
+          "action": "Refresh the page and verify all special characters persist correctly",
+          "expectedResult": "All special characters, emojis, and accents are retrieved from database and displayed correctly after refresh"
         }
       ],
       "postconditions": [
-        "All comments are saved correctly without duplication",
-        "Comments appear in proper chronological order",
-        "No race conditions caused data corruption or loss",
-        "System performance remains stable after rapid submissions"
+        "Special characters and Unicode are properly saved and displayed",
+        "Emojis render correctly in the UI without encoding issues",
+        "HTML/script tags are sanitized to prevent XSS attacks",
+        "Database properly stores UTF-8 encoded characters"
       ]
     },
     {
       "id": "TC-EDGE-003",
-      "title": "Verify comment display and performance with task containing 100+ existing comments",
+      "title": "Verify system handles rapid successive comment submissions (double-click prevention)",
       "category": "Edge Cases",
       "priority": "Medium",
       "preconditions": [
         "User is logged in as an authenticated employee",
-        "Task exists with 100+ comments already added by various users",
-        "Task details page is being loaded for the first time",
-        "Browser has normal memory and processing capabilities"
+        "User is on the task details page with comment input field visible",
+        "Comment input field is empty and ready for input",
+        "Network connection is stable"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Navigate to the task details page with 100+ comments",
-          "expectedResult": "Page loads within 3-5 seconds with initial set of comments displayed"
+          "action": "Type 'Rapid submission test comment' in the comment input field",
+          "expectedResult": "Text appears in input field, character counter shows '31/500 characters'"
         },
         {
           "step": 2,
-          "action": "Observe if pagination or lazy loading is implemented for comments",
-          "expectedResult": "Comments are paginated (showing 20-50 per page) or lazy loaded as user scrolls"
+          "action": "Quickly double-click the 'Save' button (click twice within 500ms)",
+          "expectedResult": "Save button is disabled after first click, loading indicator appears, second click is ignored"
         },
         {
           "step": 3,
-          "action": "Scroll through the comments list to view older comments",
-          "expectedResult": "Additional comments load smoothly without page freezing or lag"
+          "action": "Wait for the comment submission to complete and check the comments list",
+          "expectedResult": "Only ONE comment 'Rapid submission test comment' appears in the list, no duplicate comments are created"
         },
         {
           "step": 4,
-          "action": "Add a new comment 'Testing with large comment volume' and click Save",
-          "expectedResult": "New comment is added successfully and appears at the top within 2 seconds"
+          "action": "Check the Network tab in developer tools for API calls",
+          "expectedResult": "Only ONE POST request to /api/tasks/{id}/comments is sent, duplicate requests are prevented"
         },
         {
           "step": 5,
-          "action": "Verify the new comment appears correctly and total count is updated",
-          "expectedResult": "Comment count shows 101+ and new comment is visible at the top of the list"
+          "action": "Verify the database contains only one instance of the comment",
+          "expectedResult": "Database query shows only one record for this comment, no duplicate entries exist"
         }
       ],
       "postconditions": [
-        "Page remains responsive with large number of comments",
-        "New comment is successfully added despite high volume",
-        "Memory usage remains within acceptable limits",
-        "All comments maintain correct chronological order"
+        "System prevents duplicate comment submissions from rapid clicking",
+        "Save button is properly disabled during submission process",
+        "Only one comment is saved to database regardless of multiple clicks",
+        "User experience is protected from accidental double submissions"
       ]
     },
     {
       "id": "TC-EDGE-004",
-      "title": "Verify comment submission behavior during network interruption and recovery",
+      "title": "Verify system handles task with zero existing comments (empty state)",
       "category": "Edge Cases",
-      "priority": "Medium",
+      "priority": "Low",
       "preconditions": [
         "User is logged in as an authenticated employee",
-        "Task details page is loaded with comment input field visible",
-        "Browser developer tools are open to simulate network conditions",
-        "Comment text is ready to be submitted"
+        "User has navigated to a task details page that has never had any comments",
+        "Task is valid and accessible but comments list is empty",
+        "Comment input field is visible and ready for input"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Type comment 'Testing network interruption handling' in the input field",
-          "expectedResult": "Comment text is entered successfully"
+          "action": "Observe the comments section on the task details page",
+          "expectedResult": "Comments section displays empty state message 'No comments yet. Be the first to comment!' or similar placeholder"
         },
         {
           "step": 2,
-          "action": "Open browser developer tools and set network to 'Offline' mode",
-          "expectedResult": "Network is disabled simulating connection loss"
+          "action": "Verify the comment input field and Save button are visible and enabled",
+          "expectedResult": "Comment input field is accessible, Save button is enabled, no errors are displayed"
         },
         {
           "step": 3,
-          "action": "Click the Save button to attempt comment submission",
-          "expectedResult": "Request fails and error message 'Network error. Please check your connection.' appears"
+          "action": "Type 'First comment on this task' in the comment input field and click 'Save'",
+          "expectedResult": "Comment is saved successfully, success message appears"
         },
         {
           "step": 4,
-          "action": "Verify the comment text remains in the input field",
-          "expectedResult": "User's comment text is preserved and not lost"
+          "action": "Verify the empty state message is replaced with the new comment",
+          "expectedResult": "Empty state message disappears, first comment appears in the comments list with author name and timestamp"
         },
         {
           "step": 5,
-          "action": "Re-enable network connection in developer tools",
-          "expectedResult": "Network connection is restored"
-        },
-        {
-          "step": 6,
-          "action": "Click the Save button again to retry submission",
-          "expectedResult": "Comment is successfully submitted and appears in the comments list"
+          "action": "Verify the comment count updates from 0 to 1",
+          "expectedResult": "Comment counter (if visible) shows '1 comment' or similar indicator"
         }
       ],
       "postconditions": [
-        "Comment is saved successfully after network recovery",
-        "No duplicate comments are created from retry attempts",
-        "User's data is preserved during network interruption",
-        "System gracefully handles network failures with clear messaging"
+        "First comment is successfully added to previously empty task",
+        "Empty state is properly replaced with comments list",
+        "Comment count is updated correctly from 0 to 1",
+        "System handles transition from empty to populated state smoothly"
       ]
     },
     {
       "id": "TC-EDGE-005",
-      "title": "Verify comment functionality with single character input at minimum boundary",
+      "title": "Verify system handles task with large number of existing comments (100+ comments)",
       "category": "Edge Cases",
-      "priority": "Low",
+      "priority": "Medium",
       "preconditions": [
         "User is logged in as an authenticated employee",
-        "Task details page is loaded with comment input field visible",
-        "No minimum character requirement is specified in requirements",
-        "Input field is empty and ready for input"
+        "Task details page contains 100 or more existing comments",
+        "User has navigated to the task details page",
+        "Page has loaded with pagination or lazy loading for comments"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Click inside the comment input field to focus it",
-          "expectedResult": "Input field receives focus with character counter showing '0/500'"
+          "action": "Observe the initial load time and display of the comments section",
+          "expectedResult": "Page loads within acceptable time (under 5 seconds), comments are displayed with pagination or 'Load more' button, or first 20-50 comments are shown"
         },
         {
           "step": 2,
-          "action": "Type a single character 'A' in the input field",
-          "expectedResult": "Character appears in the field and counter shows '1/500'"
+          "action": "Scroll to the bottom of the comments list or click 'Load more' if pagination exists",
+          "expectedResult": "Additional comments load smoothly, scroll performance is acceptable without lag"
         },
         {
           "step": 3,
-          "action": "Click the Save button to submit the single character comment",
-          "expectedResult": "Comment is accepted and success message 'Comment added successfully' appears"
+          "action": "Add a new comment 'Comment on task with 100+ existing comments' and click 'Save'",
+          "expectedResult": "Comment is saved successfully within 2 seconds, success message appears"
         },
         {
           "step": 4,
-          "action": "Verify the single character comment appears in the comments list",
-          "expectedResult": "Comment with single character 'A' is displayed with author name and timestamp"
+          "action": "Verify the new comment appears at the bottom of the chronological list",
+          "expectedResult": "New comment is positioned correctly as the most recent (101st comment), page scrolls to show new comment or provides notification"
+        },
+        {
+          "step": 5,
+          "action": "Verify page performance remains acceptable with 101 comments",
+          "expectedResult": "Page remains responsive, no significant performance degradation, scrolling and interactions work smoothly"
         }
       ],
       "postconditions": [
-        "Single character comment is saved successfully in the database",
-        "Comment displays properly without layout issues",
-        "Notifications are sent to relevant team members for the single character comment",
-        "No validation errors occur for minimum length"
+        "System handles large number of comments without performance issues",
+        "New comment is added successfully to task with 100+ existing comments",
+        "Pagination or lazy loading works correctly with increased comment count",
+        "User experience remains smooth even with large dataset"
       ]
     },
     {
       "id": "TC-EDGE-006",
-      "title": "Verify comment submission with multiple line breaks and formatting characters",
+      "title": "Verify system handles comment submission during session timeout/expiration",
       "category": "Edge Cases",
-      "priority": "Low",
+      "priority": "High",
       "preconditions": [
         "User is logged in as an authenticated employee",
-        "Task details page is loaded with comment input field visible",
-        "Input field supports multi-line text entry",
-        "Character counter counts line breaks as characters"
+        "User is on the task details page with comment input field visible",
+        "User session is about to expire or can be manually expired",
+        "Comment input field contains unsaved text"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Click inside the comment input field to focus it",
-          "expectedResult": "Input field receives focus and cursor is visible"
+          "action": "Type 'Session timeout test comment' in the comment input field but do not save",
+          "expectedResult": "Text appears in input field, character counter shows '29/500 characters'"
         },
         {
           "step": 2,
-          "action": "Type multi-line comment: 'Line 1' + Enter + Enter + 'Line 2' + Enter + Enter + Enter + 'Line 3' with multiple line breaks",
-          "expectedResult": "Text appears with line breaks preserved and character counter includes newline characters"
+          "action": "Wait for session to expire (or manually clear session cookie/token in browser developer tools)",
+          "expectedResult": "Session expires, authentication token becomes invalid"
         },
         {
           "step": 3,
-          "action": "Verify character count includes the line break characters",
-          "expectedResult": "Character counter accurately reflects total including newlines (e.g., '23/500')"
+          "action": "Click the 'Save' button to attempt comment submission",
+          "expectedResult": "System detects expired session and shows error message 'Your session has expired. Please log in again.' or redirects to login page"
         },
         {
           "step": 4,
-          "action": "Click the Save button to submit the multi-line comment",
-          "expectedResult": "Comment is successfully submitted with success message"
+          "action": "Verify the comment text is preserved (if possible) or user is warned about data loss",
+          "expectedResult": "System either preserves comment text in browser storage for recovery after re-login, or warns user 'Your comment will be lost. Please log in to continue.'"
         },
         {
           "step": 5,
-          "action": "Verify the saved comment preserves line breaks in display",
-          "expectedResult": "Comment displays with line breaks preserved showing proper formatting"
+          "action": "Log in again and return to the task details page",
+          "expectedResult": "User is redirected to task details page, comment text is either restored from browser storage or input field is empty"
         }
       ],
       "postconditions": [
-        "Multi-line comment is saved with line breaks preserved in database",
-        "Comment displays with proper formatting and spacing",
-        "Line breaks are counted correctly toward 500 character limit",
-        "No layout issues occur with multiple line breaks"
+        "System gracefully handles session expiration during comment submission",
+        "User receives clear notification about session timeout",
+        "User data is preserved when possible or user is warned about data loss",
+        "No comment is saved with invalid/expired authentication"
       ]
     }
   ],
@@ -807,292 +790,297 @@
       "priority": "High",
       "preconditions": [
         "User is logged in as an authenticated employee",
-        "Task details page is loaded with comment section visible",
-        "No mouse or pointing device is being used for this test",
-        "Keyboard focus is at the top of the page"
+        "User is on the task details page with comment section visible",
+        "User is using only keyboard (no mouse) for navigation",
+        "Screen reader is optionally enabled for testing"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Press Tab key repeatedly to navigate through page elements until reaching the comment input field",
-          "expectedResult": "Focus moves through all interactive elements in logical order and comment input field receives visible focus indicator (blue outline)"
+          "action": "Press Tab key repeatedly from the top of the page until focus reaches the comment input field",
+          "expectedResult": "Focus moves through all interactive elements in logical order, comment input field receives visible focus indicator (blue outline or border)"
         },
         {
           "step": 2,
-          "action": "With focus on comment input field, type comment text 'Testing keyboard accessibility'",
-          "expectedResult": "Text is entered successfully and character counter updates in real-time"
+          "action": "With focus on comment input field, type 'Keyboard navigation test comment'",
+          "expectedResult": "Text is entered successfully, character counter updates, no focus is lost during typing"
         },
         {
           "step": 3,
-          "action": "Press Tab key to move focus from input field to the Save button",
-          "expectedResult": "Focus moves to Save button with visible focus indicator (blue outline or highlight)"
+          "action": "Press Tab key to move focus to the 'Save' button",
+          "expectedResult": "Focus moves from input field to Save button, visible focus indicator appears on Save button"
         },
         {
           "step": 4,
           "action": "Press Enter key or Spacebar to activate the Save button",
-          "expectedResult": "Comment is submitted successfully and success message appears"
+          "expectedResult": "Comment is submitted successfully, success message appears and is announced by screen reader, focus moves to success message or remains on Save button"
         },
         {
           "step": 5,
-          "action": "Press Tab key to navigate through the newly added comment in the comments list",
-          "expectedResult": "Focus moves to the new comment element with visible focus indicator"
+          "action": "Press Tab to navigate through the newly added comment in the comments list",
+          "expectedResult": "Focus moves to the new comment, comment content is accessible and readable, timestamp and author information are accessible"
         },
         {
           "step": 6,
           "action": "Press Shift+Tab to navigate backwards through the elements",
-          "expectedResult": "Focus moves in reverse order back through Save button to input field"
+          "expectedResult": "Focus moves in reverse order through Save button, input field, and previous elements without skipping or trapping focus"
         }
       ],
       "postconditions": [
-        "All interactive elements are accessible via keyboard navigation",
+        "All comment functionality is fully accessible via keyboard only",
         "Focus order is logical and follows visual layout",
-        "No keyboard traps prevent user from navigating away",
-        "Comment submission is fully functional using only keyboard"
+        "No keyboard traps exist that prevent navigation",
+        "All interactive elements have visible focus indicators"
       ]
     },
     {
       "id": "TC-ACCE-002",
-      "title": "Verify screen reader announces comment input field, character counter, and submission feedback",
+      "title": "Verify screen reader announces comment input, submission, and success messages",
       "category": "Accessibility",
       "priority": "High",
       "preconditions": [
         "User is logged in as an authenticated employee",
-        "Task details page is loaded with comment section visible",
-        "Screen reader software (NVDA, JAWS, or VoiceOver) is active and running",
-        "Screen reader is set to announce all page elements and changes"
+        "User is on the task details page with comment section visible",
+        "Screen reader is enabled (NVDA, JAWS, or VoiceOver)",
+        "User is navigating with keyboard and screen reader active"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Navigate to the comment input field using screen reader navigation commands",
-          "expectedResult": "Screen reader announces 'Comment input field, edit text, 0 of 500 characters' or similar descriptive label"
+          "action": "Navigate to the comment input field using Tab key with screen reader active",
+          "expectedResult": "Screen reader announces 'Comment input field, edit text, Add a comment, 0 of 500 characters' or similar descriptive label"
         },
         {
           "step": 2,
-          "action": "Type comment text 'Testing screen reader accessibility' in the input field",
-          "expectedResult": "Screen reader announces each character or word as typed and updates character count periodically"
+          "action": "Type 'Screen reader test comment' in the input field",
+          "expectedResult": "Screen reader announces each character or word as typed (depending on verbosity settings), character counter updates are announced"
         },
         {
           "step": 3,
-          "action": "Navigate to the character counter element using screen reader",
-          "expectedResult": "Screen reader announces current character count '38 of 500 characters' with appropriate ARIA live region"
+          "action": "Navigate to the Save button using Tab key",
+          "expectedResult": "Screen reader announces 'Save button' or 'Submit comment button' with clear indication it is a button element"
         },
         {
           "step": 4,
-          "action": "Navigate to and activate the Save button using screen reader",
-          "expectedResult": "Screen reader announces 'Save button' and activation is confirmed"
+          "action": "Press Enter to submit the comment",
+          "expectedResult": "Screen reader announces 'Comment added successfully' or similar success message, announcement is made via ARIA live region"
         },
         {
           "step": 5,
-          "action": "Wait for comment submission to complete",
-          "expectedResult": "Screen reader announces success message 'Comment added successfully' via ARIA live region"
+          "action": "Navigate to the newly added comment in the comments list",
+          "expectedResult": "Screen reader announces comment content, author name, and timestamp in logical order: 'Comment by [Author Name], [Timestamp], Screen reader test comment'"
         },
         {
           "step": 6,
-          "action": "Navigate to the comments list to find the newly added comment",
-          "expectedResult": "Screen reader announces comment with author, timestamp, and content: 'Comment by [User Name], posted just now, Testing screen reader accessibility'"
+          "action": "Navigate to the character counter while typing",
+          "expectedResult": "Screen reader announces character count updates at appropriate intervals (e.g., every 10 characters or when approaching limit)"
         }
       ],
       "postconditions": [
-        "All form elements have proper ARIA labels and descriptions",
-        "Dynamic content updates are announced via ARIA live regions",
-        "Screen reader users can independently add and read comments",
-        "All feedback messages are accessible to screen reader users"
+        "All comment functionality is fully accessible to screen reader users",
+        "ARIA labels and live regions provide appropriate announcements",
+        "Success and error messages are announced automatically",
+        "Comment content and metadata are properly structured for screen readers"
       ]
     },
     {
       "id": "TC-ACCE-003",
-      "title": "Verify focus management and focus trap prevention in comment section",
+      "title": "Verify proper ARIA labels, roles, and attributes for comment section",
       "category": "Accessibility",
       "priority": "High",
       "preconditions": [
         "User is logged in as an authenticated employee",
-        "Task details page is loaded with comment section visible",
-        "Multiple comments exist in the comments list",
-        "Keyboard navigation is being used exclusively"
-      ],
-      "steps": [
-        {
-          "step": 1,
-          "action": "Press Tab key to navigate to the comment input field",
-          "expectedResult": "Focus moves to input field with clear visible focus indicator (2px blue outline minimum)"
-        },
-        {
-          "step": 2,
-          "action": "Continue pressing Tab through all elements in the comment section",
-          "expectedResult": "Focus moves through input field, Save button, and each comment in the list without getting trapped"
-        },
-        {
-          "step": 3,
-          "action": "After the last comment, press Tab again",
-          "expectedResult": "Focus moves to the next section of the page (not trapped in comment section)"
-        },
-        {
-          "step": 4,
-          "action": "Press Shift+Tab to navigate backwards into the comment section",
-          "expectedResult": "Focus returns to comment section in reverse order without skipping elements"
-        },
-        {
-          "step": 5,
-          "action": "Submit a new comment and observe where focus moves after submission",
-          "expectedResult": "After successful submission, focus moves to the newly added comment or returns to the cleared input field with announcement"
-        }
-      ],
-      "postconditions": [
-        "No keyboard focus traps exist in the comment section",
-        "Focus indicators are visible at all times with minimum 2px outline",
-        "Focus management follows WCAG 2.1 guidelines for predictable navigation",
-        "Users can easily enter and exit the comment section using keyboard"
-      ]
-    },
-    {
-      "id": "TC-ACCE-004",
-      "title": "Verify color contrast ratios meet WCAG 2.1 AA standards for all comment elements",
-      "category": "Accessibility",
-      "priority": "High",
-      "preconditions": [
-        "User is logged in as an authenticated employee",
-        "Task details page is loaded with comment section visible",
-        "Color contrast checking tool (e.g., WAVE, axe DevTools) is available",
-        "Multiple comments exist showing various states (normal, hover, focus)"
-      ],
-      "steps": [
-        {
-          "step": 1,
-          "action": "Use color contrast analyzer to check the comment input field label text against background",
-          "expectedResult": "Contrast ratio is at least 4.5:1 for normal text (or 3:1 for large text 18pt+)"
-        },
-        {
-          "step": 2,
-          "action": "Check contrast ratio of placeholder text in the empty input field",
-          "expectedResult": "Placeholder text has minimum 4.5:1 contrast ratio against background"
-        },
-        {
-          "step": 3,
-          "action": "Check contrast ratio of character counter text (both normal and warning states)",
-          "expectedResult": "Character counter has 4.5:1 contrast in normal state and maintains contrast in warning state (500/500)"
-        },
-        {
-          "step": 4,
-          "action": "Check contrast ratio of Save button text and background in all states (normal, hover, focus, disabled)",
-          "expectedResult": "Button maintains 4.5:1 contrast ratio in all states with clear visual differentiation"
-        },
-        {
-          "step": 5,
-          "action": "Check contrast ratio of comment text, author names, and timestamps in the comments list",
-          "expectedResult": "All text elements have minimum 4.5:1 contrast ratio against their backgrounds"
-        },
-        {
-          "step": 6,
-          "action": "Check contrast ratio of error messages and success messages",
-          "expectedResult": "Error messages (red) and success messages (green) have 4.5:1 contrast and don't rely solely on color"
-        }
-      ],
-      "postconditions": [
-        "All text elements meet WCAG 2.1 Level AA contrast requirements (4.5:1 for normal text)",
-        "Color is not the only means of conveying information (icons or text accompany color)",
-        "Users with low vision or color blindness can read all content",
-        "No contrast violations are detected by automated tools"
-      ]
-    },
-    {
-      "id": "TC-ACCE-005",
-      "title": "Verify proper ARIA labels, roles, and live regions for dynamic comment updates",
-      "category": "Accessibility",
-      "priority": "High",
-      "preconditions": [
-        "User is logged in as an authenticated employee",
-        "Task details page is loaded with comment section visible",
-        "Browser developer tools are open to inspect ARIA attributes",
-        "Screen reader is available for testing announcements"
+        "User is on the task details page with comment section visible",
+        "Browser developer tools are open to inspect HTML and ARIA attributes",
+        "Accessibility testing extension (e.g., axe DevTools) is installed"
       ],
       "steps": [
         {
           "step": 1,
           "action": "Inspect the comment input field element in browser developer tools",
-          "expectedResult": "Input field has aria-label='Add comment' or associated label with for attribute, and aria-describedby pointing to character counter"
+          "expectedResult": "Input field has proper attributes: aria-label='Add a comment' or associated <label>, aria-describedby pointing to character counter, role='textbox' (implicit or explicit)"
         },
         {
           "step": 2,
           "action": "Inspect the character counter element",
-          "expectedResult": "Character counter has role='status' or aria-live='polite' to announce updates to screen readers"
+          "expectedResult": "Character counter has id attribute referenced by input's aria-describedby, contains text like '0/500 characters', updates dynamically"
         },
         {
           "step": 3,
           "action": "Inspect the Save button element",
-          "expectedResult": "Save button has clear accessible name and aria-disabled='true' when disabled"
+          "expectedResult": "Button has accessible name via text content or aria-label, role='button' (implicit for <button> element), aria-disabled='true' when appropriate"
         },
         {
           "step": 4,
-          "action": "Submit a comment and inspect the success/error message container",
-          "expectedResult": "Message container has role='alert' or aria-live='assertive' to immediately announce to screen readers"
+          "action": "Inspect the success/error message container",
+          "expectedResult": "Message container has aria-live='polite' or 'assertive', role='alert' or 'status', messages are announced when they appear"
         },
         {
           "step": 5,
-          "action": "Inspect the comments list container element",
-          "expectedResult": "Comments list has role='list' and each comment has role='listitem' with proper semantic structure"
+          "action": "Inspect the comments list container",
+          "expectedResult": "Comments list has semantic structure: <ul> or <ol> with <li> for each comment, or role='list' with role='listitem', proper heading hierarchy"
         },
         {
           "step": 6,
-          "action": "Inspect individual comment elements for ARIA attributes",
-          "expectedResult": "Each comment has aria-label describing author and timestamp, e.g., 'Comment by John Doe, posted 2 hours ago'"
+          "action": "Run automated accessibility checker (axe DevTools) on the comment section",
+          "expectedResult": "No critical ARIA or accessibility violations are reported, all interactive elements have accessible names, color contrast meets WCAG AA standards"
         }
       ],
       "postconditions": [
-        "All interactive elements have proper ARIA labels and roles",
-        "Dynamic content updates are announced via ARIA live regions",
-        "Semantic HTML structure is enhanced with appropriate ARIA attributes",
-        "Screen reader users receive all necessary information about comments"
+        "All ARIA attributes are properly implemented and valid",
+        "Semantic HTML structure is used where possible",
+        "Automated accessibility tests pass without critical violations",
+        "Comment section is fully accessible according to WCAG 2.1 Level AA standards"
       ]
     },
     {
-      "id": "TC-ACCE-006",
-      "title": "Verify comment section remains functional and readable at 200% browser zoom",
+      "id": "TC-ACCE-004",
+      "title": "Verify sufficient color contrast for comment text, buttons, and error messages",
       "category": "Accessibility",
       "priority": "Medium",
       "preconditions": [
         "User is logged in as an authenticated employee",
-        "Task details page is loaded with comment section visible",
-        "Browser zoom is set to 100% initially",
-        "Multiple comments exist in the comments list for testing layout"
+        "User is on the task details page with comment section visible",
+        "Color contrast checker tool is available (browser extension or online tool)",
+        "Page is displayed in default theme/color scheme"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "Set browser zoom to 200% using Ctrl/Cmd + Plus key or browser zoom controls",
-          "expectedResult": "Page zooms to 200% and comment section remains visible without horizontal scrolling"
+          "action": "Use color contrast checker to measure contrast ratio between comment input field text and background",
+          "expectedResult": "Contrast ratio is at least 4.5:1 for normal text (or 3:1 for large text 18pt+), meets WCAG AA standards"
         },
         {
           "step": 2,
-          "action": "Verify the comment input field is fully visible and usable",
-          "expectedResult": "Input field expands appropriately, text is readable, and character counter is visible"
+          "action": "Measure contrast ratio between Save button text and button background color",
+          "expectedResult": "Contrast ratio is at least 4.5:1 (or 3:1 for large text), button is clearly visible and readable"
         },
         {
           "step": 3,
-          "action": "Type a comment in the input field at 200% zoom",
-          "expectedResult": "Text entry works normally and all text is readable at larger size"
+          "action": "Trigger an error message (e.g., submit empty comment) and measure contrast of error text",
+          "expectedResult": "Error message text has contrast ratio of at least 4.5:1 against background, red color is not the only indicator of error (icon or text also present)"
         },
         {
           "step": 4,
-          "action": "Verify the Save button is fully visible and clickable",
-          "expectedResult": "Save button is accessible, properly sized, and label text is not truncated"
+          "action": "Measure contrast ratio of character counter text, especially when approaching limit",
+          "expectedResult": "Character counter has sufficient contrast in all states: normal (4.5:1), warning (4.5:1), and error (4.5:1)"
         },
         {
           "step": 5,
-          "action": "Scroll through the comments list at 200% zoom",
-          "expectedResult": "Comments are readable, layout is not broken, and no content overlaps or is cut off"
+          "action": "Check contrast of comment metadata (author name, timestamp) in comments list",
+          "expectedResult": "All text elements meet minimum contrast requirements, secondary text (timestamps) has at least 4.5:1 ratio"
         },
         {
           "step": 6,
-          "action": "Submit the comment and verify success message is visible at 200% zoom",
-          "expectedResult": "Success message appears and is fully readable without requiring horizontal scroll"
+          "action": "Verify focus indicators have sufficient contrast against background",
+          "expectedResult": "Focus outline/border has contrast ratio of at least 3:1 against adjacent colors, focus is clearly visible"
+        }
+      ],
+      "postconditions": [
+        "All text and interactive elements meet WCAG 2.1 Level AA contrast requirements",
+        "Color is not used as the only means of conveying information",
+        "Users with low vision or color blindness can read all content",
+        "Focus indicators are clearly visible for keyboard navigation"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify comment section functionality at 200% browser zoom level",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User is on the task details page with comment section visible",
+        "Browser zoom is set to default 100% level",
+        "Page is fully loaded and responsive"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Increase browser zoom to 200% using Ctrl/Cmd + '+' or browser zoom controls",
+          "expectedResult": "Page scales to 200%, comment section remains visible and usable, no horizontal scrolling is required for comment input"
+        },
+        {
+          "step": 2,
+          "action": "Verify the comment input field is fully visible and functional at 200% zoom",
+          "expectedResult": "Input field is accessible, text is readable, character counter is visible, no text or UI elements are cut off or overlapping"
+        },
+        {
+          "step": 3,
+          "action": "Type 'Zoom level test comment' in the input field at 200% zoom",
+          "expectedResult": "Text entry works normally, typed text is clearly visible and readable, character counter updates correctly"
+        },
+        {
+          "step": 4,
+          "action": "Locate and click the Save button at 200% zoom",
+          "expectedResult": "Save button is fully visible and clickable, button text is readable, clicking works without issues"
+        },
+        {
+          "step": 5,
+          "action": "Verify the success message and new comment are visible at 200% zoom",
+          "expectedResult": "Success message appears and is readable, new comment is displayed in comments list with all text visible, no content is hidden or truncated"
+        },
+        {
+          "step": 6,
+          "action": "Scroll through the comments list at 200% zoom",
+          "expectedResult": "Scrolling works smoothly, all comments are readable, layout remains intact without breaking or overlapping elements"
         }
       ],
       "postconditions": [
         "All comment functionality works correctly at 200% zoom level",
-        "No horizontal scrolling is required to read content (vertical scrolling is acceptable)",
-        "Text remains readable and layout is not broken",
-        "WCAG 2.1 Level AA reflow requirement (1.4.10) is met"
+        "No horizontal scrolling is required for primary content",
+        "Text remains readable and UI elements remain accessible",
+        "Layout adapts responsively without breaking at increased zoom"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "Verify error messages are accessible and announced properly to assistive technologies",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as an authenticated employee",
+        "User is on the task details page with comment section visible",
+        "Screen reader is enabled (NVDA, JAWS, or VoiceOver)",
+        "Comment input field is empty and ready for testing"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "With screen reader active, navigate to the comment input field and click Save without entering text",
+          "expectedResult": "Error message 'Comment cannot be empty' appears and is immediately announced by screen reader via ARIA live region"
+        },
+        {
+          "step": 2,
+          "action": "Verify the error message has proper ARIA attributes in developer tools",
+          "expectedResult": "Error message container has aria-live='assertive' or role='alert', aria-atomic='true' for complete message announcement"
+        },
+        {
+          "step": 3,
+          "action": "Check if the input field is associated with the error message",
+          "expectedResult": "Input field has aria-invalid='true' and aria-describedby pointing to error message ID, screen reader announces error when field receives focus"
+        },
+        {
+          "step": 4,
+          "action": "Type text exceeding 500 characters and attempt to save",
+          "expectedResult": "Error message 'Comment exceeds maximum length of 500 characters' appears and is announced by screen reader"
+        },
+        {
+          "step": 5,
+          "action": "Verify error message has sufficient color contrast and is not conveyed by color alone",
+          "expectedResult": "Error message uses red text with sufficient contrast (4.5:1), also includes error icon or 'Error:' prefix, not relying solely on color"
+        },
+        {
+          "step": 6,
+          "action": "Correct the error and submit successfully, verify error message is cleared",
+          "expectedResult": "Error message disappears, aria-invalid is removed or set to 'false', screen reader announces success message, focus management is appropriate"
+        }
+      ],
+      "postconditions": [
+        "All error messages are accessible to screen reader users",
+        "Errors are announced immediately when they occur",
+        "Error messages are associated with relevant form fields",
+        "Errors are conveyed through multiple means (text, color, icons, ARIA)"
       ]
     }
   ],
@@ -1116,8 +1104,6 @@
     "tags": "",
     "epicId": null,
     "featureId": null,
-    "epicTitle": null,
-    "featureTitle": null,
     "source": "ado",
     "adoUrl": "https://dev.azure.com/QS001/Venus/_workitems/edit/14055"
   }
