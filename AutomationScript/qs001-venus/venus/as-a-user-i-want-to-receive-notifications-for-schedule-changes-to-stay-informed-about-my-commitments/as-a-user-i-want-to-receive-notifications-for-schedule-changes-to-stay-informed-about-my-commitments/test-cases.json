@@ -1,0 +1,2204 @@
+{
+  "storyId": "ado-14152",
+  "storyTitle": "As a User, I want to receive notifications for schedule changes to stay informed about my commitments.",
+  "testCases": [],
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify user receives both email and in-app notifications when schedule is updated",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system with valid credentials",
+        "User has at least one scheduled appointment in the system",
+        "User's email address is verified and configured in profile settings",
+        "Notification preferences are enabled for both email and in-app alerts",
+        "System notification service is running and operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the user's schedule and select an existing appointment scheduled for tomorrow at 2:00 PM",
+          "expectedResult": "Appointment details are displayed showing current time as 2:00 PM"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Edit Appointment' button and change the appointment time from 2:00 PM to 3:30 PM",
+          "expectedResult": "Time field updates to show 3:30 PM in the edit form"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Save Changes' button to confirm the schedule modification",
+          "expectedResult": "Success message 'Appointment updated successfully' appears in green banner at top of page"
+        },
+        {
+          "step": 4,
+          "action": "Check the in-app notification bell icon in the top-right corner of the page",
+          "expectedResult": "Red notification badge appears on bell icon showing '1' unread notification within 1 minute"
+        },
+        {
+          "step": 5,
+          "action": "Click the notification bell icon to view notification details",
+          "expectedResult": "Notification panel opens displaying message: 'Your appointment has been rescheduled from 2:00 PM to 3:30 PM on [date]' with timestamp"
+        },
+        {
+          "step": 6,
+          "action": "Check the user's registered email inbox for notification email",
+          "expectedResult": "Email received within 1 minute with subject 'Schedule Change Alert' containing appointment details: original time (2:00 PM), new time (3:30 PM), date, and appointment description"
+        }
+      ],
+      "postconditions": [
+        "Appointment is saved in database with new time of 3:30 PM",
+        "Notification record is created in notifications table with status 'sent'",
+        "User remains logged in and on the schedule page",
+        "Email delivery log shows successful send status"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify notification includes complete details of schedule change including date, time, and description",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is authenticated and has active session",
+        "User has a scheduled appointment titled 'Team Meeting' on January 15, 2025 at 10:00 AM",
+        "Notification service is configured and running",
+        "User has notification permissions enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Schedule Management page and locate the 'Team Meeting' appointment scheduled for January 15, 2025 at 10:00 AM",
+          "expectedResult": "Appointment 'Team Meeting' is displayed with date January 15, 2025 and time 10:00 AM"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Edit' button next to the appointment and modify the date to January 16, 2025 and time to 11:30 AM, then click 'Save'",
+          "expectedResult": "Appointment updates successfully and confirmation message appears"
+        },
+        {
+          "step": 3,
+          "action": "Click the notification bell icon in the header within 1 minute of saving changes",
+          "expectedResult": "Notification panel opens showing new notification with red 'unread' indicator"
+        },
+        {
+          "step": 4,
+          "action": "Read the notification content in the notification panel",
+          "expectedResult": "Notification displays: 'Schedule Change Alert: Team Meeting has been rescheduled. Original: January 15, 2025 at 10:00 AM. New: January 16, 2025 at 11:30 AM. Description: Team Meeting'"
+        },
+        {
+          "step": 5,
+          "action": "Open the email notification received in the user's inbox",
+          "expectedResult": "Email contains identical information with formatted sections showing 'Original Schedule', 'New Schedule', 'Appointment Title', and 'Change Timestamp'"
+        }
+      ],
+      "postconditions": [
+        "Notification is marked as delivered in the system",
+        "Appointment reflects updated date and time in the database",
+        "Notification remains in user's notification history",
+        "User can view notification details at any time"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify user can acknowledge receipt of notification and notification status updates accordingly",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the application",
+        "User has received at least one unread schedule change notification",
+        "Notification appears in the notification panel with 'unread' status",
+        "Notification bell icon shows unread count badge"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click the notification bell icon in the top-right corner of the page",
+          "expectedResult": "Notification panel slides open showing list of notifications with the most recent at the top marked as 'unread' in bold text"
+        },
+        {
+          "step": 2,
+          "action": "Locate the schedule change notification and click the 'Acknowledge' button next to it",
+          "expectedResult": "'Acknowledge' button changes to 'Acknowledged' with checkmark icon and notification text changes from bold to regular weight"
+        },
+        {
+          "step": 3,
+          "action": "Verify the notification badge count on the bell icon",
+          "expectedResult": "Badge count decreases by 1 (if this was the only unread notification, badge disappears completely)"
+        },
+        {
+          "step": 4,
+          "action": "Close the notification panel and reopen it by clicking the bell icon again",
+          "expectedResult": "Previously acknowledged notification still appears in the list but shows 'Acknowledged' status with timestamp of acknowledgment"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to 'Notification History' page from the user menu",
+          "expectedResult": "Notification History page displays the acknowledged notification with status 'Acknowledged', acknowledgment timestamp, and original notification details"
+        }
+      ],
+      "postconditions": [
+        "Notification status is updated to 'acknowledged' in the database",
+        "Acknowledgment timestamp is recorded in the notification record",
+        "Unread notification count is decremented for the user",
+        "User remains on the current page with notification panel accessible"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify notifications are sent within 1 minute when multiple schedule changes occur simultaneously",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with administrator privileges",
+        "User has 5 scheduled appointments for the upcoming week",
+        "All appointments are confirmed and active",
+        "System time is synchronized and accurate",
+        "Notification service has sufficient capacity for bulk notifications"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to 'Bulk Schedule Management' page and select all 5 appointments using checkboxes",
+          "expectedResult": "All 5 appointments are selected and highlighted, 'Bulk Actions' menu becomes enabled"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Bulk Actions' dropdown and select 'Reschedule All', then set new date to be 2 days later than current dates",
+          "expectedResult": "Bulk reschedule dialog opens showing all 5 appointments with new proposed dates 2 days in the future"
+        },
+        {
+          "step": 3,
+          "action": "Note the current system time, then click 'Confirm Bulk Reschedule' button",
+          "expectedResult": "Success message appears: '5 appointments rescheduled successfully. Notifications are being sent.' System time is recorded as T0"
+        },
+        {
+          "step": 4,
+          "action": "Within 1 minute of clicking confirm, click the notification bell icon",
+          "expectedResult": "Notification badge shows '5' and notification panel displays 5 separate notifications, one for each rescheduled appointment, all timestamped within 1 minute of T0"
+        },
+        {
+          "step": 5,
+          "action": "Check email inbox within 1 minute of the bulk reschedule action",
+          "expectedResult": "5 separate email notifications are received, each detailing one appointment change, all with send timestamps within 1 minute of T0"
+        },
+        {
+          "step": 6,
+          "action": "Verify each notification contains accurate before/after schedule information",
+          "expectedResult": "Each of the 5 notifications shows correct original date/time and new date/time (2 days later) for its respective appointment"
+        }
+      ],
+      "postconditions": [
+        "All 5 appointments are updated in the database with new dates",
+        "5 notification records are created with 'sent' status and timestamps within 1 minute of change",
+        "All email notifications are logged in the email delivery system",
+        "User can acknowledge each notification individually"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify user can view past notifications in notification history with complete details",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged into the system",
+        "User has received at least 10 schedule change notifications over the past 30 days",
+        "Some notifications are acknowledged and some are unread",
+        "User has access to Notification History feature"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on the user profile icon in the top-right corner and select 'Notification History' from the dropdown menu",
+          "expectedResult": "Notification History page loads displaying a list of all past notifications sorted by date (most recent first)"
+        },
+        {
+          "step": 2,
+          "action": "Verify the notification list displays at least 10 notifications with dates spanning the past 30 days",
+          "expectedResult": "List shows 10+ notifications with columns: Date/Time, Notification Type, Status (Acknowledged/Unread), and Details preview"
+        },
+        {
+          "step": 3,
+          "action": "Click on the oldest notification in the list to expand its details",
+          "expectedResult": "Notification expands showing complete information: original schedule, new schedule, appointment title, change reason (if provided), timestamp of change, and acknowledgment status with timestamp if acknowledged"
+        },
+        {
+          "step": 4,
+          "action": "Use the filter dropdown to select 'Unread Only' filter option",
+          "expectedResult": "List refreshes to show only notifications with 'Unread' status, hiding all acknowledged notifications"
+        },
+        {
+          "step": 5,
+          "action": "Clear the filter and use the date range picker to select notifications from the past 7 days only",
+          "expectedResult": "List updates to display only notifications received within the last 7 days, with count indicator showing number of results"
+        }
+      ],
+      "postconditions": [
+        "User remains on Notification History page",
+        "All historical notifications remain accessible in the database",
+        "Filter selections are preserved during the session",
+        "User can navigate back to main application without losing notification data"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify notification is sent when schedule is cancelled (deletion scenario)",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with valid credentials",
+        "User has a confirmed appointment scheduled for 'Client Presentation' on January 20, 2025 at 3:00 PM",
+        "Notification preferences are enabled",
+        "User has permission to cancel appointments"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the Schedule page and locate the 'Client Presentation' appointment on January 20, 2025 at 3:00 PM",
+          "expectedResult": "Appointment is displayed with status 'Confirmed' and all details visible"
+        },
+        {
+          "step": 2,
+          "action": "Click the 'Cancel Appointment' button next to the appointment",
+          "expectedResult": "Confirmation dialog appears asking 'Are you sure you want to cancel this appointment? This action cannot be undone.'"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Yes, Cancel Appointment' button in the confirmation dialog",
+          "expectedResult": "Dialog closes, success message appears: 'Appointment cancelled successfully. Notification sent.' Appointment is removed from the schedule or marked as 'Cancelled'"
+        },
+        {
+          "step": 4,
+          "action": "Click the notification bell icon within 1 minute of cancellation",
+          "expectedResult": "Notification panel shows new notification: 'Schedule Change Alert: Client Presentation scheduled for January 20, 2025 at 3:00 PM has been cancelled.'"
+        },
+        {
+          "step": 5,
+          "action": "Check email inbox for cancellation notification",
+          "expectedResult": "Email received with subject 'Appointment Cancelled' containing details: appointment title 'Client Presentation', original date/time 'January 20, 2025 at 3:00 PM', cancellation timestamp, and cancellation reason field (if provided)"
+        }
+      ],
+      "postconditions": [
+        "Appointment status is updated to 'Cancelled' in the database",
+        "Cancellation notification is created and marked as 'sent'",
+        "Email delivery log shows successful send",
+        "Cancelled appointment appears in user's appointment history with 'Cancelled' status"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify system handles notification failure gracefully when email service is unavailable",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system",
+        "User has a scheduled appointment that can be modified",
+        "Email service is temporarily unavailable or experiencing outage (simulated)",
+        "In-app notification service is operational",
+        "System has error handling configured for email failures"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Simulate email service outage by disabling SMTP connection or blocking email service endpoint",
+          "expectedResult": "Email service status changes to 'unavailable' in system monitoring"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to user's schedule and modify an existing appointment time from 10:00 AM to 11:00 AM, then click 'Save'",
+          "expectedResult": "Appointment saves successfully with message 'Appointment updated. Note: Email notification could not be sent at this time.'"
+        },
+        {
+          "step": 3,
+          "action": "Check the notification bell icon within 1 minute",
+          "expectedResult": "In-app notification is delivered successfully showing schedule change details despite email failure"
+        },
+        {
+          "step": 4,
+          "action": "Check email inbox after 2 minutes",
+          "expectedResult": "No email is received due to service unavailability"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to 'Notification History' page and locate the recent notification",
+          "expectedResult": "Notification record shows status 'Partially Delivered' with details: 'In-app: Success, Email: Failed - Service Unavailable'"
+        },
+        {
+          "step": 6,
+          "action": "Restore email service and check if system attempts to retry sending the failed email notification",
+          "expectedResult": "System retry mechanism attempts to resend failed email within configured retry interval (e.g., 5 minutes), and email is successfully delivered with note 'Delayed delivery due to temporary service issue'"
+        }
+      ],
+      "postconditions": [
+        "Appointment change is saved in database regardless of notification failure",
+        "Error is logged in system error log with details of email service failure",
+        "In-app notification remains accessible to user",
+        "Failed email notification is queued for retry when service is restored"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify system behavior when user has invalid or missing email address in profile",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system",
+        "User profile has email field set to invalid format 'invalid-email-format' or is empty/null",
+        "User has at least one scheduled appointment",
+        "Notification service is operational",
+        "Email validation is enforced in the system"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to User Profile page and verify email field shows invalid value 'invalid-email-format' or is empty",
+          "expectedResult": "Email field displays invalid/empty value with warning icon or validation message"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to Schedule page and modify an existing appointment time, then click 'Save Changes'",
+          "expectedResult": "Appointment saves but warning message appears: 'Appointment updated. Email notification could not be sent - invalid email address. Please update your profile.'"
+        },
+        {
+          "step": 3,
+          "action": "Check the notification bell icon within 1 minute",
+          "expectedResult": "In-app notification is delivered successfully with additional message: 'Please update your email address in profile settings to receive email notifications.'"
+        },
+        {
+          "step": 4,
+          "action": "Check email inbox (if any valid email exists)",
+          "expectedResult": "No email notification is received due to invalid email address"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to Notification History and check the delivery status of the recent notification",
+          "expectedResult": "Notification shows status 'Partially Delivered' with details: 'In-app: Success, Email: Failed - Invalid recipient address'"
+        }
+      ],
+      "postconditions": [
+        "Appointment change is saved successfully in database",
+        "Error is logged indicating email validation failure",
+        "User is prompted to update email address in profile",
+        "In-app notification remains accessible despite email failure"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify system handles notification when user session expires during schedule change",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged into the system with active session",
+        "User session timeout is set to 30 minutes",
+        "User has been idle for 29 minutes (session about to expire)",
+        "User has a scheduled appointment open in edit mode",
+        "Auto-save is disabled for this test scenario"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Open an appointment in edit mode and modify the time from 2:00 PM to 3:00 PM without saving",
+          "expectedResult": "Appointment edit form shows modified time 3:00 PM but changes are not yet saved"
+        },
+        {
+          "step": 2,
+          "action": "Wait for session to expire (1 minute) without any user interaction",
+          "expectedResult": "Session timeout occurs after 30 minutes of total inactivity"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Save Changes' button after session has expired",
+          "expectedResult": "Error message appears: 'Your session has expired. Please log in again to save changes.' User is redirected to login page"
+        },
+        {
+          "step": 4,
+          "action": "Log in again with valid credentials",
+          "expectedResult": "User successfully logs in and is redirected to dashboard or previous page"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to the appointment that was being edited and check its time",
+          "expectedResult": "Appointment still shows original time 2:00 PM (changes were not saved due to session expiration)"
+        },
+        {
+          "step": 6,
+          "action": "Check notification bell icon and email inbox",
+          "expectedResult": "No notification was sent because the schedule change was not successfully saved"
+        }
+      ],
+      "postconditions": [
+        "User is logged in with new active session",
+        "Appointment remains unchanged in database with original time",
+        "No notification record is created for the failed save attempt",
+        "Session expiration event is logged in security audit log"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify notification system handles database connection failure during notification creation",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system",
+        "User has a scheduled appointment that can be modified",
+        "Database connection can be simulated to fail during notification write operation",
+        "Application has database error handling configured",
+        "Notification service is running"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Prepare to modify an appointment and simulate database connection failure specifically for notification table writes",
+          "expectedResult": "Database connection to notification table is blocked while main schedule database remains accessible"
+        },
+        {
+          "step": 2,
+          "action": "Modify appointment time from 1:00 PM to 2:00 PM and click 'Save Changes'",
+          "expectedResult": "Appointment update succeeds but error message appears: 'Appointment saved, but notification could not be recorded. Please check your notifications manually.'"
+        },
+        {
+          "step": 3,
+          "action": "Check the notification bell icon within 1 minute",
+          "expectedResult": "Notification bell shows error indicator or no new notification badge appears"
+        },
+        {
+          "step": 4,
+          "action": "Verify the appointment was actually saved by refreshing the schedule page",
+          "expectedResult": "Appointment displays new time 2:00 PM confirming the schedule change was persisted"
+        },
+        {
+          "step": 5,
+          "action": "Check system error logs for database failure details",
+          "expectedResult": "Error log contains entry: 'Failed to create notification record - Database connection error' with timestamp and error details"
+        },
+        {
+          "step": 6,
+          "action": "Restore database connection and verify if system attempts to create missing notification",
+          "expectedResult": "System recovery process detects missing notification and creates it retroactively, or displays persistent warning to user about missed notification"
+        }
+      ],
+      "postconditions": [
+        "Appointment change is saved in schedule database",
+        "Database error is logged with full stack trace and context",
+        "System administrator is alerted about database connectivity issue",
+        "User is informed about notification delivery failure"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify system behavior when user has disabled notification preferences but schedule change occurs",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged into the system",
+        "User has navigated to Settings > Notification Preferences",
+        "User has disabled both 'Email Notifications' and 'In-App Notifications' toggles",
+        "Notification preferences are saved with both options set to 'OFF'",
+        "User has at least one scheduled appointment"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Verify in Settings > Notification Preferences that both 'Email Notifications' and 'In-App Notifications' toggles are in OFF position",
+          "expectedResult": "Both toggle switches show OFF state with gray color, and status text reads 'Notifications Disabled'"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to Schedule page and modify an existing appointment time from 9:00 AM to 10:00 AM, then click 'Save'",
+          "expectedResult": "Appointment saves successfully with message 'Appointment updated' (no mention of notifications)"
+        },
+        {
+          "step": 3,
+          "action": "Check the notification bell icon within 1 minute of saving",
+          "expectedResult": "No notification badge appears on bell icon, and clicking it shows empty state message: 'No notifications. You have disabled notifications in settings.'"
+        },
+        {
+          "step": 4,
+          "action": "Check email inbox after 2 minutes",
+          "expectedResult": "No email notification is received because email notifications are disabled"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to Notification History page",
+          "expectedResult": "Notification History shows message: 'Notification preferences disabled. Recent schedule changes: [list of changes with timestamps]' allowing user to see what they missed"
+        }
+      ],
+      "postconditions": [
+        "Appointment change is saved in database",
+        "No notification record is created due to user preferences",
+        "User preference settings remain unchanged (notifications still disabled)",
+        "Schedule change is logged in audit trail even though notification was not sent"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify notification system handles extremely long appointment descriptions without breaking email or in-app display",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged into the system",
+        "User has permission to create and modify appointments",
+        "System has character limits defined for appointment descriptions (e.g., 5000 characters)",
+        "Notification templates are configured to handle variable-length content"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create a new appointment with title 'Test Appointment' and description containing exactly 4500 characters (near maximum limit) including special characters, line breaks, and Unicode characters",
+          "expectedResult": "Appointment is created successfully with the long description saved"
+        },
+        {
+          "step": 2,
+          "action": "Modify the appointment time from 1:00 PM to 2:00 PM and click 'Save Changes'",
+          "expectedResult": "Appointment saves successfully and notification generation begins"
+        },
+        {
+          "step": 3,
+          "action": "Click notification bell icon within 1 minute and open the schedule change notification",
+          "expectedResult": "In-app notification displays with truncated description (e.g., first 200 characters) followed by '... [View Full Details]' link, no UI breaking or overflow issues"
+        },
+        {
+          "step": 4,
+          "action": "Click '[View Full Details]' link in the notification",
+          "expectedResult": "Modal or expanded view opens displaying complete appointment description with proper formatting and all 4500 characters visible with scroll functionality"
+        },
+        {
+          "step": 5,
+          "action": "Check email notification in inbox",
+          "expectedResult": "Email is received with properly formatted content, description is either truncated with link to view full details online, or included in full without breaking email layout or causing rendering issues"
+        },
+        {
+          "step": 6,
+          "action": "Verify email displays correctly in multiple email clients (Gmail, Outlook, mobile email app)",
+          "expectedResult": "Email renders properly in all tested clients without broken formatting, missing content, or display errors"
+        }
+      ],
+      "postconditions": [
+        "Appointment with long description is saved correctly in database",
+        "Notification is delivered successfully via both channels",
+        "No data truncation or loss occurs in the database",
+        "Email and in-app notification templates handle long content gracefully"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Verify notification delivery when multiple schedule changes occur within 1 second",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system with valid credentials",
+        "User has at least 5 scheduled appointments in the schedule database",
+        "Email service and in-app notification service are operational",
+        "User has notification preferences enabled for both email and in-app alerts"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the schedule management page as an administrator",
+          "expectedResult": "Schedule management page loads successfully showing all user appointments"
+        },
+        {
+          "step": 2,
+          "action": "Simultaneously update 5 different appointments for the same user within 1 second using automated script or bulk update feature",
+          "expectedResult": "System processes all 5 schedule changes and registers them in the database"
+        },
+        {
+          "step": 3,
+          "action": "Check the user's email inbox within 2 minutes of the changes",
+          "expectedResult": "User receives 5 separate email notifications or 1 consolidated email listing all 5 changes, all delivered within 1 minute"
+        },
+        {
+          "step": 4,
+          "action": "Log in as the affected user and check the in-app notification center",
+          "expectedResult": "In-app notification center displays all 5 schedule changes as separate notifications or grouped notification with all changes listed"
+        },
+        {
+          "step": 5,
+          "action": "Verify the timestamp on each notification",
+          "expectedResult": "All notifications show timestamps within 1 minute of the actual schedule change time"
+        }
+      ],
+      "postconditions": [
+        "All 5 schedule changes are reflected in the user's schedule",
+        "Notification delivery logs show successful dispatch of all notifications within performance SLA",
+        "User remains logged in and can view notification history",
+        "No duplicate notifications are sent for the same schedule change"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Verify notification handling when user's email address contains special characters and Unicode",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User account exists with email address containing special characters (e.g., user+test@domain.co.uk, user.name+tag@sub-domain.com)",
+        "User account exists with email address containing Unicode characters (e.g., user@tëst.com, 用户@example.com)",
+        "User has at least 1 scheduled appointment",
+        "Email notification service supports international email addresses"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Log in as administrator and navigate to user management",
+          "expectedResult": "User management page displays successfully"
+        },
+        {
+          "step": 2,
+          "action": "Verify the test user's email address contains special characters or Unicode (e.g., tëst+user@sub-domain.com)",
+          "expectedResult": "Email address is displayed correctly with all special characters and Unicode preserved"
+        },
+        {
+          "step": 3,
+          "action": "Update the user's scheduled appointment time from 2:00 PM to 3:00 PM",
+          "expectedResult": "Schedule change is saved successfully in the database"
+        },
+        {
+          "step": 4,
+          "action": "Wait 1 minute and check the email delivery logs for the notification",
+          "expectedResult": "Email notification is successfully sent to the special character/Unicode email address without encoding errors"
+        },
+        {
+          "step": 5,
+          "action": "Log in as the user and check in-app notifications",
+          "expectedResult": "In-app notification displays the schedule change with correct details"
+        },
+        {
+          "step": 6,
+          "action": "Verify the actual email was received in the inbox of the special character email address",
+          "expectedResult": "Email is received successfully with properly formatted schedule change details"
+        }
+      ],
+      "postconditions": [
+        "Schedule change is persisted in the database",
+        "Email notification successfully delivered to special character/Unicode email address",
+        "In-app notification is visible and accessible to the user",
+        "No email encoding or delivery errors logged in the system"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Verify notification behavior when schedule is changed during system maintenance or email service outage",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system with active schedule",
+        "Email service is temporarily unavailable or in maintenance mode",
+        "In-app notification service is operational",
+        "System has retry mechanism configured for failed email notifications"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Simulate email service outage by disabling the email notification service",
+          "expectedResult": "Email service status shows as unavailable in system monitoring"
+        },
+        {
+          "step": 2,
+          "action": "Update a user's scheduled appointment from 10:00 AM to 11:00 AM",
+          "expectedResult": "Schedule change is saved successfully in the database"
+        },
+        {
+          "step": 3,
+          "action": "Check in-app notification center immediately after the change",
+          "expectedResult": "In-app notification is delivered successfully within 1 minute showing the schedule change details"
+        },
+        {
+          "step": 4,
+          "action": "Check email delivery logs and retry queue",
+          "expectedResult": "Email notification is queued for retry with failed status logged, retry attempts are scheduled"
+        },
+        {
+          "step": 5,
+          "action": "Re-enable the email notification service after 5 minutes",
+          "expectedResult": "Email service status shows as available in system monitoring"
+        },
+        {
+          "step": 6,
+          "action": "Wait for the retry mechanism to process queued notifications",
+          "expectedResult": "Queued email notification is successfully sent to user's email address"
+        },
+        {
+          "step": 7,
+          "action": "Verify user's email inbox for the delayed notification",
+          "expectedResult": "Email notification is received with schedule change details and appropriate timestamp indicating when change occurred"
+        }
+      ],
+      "postconditions": [
+        "Schedule change is persisted correctly in the database",
+        "In-app notification was delivered despite email service outage",
+        "Email notification was eventually delivered after service restoration",
+        "System logs show retry attempts and final successful delivery",
+        "No notifications are lost or duplicated"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Verify notification content when schedule change includes extremely long text fields and special characters",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged into the system with valid credentials",
+        "User has at least 1 scheduled appointment",
+        "Appointment fields support up to 1000 characters for description/notes",
+        "Email and in-app notification templates are configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the user's appointment and edit the appointment details",
+          "expectedResult": "Appointment edit form loads successfully"
+        },
+        {
+          "step": 2,
+          "action": "Update the appointment description with 950 characters including special characters (e.g., @#$%^&*(), quotes, apostrophes, emojis 🎉📅, line breaks, and HTML-like tags <script>)",
+          "expectedResult": "Description field accepts the input and saves successfully"
+        },
+        {
+          "step": 3,
+          "action": "Change the appointment time from 1:00 PM to 2:00 PM to trigger notification",
+          "expectedResult": "Schedule change is saved and notification generation is triggered"
+        },
+        {
+          "step": 4,
+          "action": "Check the email notification received within 1 minute",
+          "expectedResult": "Email displays the full description with all special characters properly escaped/encoded, no HTML injection occurs, emojis render correctly, and text is not truncated"
+        },
+        {
+          "step": 5,
+          "action": "Log in as the user and check the in-app notification",
+          "expectedResult": "In-app notification displays the schedule change with full description, special characters are properly rendered, no XSS vulnerabilities, and text wraps appropriately in the UI"
+        },
+        {
+          "step": 6,
+          "action": "Click on the notification to view full details",
+          "expectedResult": "Full notification details page displays all content correctly without truncation or rendering errors"
+        }
+      ],
+      "postconditions": [
+        "Schedule change with long description is saved in the database",
+        "Email notification delivered with properly encoded special characters",
+        "In-app notification displays without security vulnerabilities or rendering issues",
+        "No data truncation or corruption occurred in notification content"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Verify notification delivery when user has 100+ unread notifications in the notification center",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User account exists with 100+ unread notifications already in the notification center",
+        "User has active scheduled appointments",
+        "In-app notification center has pagination or infinite scroll configured",
+        "Email notification service is operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Log in as administrator and verify the user has exactly 100 unread notifications",
+          "expectedResult": "User's notification count shows 100 unread notifications in the system"
+        },
+        {
+          "step": 2,
+          "action": "Update the user's scheduled appointment from 9:00 AM to 10:00 AM",
+          "expectedResult": "Schedule change is saved successfully and notification is triggered"
+        },
+        {
+          "step": 3,
+          "action": "Wait 1 minute and check email delivery logs",
+          "expectedResult": "Email notification is sent successfully within 1 minute despite high notification count"
+        },
+        {
+          "step": 4,
+          "action": "Log in as the user and navigate to the notification center",
+          "expectedResult": "Notification center loads successfully showing notification count of 101"
+        },
+        {
+          "step": 5,
+          "action": "Verify the newest notification (schedule change) appears at the top of the list",
+          "expectedResult": "New schedule change notification is displayed at the top with correct timestamp and details, marked as unread"
+        },
+        {
+          "step": 6,
+          "action": "Test scrolling or pagination through all notifications",
+          "expectedResult": "Notification center performs smoothly without lag, all 101 notifications are accessible, and the new notification remains accessible"
+        }
+      ],
+      "postconditions": [
+        "User's notification count is updated to 101 unread notifications",
+        "New schedule change notification is persisted in the database",
+        "Email notification was delivered successfully",
+        "Notification center UI remains responsive with large notification count",
+        "No performance degradation in notification retrieval"
+      ]
+    },
+    {
+      "id": "TC-EDGE-006",
+      "title": "Verify notification behavior when user's account is disabled immediately after schedule change but before notification delivery",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User account is active with valid email address",
+        "User has at least 1 scheduled appointment",
+        "Administrator has permissions to disable user accounts",
+        "Notification processing has configurable delay for testing"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Log in as administrator and update the user's scheduled appointment from 3:00 PM to 4:00 PM",
+          "expectedResult": "Schedule change is saved and notification is queued for delivery"
+        },
+        {
+          "step": 2,
+          "action": "Immediately (within 5 seconds) disable the user's account before notification is sent",
+          "expectedResult": "User account status changes to 'Disabled' in the system"
+        },
+        {
+          "step": 3,
+          "action": "Wait 2 minutes and check the notification delivery logs",
+          "expectedResult": "System logs show notification processing attempt with appropriate handling for disabled account (either delivered with note or marked as undeliverable)"
+        },
+        {
+          "step": 4,
+          "action": "Check if email notification was sent to the disabled user's email address",
+          "expectedResult": "Email notification handling follows business rules: either email is still sent (user should know about schedule change) or email is suppressed with logged reason"
+        },
+        {
+          "step": 5,
+          "action": "Re-enable the user account and log in as the user",
+          "expectedResult": "User account is re-activated and login is successful"
+        },
+        {
+          "step": 6,
+          "action": "Check the in-app notification center",
+          "expectedResult": "In-app notification for the schedule change is visible (if business rules dictate notifications persist) or absent (if notifications are cleared on account disable)"
+        }
+      ],
+      "postconditions": [
+        "Schedule change is persisted in the database regardless of account status",
+        "Notification delivery handling for disabled accounts is logged appropriately",
+        "System behavior is consistent with defined business rules for disabled accounts",
+        "No system errors or exceptions occurred during notification processing"
+      ]
+    },
+    {
+      "id": "TC-EDGE-007",
+      "title": "Verify notification delivery across different time zones when schedule change occurs at midnight boundary",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User account is configured with timezone set to Pacific Time (PT)",
+        "System server is running in UTC timezone",
+        "User has a scheduled appointment at 11:59 PM PT",
+        "Email and in-app notification services are operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Log in as administrator and navigate to the user's schedule showing appointment at 11:59 PM PT",
+          "expectedResult": "Appointment is displayed with correct time in user's timezone (11:59 PM PT)"
+        },
+        {
+          "step": 2,
+          "action": "Change the appointment time from 11:59 PM PT to 12:15 AM PT (next day)",
+          "expectedResult": "Schedule change is saved with correct timezone conversion and date change"
+        },
+        {
+          "step": 3,
+          "action": "Wait 1 minute and check the email notification received",
+          "expectedResult": "Email notification displays the schedule change with correct times in user's timezone (from 11:59 PM to 12:15 AM), correct date transition shown, and timezone indicator (PT) is included"
+        },
+        {
+          "step": 4,
+          "action": "Log in as the user and check in-app notification",
+          "expectedResult": "In-app notification shows schedule change with times displayed in user's configured timezone (PT), date change is clearly indicated (e.g., 'Nov 15 11:59 PM to Nov 16 12:15 AM')"
+        },
+        {
+          "step": 5,
+          "action": "Verify the notification timestamp shows when the notification was sent",
+          "expectedResult": "Notification timestamp is displayed in user's timezone and is within 1 minute of the actual schedule change time"
+        },
+        {
+          "step": 6,
+          "action": "Check the database to verify stored times are in UTC",
+          "expectedResult": "Database shows appointment times stored in UTC with correct conversion from PT, and notification timestamp is also stored in UTC"
+        }
+      ],
+      "postconditions": [
+        "Schedule change is correctly stored in database with UTC timestamps",
+        "Notifications display times in user's configured timezone",
+        "Date boundary transition is handled correctly in all notifications",
+        "No timezone conversion errors or date calculation issues occurred"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Verify complete keyboard navigation through notification center and notification acknowledgment",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system with valid credentials",
+        "User has at least 5 unread schedule change notifications in the notification center",
+        "Browser is set to standard keyboard navigation mode",
+        "No mouse or pointing device is used during test"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key repeatedly from the main page header to navigate to the notification bell icon",
+          "expectedResult": "Focus indicator (visible outline or highlight) moves through page elements in logical order and reaches the notification bell icon with clear visual focus indicator"
+        },
+        {
+          "step": 2,
+          "action": "Press Enter or Space key on the notification bell icon",
+          "expectedResult": "Notification center panel opens, focus automatically moves to the first notification in the list, and notification count badge is visible"
+        },
+        {
+          "step": 3,
+          "action": "Press Tab key to navigate through each notification in the list",
+          "expectedResult": "Focus moves sequentially through each notification item with visible focus indicator, notification details are readable, and focus does not get trapped"
+        },
+        {
+          "step": 4,
+          "action": "Press Enter key on a focused notification to view full details",
+          "expectedResult": "Notification expands or detail modal opens, focus moves to the notification detail content, and all interactive elements (acknowledge button, close button) are keyboard accessible"
+        },
+        {
+          "step": 5,
+          "action": "Press Tab to navigate to the 'Acknowledge' button and press Enter",
+          "expectedResult": "Notification is marked as acknowledged, visual confirmation appears (e.g., checkmark or status change), and focus returns to a logical location (next notification or notification list)"
+        },
+        {
+          "step": 6,
+          "action": "Press Escape key to close the notification center",
+          "expectedResult": "Notification center closes, focus returns to the notification bell icon, and notification count updates to reflect acknowledged notification"
+        },
+        {
+          "step": 7,
+          "action": "Press Shift+Tab to navigate backwards through the interface",
+          "expectedResult": "Focus moves in reverse order through all previously accessible elements without skipping or trapping focus"
+        }
+      ],
+      "postconditions": [
+        "All notifications remain accessible via keyboard navigation",
+        "Acknowledged notification status is persisted in the database",
+        "Focus management works correctly throughout the interaction flow",
+        "No keyboard traps exist in the notification interface",
+        "User can complete all notification tasks using only keyboard"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Verify screen reader announces schedule change notifications with complete context and ARIA live regions",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system with screen reader enabled (NVDA, JAWS, or VoiceOver)",
+        "User has notification preferences enabled for in-app alerts",
+        "User is on the dashboard page",
+        "Screen reader is set to announce live regions and notifications"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Have administrator update the user's scheduled appointment from 2:00 PM to 3:00 PM while user is on dashboard",
+          "expectedResult": "Screen reader immediately announces the new notification via ARIA live region (e.g., 'Alert: Schedule change notification. Your appointment has been changed from 2:00 PM to 3:00 PM')"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to the notification bell icon using screen reader navigation commands",
+          "expectedResult": "Screen reader announces 'Notifications button, 1 unread notification' or similar with notification count clearly stated"
+        },
+        {
+          "step": 3,
+          "action": "Activate the notification bell icon using Enter key",
+          "expectedResult": "Screen reader announces 'Notification center opened, list of 1 notification' and reads the first notification summary"
+        },
+        {
+          "step": 4,
+          "action": "Navigate through the notification using arrow keys or Tab",
+          "expectedResult": "Screen reader announces complete notification details including: notification type ('Schedule change'), original time ('2:00 PM'), new time ('3:00 PM'), date, and timestamp ('5 minutes ago')"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to the 'Acknowledge' button within the notification",
+          "expectedResult": "Screen reader announces 'Acknowledge button' with appropriate role and state information"
+        },
+        {
+          "step": 6,
+          "action": "Activate the 'Acknowledge' button using Enter or Space key",
+          "expectedResult": "Screen reader announces confirmation (e.g., 'Notification acknowledged') and updated state (e.g., 'Notification marked as read')"
+        },
+        {
+          "step": 7,
+          "action": "Navigate to the notification history section",
+          "expectedResult": "Screen reader announces 'Notification history, list of X items' and provides context about past notifications being available"
+        },
+        {
+          "step": 8,
+          "action": "Navigate through past notifications using screen reader commands",
+          "expectedResult": "Screen reader announces each past notification with full context including date, time, and acknowledgment status"
+        }
+      ],
+      "postconditions": [
+        "All notification content is accessible to screen reader users",
+        "ARIA live regions properly announce new notifications without user action",
+        "Notification acknowledgment status is announced and persisted",
+        "Screen reader users can access complete notification history",
+        "All interactive elements have appropriate ARIA labels and roles"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify focus management and focus trap prevention in notification modal dialogs",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system with keyboard navigation enabled",
+        "User has at least 1 schedule change notification available",
+        "Notification detail view opens in a modal dialog",
+        "No assistive technology is required for this test"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to notification center using Tab key and open it with Enter",
+          "expectedResult": "Notification center opens and focus is placed on the first focusable element within the panel"
+        },
+        {
+          "step": 2,
+          "action": "Press Enter on a notification to open the detailed view modal",
+          "expectedResult": "Modal dialog opens, focus automatically moves to the first focusable element in the modal (typically the modal heading or close button), and background content is inert (not focusable)"
+        },
+        {
+          "step": 3,
+          "action": "Press Tab key repeatedly to cycle through all focusable elements in the modal",
+          "expectedResult": "Focus moves through all interactive elements in the modal in logical order: notification details, 'Acknowledge' button, 'Close' button, and any other interactive elements"
+        },
+        {
+          "step": 4,
+          "action": "Continue pressing Tab after reaching the last focusable element in the modal",
+          "expectedResult": "Focus wraps back to the first focusable element in the modal (focus trap is active), focus does not escape to background page elements"
+        },
+        {
+          "step": 5,
+          "action": "Press Shift+Tab from the first focusable element",
+          "expectedResult": "Focus moves to the last focusable element in the modal (reverse focus trap works correctly)"
+        },
+        {
+          "step": 6,
+          "action": "Press Escape key while focus is anywhere in the modal",
+          "expectedResult": "Modal closes, focus returns to the element that triggered the modal (the notification item in the list), and background content becomes focusable again"
+        },
+        {
+          "step": 7,
+          "action": "Open the modal again and click the 'Acknowledge' button using Enter key",
+          "expectedResult": "Notification is acknowledged, modal closes, focus returns to the notification list or next unread notification, and visual focus indicator is clearly visible"
+        }
+      ],
+      "postconditions": [
+        "Focus is properly managed throughout modal interaction",
+        "Focus trap prevents keyboard users from accessing background content while modal is open",
+        "Focus returns to logical location when modal closes",
+        "Escape key successfully closes modal in all scenarios",
+        "No focus is lost or moved to unexpected locations"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify color contrast ratios and non-color-dependent information in notification UI",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system with standard display settings",
+        "User has multiple notifications with different statuses (unread, read, acknowledged)",
+        "Color contrast analyzer tool is available (e.g., browser extension or WAVE tool)",
+        "Notifications include different priority levels or types"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Open the notification center and use color contrast analyzer to check the contrast ratio between notification text and background",
+          "expectedResult": "Text contrast ratio meets WCAG 2.1 AA standards (minimum 4.5:1 for normal text, 3:1 for large text), all notification text is readable"
+        },
+        {
+          "step": 2,
+          "action": "Check the contrast ratio of the notification bell icon and its background",
+          "expectedResult": "Icon contrast ratio meets WCAG 2.1 AA standards (minimum 3:1 for UI components), notification count badge has sufficient contrast (minimum 4.5:1)"
+        },
+        {
+          "step": 3,
+          "action": "Identify how unread notifications are distinguished from read notifications",
+          "expectedResult": "Unread notifications use multiple indicators beyond color: bold text, icon (e.g., dot or badge), or text label ('Unread'), not relying solely on color difference"
+        },
+        {
+          "step": 4,
+          "action": "Check how different notification types or priorities are indicated (e.g., urgent schedule changes)",
+          "expectedResult": "Notification priority or type is indicated through multiple methods: icons, text labels ('Urgent', 'Schedule Change'), and/or patterns, not color alone"
+        },
+        {
+          "step": 5,
+          "action": "Enable browser high contrast mode or Windows High Contrast mode",
+          "expectedResult": "All notification elements remain visible and distinguishable, text is readable, interactive elements are identifiable, and no information is lost"
+        },
+        {
+          "step": 6,
+          "action": "Check the 'Acknowledge' button and other interactive elements for contrast",
+          "expectedResult": "Button text and borders have sufficient contrast (minimum 3:1 for UI components), button states (hover, focus, active) are distinguishable without relying on color alone"
+        },
+        {
+          "step": 7,
+          "action": "Verify timestamp and metadata text contrast",
+          "expectedResult": "All secondary text (timestamps, dates, metadata) meets minimum contrast requirements of 4.5:1 against background"
+        }
+      ],
+      "postconditions": [
+        "All notification UI elements meet WCAG 2.1 AA contrast requirements",
+        "Information is conveyed through multiple visual means, not color alone",
+        "Notification interface is usable in high contrast mode",
+        "Users with color vision deficiencies can distinguish all notification states and types"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify notification interface usability at 200% browser zoom and text scaling",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged into the system with standard browser settings",
+        "User has at least 3 schedule change notifications with varying content lengths",
+        "Browser supports zoom functionality (Chrome, Firefox, Safari, or Edge)",
+        "Notification center contains notifications with full details"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Set browser zoom to 200% using Ctrl/Cmd + '+' or browser settings",
+          "expectedResult": "Page zooms to 200%, all content scales proportionally, and notification bell icon remains visible and accessible"
+        },
+        {
+          "step": 2,
+          "action": "Click or activate the notification bell icon at 200% zoom",
+          "expectedResult": "Notification center opens and displays correctly, no content is cut off or hidden, horizontal scrolling is not required for notification content"
+        },
+        {
+          "step": 3,
+          "action": "Navigate through the notification list at 200% zoom",
+          "expectedResult": "All notifications are readable, text wraps appropriately, no overlapping content, vertical scrolling works smoothly if needed"
+        },
+        {
+          "step": 4,
+          "action": "Open a notification detail view or modal at 200% zoom",
+          "expectedResult": "Modal or detail view displays correctly, all content is accessible without horizontal scrolling, buttons and interactive elements are fully visible and clickable"
+        },
+        {
+          "step": 5,
+          "action": "Test the 'Acknowledge' button and other interactive elements at 200% zoom",
+          "expectedResult": "All buttons are large enough to click easily (minimum 44x44 CSS pixels touch target), button text is fully visible, and no UI elements overlap"
+        },
+        {
+          "step": 6,
+          "action": "Enable browser text-only zoom or increase text size to 200% in browser settings",
+          "expectedResult": "Text scales to 200% while layout adapts, all text remains readable without truncation, containers expand to accommodate larger text, and no text overlaps other elements"
+        },
+        {
+          "step": 7,
+          "action": "Verify notification timestamps, dates, and metadata at 200% zoom",
+          "expectedResult": "All secondary information remains visible and readable, proper spacing is maintained between elements, and no information is hidden or cut off"
+        }
+      ],
+      "postconditions": [
+        "Notification interface is fully functional at 200% zoom level",
+        "All content is accessible without horizontal scrolling",
+        "Text scaling does not break layout or hide content",
+        "Interactive elements remain usable and meet minimum touch target sizes",
+        "Users with low vision can effectively use notification features"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "Verify ARIA roles, labels, and live region implementation for dynamic notification updates",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system on the dashboard page",
+        "Browser developer tools are open to inspect ARIA attributes",
+        "User has notification preferences enabled",
+        "Administrator account is available to trigger schedule changes"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Inspect the notification bell icon element in browser developer tools",
+          "expectedResult": "Element has appropriate ARIA attributes: role='button', aria-label='Notifications' or 'View notifications', aria-haspopup='true', and aria-expanded='false' when closed"
+        },
+        {
+          "step": 2,
+          "action": "Check the notification count badge for ARIA implementation",
+          "expectedResult": "Badge has aria-label describing count (e.g., '3 unread notifications') or is included in the button's aria-label, ensuring screen readers announce the count"
+        },
+        {
+          "step": 3,
+          "action": "Have administrator create a new schedule change while inspecting the notification area",
+          "expectedResult": "ARIA live region (aria-live='polite' or 'assertive') announces the new notification, live region contains descriptive text about the schedule change, and announcement does not interrupt user's current task"
+        },
+        {
+          "step": 4,
+          "action": "Open the notification center and inspect the notification list container",
+          "expectedResult": "Container has role='list' or role='region' with aria-label='Notifications', individual notifications have role='listitem' or appropriate semantic structure"
+        },
+        {
+          "step": 5,
+          "action": "Inspect individual notification elements for ARIA attributes",
+          "expectedResult": "Each notification has aria-label or aria-labelledby providing complete context, unread status is indicated with aria-describedby or within aria-label, and interactive elements have appropriate roles (button, link)"
+        },
+        {
+          "step": 6,
+          "action": "Inspect the 'Acknowledge' button for ARIA implementation",
+          "expectedResult": "Button has role='button', aria-label='Acknowledge notification' or similar descriptive label, and aria-pressed or aria-checked if it represents a toggle state"
+        },
+        {
+          "step": 7,
+          "action": "Acknowledge a notification and check for ARIA live region update",
+          "expectedResult": "ARIA live region announces the acknowledgment (e.g., 'Notification acknowledged'), notification count updates and is announced, and aria-expanded updates if notification center closes"
+        },
+        {
+          "step": 8,
+          "action": "Inspect modal dialog (if used for notification details) for ARIA attributes",
+          "expectedResult": "Modal has role='dialog', aria-modal='true', aria-labelledby pointing to modal title, and aria-describedby pointing to modal content if applicable"
+        }
+      ],
+      "postconditions": [
+        "All ARIA attributes are correctly implemented according to WAI-ARIA specifications",
+        "Dynamic content updates are announced via ARIA live regions",
+        "Screen reader users receive complete context for all notifications",
+        "Interactive elements have appropriate roles and labels",
+        "Notification state changes are properly communicated to assistive technologies"
+      ]
+    },
+    {
+      "id": "TC-ACCE-007",
+      "title": "Verify mobile accessibility including touch target sizes and gesture alternatives for notification interactions",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged into the system on a mobile device (iOS or Android) or mobile browser emulation",
+        "User has at least 5 schedule change notifications available",
+        "Mobile screen reader is available for testing (VoiceOver on iOS or TalkBack on Android)",
+        "Touch screen functionality is enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Measure or inspect the notification bell icon touch target size on mobile",
+          "expectedResult": "Touch target is minimum 44x44 CSS pixels (iOS) or 48x48 dp (Android), adequate spacing exists between notification icon and adjacent interactive elements (minimum 8px)"
+        },
+        {
+          "step": 2,
+          "action": "Tap the notification bell icon to open notification center",
+          "expectedResult": "Notification center opens reliably with single tap, no accidental activation of adjacent elements, and visual feedback confirms the tap (e.g., ripple effect or highlight)"
+        },
+        {
+          "step": 3,
+          "action": "Verify touch target sizes for individual notifications in the list",
+          "expectedResult": "Each notification item has minimum 44x44 pixel touch target, adequate spacing between notifications prevents accidental taps, and entire notification area is tappable (not just text)"
+        },
+        {
+          "step": 4,
+          "action": "Test swipe gestures on notifications (if implemented for actions like acknowledge or delete)",
+          "expectedResult": "Swipe gestures work reliably, alternative tap-based methods are available for all swipe actions, and gesture hints or instructions are provided for discoverability"
+        },
+        {
+          "step": 5,
+          "action": "Enable mobile screen reader (VoiceOver or TalkBack) and navigate to notification center",
+          "expectedResult": "Screen reader announces notification bell with count, double-tap gesture opens notification center, and all notifications are accessible via swipe navigation"
+        },
+        {
+          "step": 6,
+          "action": "Use screen reader to navigate through notifications and activate 'Acknowledge' button",
+          "expectedResult": "Each notification is announced with full context, 'Acknowledge' button is clearly labeled and accessible, double-tap activates the button, and confirmation is announced"
+        },
+        {
+          "step": 7,
+          "action": "Test notification modal or detail view on mobile with screen reader",
+          "expectedResult": "Modal opens and focus is managed correctly, all content is accessible via swipe gestures, close button has adequate touch target size (44x44 pixels), and modal can be dismissed with standard gestures"
+        },
+        {
+          "step": 8,
+          "action": "Verify orientation support by rotating device between portrait and landscape",
+          "expectedResult": "Notification interface adapts to both orientations, all content remains accessible, no functionality is lost in either orientation, and layout adjusts appropriately"
+        }
+      ],
+      "postconditions": [
+        "All touch targets meet minimum size requirements for mobile accessibility",
+        "Notification features are fully accessible with mobile screen readers",
+        "Alternative interaction methods exist for all gesture-based actions",
+        "Mobile notification interface works in both portrait and landscape orientations",
+        "Users with motor impairments can successfully interact with notifications on mobile devices"
+      ]
+    }
+  ],
+  "performance": [
+    {
+      "id": "PERF-LOAD-001",
+      "title": "Validate notification delivery performance under peak concurrent schedule changes",
+      "category": "performance",
+      "subCategory": "Load Testing",
+      "priority": "Critical",
+      "description": "Test the notification system's ability to detect schedule changes and deliver notifications within the 1-minute SLA when processing 10,000 concurrent schedule updates during peak business hours. Validate response times, throughput, and resource utilization under sustained load.",
+      "preconditions": [
+        "Notification service is deployed and operational",
+        "10,000 test user accounts with valid email addresses and in-app notification preferences configured",
+        "Schedule database is populated with baseline schedules",
+        "Monitoring tools configured to capture P50, P95, P99 response times, TPS, CPU and memory metrics",
+        "Email service and in-app notification channels are operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure load testing tool (JMeter/K6) to simulate 10,000 concurrent users with schedule changes",
+          "expectedResult": "Load test configuration is validated and ready to execute"
+        },
+        {
+          "step": 2,
+          "action": "Execute load test: Trigger 10,000 schedule change events simultaneously via /api/notifications/send endpoint",
+          "expectedResult": "All 10,000 schedule change events are accepted by the system with HTTP 200/202 responses"
+        },
+        {
+          "step": 3,
+          "action": "Monitor notification detection latency from schedule change to notification generation",
+          "expectedResult": "P95 detection latency is ≤15 seconds, P99 is ≤30 seconds"
+        },
+        {
+          "step": 4,
+          "action": "Measure notification delivery time from generation to user receipt (email + in-app)",
+          "expectedResult": "95% of notifications delivered within 60 seconds (1-minute SLA), P50 ≤20 seconds, P95 ≤50 seconds, P99 ≤60 seconds"
+        },
+        {
+          "step": 5,
+          "action": "Monitor system resource utilization during test execution",
+          "expectedResult": "CPU utilization ≤75%, Memory utilization ≤80%, no memory leaks detected, error rate <0.1%"
+        },
+        {
+          "step": 6,
+          "action": "Measure throughput of notification processing",
+          "expectedResult": "System maintains minimum 200 TPS (transactions per second) for notification dispatch"
+        },
+        {
+          "step": 7,
+          "action": "Verify notification content accuracy and format for sample users",
+          "expectedResult": "100% of sampled notifications contain correct schedule change details in user-friendly format"
+        }
+      ],
+      "postconditions": [
+        "All test notifications are logged and can be retrieved",
+        "System returns to baseline resource utilization within 5 minutes",
+        "No database connection pool exhaustion",
+        "Test data is cleaned up or archived"
+      ],
+      "testData": "10,000 user profiles with unique IDs, email addresses, schedule entries with varied change types (time change, cancellation, rescheduling, new appointment)",
+      "toolsRequired": [
+        "Apache JMeter or K6 for load generation",
+        "Application Performance Monitoring (APM) tool - New Relic/Datadog/Dynatrace",
+        "Database monitoring tool",
+        "Email delivery monitoring service",
+        "Log aggregation tool - ELK/Splunk"
+      ],
+      "estimatedTime": "2 hours",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": "PERF-SLA-001"
+    },
+    {
+      "id": "PERF-SPIKE-001",
+      "title": "Validate notification system resilience during sudden traffic spike from mass schedule changes",
+      "category": "performance",
+      "subCategory": "Spike Testing",
+      "priority": "Critical",
+      "description": "Test the system's ability to handle sudden spike in notification requests when a mass schedule change event occurs (e.g., facility closure, system-wide rescheduling). Simulate traffic increasing from 100 to 25,000 concurrent schedule changes within 30 seconds, then validate auto-scaling, queue management, and graceful handling without service degradation.",
+      "preconditions": [
+        "Notification service with auto-scaling configured (horizontal pod autoscaling)",
+        "Message queue system (Kafka/RabbitMQ/SQS) is operational with sufficient capacity",
+        "25,000 test user accounts configured",
+        "Baseline load of 100 concurrent users established",
+        "Circuit breaker and rate limiting mechanisms are configured",
+        "Monitoring dashboards active for real-time observation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish baseline load with 100 concurrent users making schedule changes",
+          "expectedResult": "System operates normally with P95 response time ≤5 seconds, 0% error rate"
+        },
+        {
+          "step": 2,
+          "action": "Trigger spike: Increase load from 100 to 25,000 concurrent schedule changes within 30 seconds",
+          "expectedResult": "System accepts all incoming requests without immediate failures, requests queued if necessary"
+        },
+        {
+          "step": 3,
+          "action": "Monitor auto-scaling response and instance provisioning",
+          "expectedResult": "Auto-scaling triggers within 60 seconds, additional instances provisioned within 2-3 minutes"
+        },
+        {
+          "step": 4,
+          "action": "Measure notification delivery times during spike period",
+          "expectedResult": "95% of notifications still delivered within 5 minutes (acceptable degradation), no notifications lost, error rate <1%"
+        },
+        {
+          "step": 5,
+          "action": "Monitor message queue depth and processing rate",
+          "expectedResult": "Queue depth increases but remains manageable (<100,000 messages), processing rate increases proportionally with scaling"
+        },
+        {
+          "step": 6,
+          "action": "Reduce load back to baseline (100 users) within 30 seconds",
+          "expectedResult": "System processes queued notifications, auto-scales down gracefully within 10 minutes"
+        },
+        {
+          "step": 7,
+          "action": "Verify all notifications from spike period were eventually delivered",
+          "expectedResult": "100% notification delivery achieved within 10 minutes of spike end, no data loss"
+        }
+      ],
+      "postconditions": [
+        "All queued notifications are processed and delivered",
+        "System scales back to baseline capacity",
+        "No orphaned processes or zombie instances",
+        "Circuit breakers reset to normal state",
+        "Audit logs capture all notification events"
+      ],
+      "testData": "25,000 user profiles, mass schedule change event data (single facility closure affecting all users), varied notification preferences",
+      "toolsRequired": [
+        "K6 or Gatling for spike load generation",
+        "Kubernetes metrics server for auto-scaling observation",
+        "Message queue monitoring dashboard",
+        "APM tool with real-time alerting",
+        "Cloud provider metrics (AWS CloudWatch/Azure Monitor/GCP Stackdriver)"
+      ],
+      "estimatedTime": "3 hours",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": "PERF-RESILIENCE-001"
+    },
+    {
+      "id": "PERF-SOAK-001",
+      "title": "Validate notification system stability and resource management over 24-hour continuous operation",
+      "category": "performance",
+      "subCategory": "Endurance Testing",
+      "priority": "High",
+      "description": "Execute 24-hour endurance test to identify memory leaks, resource exhaustion, database connection issues, and performance degradation over extended operation. Simulate realistic continuous load of 2,000 concurrent users with schedule changes occurring at variable intervals to mirror production patterns.",
+      "preconditions": [
+        "Notification service deployed in test environment with production-equivalent configuration",
+        "2,000 test user accounts with realistic schedule patterns",
+        "Database connection pool configured with production settings",
+        "Monitoring and alerting configured for 24-hour observation",
+        "Sufficient test environment resources allocated",
+        "Baseline performance metrics captured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure endurance test with 2,000 concurrent users generating schedule changes at realistic intervals (average 50 changes per minute)",
+          "expectedResult": "Test configuration validated, expected load of ~72,000 notifications over 24 hours"
+        },
+        {
+          "step": 2,
+          "action": "Start 24-hour soak test with continuous monitoring of response times",
+          "expectedResult": "Test executes continuously, P95 response time remains ≤60 seconds throughout duration"
+        },
+        {
+          "step": 3,
+          "action": "Monitor memory utilization every hour for 24 hours",
+          "expectedResult": "Memory utilization remains stable (±5% variance), no continuous upward trend indicating memory leaks, heap size stable"
+        },
+        {
+          "step": 4,
+          "action": "Track database connection pool metrics throughout test",
+          "expectedResult": "No connection pool exhaustion, active connections remain within configured limits, no connection timeout errors"
+        },
+        {
+          "step": 5,
+          "action": "Monitor CPU utilization and thread count over 24-hour period",
+          "expectedResult": "CPU utilization remains stable (60-75% range), no thread leaks, thread pool size remains within normal bounds"
+        },
+        {
+          "step": 6,
+          "action": "Measure notification delivery success rate and latency at hours 1, 6, 12, 18, and 24",
+          "expectedResult": "Delivery success rate remains ≥99.5% throughout test, P95 latency variance <10% between measurements"
+        },
+        {
+          "step": 7,
+          "action": "Analyze application logs for errors, warnings, and exceptions",
+          "expectedResult": "Error rate remains <0.1%, no critical errors, no cascading failures, log file rotation working properly"
+        },
+        {
+          "step": 8,
+          "action": "Verify disk space and log file management",
+          "expectedResult": "Disk space utilization remains stable, log rotation prevents disk exhaustion, no I/O bottlenecks"
+        }
+      ],
+      "postconditions": [
+        "System remains operational after 24-hour test",
+        "All notifications delivered successfully",
+        "Performance metrics documented for trend analysis",
+        "Memory dumps captured if degradation detected",
+        "Test environment cleaned and reset"
+      ],
+      "testData": "2,000 user profiles with varied schedule patterns, realistic schedule change scenarios (cancellations, reschedules, new appointments) distributed across 24 hours",
+      "toolsRequired": [
+        "JMeter or K6 for sustained load generation",
+        "APM tool with 24-hour data retention",
+        "Memory profiler (Java VisualVM/YourKit for Java, or equivalent)",
+        "Database monitoring tool with connection pool metrics",
+        "Log analysis tool",
+        "Infrastructure monitoring (Prometheus/Grafana)"
+      ],
+      "estimatedTime": "26 hours (24-hour test + 2 hours setup/analysis)",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": "PERF-STABILITY-001"
+    }
+  ],
+  "security": [
+    {
+      "id": "SEC-AUTHZ-001",
+      "title": "Unauthorized Access to Other Users' Notification History via IDOR",
+      "category": "security",
+      "subCategory": "STRIDE-Elevation of Privilege",
+      "priority": "Critical",
+      "description": "Verify that authenticated users cannot access notification history belonging to other users by manipulating notification IDs or user identifiers in API requests. This tests for Insecure Direct Object Reference (IDOR) vulnerabilities and broken access control.",
+      "preconditions": [
+        "Two user accounts exist: UserA and UserB",
+        "Both users are authenticated with valid sessions",
+        "UserA has received notifications with known notification IDs",
+        "API endpoint /api/notifications is accessible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Authenticate as UserB and obtain valid session token",
+          "expectedResult": "UserB successfully authenticated with valid session token"
+        },
+        {
+          "step": 2,
+          "action": "Intercept API request to /api/notifications and identify UserA's notification ID",
+          "expectedResult": "Notification ID structure and parameters identified"
+        },
+        {
+          "step": 3,
+          "action": "Using UserB's session, send GET request to /api/notifications/{UserA_notification_id}",
+          "expectedResult": "System returns 403 Forbidden or 404 Not Found error, denying access to UserA's notification"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to modify user_id parameter in request body/query string to UserA's ID while authenticated as UserB",
+          "expectedResult": "System validates session ownership and rejects request with 403 Forbidden error"
+        },
+        {
+          "step": 5,
+          "action": "Attempt sequential notification ID enumeration (e.g., notification_id+1, +2, etc.) to access other users' notifications",
+          "expectedResult": "System consistently denies access to notifications not belonging to authenticated user"
+        }
+      ],
+      "postconditions": [
+        "No unauthorized access to UserA's notifications occurred",
+        "Security logs record all unauthorized access attempts",
+        "UserB can only access their own notifications"
+      ],
+      "testData": "UserA ID: user_12345, UserB ID: user_67890, Sample Notification IDs: notif_001, notif_002, notif_003",
+      "toolsRequired": [
+        "Burp Suite or OWASP ZAP",
+        "Postman or cURL",
+        "Browser Developer Tools"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 8.6,
+      "complianceTag": "OWASP-A01"
+    },
+    {
+      "id": "SEC-INJ-001",
+      "title": "Cross-Site Scripting (XSS) in Notification Content Display",
+      "category": "security",
+      "subCategory": "STRIDE-Tampering",
+      "priority": "Critical",
+      "description": "Verify that notification content containing malicious JavaScript payloads is properly sanitized and encoded before being displayed in email and in-app alerts. This prevents stored XSS attacks that could compromise user sessions or steal sensitive data.",
+      "preconditions": [
+        "User account with schedule modification privileges exists",
+        "Notification system is operational",
+        "Access to schedule update functionality",
+        "Test user account to receive notifications"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create a schedule change with malicious XSS payload in schedule title: '<script>alert(document.cookie)</script>Meeting Rescheduled'",
+          "expectedResult": "Schedule change is accepted by the system"
+        },
+        {
+          "step": 2,
+          "action": "Trigger notification generation for the schedule change",
+          "expectedResult": "Notification is generated and queued for delivery"
+        },
+        {
+          "step": 3,
+          "action": "Check in-app notification display and verify the payload is rendered as plain text, not executed",
+          "expectedResult": "Script tags are HTML-encoded (e.g., &lt;script&gt;) and displayed as text, no JavaScript execution occurs"
+        },
+        {
+          "step": 4,
+          "action": "Check email notification HTML source and verify proper encoding of special characters",
+          "expectedResult": "Email content shows encoded HTML entities, script does not execute when email is opened"
+        },
+        {
+          "step": 5,
+          "action": "Test additional XSS vectors: '<img src=x onerror=alert(1)>', '<svg/onload=alert(1)>', 'javascript:alert(1)' in schedule description",
+          "expectedResult": "All XSS payloads are neutralized through proper output encoding and Content Security Policy headers"
+        },
+        {
+          "step": 6,
+          "action": "Verify Content-Security-Policy headers are present in notification display pages",
+          "expectedResult": "CSP headers restrict inline script execution and unsafe-eval"
+        }
+      ],
+      "postconditions": [
+        "No JavaScript execution occurred in notification display",
+        "User session cookies remain secure",
+        "All notification content is properly sanitized"
+      ],
+      "testData": "XSS Payloads: '<script>alert(document.cookie)</script>', '<img src=x onerror=alert(1)>', '\" onload=\"alert(1)\"', '<svg/onload=alert(1)>'",
+      "toolsRequired": [
+        "Browser Developer Tools",
+        "Burp Suite XSS Scanner",
+        "OWASP ZAP",
+        "Email client with HTML source view"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 8.2,
+      "complianceTag": "OWASP-A03"
+    },
+    {
+      "id": "SEC-INFO-001",
+      "title": "Information Disclosure via Notification API Response Leakage",
+      "category": "security",
+      "subCategory": "STRIDE-Information Disclosure",
+      "priority": "High",
+      "description": "Verify that the notification API endpoint does not leak sensitive information about other users, system internals, or schedule details in error messages, response headers, or verbose API responses. This includes testing for enumeration attacks and excessive data exposure.",
+      "preconditions": [
+        "Multiple user accounts with different schedules exist",
+        "Notification API endpoint /api/notifications/send is accessible",
+        "Test accounts with valid and invalid authentication tokens",
+        "Network traffic interception tool configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send API request to /api/notifications/send with invalid notification ID",
+          "expectedResult": "Generic error message returned (e.g., 'Resource not found') without revealing system details or valid ID patterns"
+        },
+        {
+          "step": 2,
+          "action": "Analyze API response headers for sensitive information disclosure (server version, framework details, internal IP addresses)",
+          "expectedResult": "Response headers contain minimal information, no X-Powered-By, Server version, or internal architecture details exposed"
+        },
+        {
+          "step": 3,
+          "action": "Request notification list with excessive pagination parameters (e.g., limit=999999) to test for bulk data exposure",
+          "expectedResult": "System enforces maximum pagination limits and returns only authorized user's notifications with rate limiting applied"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to access /api/notifications/send with missing authentication token",
+          "expectedResult": "Generic 401 Unauthorized error without revealing whether endpoint exists or user account validity"
+        },
+        {
+          "step": 5,
+          "action": "Test for timing attacks by measuring response times for valid vs invalid user IDs to enumerate valid accounts",
+          "expectedResult": "Response times are consistent regardless of user ID validity, preventing user enumeration"
+        },
+        {
+          "step": 6,
+          "action": "Inspect notification payload for PII or sensitive schedule details of other participants in shared meetings",
+          "expectedResult": "Notifications contain only information relevant to the authenticated user, no exposure of other participants' PII"
+        }
+      ],
+      "postconditions": [
+        "No sensitive system information disclosed",
+        "Error messages remain generic and non-revealing",
+        "API responses contain only authorized data"
+      ],
+      "testData": "Invalid notification IDs: notif_99999, notif_invalid, -1, null; Test user IDs for enumeration: user_1 through user_10000",
+      "toolsRequired": [
+        "Burp Suite Intruder",
+        "Postman",
+        "Wireshark or tcpdump",
+        "Response time measurement tools"
+      ],
+      "estimatedTime": "50 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 7.4,
+      "complianceTag": "OWASP-A01"
+    }
+  ],
+  "usability": [
+    {
+      "id": "UX-H01-001",
+      "title": "Verify real-time visibility of notification delivery status and schedule change details",
+      "category": "usability",
+      "subCategory": "Nielsen-H01-Visibility of System Status",
+      "priority": "Critical",
+      "description": "Test whether users receive clear, immediate feedback when a schedule change occurs, including what changed, when the notification was sent, and confirmation of delivery across channels (email and in-app). This validates that users are never left wondering if the system detected the change or if they've been notified.",
+      "preconditions": [
+        "User account is active and authenticated",
+        "User has at least one scheduled appointment in the system",
+        "Notification preferences are enabled for both email and in-app alerts",
+        "System notification service is operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Trigger a schedule change by modifying an existing appointment (change time from 2:00 PM to 3:30 PM)",
+          "expectedResult": "System immediately displays a processing indicator showing that the change is being saved"
+        },
+        {
+          "step": 2,
+          "action": "Observe the in-app notification area within 1 minute of the change",
+          "expectedResult": "In-app notification appears with clear badge/indicator showing: (1) What changed (appointment name), (2) Old vs new time, (3) Timestamp of when notification was sent, (4) Visual indicator (icon/color) distinguishing it from other notification types"
+        },
+        {
+          "step": 3,
+          "action": "Check email inbox within 1 minute of the change",
+          "expectedResult": "Email notification received with subject line clearly indicating schedule change, body contains old vs new schedule details, and timestamp of change"
+        },
+        {
+          "step": 4,
+          "action": "Navigate to notification history/past notifications section",
+          "expectedResult": "The schedule change notification is visible in history with delivery status indicators (e.g., 'Sent via Email ✓', 'Delivered In-App ✓') and timestamp"
+        },
+        {
+          "step": 5,
+          "action": "Observe any loading states or delays during notification retrieval",
+          "expectedResult": "System shows loading indicators during any processing delays, never leaving user in ambiguous state about whether notification was sent"
+        }
+      ],
+      "postconditions": [
+        "User has clear confirmation that notification was sent and delivered",
+        "Recommendation: Implement real-time delivery status indicators (sent, delivered, read) for both channels",
+        "Recommendation: Add visual timeline showing: change detected → notification generated → email sent → in-app delivered",
+        "Recommendation: Include 'Last updated X seconds ago' timestamp on notification panel"
+      ],
+      "testData": "Appointment: 'Team Meeting', Original time: 2:00 PM, New time: 3:30 PM, User email: testuser@example.com",
+      "toolsRequired": [
+        "Email client access",
+        "Browser developer tools for timestamp verification",
+        "Screen recording tool for timing validation"
+      ],
+      "estimatedTime": "25 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 4,
+      "complianceTag": "Nielsen-H01-Visibility"
+    },
+    {
+      "id": "UX-H03-002",
+      "title": "Validate user control over notification preferences and ability to undo/dismiss notifications without consequences",
+      "category": "usability",
+      "subCategory": "Nielsen-H03-User Control and Freedom",
+      "priority": "High",
+      "description": "Test whether users have adequate control over their notification experience, including the ability to customize notification channels, dismiss notifications, mark as read/unread, and easily reverse accidental actions. This ensures users feel in control rather than overwhelmed by system-generated alerts.",
+      "preconditions": [
+        "User is logged into the system",
+        "Multiple schedule change notifications exist (at least 3 unread notifications)",
+        "User has access to notification settings/preferences page",
+        "Both email and in-app notification channels are currently enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to notification settings/preferences section",
+          "expectedResult": "Settings page displays clear options to enable/disable notifications by channel (email, in-app) with toggle switches or checkboxes, changes are immediately saveable with clear 'Save' or 'Cancel' buttons"
+        },
+        {
+          "step": 2,
+          "action": "Disable email notifications while keeping in-app enabled, then trigger a schedule change",
+          "expectedResult": "Only in-app notification is received, no email sent. Settings are respected immediately without requiring logout/login"
+        },
+        {
+          "step": 3,
+          "action": "In the notification panel, accidentally dismiss/delete a schedule change notification",
+          "expectedResult": "System provides immediate 'Undo' option (toast/snackbar with 'Undo' button visible for 5-10 seconds) before permanent deletion"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Undo' button within the time window",
+          "expectedResult": "Notification is restored to its previous state (unread/read status preserved), confirmation message appears: 'Notification restored'"
+        },
+        {
+          "step": 5,
+          "action": "Mark a notification as read, then attempt to mark it as unread again",
+          "expectedResult": "Context menu or action button allows toggling between read/unread states easily, visual indicator (bold text, dot) updates immediately"
+        },
+        {
+          "step": 6,
+          "action": "Attempt to access dismissed notifications from a 'Recently Deleted' or 'Archive' section",
+          "expectedResult": "System provides access to recently dismissed notifications (within 30 days) with option to restore, giving users safety net for accidental deletions"
+        }
+      ],
+      "postconditions": [
+        "User preferences are saved and respected across sessions",
+        "Recommendation: Implement 'Undo' functionality for all destructive actions (dismiss, delete, mark all as read) with 5-10 second window",
+        "Recommendation: Add 'Recently Deleted' section where dismissed notifications are kept for 30 days before permanent deletion",
+        "Recommendation: Provide bulk actions with confirmation dialogs (e.g., 'Mark all as read' with undo option)",
+        "Recommendation: Include 'Restore default settings' option in preferences with confirmation dialog"
+      ],
+      "testData": "Test notifications: 'Meeting moved to 3 PM', 'Appointment cancelled', 'New event added at 10 AM'",
+      "toolsRequired": [
+        "Browser with developer console for state verification",
+        "Multiple test user accounts for preference isolation testing"
+      ],
+      "estimatedTime": "30 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 3,
+      "complianceTag": "Nielsen-H03-Control"
+    },
+    {
+      "id": "UX-H06-003",
+      "title": "Evaluate recognition vs recall by testing visibility of notification details and schedule context without requiring memorization",
+      "category": "usability",
+      "subCategory": "Nielsen-H06-Recognition Rather Than Recall",
+      "priority": "High",
+      "description": "Test whether users can understand and act on notifications without needing to remember previous schedule details or navigate away to find context. All relevant information (what changed, old vs new values, related appointment details) should be visible within the notification itself, minimizing cognitive load.",
+      "preconditions": [
+        "User has multiple appointments scheduled across different dates and times",
+        "At least 3 different schedule changes have occurred (time change, cancellation, new appointment)",
+        "User is viewing the notification panel with multiple notifications present",
+        "Past notifications are accessible in notification history"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Receive a notification about a schedule time change and view it in the notification panel without clicking through",
+          "expectedResult": "Notification displays complete context: (1) Appointment title/name, (2) Original date and time with strikethrough or 'was' label, (3) New date and time highlighted, (4) Location if applicable, (5) Organizer/participant names, (6) Reason for change if provided. User does not need to open appointment details to understand what changed"
+        },
+        {
+          "step": 2,
+          "action": "View a notification about a cancelled appointment",
+          "expectedResult": "Notification clearly shows 'CANCELLED' status with original appointment details (date, time, title) still visible so user knows what was cancelled without needing to recall from memory"
+        },
+        {
+          "step": 3,
+          "action": "Open notification history and scan through past notifications from 2 weeks ago",
+          "expectedResult": "Each historical notification retains full context (old vs new values, appointment details) without requiring user to remember what their schedule looked like at that time. Date grouping (Today, Yesterday, Last Week) helps temporal recognition"
+        },
+        {
+          "step": 4,
+          "action": "Click on a notification to view full details or take action",
+          "expectedResult": "Expanded view shows complete appointment card with: full description, participants, location, attachments, and clear action buttons ('View Calendar', 'Acknowledge', 'Dismiss') without navigating away from notification context"
+        },
+        {
+          "step": 5,
+          "action": "Observe notification formatting for multiple changes to the same appointment",
+          "expectedResult": "If appointment changed multiple times, notification shows change history timeline within the notification (e.g., '2:00 PM → 3:00 PM → 3:30 PM') rather than separate confusing notifications"
+        }
+      ],
+      "postconditions": [
+        "Users can understand all notifications without external context or memory recall",
+        "Recommendation: Always display both old and new values side-by-side in notifications (e.g., '2:00 PM → 3:30 PM' format)",
+        "Recommendation: Include appointment thumbnail/preview with key details (title, date, time, location) in collapsed notification view",
+        "Recommendation: Add visual diff highlighting (red for removed, green for added) for changed fields",
+        "Recommendation: Implement smart grouping: multiple changes to same appointment shown as single notification with change timeline",
+        "Recommendation: Include quick action buttons directly in notification ('Add to Calendar', 'Set Reminder', 'View Details') to minimize navigation"
+      ],
+      "testData": "Appointments: 'Client Presentation' (changed from 2:00 PM to 3:30 PM), 'Team Standup' (cancelled), 'Doctor Appointment' (location changed from 'Building A' to 'Building B, Room 305')",
+      "toolsRequired": [
+        "Test data generator for multiple appointment scenarios",
+        "Eye-tracking software (optional) to measure cognitive load",
+        "User feedback survey tool"
+      ],
+      "estimatedTime": "35 minutes",
+      "automationFeasibility": "Low",
+      "riskScore": 3,
+      "complianceTag": "Nielsen-H06-Recognition"
+    }
+  ],
+  "reliability": [
+    {
+      "id": "REL-FAIL-001",
+      "title": "Notification Service Resilience During Database Connection Failure with Automatic Recovery",
+      "category": "reliability",
+      "subCategory": "Failure Injection Testing - Database Failure",
+      "priority": "Critical",
+      "description": "Validate that the notification system maintains resilience when the schedule database becomes unavailable, ensuring notifications are queued and delivered once connectivity is restored. This tests the system's ability to handle database failures gracefully without losing notification events, meeting the 1-minute SLA post-recovery.",
+      "preconditions": [
+        "Notification service is running in production-like environment",
+        "Schedule database is operational with active connections",
+        "Message queue/buffer system is configured for notification persistence",
+        "Monitoring tools are active to track MTTR and notification delivery metrics",
+        "Test user accounts with scheduled appointments are configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish baseline: Create 5 schedule changes and verify all notifications are delivered within 1 minute",
+          "expectedResult": "All 5 notifications delivered successfully within SLA, establishing steady state"
+        },
+        {
+          "step": 2,
+          "action": "Inject database failure: Terminate all database connections or shut down the schedule database instance",
+          "expectedResult": "Database becomes unavailable, connection errors logged in notification service"
+        },
+        {
+          "step": 3,
+          "action": "Create 10 schedule changes while database is down (simulate real-world changes)",
+          "expectedResult": "Notification service detects database unavailability, queues notification events to message buffer, no service crash occurs"
+        },
+        {
+          "step": 4,
+          "action": "Monitor system behavior for 5 minutes during outage",
+          "expectedResult": "Service remains operational, health check endpoints return degraded status, circuit breaker opens to prevent cascading failures"
+        },
+        {
+          "step": 5,
+          "action": "Restore database connectivity and monitor recovery process",
+          "expectedResult": "Service detects database availability within 30 seconds, circuit breaker transitions to half-open then closed state"
+        },
+        {
+          "step": 6,
+          "action": "Verify queued notifications are processed and delivered",
+          "expectedResult": "All 10 queued notifications are delivered within 2 minutes of database restoration, maintaining data integrity"
+        },
+        {
+          "step": 7,
+          "action": "Create 3 new schedule changes post-recovery",
+          "expectedResult": "New notifications delivered within 1-minute SLA, confirming full service recovery"
+        },
+        {
+          "step": 8,
+          "action": "Calculate MTTR (Mean Time To Recovery) and verify no notification loss",
+          "expectedResult": "MTTR < 2 minutes, 100% notification delivery rate (13/13 notifications delivered), RTO compliance verified"
+        }
+      ],
+      "postconditions": [
+        "All services restored to normal operation",
+        "Database connections re-established",
+        "Message queue cleared of pending notifications",
+        "Incident metrics logged for MTBF calculation",
+        "No duplicate notifications sent to users"
+      ],
+      "testData": "Test users: user1@test.com, user2@test.com, user3@test.com; Schedule changes: appointment time modifications, cancellations, new bookings; Expected notification count: 13 total",
+      "toolsRequired": [
+        "Chaos Engineering tool (Gremlin, Chaos Monkey, or Litmus)",
+        "Database connection killer or network partition tool",
+        "Message queue monitoring (RabbitMQ/Kafka dashboard)",
+        "APM tool (New Relic, Datadog, or Prometheus)",
+        "Log aggregation system (ELK Stack or Splunk)"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9,
+      "complianceTag": "SLO-Availability-99.9%, RTO-2min, RPO-0sec"
+    },
+    {
+      "id": "REL-CHAOS-001",
+      "title": "Chaos Experiment: Email Service Provider Latency Injection with Fallback Validation",
+      "category": "reliability",
+      "subCategory": "Chaos Engineering - Network Latency & Dependency Resilience",
+      "priority": "Critical",
+      "description": "Execute hypothesis-driven chaos experiment to validate notification system behavior when email service provider experiences severe latency (5-30 second delays). Tests circuit breaker activation, in-app notification prioritization, and retry logic with exponential backoff to ensure users receive timely alerts through alternative channels.",
+      "preconditions": [
+        "Notification service configured with dual-channel delivery (email + in-app)",
+        "Email service provider API integration active (SendGrid/SES/SMTP)",
+        "Circuit breaker configured with 3-second timeout threshold",
+        "In-app notification service operational as fallback mechanism",
+        "Chaos engineering platform configured with latency injection capability",
+        "Baseline metrics established: 95% notification delivery within 1 minute"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Define chaos hypothesis: 'When email API latency exceeds 3 seconds, system will deliver in-app notifications within 1 minute while retrying email delivery with exponential backoff, maintaining 95% user notification rate'",
+          "expectedResult": "Hypothesis documented with success criteria and blast radius limited to 20% of user base"
+        },
+        {
+          "step": 2,
+          "action": "Establish steady state: Monitor notification delivery for 10 schedule changes with normal latency (<500ms)",
+          "expectedResult": "100% dual-channel delivery within 1 minute, average email delivery time 800ms, in-app delivery 300ms"
+        },
+        {
+          "step": 3,
+          "action": "Inject network latency: Add 10-second delay to email service provider API calls for test user segment (20% of users)",
+          "expectedResult": "Latency injection active, email API response time increases to 10+ seconds"
+        },
+        {
+          "step": 4,
+          "action": "Create 15 schedule changes affecting users in blast radius",
+          "expectedResult": "In-app notifications delivered within 1 minute for all 15 changes, email delivery attempts timeout after 3 seconds"
+        },
+        {
+          "step": 5,
+          "action": "Verify circuit breaker activation and state transitions",
+          "expectedResult": "Circuit breaker opens after 3 consecutive timeout failures, email service marked as degraded, retry queue activated"
+        },
+        {
+          "step": 6,
+          "action": "Monitor retry logic: Observe exponential backoff pattern (1s, 2s, 4s, 8s, 16s intervals)",
+          "expectedResult": "Retry attempts logged with increasing intervals, maximum 5 retry attempts per notification, no system overload"
+        },
+        {
+          "step": 7,
+          "action": "Remove latency injection after 10 minutes and monitor recovery",
+          "expectedResult": "Email API latency returns to <500ms, circuit breaker transitions to half-open state within 30 seconds"
+        },
+        {
+          "step": 8,
+          "action": "Verify queued email notifications are delivered and validate no duplicates",
+          "expectedResult": "All 15 email notifications delivered within 3 minutes post-recovery, users receive exactly 1 email + 1 in-app notification per change"
+        },
+        {
+          "step": 9,
+          "action": "Validate hypothesis and calculate SLI metrics",
+          "expectedResult": "Hypothesis confirmed: 100% in-app delivery within SLA, 100% eventual email delivery, overall notification success rate 100%, MTTR 30 seconds"
+        }
+      ],
+      "postconditions": [
+        "Latency injection removed from email service",
+        "Circuit breaker reset to closed state",
+        "Retry queue emptied successfully",
+        "Chaos experiment results documented with metrics",
+        "No residual performance degradation",
+        "User notification audit log shows complete delivery"
+      ],
+      "testData": "Test segment: 20 users (20% of 100-user test pool); Schedule changes: 15 appointment modifications; Expected notifications: 15 in-app (immediate) + 15 email (delayed then recovered); Latency injection: 10-second delay",
+      "toolsRequired": [
+        "Chaos Engineering platform (Gremlin, Chaos Toolkit, or AWS FIS)",
+        "Network proxy for latency injection (Toxiproxy or Istio)",
+        "Circuit breaker monitoring dashboard (Hystrix Dashboard or Resilience4j)",
+        "Notification delivery tracking system",
+        "Time-series database for SLI/SLO metrics (Prometheus + Grafana)"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 8,
+      "complianceTag": "SLO-Delivery-95%, MTTR-30sec, Chaos-Engineering-Best-Practice"
+    },
+    {
+      "id": "REL-HA-001",
+      "title": "High Availability Failover: Notification Service Instance Crash with Zero Notification Loss",
+      "category": "reliability",
+      "subCategory": "Failover & High Availability - Service Instance Failure",
+      "priority": "Critical",
+      "description": "Validate automatic failover mechanism when primary notification service instance crashes unexpectedly during active notification processing. Tests load balancer health check responsiveness, secondary instance activation, in-flight notification preservation, and RPO compliance (zero data loss) to ensure continuous service availability meeting 99.9% uptime SLA.",
+      "preconditions": [
+        "Notification service deployed with minimum 3 instances behind load balancer",
+        "Load balancer configured with health checks (5-second interval, 2 consecutive failures trigger removal)",
+        "Shared message queue/event stream accessible by all service instances (Kafka/RabbitMQ)",
+        "Database connection pooling configured across all instances",
+        "Session persistence disabled to allow stateless failover",
+        "Monitoring configured for instance health and notification processing metrics"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Verify baseline high availability: Confirm 3 service instances running, load balancer distributing traffic evenly",
+          "expectedResult": "All 3 instances healthy, traffic distributed ~33% each, health checks passing every 5 seconds"
+        },
+        {
+          "step": 2,
+          "action": "Initiate continuous load: Generate 50 schedule changes over 10-minute period (5 changes/minute)",
+          "expectedResult": "Notifications processing normally across all instances, delivery rate 100% within 1-minute SLA"
+        },
+        {
+          "step": 3,
+          "action": "Identify primary instance handling majority of traffic and monitor in-flight notifications (check processing queue)",
+          "expectedResult": "Primary instance identified, 5-10 notifications in active processing state at any given time"
+        },
+        {
+          "step": 4,
+          "action": "Inject failure: Forcefully terminate primary notification service instance (kill -9 process or container shutdown)",
+          "expectedResult": "Primary instance crashes immediately, health check fails, in-flight notifications remain in message queue (unacknowledged)"
+        },
+        {
+          "step": 5,
+          "action": "Monitor load balancer response and traffic redistribution",
+          "expectedResult": "Load balancer detects failure within 10 seconds (2 failed health checks), removes instance from pool, redistributes traffic to 2 remaining instances"
+        },
+        {
+          "step": 6,
+          "action": "Verify in-flight notification recovery: Check that unacknowledged messages are reprocessed by surviving instances",
+          "expectedResult": "Message queue reassigns unacknowledged notifications to healthy instances within 15 seconds, no notifications lost"
+        },
+        {
+          "step": 7,
+          "action": "Continue monitoring notification delivery during failover period",
+          "expectedResult": "Notification delivery continues with <5 second interruption, all 50 notifications delivered successfully, no duplicates sent"
+        },
+        {
+          "step": 8,
+          "action": "Simulate auto-scaling: Bring up replacement instance and verify load balancer integration",
+          "expectedResult": "New instance starts within 60 seconds, passes health checks, added to load balancer pool, traffic rebalanced to 3 instances"
+        },
+        {
+          "step": 9,
+          "action": "Calculate availability metrics and validate SLA compliance",
+          "expectedResult": "Service availability: 99.95% (5-second downtime in 10-minute test), MTTR: 15 seconds, RPO: 0 (zero notification loss), RTO: 10 seconds (failover time)"
+        }
+      ],
+      "postconditions": [
+        "All 3 service instances operational and healthy",
+        "Load balancer distributing traffic evenly",
+        "Message queue empty with all notifications processed",
+        "No duplicate notifications in user inboxes",
+        "Failover event logged with complete metrics",
+        "Auto-scaling policy validated for future incidents"
+      ],
+      "testData": "Test load: 50 schedule changes over 10 minutes; Affected users: 50 unique users; Expected notifications: 50 email + 50 in-app = 100 total; Failover window: 10-15 seconds; Acceptable data loss: 0 notifications",
+      "toolsRequired": [
+        "Load balancer with health check monitoring (AWS ALB, NGINX, or HAProxy)",
+        "Container orchestration platform (Kubernetes or ECS)",
+        "Message queue with redelivery capability (RabbitMQ or Apache Kafka)",
+        "Chaos engineering tool for instance termination (Chaos Monkey or Pumba)",
+        "APM for distributed tracing (Jaeger or Zipkin)",
+        "Availability calculator for SLA validation"
+      ],
+      "estimatedTime": "50 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 10,
+      "complianceTag": "SLA-Availability-99.9%, RPO-0sec, RTO-10sec, HA-Multi-Instance"
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true,
+    "performance": true,
+    "security": true,
+    "usability": true,
+    "reliability": true
+  },
+  "userStoryObject": {
+    "id": "ado-14152",
+    "title": "As a User, I want to receive notifications for schedule changes to stay informed about my commitments.",
+    "description": "<div>CONTEXT &amp; BACKGROUND:\nThis story exists to ensure users are promptly informed of any changes to their schedules, reducing the risk of missed appointments.\n\nCURRENT STATE:\nCurrently, users rely on manual updates, leading to confusion and missed commitments.\n\nDESIRED STATE:\nUsers receive immediate notifications about schedule changes, allowing them to adjust their plans accordingly.\n\nKEY FUNCTIONALITY:\n• Automatic detection of schedule changes\n• Immediate notification dispatch via email and in-app alerts\n• User-friendly notification format\n• Ability to view past notifications\n\nUSER INTERACTION FLOW:\n1. User's schedule is updated in the system.\n2. System detects the change.\n3. Notification is generated and sent to the user.\n4. User receives the notification via email and in-app alert.\n5. User views the notification and adjusts their schedule if necessary.\n\nTECHNICAL CONSIDERATIONS:\n• Data source: Schedule database\n• Validation rules: Ensure notifications are sent only for confirmed schedule changes\n• API endpoints: /api/notifications/send\n• Security: User authentication required for notification access\n• Performance: Notifications sent within 1 minute of schedule change detection.\n\nOUT OF SCOPE:\n• Manual notification processes\n\nSUCCESS METRICS:\n• 95% of users report receiving notifications within 1 minute of schedule changes. </div><br><div><strong>Persona:</strong> User (User) </div>",
+    "acceptanceCriteria": "<div><strong>Criteria 1:</strong> System sends notifications to users immediately upon schedule changes. </div><br><div><strong>Criteria 2:</strong> Users receive notifications via both email and in-app alerts. </div><br><div><strong>Criteria 3:</strong> Notifications include details of the schedule change. </div><br><div><strong>Criteria 4:</strong> Users can acknowledge receipt of the notification. </div><br>",
+    "adoWorkItemId": 14152,
+    "state": "New",
+    "assignedTo": "Unassigned",
+    "createdDate": "2026-01-29T09:29:21.75Z",
+    "priority": 1,
+    "storyPoints": 5,
+    "tags": "",
+    "epicId": "epic-13802",
+    "featureId": "feature-13827",
+    "source": "ado",
+    "adoUrl": "https://dev.azure.com/QS001/Venus/_workitems/edit/14152"
+  }
+}
