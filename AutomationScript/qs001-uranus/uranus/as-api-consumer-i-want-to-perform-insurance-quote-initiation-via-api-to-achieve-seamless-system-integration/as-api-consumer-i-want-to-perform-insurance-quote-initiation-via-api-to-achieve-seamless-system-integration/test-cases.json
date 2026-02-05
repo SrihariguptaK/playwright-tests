@@ -1,0 +1,1038 @@
+{
+  "storyId": "story-3",
+  "storyTitle": "As API Consumer, I want to perform insurance quote initiation via API to achieve seamless system integration",
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify successful quote creation via API with complete valid payload and OAuth2 authentication",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "API gateway is running and accessible at the base URL",
+        "Valid OAuth2 client credentials are configured and available",
+        "Database is accessible and quote table schema is initialized",
+        "Test environment has network connectivity to API endpoint"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /oauth/token with client_id, client_secret, and grant_type=client_credentials",
+          "expectedResult": "API returns 200 OK with access_token, token_type=Bearer, and expires_in fields in JSON response"
+        },
+        {
+          "step": 2,
+          "action": "Send POST request to /api/quotes with Authorization header 'Bearer {access_token}' and valid JSON payload containing all required fields: customerName='John Doe', email='john.doe@example.com', phoneNumber='555-1234', insuranceType='Auto', coverageAmount=50000, effectiveDate='2024-02-01'",
+          "expectedResult": "API returns 201 Created status code with JSON response containing quoteReferenceId (format: QT-XXXXXXXX), status='pending', createdAt timestamp, and all submitted quote details"
+        },
+        {
+          "step": 3,
+          "action": "Query the database quotes table using the returned quoteReferenceId",
+          "expectedResult": "Quote record exists in database with matching customerName='John Doe', email='john.doe@example.com', phoneNumber='555-1234', insuranceType='Auto', coverageAmount=50000, effectiveDate='2024-02-01', and status='pending'"
+        },
+        {
+          "step": 4,
+          "action": "Verify the response headers include Content-Type='application/json' and Location header with the quote resource URL",
+          "expectedResult": "Response headers contain Content-Type='application/json' and Location='/api/quotes/{quoteReferenceId}'"
+        }
+      ],
+      "postconditions": [
+        "New quote record is persisted in database with unique quoteReferenceId",
+        "Quote status is set to 'pending' awaiting further processing",
+        "API access token remains valid for subsequent requests within expiration time",
+        "System audit log contains entry for quote creation with timestamp and client identifier"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Validate API response time is under 500ms for quote creation under normal load",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "API gateway and backend services are running with normal system load",
+        "Valid OAuth2 access token is obtained and ready for use",
+        "Performance monitoring tools are configured to measure response times",
+        "Database connection pool has available connections"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Record the current timestamp before sending the request",
+          "expectedResult": "Start timestamp is captured in milliseconds"
+        },
+        {
+          "step": 2,
+          "action": "Send POST request to /api/quotes with valid OAuth2 token and complete quote payload: customerName='Jane Smith', email='jane.smith@example.com', phoneNumber='555-5678', insuranceType='Home', coverageAmount=250000, effectiveDate='2024-03-15'",
+          "expectedResult": "API processes the request and begins response generation"
+        },
+        {
+          "step": 3,
+          "action": "Record the timestamp when 201 Created response is fully received",
+          "expectedResult": "End timestamp is captured in milliseconds"
+        },
+        {
+          "step": 4,
+          "action": "Calculate the elapsed time (end timestamp - start timestamp)",
+          "expectedResult": "Total API response time is less than 500ms and response contains valid quoteReferenceId and status='pending'"
+        }
+      ],
+      "postconditions": [
+        "Quote is successfully created in database within performance SLA",
+        "Response time metric is logged for monitoring and alerting",
+        "System performance remains stable with no degradation",
+        "API consumer receives timely response enabling real-time integration"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify API creates quotes for different insurance types with type-specific validation",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Valid OAuth2 access token is obtained",
+        "API supports multiple insurance types: Auto, Home, Life, Health",
+        "Database schema supports all insurance type variations",
+        "Business rules for each insurance type are configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/quotes with insuranceType='Life' and payload: customerName='Robert Johnson', email='robert.j@example.com', phoneNumber='555-9012', coverageAmount=500000, effectiveDate='2024-04-01', beneficiaryName='Mary Johnson'",
+          "expectedResult": "API returns 201 Created with quoteReferenceId starting with 'QT-LIFE-' and status='pending', accepting Life insurance specific field beneficiaryName"
+        },
+        {
+          "step": 2,
+          "action": "Send POST request to /api/quotes with insuranceType='Health' and payload: customerName='Sarah Williams', email='sarah.w@example.com', phoneNumber='555-3456', coverageAmount=100000, effectiveDate='2024-05-01', preExistingConditions=false",
+          "expectedResult": "API returns 201 Created with quoteReferenceId starting with 'QT-HEALTH-' and status='pending', accepting Health insurance specific field preExistingConditions"
+        },
+        {
+          "step": 3,
+          "action": "Query database for both created quotes using their respective quoteReferenceIds",
+          "expectedResult": "Both quote records exist with correct insuranceType values ('Life' and 'Health') and their type-specific fields are properly stored"
+        }
+      ],
+      "postconditions": [
+        "Multiple insurance type quotes are created successfully in the system",
+        "Type-specific fields are validated and stored correctly",
+        "Quote reference IDs follow the naming convention for each insurance type",
+        "System supports diverse insurance product offerings via API"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Confirm API returns comprehensive quote details in response including all submitted and system-generated fields",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "Valid OAuth2 access token is available",
+        "API endpoint /api/quotes is accessible",
+        "System is configured to generate additional quote metadata"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/quotes with valid OAuth2 token and payload: customerName='Michael Brown', email='michael.brown@example.com', phoneNumber='555-7890', insuranceType='Auto', coverageAmount=75000, effectiveDate='2024-06-01'",
+          "expectedResult": "API returns 201 Created status"
+        },
+        {
+          "step": 2,
+          "action": "Parse the JSON response body and verify it contains all submitted fields: customerName, email, phoneNumber, insuranceType, coverageAmount, effectiveDate",
+          "expectedResult": "Response JSON includes all submitted fields with exact values matching the request payload"
+        },
+        {
+          "step": 3,
+          "action": "Verify response contains system-generated fields: quoteReferenceId, status, createdAt, updatedAt, expiresAt",
+          "expectedResult": "Response includes quoteReferenceId (format QT-XXXXXXXX), status='pending', createdAt with ISO 8601 timestamp, updatedAt matching createdAt, and expiresAt set to 30 days from createdAt"
+        },
+        {
+          "step": 4,
+          "action": "Validate the data types and formats of all response fields",
+          "expectedResult": "All fields have correct data types: strings for text, numbers for amounts, ISO 8601 format for dates, and no null values for required fields"
+        }
+      ],
+      "postconditions": [
+        "API consumer receives complete quote information for downstream processing",
+        "Response structure is consistent and predictable for integration",
+        "System-generated metadata is properly populated and returned",
+        "Quote expiration date is set according to business rules"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Validate API supports idempotency for duplicate quote submissions with same data",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "Valid OAuth2 access token is obtained",
+        "API implements idempotency key handling via X-Idempotency-Key header",
+        "Database is configured to handle duplicate detection",
+        "Test client can generate and reuse idempotency keys"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Generate a unique idempotency key: 'idem-key-12345' and send POST request to /api/quotes with header X-Idempotency-Key='idem-key-12345' and payload: customerName='Lisa Anderson', email='lisa.a@example.com', phoneNumber='555-2468', insuranceType='Home', coverageAmount=300000, effectiveDate='2024-07-01'",
+          "expectedResult": "API returns 201 Created with quoteReferenceId='QT-ABC123' and status='pending'"
+        },
+        {
+          "step": 2,
+          "action": "Send identical POST request to /api/quotes with same X-Idempotency-Key='idem-key-12345' and exact same payload within 24 hours",
+          "expectedResult": "API returns 200 OK (not 201 Created) with the same quoteReferenceId='QT-ABC123' from the first request, indicating duplicate detection"
+        },
+        {
+          "step": 3,
+          "action": "Query database for quotes with customerName='Lisa Anderson' and email='lisa.a@example.com'",
+          "expectedResult": "Only one quote record exists in database with quoteReferenceId='QT-ABC123', confirming no duplicate quote was created"
+        }
+      ],
+      "postconditions": [
+        "System prevents duplicate quote creation for retry scenarios",
+        "Original quote reference is returned for duplicate requests",
+        "Database maintains data integrity without duplicate records",
+        "API consumers can safely retry requests without side effects"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify API correctly handles and validates different date formats for effectiveDate field",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "Valid OAuth2 access token is available",
+        "API documentation specifies accepted date formats (ISO 8601)",
+        "System date validation rules are configured",
+        "Current date is known for relative date testing"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/quotes with effectiveDate in ISO 8601 format '2024-08-15' and complete valid payload: customerName='David Lee', email='david.lee@example.com', phoneNumber='555-1357', insuranceType='Auto', coverageAmount=60000",
+          "expectedResult": "API returns 201 Created with quoteReferenceId and the effectiveDate is stored as '2024-08-15' in the response"
+        },
+        {
+          "step": 2,
+          "action": "Send POST request to /api/quotes with effectiveDate in ISO 8601 datetime format '2024-09-20T00:00:00Z' and complete valid payload: customerName='Emily Chen', email='emily.chen@example.com', phoneNumber='555-2460', insuranceType='Life', coverageAmount=400000",
+          "expectedResult": "API returns 201 Created and normalizes the effectiveDate to '2024-09-20' in the response, accepting the datetime format"
+        },
+        {
+          "step": 3,
+          "action": "Verify both quotes are stored in database with properly formatted effectiveDate values",
+          "expectedResult": "Database contains both quotes with effectiveDate stored in consistent date format (YYYY-MM-DD) regardless of input format variation"
+        }
+      ],
+      "postconditions": [
+        "API accepts standard ISO 8601 date formats for flexibility",
+        "Date values are normalized and stored consistently in database",
+        "Quote effective dates are properly set for policy activation",
+        "API consumers can use their preferred ISO 8601 date format"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify API rejects requests without OAuth2 authentication token with 401 Unauthorized",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "API gateway is running and enforcing authentication",
+        "No OAuth2 token is included in the request",
+        "API endpoint /api/quotes is accessible",
+        "Security middleware is properly configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/quotes without Authorization header and with valid quote payload: customerName='Test User', email='test@example.com', phoneNumber='555-0000', insuranceType='Auto', coverageAmount=50000, effectiveDate='2024-02-01'",
+          "expectedResult": "API returns 401 Unauthorized status code with JSON error response containing error code 'UNAUTHORIZED', message='Authentication required. Please provide a valid OAuth2 token.', and timestamp"
+        },
+        {
+          "step": 2,
+          "action": "Verify the response headers include WWW-Authenticate header with value 'Bearer realm=\"API\"'",
+          "expectedResult": "Response contains WWW-Authenticate='Bearer realm=\"API\"' header indicating OAuth2 Bearer token authentication is required"
+        },
+        {
+          "step": 3,
+          "action": "Query database for any quote records with customerName='Test User' and email='test@example.com'",
+          "expectedResult": "No quote record is created in database, confirming request was rejected before processing"
+        }
+      ],
+      "postconditions": [
+        "No quote is created in the system due to authentication failure",
+        "Security audit log records the unauthorized access attempt with timestamp and source IP",
+        "API maintains security posture by rejecting unauthenticated requests",
+        "Clear error message guides API consumer to provide authentication"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Confirm API rejects requests with expired OAuth2 token with 401 Unauthorized",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "OAuth2 token was previously generated and has expired (past expires_in time)",
+        "Expired token is available for testing: 'expired_token_xyz123'",
+        "API gateway validates token expiration timestamps",
+        "System clock is synchronized and accurate"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/quotes with Authorization header 'Bearer expired_token_xyz123' and valid quote payload: customerName='Expired Token Test', email='expired@example.com', phoneNumber='555-9999', insuranceType='Home', coverageAmount=200000, effectiveDate='2024-03-01'",
+          "expectedResult": "API returns 401 Unauthorized with JSON error response containing error code 'TOKEN_EXPIRED', message='The provided OAuth2 token has expired. Please obtain a new token.', and timestamp"
+        },
+        {
+          "step": 2,
+          "action": "Verify the error response includes additional field 'tokenExpiredAt' with the expiration timestamp of the token",
+          "expectedResult": "Response JSON contains tokenExpiredAt field showing when the token expired, helping API consumer understand the timing"
+        },
+        {
+          "step": 3,
+          "action": "Query database to confirm no quote was created",
+          "expectedResult": "No quote record exists in database with email='expired@example.com', confirming request was properly rejected"
+        }
+      ],
+      "postconditions": [
+        "Expired token is rejected and no quote is created",
+        "Security log records the expired token usage attempt",
+        "API consumer receives clear guidance to refresh their token",
+        "System maintains temporal security controls"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Validate API returns 400 Bad Request with descriptive errors when required fields are missing",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Valid OAuth2 access token is obtained",
+        "API endpoint /api/quotes is accessible",
+        "Input validation rules are configured for all required fields",
+        "Required fields are: customerName, email, phoneNumber, insuranceType, coverageAmount, effectiveDate"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/quotes with valid OAuth2 token but payload missing customerName field: {email='missing.name@example.com', phoneNumber='555-1111', insuranceType='Auto', coverageAmount=50000, effectiveDate='2024-02-01'}",
+          "expectedResult": "API returns 400 Bad Request with JSON error response containing error code 'VALIDATION_ERROR', message='Request validation failed', and errors array with entry: {field='customerName', message='customerName is required and cannot be empty'}"
+        },
+        {
+          "step": 2,
+          "action": "Send POST request to /api/quotes with valid OAuth2 token but payload missing multiple required fields: {customerName='John Doe', insuranceType='Auto'}",
+          "expectedResult": "API returns 400 Bad Request with errors array containing multiple validation errors: {field='email', message='email is required and cannot be empty'}, {field='phoneNumber', message='phoneNumber is required and cannot be empty'}, {field='coverageAmount', message='coverageAmount is required and cannot be empty'}, {field='effectiveDate', message='effectiveDate is required and cannot be empty'}"
+        },
+        {
+          "step": 3,
+          "action": "Verify no quote records were created in database for either request",
+          "expectedResult": "Database contains no quote records with email='missing.name@example.com' or customerName='John Doe' from these failed requests"
+        }
+      ],
+      "postconditions": [
+        "Invalid requests are rejected before database operations",
+        "API consumer receives specific field-level error messages for correction",
+        "Data integrity is maintained by preventing incomplete records",
+        "Validation errors are logged for monitoring and debugging"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify API rejects requests with invalid field formats and data types with 400 Bad Request",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Valid OAuth2 access token is obtained",
+        "API has format validation rules for email, phoneNumber, coverageAmount, effectiveDate",
+        "Type checking is enforced for numeric and date fields"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/quotes with invalid email format: customerName='Invalid Email Test', email='notanemail', phoneNumber='555-2222', insuranceType='Auto', coverageAmount=50000, effectiveDate='2024-02-01'",
+          "expectedResult": "API returns 400 Bad Request with error: {field='email', message='email must be a valid email address format'}"
+        },
+        {
+          "step": 2,
+          "action": "Send POST request to /api/quotes with invalid coverageAmount (string instead of number): customerName='Invalid Amount Test', email='invalid.amount@example.com', phoneNumber='555-3333', insuranceType='Home', coverageAmount='fifty thousand', effectiveDate='2024-02-01'",
+          "expectedResult": "API returns 400 Bad Request with error: {field='coverageAmount', message='coverageAmount must be a valid number'}"
+        },
+        {
+          "step": 3,
+          "action": "Send POST request to /api/quotes with invalid effectiveDate format: customerName='Invalid Date Test', email='invalid.date@example.com', phoneNumber='555-4444', insuranceType='Life', coverageAmount=100000, effectiveDate='02/01/2024'",
+          "expectedResult": "API returns 400 Bad Request with error: {field='effectiveDate', message='effectiveDate must be in ISO 8601 format (YYYY-MM-DD)'}"
+        },
+        {
+          "step": 4,
+          "action": "Send POST request to /api/quotes with negative coverageAmount: customerName='Negative Amount Test', email='negative@example.com', phoneNumber='555-5555', insuranceType='Auto', coverageAmount=-50000, effectiveDate='2024-02-01'",
+          "expectedResult": "API returns 400 Bad Request with error: {field='coverageAmount', message='coverageAmount must be a positive number greater than 0'}"
+        }
+      ],
+      "postconditions": [
+        "All invalid format requests are rejected with specific error messages",
+        "No quote records are created in database for any invalid requests",
+        "API maintains data quality by enforcing format and type validation",
+        "Error messages provide clear guidance for API consumers to correct their requests"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Ensure API rejects requests with invalid or unsupported insuranceType values",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Valid OAuth2 access token is obtained",
+        "API supports only specific insurance types: Auto, Home, Life, Health",
+        "Business rules enforce insurance type validation",
+        "Database schema has constraints on insuranceType values"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/quotes with unsupported insuranceType='Pet': customerName='Pet Insurance Test', email='pet@example.com', phoneNumber='555-6666', insuranceType='Pet', coverageAmount=10000, effectiveDate='2024-02-01'",
+          "expectedResult": "API returns 400 Bad Request with error: {field='insuranceType', message='insuranceType must be one of: Auto, Home, Life, Health'}"
+        },
+        {
+          "step": 2,
+          "action": "Send POST request to /api/quotes with empty insuranceType='': customerName='Empty Type Test', email='empty.type@example.com', phoneNumber='555-7777', insuranceType='', coverageAmount=50000, effectiveDate='2024-02-01'",
+          "expectedResult": "API returns 400 Bad Request with error: {field='insuranceType', message='insuranceType is required and must be one of: Auto, Home, Life, Health'}"
+        },
+        {
+          "step": 3,
+          "action": "Send POST request to /api/quotes with case-sensitive variation insuranceType='auto' (lowercase): customerName='Case Test', email='case@example.com', phoneNumber='555-8888', insuranceType='auto', coverageAmount=50000, effectiveDate='2024-02-01'",
+          "expectedResult": "API either accepts 'auto' and normalizes to 'Auto' returning 201 Created, OR returns 400 Bad Request with error indicating exact case matching is required"
+        }
+      ],
+      "postconditions": [
+        "Invalid insurance types are rejected preventing unsupported product quotes",
+        "No quote records are created for unsupported insurance types",
+        "API enforces business rules for supported insurance products",
+        "Error messages clearly list valid insurance type options"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Validate API handles malformed JSON payload with 400 Bad Request",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "Valid OAuth2 access token is obtained",
+        "API expects Content-Type='application/json' header",
+        "JSON parsing middleware is configured",
+        "Error handling for parse errors is implemented"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/quotes with valid OAuth2 token and malformed JSON payload with missing closing brace: '{\"customerName\":\"Malformed Test\",\"email\":\"malformed@example.com\"'",
+          "expectedResult": "API returns 400 Bad Request with error code 'INVALID_JSON', message='Request body contains malformed JSON. Please check syntax.', and no field-specific errors"
+        },
+        {
+          "step": 2,
+          "action": "Send POST request to /api/quotes with valid OAuth2 token and JSON with trailing comma: '{\"customerName\":\"Trailing Comma\",\"email\":\"trailing@example.com\",}'",
+          "expectedResult": "API returns 400 Bad Request with error code 'INVALID_JSON' and message indicating JSON parsing failure"
+        },
+        {
+          "step": 3,
+          "action": "Send POST request to /api/quotes with valid OAuth2 token but Content-Type='text/plain' and valid JSON in body",
+          "expectedResult": "API returns 400 Bad Request or 415 Unsupported Media Type with error message='Content-Type must be application/json'"
+        }
+      ],
+      "postconditions": [
+        "Malformed requests are rejected before processing",
+        "No database operations are attempted for unparseable requests",
+        "API provides clear error messages for JSON syntax issues",
+        "System remains stable when receiving malformed input"
+      ]
+    },
+    {
+      "id": "TC-NEGA-007",
+      "title": "Verify API rejects requests with SQL injection attempts in input fields",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Valid OAuth2 access token is obtained",
+        "API uses parameterized queries or ORM for database operations",
+        "Input sanitization is implemented",
+        "Security monitoring is active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/quotes with SQL injection in customerName field: customerName='Robert\"; DROP TABLE quotes; --', email='sql.injection@example.com', phoneNumber='555-9999', insuranceType='Auto', coverageAmount=50000, effectiveDate='2024-02-01'",
+          "expectedResult": "API either returns 400 Bad Request with validation error for invalid characters in customerName, OR returns 201 Created but safely escapes the input preventing SQL execution"
+        },
+        {
+          "step": 2,
+          "action": "If quote was created, query database to verify quotes table still exists and the customerName is stored as literal string 'Robert\"; DROP TABLE quotes; --' without executing SQL",
+          "expectedResult": "Database quotes table exists and is not dropped, and if record exists, customerName contains the literal string safely stored"
+        },
+        {
+          "step": 3,
+          "action": "Verify security audit log contains entry flagging potential SQL injection attempt",
+          "expectedResult": "Security log contains warning or alert entry with timestamp, source IP, and details of the suspicious input pattern"
+        }
+      ],
+      "postconditions": [
+        "SQL injection attempts are neutralized through parameterization or sanitization",
+        "Database integrity is maintained and no malicious SQL is executed",
+        "Security monitoring captures and logs injection attempts",
+        "API remains secure against common injection attacks"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Test API behavior with minimum valid coverageAmount boundary value",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Valid OAuth2 access token is obtained",
+        "Business rules define minimum coverageAmount (e.g., $1 or $1000)",
+        "API validation enforces minimum coverage limits",
+        "Database can store minimum value amounts"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/quotes with coverageAmount=1 (minimum possible value): customerName='Min Coverage Test', email='min.coverage@example.com', phoneNumber='555-0001', insuranceType='Auto', coverageAmount=1, effectiveDate='2024-02-01'",
+          "expectedResult": "API either returns 201 Created accepting the minimum value, OR returns 400 Bad Request with error: {field='coverageAmount', message='coverageAmount must be at least $1000'} if business minimum is higher"
+        },
+        {
+          "step": 2,
+          "action": "If minimum is $1000, send POST request with coverageAmount=1000: customerName='Exact Min Test', email='exact.min@example.com', phoneNumber='555-0002', insuranceType='Home', coverageAmount=1000, effectiveDate='2024-02-01'",
+          "expectedResult": "API returns 201 Created with quoteReferenceId and coverageAmount=1000 in response"
+        },
+        {
+          "step": 3,
+          "action": "Send POST request with coverageAmount=999 (one below minimum): customerName='Below Min Test', email='below.min@example.com', phoneNumber='555-0003', insuranceType='Life', coverageAmount=999, effectiveDate='2024-02-01'",
+          "expectedResult": "API returns 400 Bad Request with error: {field='coverageAmount', message='coverageAmount must be at least $1000'}"
+        }
+      ],
+      "postconditions": [
+        "Minimum boundary value is correctly validated and enforced",
+        "Quotes at exact minimum threshold are accepted",
+        "Quotes below minimum are rejected with clear error message",
+        "Business rules for minimum coverage are properly implemented"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Validate API handling of maximum valid coverageAmount boundary value",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Valid OAuth2 access token is obtained",
+        "Business rules define maximum coverageAmount (e.g., $10,000,000)",
+        "Database numeric field can store maximum value without overflow",
+        "API validation enforces maximum coverage limits"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/quotes with coverageAmount=10000000 (maximum allowed): customerName='Max Coverage Test', email='max.coverage@example.com', phoneNumber='555-0004', insuranceType='Life', coverageAmount=10000000, effectiveDate='2024-02-01'",
+          "expectedResult": "API returns 201 Created with quoteReferenceId and coverageAmount=10000000 correctly stored and returned in response"
+        },
+        {
+          "step": 2,
+          "action": "Send POST request with coverageAmount=10000001 (one above maximum): customerName='Above Max Test', email='above.max@example.com', phoneNumber='555-0005', insuranceType='Life', coverageAmount=10000001, effectiveDate='2024-02-01'",
+          "expectedResult": "API returns 400 Bad Request with error: {field='coverageAmount', message='coverageAmount cannot exceed $10,000,000'}"
+        },
+        {
+          "step": 3,
+          "action": "Query database for the successfully created quote with coverageAmount=10000000",
+          "expectedResult": "Database record shows coverageAmount stored as 10000000 with correct numeric precision and no data truncation"
+        }
+      ],
+      "postconditions": [
+        "Maximum boundary value is correctly validated and enforced",
+        "Quotes at exact maximum threshold are accepted and stored properly",
+        "Quotes above maximum are rejected with clear error message",
+        "Database handles large numeric values without overflow or precision loss"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Test API with effectiveDate set to current date (today) as boundary condition",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Valid OAuth2 access token is obtained",
+        "System date and time are accurate and synchronized",
+        "Business rules allow effectiveDate to be current date or future dates only",
+        "API validates effectiveDate against current date"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Get current date in ISO 8601 format (e.g., '2024-01-15' if today is January 15, 2024)",
+          "expectedResult": "Current date is captured in YYYY-MM-DD format"
+        },
+        {
+          "step": 2,
+          "action": "Send POST request to /api/quotes with effectiveDate set to current date: customerName='Today Date Test', email='today@example.com', phoneNumber='555-0006', insuranceType='Auto', coverageAmount=50000, effectiveDate='2024-01-15'",
+          "expectedResult": "API returns 201 Created accepting current date as valid effectiveDate, with quoteReferenceId and status='pending'"
+        },
+        {
+          "step": 3,
+          "action": "Send POST request with effectiveDate set to yesterday (one day in past): customerName='Past Date Test', email='past@example.com', phoneNumber='555-0007', insuranceType='Home', coverageAmount=200000, effectiveDate='2024-01-14'",
+          "expectedResult": "API returns 400 Bad Request with error: {field='effectiveDate', message='effectiveDate cannot be in the past. Must be today or a future date.'}"
+        }
+      ],
+      "postconditions": [
+        "Current date is accepted as valid effectiveDate boundary",
+        "Past dates are rejected preventing backdated policies",
+        "Date validation correctly compares against system current date",
+        "Business rules for policy effective dates are enforced"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Verify API handles extremely long string values in text fields approaching character limits",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Valid OAuth2 access token is obtained",
+        "Database schema defines maximum character lengths for text fields (e.g., customerName VARCHAR(255))",
+        "API validation enforces maximum length constraints",
+        "Test data with strings of various lengths is prepared"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/quotes with customerName containing exactly 255 characters (maximum allowed): customerName='A' repeated 255 times, email='long.name@example.com', phoneNumber='555-0008', insuranceType='Auto', coverageAmount=50000, effectiveDate='2024-02-01'",
+          "expectedResult": "API returns 201 Created with quoteReferenceId and the full 255-character customerName is stored and returned in response"
+        },
+        {
+          "step": 2,
+          "action": "Send POST request with customerName containing 256 characters (one over limit): customerName='B' repeated 256 times, email='toolong@example.com', phoneNumber='555-0009', insuranceType='Home', coverageAmount=100000, effectiveDate='2024-02-01'",
+          "expectedResult": "API returns 400 Bad Request with error: {field='customerName', message='customerName cannot exceed 255 characters'}"
+        },
+        {
+          "step": 3,
+          "action": "Query database for the successfully created quote and verify full customerName is stored without truncation",
+          "expectedResult": "Database record contains complete 255-character customerName with no data loss or truncation"
+        }
+      ],
+      "postconditions": [
+        "Maximum character length boundaries are enforced for text fields",
+        "Data at exact maximum length is accepted and stored completely",
+        "Data exceeding maximum length is rejected with clear error",
+        "No silent truncation occurs that could cause data integrity issues"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Test API behavior with special characters and Unicode in text fields",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Valid OAuth2 access token is obtained",
+        "Database supports UTF-8 encoding for international characters",
+        "API accepts and properly encodes special characters",
+        "Test data includes various special character sets"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/quotes with customerName containing special characters and accents: customerName='José María O'Brien-Smith', email='special.chars@example.com', phoneNumber='555-0010', insuranceType='Auto', coverageAmount=50000, effectiveDate='2024-02-01'",
+          "expectedResult": "API returns 201 Created with quoteReferenceId and customerName='José María O'Brien-Smith' is correctly stored and returned with all special characters preserved"
+        },
+        {
+          "step": 2,
+          "action": "Send POST request with customerName containing Unicode characters (emoji and non-Latin scripts): customerName='李明 🏠 Insurance', email='unicode@example.com', phoneNumber='555-0011', insuranceType='Home', coverageAmount=150000, effectiveDate='2024-02-01'",
+          "expectedResult": "API returns 201 Created and customerName='李明 🏠 Insurance' is correctly stored with Unicode characters preserved, or returns 400 Bad Request if Unicode is not supported with clear error message"
+        },
+        {
+          "step": 3,
+          "action": "Query database for both created quotes and verify special characters and Unicode are stored correctly",
+          "expectedResult": "Database records show customerName values with all special characters, accents, and Unicode properly stored without corruption or encoding issues"
+        }
+      ],
+      "postconditions": [
+        "Special characters and accents are properly handled and stored",
+        "Unicode support is either functional or clearly rejected with error",
+        "Character encoding is consistent throughout API and database",
+        "International customer names are supported for global operations"
+      ]
+    },
+    {
+      "id": "TC-EDGE-006",
+      "title": "Validate API performance and behavior under high concurrent request load",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "Valid OAuth2 access tokens are obtained for multiple concurrent clients",
+        "Load testing tool is configured to send concurrent requests",
+        "API infrastructure is running with normal resource allocation",
+        "Database connection pool is configured with sufficient connections"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure load testing tool to send 50 concurrent POST requests to /api/quotes with unique valid payloads (different customerName and email for each)",
+          "expectedResult": "Load testing tool is ready to execute concurrent requests"
+        },
+        {
+          "step": 2,
+          "action": "Execute 50 concurrent POST requests simultaneously and monitor response times and status codes",
+          "expectedResult": "All 50 requests return either 201 Created or 429 Too Many Requests (if rate limiting is active), with no 500 Internal Server Error responses"
+        },
+        {
+          "step": 3,
+          "action": "Verify that at least 95% of successful requests (201 Created) have response times under 500ms",
+          "expectedResult": "95% or more of successful requests complete within 500ms SLA, meeting performance requirements under load"
+        },
+        {
+          "step": 4,
+          "action": "Query database to verify all quotes with 201 Created responses were successfully persisted",
+          "expectedResult": "Database contains quote records for all requests that received 201 Created status, with no data loss or corruption"
+        }
+      ],
+      "postconditions": [
+        "API maintains performance SLA under concurrent load conditions",
+        "No data corruption or race conditions occur with simultaneous requests",
+        "Rate limiting (if implemented) properly throttles excessive requests",
+        "System remains stable and responsive under stress"
+      ]
+    },
+    {
+      "id": "TC-EDGE-007",
+      "title": "Test API with empty string values versus null values for optional fields",
+      "category": "Edge Cases",
+      "priority": "Low",
+      "preconditions": [
+        "Valid OAuth2 access token is obtained",
+        "API has optional fields in addition to required fields",
+        "Database schema allows null values for optional fields",
+        "API distinguishes between empty strings and null values"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/quotes with optional field 'middleName' set to empty string: customerName='Empty String Test', middleName='', email='empty.string@example.com', phoneNumber='555-0012', insuranceType='Auto', coverageAmount=50000, effectiveDate='2024-02-01'",
+          "expectedResult": "API returns 201 Created and middleName is stored as empty string '' in database, or returns 400 Bad Request if empty strings are not allowed"
+        },
+        {
+          "step": 2,
+          "action": "Send POST request to /api/quotes with optional field 'middleName' omitted entirely (null): customerName='Null Test', email='null.test@example.com', phoneNumber='555-0013', insuranceType='Home', coverageAmount=100000, effectiveDate='2024-02-01'",
+          "expectedResult": "API returns 201 Created and middleName is stored as NULL in database"
+        },
+        {
+          "step": 3,
+          "action": "Query database for both quotes and compare how middleName is stored (empty string vs NULL)",
+          "expectedResult": "Database clearly distinguishes between empty string '' and NULL values for optional fields, maintaining semantic difference"
+        }
+      ],
+      "postconditions": [
+        "API consistently handles empty strings and null values for optional fields",
+        "Database storage correctly represents the difference between empty and null",
+        "API behavior is documented and predictable for optional field handling",
+        "Data semantics are preserved for downstream processing"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Verify API documentation is accessible and provides clear examples for screen reader users",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "API documentation is published and accessible via web interface",
+        "Screen reader software (JAWS, NVDA, or VoiceOver) is installed and running",
+        "Documentation includes code examples and request/response samples",
+        "User has basic familiarity with screen reader navigation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to API documentation page using screen reader and verify page title is announced clearly",
+          "expectedResult": "Screen reader announces descriptive page title 'Insurance Quote API Documentation' and main heading structure is properly announced"
+        },
+        {
+          "step": 2,
+          "action": "Use screen reader heading navigation (H key) to navigate through documentation sections",
+          "expectedResult": "All major sections have proper heading hierarchy (h1, h2, h3) and screen reader can jump between sections using heading navigation shortcuts"
+        },
+        {
+          "step": 3,
+          "action": "Navigate to code example sections and verify code blocks are properly labeled and accessible",
+          "expectedResult": "Code examples have descriptive labels like 'Example Request JSON' and 'Example Response JSON', and code is presented in accessible format with proper ARIA labels"
+        },
+        {
+          "step": 4,
+          "action": "Verify all interactive elements (copy buttons, expand/collapse sections) are keyboard accessible and announced by screen reader",
+          "expectedResult": "All interactive elements can be reached via Tab key, have clear focus indicators, and screen reader announces their purpose and state (e.g., 'Copy code button', 'Expand section button, collapsed')"
+        }
+      ],
+      "postconditions": [
+        "API documentation is fully navigable using screen reader",
+        "All code examples and technical content are accessible to assistive technology users",
+        "Documentation meets WCAG 2.1 Level AA standards for accessibility",
+        "Developers with visual impairments can effectively use the API documentation"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Ensure API error messages are descriptive and machine-readable for assistive technology",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Valid OAuth2 access token is obtained",
+        "API returns structured JSON error responses",
+        "Error response format includes error codes, messages, and field-level details",
+        "Client application can parse and present error messages to users"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/quotes with missing required field and parse the error response JSON structure",
+          "expectedResult": "Error response has clear structure with 'error' object containing 'code', 'message', and 'errors' array with field-specific details that can be programmatically parsed"
+        },
+        {
+          "step": 2,
+          "action": "Verify error messages use plain language without technical jargon that would confuse non-technical users",
+          "expectedResult": "Error messages like 'customerName is required and cannot be empty' are clear and actionable, avoiding technical terms like 'null pointer exception' or 'validation constraint violation'"
+        },
+        {
+          "step": 3,
+          "action": "Verify error response includes 'field' property that maps to the exact field name in the request payload",
+          "expectedResult": "Each error in the 'errors' array includes 'field' property with exact field name (e.g., 'customerName', 'email') enabling client applications to associate errors with specific form fields for screen reader announcement"
+        },
+        {
+          "step": 4,
+          "action": "Test that HTTP status codes are semantically correct (400 for validation, 401 for auth, 500 for server errors) for assistive technology that may announce status",
+          "expectedResult": "HTTP status codes accurately reflect error type, enabling assistive technology and client applications to provide appropriate user feedback"
+        }
+      ],
+      "postconditions": [
+        "Error messages are structured for programmatic parsing by client applications",
+        "Assistive technology can present clear, actionable error information to users",
+        "Error responses follow consistent format enabling predictable error handling",
+        "Users with disabilities receive equivalent error information as visual users"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Validate API response times support users with cognitive disabilities who may need more processing time",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "Valid OAuth2 access token is obtained",
+        "API is designed to respond within 500ms under normal load",
+        "Client applications may implement timeout handling",
+        "Users may be using assistive technology that adds processing overhead"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to /api/quotes with valid payload and measure total response time including network latency",
+          "expectedResult": "API responds within 500ms, providing quick feedback that supports users who may have difficulty with long wait times"
+        },
+        {
+          "step": 2,
+          "action": "Verify API does not implement aggressive timeout policies that would disconnect users who take longer to complete actions",
+          "expectedResult": "OAuth2 token expiration is set to reasonable duration (e.g., 1 hour) allowing users adequate time to complete workflows without rushing"
+        },
+        {
+          "step": 3,
+          "action": "Test that API supports idempotency allowing users to safely retry requests if they are unsure whether first request succeeded",
+          "expectedResult": "Duplicate requests with same idempotency key return same result without creating duplicate quotes, supporting users who may need to retry due to uncertainty"
+        }
+      ],
+      "postconditions": [
+        "API performance supports users who need more time to process information",
+        "Timeout policies are generous enough for users with cognitive disabilities",
+        "Idempotency support enables safe retry behavior for uncertain users",
+        "System accommodates diverse user processing speeds and capabilities"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify API documentation provides alternative text descriptions for all diagrams and visual content",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "API documentation includes architecture diagrams, flow charts, or visual examples",
+        "Documentation is published in HTML format supporting alt text",
+        "Screen reader is available for testing",
+        "WCAG 2.1 requires text alternatives for non-text content"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to API documentation sections containing diagrams or images using screen reader",
+          "expectedResult": "Screen reader announces presence of images and reads alt text descriptions"
+        },
+        {
+          "step": 2,
+          "action": "Verify each diagram has descriptive alt text that conveys the same information as the visual (e.g., 'Authentication flow diagram showing OAuth2 token request, validation, and API access steps')",
+          "expectedResult": "All images have meaningful alt text that describes the content and purpose, not just generic text like 'diagram' or 'image'"
+        },
+        {
+          "step": 3,
+          "action": "For complex diagrams, verify long descriptions are provided via aria-describedby or adjacent text",
+          "expectedResult": "Complex diagrams have detailed text descriptions that fully explain the visual information for users who cannot see the diagram"
+        },
+        {
+          "step": 4,
+          "action": "Verify decorative images (if any) have empty alt text (alt='') so screen readers skip them",
+          "expectedResult": "Decorative images that don't convey information have alt='' to prevent unnecessary screen reader announcements"
+        }
+      ],
+      "postconditions": [
+        "All visual content in API documentation has text alternatives",
+        "Users with visual impairments can access all information conveyed by diagrams",
+        "Documentation meets WCAG 2.1 Level A requirement for text alternatives",
+        "No information is exclusively presented in visual format"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Ensure API rate limiting and error responses accommodate assistive technology processing delays",
+      "category": "Accessibility",
+      "priority": "Low",
+      "preconditions": [
+        "API implements rate limiting to prevent abuse",
+        "Rate limiting returns 429 Too Many Requests when threshold exceeded",
+        "Users with assistive technology may have slower interaction speeds",
+        "Rate limits are documented in API documentation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Review API rate limiting policy documentation to verify limits are reasonable for users with assistive technology (e.g., not less than 10 requests per minute)",
+          "expectedResult": "Rate limits are generous enough (e.g., 60 requests per minute) that users with assistive technology who interact more slowly are not penalized"
+        },
+        {
+          "step": 2,
+          "action": "Trigger rate limiting by sending requests exceeding the threshold and verify 429 response includes Retry-After header",
+          "expectedResult": "429 Too Many Requests response includes Retry-After header with seconds to wait, and clear error message explaining rate limit and when to retry"
+        },
+        {
+          "step": 3,
+          "action": "Verify rate limiting error message is clear and actionable for users who may not understand technical rate limiting concepts",
+          "expectedResult": "Error message uses plain language like 'Too many requests. Please wait 60 seconds before trying again.' rather than technical jargon"
+        }
+      ],
+      "postconditions": [
+        "Rate limiting policies accommodate users with assistive technology",
+        "Rate limit errors provide clear guidance on when to retry",
+        "Users with disabilities are not unfairly penalized by aggressive rate limiting",
+        "API remains accessible while maintaining security and performance"
+      ]
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true
+  },
+  "userStoryObject": {
+    "id": "story-3",
+    "title": "As API Consumer, I want to perform insurance quote initiation via API to achieve seamless system integration",
+    "epicId": "epic-1",
+    "persona": "API Consumer",
+    "priority": "Medium",
+    "subtasks": [
+      {
+        "category": "Planning",
+        "description": "Define API specification and validation rules for quote initiation",
+        "estimatedHours": 4
+      },
+      {
+        "category": "Backend",
+        "description": "Develop REST API POST /api/quotes with authentication and validation",
+        "estimatedHours": 10
+      },
+      {
+        "category": "Backend",
+        "description": "Implement quote creation logic and database persistence",
+        "estimatedHours": 8
+      },
+      {
+        "category": "Testing",
+        "description": "Create unit and integration tests for API validation and error handling",
+        "estimatedHours": 8
+      },
+      {
+        "category": "Testing",
+        "description": "Perform load and performance testing on API endpoint",
+        "estimatedHours": 6
+      },
+      {
+        "category": "Documentation",
+        "description": "Document API endpoints, authentication, request/response formats",
+        "estimatedHours": 5
+      },
+      {
+        "category": "DevOps",
+        "description": "Configure API gateway and deploy API to staging environment",
+        "estimatedHours": 4
+      }
+    ],
+    "featureId": "feature-3",
+    "testCases": [
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Authenticate API client using valid OAuth2 token",
+            "result": "Authentication succeeds"
+          },
+          {
+            "step": 2,
+            "action": "Send POST /api/quotes request with complete valid JSON payload",
+            "result": "API returns 201 Created with quote reference ID"
+          },
+          {
+            "step": 3,
+            "action": "Verify quote record is persisted in database",
+            "result": "Quote data matches submitted payload"
+          }
+        ],
+        "title": "Validate successful quote initiation via API with valid payload"
+      },
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Send POST /api/quotes request without OAuth2 token",
+            "result": "API returns 401 Unauthorized error"
+          },
+          {
+            "step": 2,
+            "action": "Send POST /api/quotes request with expired token",
+            "result": "API returns 401 Unauthorized error"
+          }
+        ],
+        "title": "Verify API rejects unauthorized requests"
+      },
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Send POST /api/quotes request with missing mandatory fields",
+            "result": "API returns 400 Bad Request with descriptive error messages"
+          },
+          {
+            "step": 2,
+            "action": "Send POST /api/quotes request with invalid field formats",
+            "result": "API returns 400 Bad Request specifying field errors"
+          }
+        ],
+        "title": "Ensure API returns validation errors for invalid data"
+      }
+    ],
+    "description": "CONTEXT & BACKGROUND:\nExternal systems and partners require API access to initiate insurance quotes programmatically.\n\nCURRENT STATE:\nNo standardized API exists, leading to manual processes and integration delays.\n\nDESIRED STATE:\nA secure, documented API supports quote initiation with validation and error handling.\n\nKEY FUNCTIONALITY:\n• RESTful API endpoint for quote creation\n• Secure authentication and authorization\n• Input data validation\n• Clear error responses with status codes\n• Quote creation confirmation with reference ID\n\nUSER INTERACTION FLOW:\n1. API consumer authenticates via OAuth2\n2. Sends POST request with quote data JSON payload\n3. System validates input and business rules\n4. On success, system creates quote record\n5. System responds with quote reference and status\n6. On failure, system returns error details\n\nTECHNICAL CONSIDERATIONS:\n• Data source: API gateway and quote database\n• Validation: Backend input validation and business rule enforcement\n• API endpoints: POST /api/quotes\n• Security: OAuth2 token validation, input sanitization\n• Performance: API response time under 500ms under load\n\nOUT OF SCOPE:\n• Partner portal UI development\n\nSUCCESS METRICS:\n• 99% API uptime and availability\n• 95% successful quote creation rate via API\n• Average API response time under 500ms",
+    "storyPoints": 5,
+    "personaSource": "AI Suggested",
+    "acceptanceCriteria": [
+      "API authenticates requests using OAuth2 tokens and rejects unauthorized calls",
+      "API validates all required quote fields and rejects invalid requests with descriptive errors",
+      "API creates new insurance quote records upon valid requests",
+      "API responds with quote reference ID and success status for valid submissions",
+      "API returns meaningful error messages and HTTP status codes for failed requests"
+    ]
+  }
+}
