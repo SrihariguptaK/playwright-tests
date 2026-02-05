@@ -1,0 +1,1155 @@
+{
+  "storyId": "ado-16586",
+  "storyTitle": "As Payroll Specialist, I want to ensure timekeeping data is accurately integrated to achieve smooth payroll processing",
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify successful configuration of timekeeping integration settings",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Payroll Specialist with timekeeping integration permissions",
+        "Timekeeping API endpoint is accessible and responding",
+        "Integration settings page is loaded and displayed",
+        "Valid API credentials are available for configuration"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to 'Timekeeping Integration' settings page from the main payroll dashboard",
+          "expectedResult": "Integration settings page loads successfully with configuration form displayed"
+        },
+        {
+          "step": 2,
+          "action": "Enter valid API endpoint URL 'https://timekeeping.api.com/v1' in the 'API Endpoint' field",
+          "expectedResult": "API endpoint URL is accepted and displayed in the field without validation errors"
+        },
+        {
+          "step": 3,
+          "action": "Enter valid API key in the 'API Key' field and select authentication method 'OAuth 2.0' from dropdown",
+          "expectedResult": "API credentials are masked appropriately and authentication method is selected"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Test Connection' button to verify API connectivity",
+          "expectedResult": "Success message 'Connection successful' appears in green banner with checkmark icon"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Save Configuration' button in the bottom-right corner",
+          "expectedResult": "Configuration is saved successfully with confirmation message 'Integration settings saved successfully' displayed"
+        }
+      ],
+      "postconditions": [
+        "Timekeeping integration settings are persisted in the database",
+        "Integration status shows as 'Active' on the settings page",
+        "System is ready to retrieve timekeeping data from configured API",
+        "Audit log entry is created for configuration change"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify automated retrieval of timekeeping data from API without errors",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Timekeeping integration is configured and active",
+        "User is logged in as Payroll Specialist",
+        "Timekeeping API contains valid time entries for current pay period",
+        "System is on the 'Timekeeping Data' page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to 'Timekeeping Data' page from payroll dashboard",
+          "expectedResult": "Timekeeping Data page loads with 'Retrieve Data' button visible"
+        },
+        {
+          "step": 2,
+          "action": "Select pay period '01/01/2024 - 01/15/2024' from the date range picker",
+          "expectedResult": "Selected pay period is displayed and highlighted in the date picker"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Retrieve Data' button to initiate data retrieval from timekeeping API",
+          "expectedResult": "Loading spinner appears with message 'Retrieving timekeeping data...' and progress indicator shows"
+        },
+        {
+          "step": 4,
+          "action": "Wait for data retrieval process to complete",
+          "expectedResult": "Success message 'Successfully retrieved 150 time entries' appears in green banner at top of page"
+        },
+        {
+          "step": 5,
+          "action": "Review the retrieved data displayed in the timekeeping data grid",
+          "expectedResult": "Data grid displays all 150 time entries with columns: Employee ID, Employee Name, Date, Hours Worked, Status"
+        }
+      ],
+      "postconditions": [
+        "Timekeeping data is stored in the system database",
+        "Data retrieval timestamp is recorded in system logs",
+        "Retrieved data is available for validation process",
+        "User remains on Timekeeping Data page with data displayed"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify validation of time entries against predefined rules",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Timekeeping data has been successfully retrieved from API",
+        "Validation rules are configured (max 24 hours per day, no negative hours, valid employee IDs)",
+        "User is on the 'Timekeeping Data' page with retrieved data displayed",
+        "At least 100 time entries are available for validation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click 'Validate Entries' button in the top-right corner of the data grid",
+          "expectedResult": "Validation process initiates with progress bar showing 'Validating time entries...'"
+        },
+        {
+          "step": 2,
+          "action": "Wait for validation process to complete",
+          "expectedResult": "Validation completes with summary message 'Validation complete: 147 valid entries, 3 discrepancies found'"
+        },
+        {
+          "step": 3,
+          "action": "Review the validation summary panel that appears below the data grid",
+          "expectedResult": "Summary panel displays breakdown: 'Valid Entries: 147', 'Hours Exceeded: 2', 'Invalid Employee ID: 1'"
+        },
+        {
+          "step": 4,
+          "action": "Click 'View Discrepancies' link in the summary panel",
+          "expectedResult": "Data grid filters to show only 3 entries with discrepancies, highlighted in red with error icons"
+        },
+        {
+          "step": 5,
+          "action": "Hover over the error icon on the first discrepancy entry",
+          "expectedResult": "Tooltip appears showing specific validation error: 'Hours worked (26) exceeds maximum allowed (24) for date 01/05/2024'"
+        }
+      ],
+      "postconditions": [
+        "Validation results are saved in the database with timestamp",
+        "Discrepancies are flagged for review and resolution",
+        "Valid entries are marked as ready for payroll processing",
+        "Validation report is generated and available for download"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify user receives notifications for timekeeping discrepancies",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Validation process has completed and identified discrepancies",
+        "User notification settings are enabled for timekeeping alerts",
+        "User is logged in as Payroll Specialist",
+        "At least 3 discrepancies exist in the validated data"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Observe the notification bell icon in the top-right corner of the application header",
+          "expectedResult": "Red badge with number '1' appears on the notification bell icon indicating new notification"
+        },
+        {
+          "step": 2,
+          "action": "Click the notification bell icon to open the notifications panel",
+          "expectedResult": "Notifications panel slides out from right side showing notification: 'Timekeeping Discrepancies Found - 3 entries require review'"
+        },
+        {
+          "step": 3,
+          "action": "Click on the notification message in the panel",
+          "expectedResult": "System navigates to Timekeeping Data page with discrepancies filter automatically applied"
+        },
+        {
+          "step": 4,
+          "action": "Check email inbox for notification email",
+          "expectedResult": "Email received with subject 'Timekeeping Discrepancies Detected - Action Required' containing summary of 3 discrepancies"
+        },
+        {
+          "step": 5,
+          "action": "Click 'View Details' link in the email notification",
+          "expectedResult": "Browser opens to Timekeeping Data page with discrepancies displayed and user authenticated"
+        }
+      ],
+      "postconditions": [
+        "Notification is marked as read in the system",
+        "User is aware of discrepancies requiring attention",
+        "Notification record is stored in notification history",
+        "Email notification is logged in email audit trail"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify user can review and resolve timekeeping discrepancies",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Discrepancies have been identified and are displayed in the data grid",
+        "User is logged in as Payroll Specialist with edit permissions",
+        "User is on Timekeeping Data page with discrepancies filter applied",
+        "At least one discrepancy entry is visible for resolution"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on the first discrepancy entry row with error 'Hours exceeded: 26 hours on 01/05/2024'",
+          "expectedResult": "Entry row expands to show detailed view with editable fields and resolution options"
+        },
+        {
+          "step": 2,
+          "action": "Review the discrepancy details panel showing original value '26 hours' and validation rule 'Maximum 24 hours per day'",
+          "expectedResult": "Details panel displays all relevant information including employee name, date, original hours, and error description"
+        },
+        {
+          "step": 3,
+          "action": "Select resolution action 'Correct Entry' from the dropdown menu",
+          "expectedResult": "Hours field becomes editable with current value '26' highlighted"
+        },
+        {
+          "step": 4,
+          "action": "Update the hours value to '16' and enter resolution note 'Corrected data entry error - verified with manager'",
+          "expectedResult": "Updated value is accepted and resolution note field shows character count '52/500'"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Save Resolution' button",
+          "expectedResult": "Success message 'Discrepancy resolved successfully' appears and entry is removed from discrepancies list"
+        },
+        {
+          "step": 6,
+          "action": "Verify the discrepancy counter updates in the summary panel",
+          "expectedResult": "Summary panel now shows 'Valid Entries: 148', 'Discrepancies: 2' with updated counts"
+        }
+      ],
+      "postconditions": [
+        "Resolved entry is updated in the database with corrected value",
+        "Resolution note and timestamp are recorded in audit log",
+        "Entry is now marked as valid and ready for payroll processing",
+        "Discrepancy count is decremented and summary is updated"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify reporting on timekeeping discrepancies with export functionality",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "Validation has been completed with both valid entries and discrepancies",
+        "User is logged in as Payroll Specialist",
+        "User is on the Timekeeping Data page",
+        "At least 5 discrepancies exist in the current pay period"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click 'Generate Report' button in the toolbar above the data grid",
+          "expectedResult": "Report options modal appears with report type selection and format options"
+        },
+        {
+          "step": 2,
+          "action": "Select report type 'Discrepancies Report' and format 'PDF' from the dropdown menus",
+          "expectedResult": "Report configuration options are displayed including date range and filter options"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Generate' button to create the discrepancies report",
+          "expectedResult": "Progress indicator shows 'Generating report...' followed by success message 'Report generated successfully'"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Download Report' button that appears after generation",
+          "expectedResult": "PDF file 'Timekeeping_Discrepancies_Report_20240115.pdf' downloads to default download folder"
+        },
+        {
+          "step": 5,
+          "action": "Open the downloaded PDF report",
+          "expectedResult": "Report displays with header, summary statistics, detailed discrepancy list with all 5 entries, and validation rules applied"
+        }
+      ],
+      "postconditions": [
+        "Report is saved in system reports archive",
+        "Report generation is logged in audit trail",
+        "Downloaded report is available in user's download folder",
+        "User remains on Timekeeping Data page"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify system handles API connection failure during data retrieval",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Payroll Specialist",
+        "Timekeeping integration is configured",
+        "User is on Timekeeping Data page",
+        "Timekeeping API endpoint is temporarily unavailable or unreachable"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select pay period '01/01/2024 - 01/15/2024' from date range picker",
+          "expectedResult": "Pay period is selected and displayed"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Retrieve Data' button to attempt data retrieval from unavailable API",
+          "expectedResult": "Loading spinner appears with message 'Retrieving timekeeping data...'"
+        },
+        {
+          "step": 3,
+          "action": "Wait for connection timeout (approximately 30 seconds)",
+          "expectedResult": "Error message appears in red banner: 'Failed to retrieve timekeeping data. Unable to connect to timekeeping API. Please check your connection and try again.'"
+        },
+        {
+          "step": 4,
+          "action": "Verify that no partial or corrupted data is displayed in the data grid",
+          "expectedResult": "Data grid remains empty with message 'No data available. Click Retrieve Data to load timekeeping entries.'"
+        },
+        {
+          "step": 5,
+          "action": "Check that 'Validate Entries' button remains disabled",
+          "expectedResult": "'Validate Entries' button is grayed out and shows tooltip 'No data available for validation' on hover"
+        }
+      ],
+      "postconditions": [
+        "No data is saved to the database from failed retrieval attempt",
+        "Error is logged in system error logs with timestamp and error details",
+        "User can retry data retrieval after API becomes available",
+        "System remains in stable state without data corruption"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify system rejects invalid API credentials during configuration",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Payroll Specialist",
+        "User is on Timekeeping Integration settings page",
+        "Integration settings form is displayed and empty",
+        "Invalid API credentials are prepared for testing"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter valid API endpoint URL 'https://timekeeping.api.com/v1' in the 'API Endpoint' field",
+          "expectedResult": "API endpoint URL is accepted and displayed"
+        },
+        {
+          "step": 2,
+          "action": "Enter invalid API key 'INVALID_KEY_12345' in the 'API Key' field",
+          "expectedResult": "API key is masked and displayed as asterisks"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Test Connection' button to verify API connectivity with invalid credentials",
+          "expectedResult": "Error message appears in red banner: 'Authentication failed. Invalid API credentials. Please verify your API key and try again.'"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to click 'Save Configuration' button",
+          "expectedResult": "'Save Configuration' button remains disabled with tooltip 'Connection test must pass before saving configuration'"
+        },
+        {
+          "step": 5,
+          "action": "Verify that no configuration data is persisted",
+          "expectedResult": "Integration status remains 'Not Configured' and no settings are saved"
+        }
+      ],
+      "postconditions": [
+        "Invalid configuration is not saved to database",
+        "Authentication failure is logged in security audit log",
+        "User remains on configuration page to correct credentials",
+        "System prevents data retrieval with invalid credentials"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify system handles malformed data received from timekeeping API",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Timekeeping integration is configured and active",
+        "User is logged in as Payroll Specialist",
+        "Timekeeping API returns malformed JSON data with missing required fields",
+        "User is on Timekeeping Data page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select pay period '01/01/2024 - 01/15/2024' and click 'Retrieve Data' button",
+          "expectedResult": "Data retrieval process initiates with loading spinner"
+        },
+        {
+          "step": 2,
+          "action": "Wait for system to process malformed API response",
+          "expectedResult": "Error message appears: 'Data retrieval completed with errors. Received data does not match expected format. 0 entries imported successfully.'"
+        },
+        {
+          "step": 3,
+          "action": "Click 'View Error Details' link in the error message",
+          "expectedResult": "Error details modal opens showing: 'Parsing errors: Missing required field employee_id in 45 records, Invalid date format in 12 records'"
+        },
+        {
+          "step": 4,
+          "action": "Verify data grid remains empty",
+          "expectedResult": "Data grid shows message 'No valid data retrieved. Please contact system administrator if issue persists.'"
+        },
+        {
+          "step": 5,
+          "action": "Check that validation cannot proceed",
+          "expectedResult": "'Validate Entries' button is disabled and grayed out"
+        }
+      ],
+      "postconditions": [
+        "No malformed data is saved to database",
+        "Detailed error information is logged for troubleshooting",
+        "User is notified of data format issues",
+        "System remains stable without processing invalid data"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify unauthorized user cannot access timekeeping integration settings",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with role 'Payroll Clerk' without integration configuration permissions",
+        "Timekeeping integration exists and is configured",
+        "User is on main payroll dashboard",
+        "Role-based access control is enforced"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to navigate to 'Timekeeping Integration' settings page by entering URL directly",
+          "expectedResult": "Access denied page appears with message 'Access Denied. You do not have permission to access timekeeping integration settings.'"
+        },
+        {
+          "step": 2,
+          "action": "Verify that integration settings menu option is not visible in navigation",
+          "expectedResult": "Settings menu does not display 'Timekeeping Integration' option for current user role"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to access integration API endpoint directly via browser developer tools",
+          "expectedResult": "API returns 403 Forbidden status with error message 'Insufficient permissions'"
+        },
+        {
+          "step": 4,
+          "action": "Check audit logs for unauthorized access attempt",
+          "expectedResult": "Security log entry created: 'Unauthorized access attempt to timekeeping integration settings by user [username] at [timestamp]'"
+        }
+      ],
+      "postconditions": [
+        "User remains on access denied page or is redirected to dashboard",
+        "No configuration data is exposed to unauthorized user",
+        "Security event is logged with user details and timestamp",
+        "System security remains intact"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify system handles validation timeout for large datasets",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "Timekeeping data with 10,000+ entries has been retrieved",
+        "User is logged in as Payroll Specialist",
+        "User is on Timekeeping Data page with large dataset displayed",
+        "Validation timeout is set to 5 minutes"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click 'Validate Entries' button to initiate validation of 10,000+ entries",
+          "expectedResult": "Validation process starts with progress bar showing percentage completion"
+        },
+        {
+          "step": 2,
+          "action": "Monitor validation progress for 5 minutes until timeout occurs",
+          "expectedResult": "After 5 minutes, timeout error appears: 'Validation timeout. Processing is taking longer than expected. Please try validating smaller date ranges.'"
+        },
+        {
+          "step": 3,
+          "action": "Verify partial validation results are not saved",
+          "expectedResult": "No validation status is applied to any entries, all remain in 'Pending Validation' state"
+        },
+        {
+          "step": 4,
+          "action": "Check that user can still interact with the interface",
+          "expectedResult": "Interface remains responsive, user can click 'Cancel' or adjust date range to reduce dataset size"
+        }
+      ],
+      "postconditions": [
+        "No partial or incomplete validation results are persisted",
+        "Timeout event is logged with dataset size and duration",
+        "User can retry validation with smaller dataset",
+        "System performance is not degraded"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify system prevents saving resolution without required resolution notes",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "Discrepancies exist and are displayed in data grid",
+        "User is logged in as Payroll Specialist",
+        "User has expanded a discrepancy entry for resolution",
+        "Resolution note field is marked as required"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on discrepancy entry with error 'Hours exceeded: 26 hours'",
+          "expectedResult": "Entry expands showing resolution options and editable fields"
+        },
+        {
+          "step": 2,
+          "action": "Select resolution action 'Correct Entry' and update hours to '16'",
+          "expectedResult": "Hours field updates to '16' successfully"
+        },
+        {
+          "step": 3,
+          "action": "Leave the 'Resolution Note' field empty and click 'Save Resolution' button",
+          "expectedResult": "Validation error appears below resolution note field: 'Resolution note is required. Please provide details about how this discrepancy was resolved.'"
+        },
+        {
+          "step": 4,
+          "action": "Verify that resolution is not saved",
+          "expectedResult": "Entry remains in discrepancies list with original error status, no changes are persisted"
+        },
+        {
+          "step": 5,
+          "action": "Verify resolution note field is highlighted with red border",
+          "expectedResult": "Resolution note field has red border and asterisk indicating required field"
+        }
+      ],
+      "postconditions": [
+        "No resolution data is saved without required note",
+        "Discrepancy remains unresolved in the system",
+        "User is prompted to provide required information",
+        "Data integrity is maintained"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Verify system handles retrieval of zero time entries for selected pay period",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Timekeeping integration is configured and active",
+        "User is logged in as Payroll Specialist",
+        "Selected pay period has no time entries in timekeeping system",
+        "User is on Timekeeping Data page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select future pay period '03/01/2024 - 03/15/2024' that has no time entries",
+          "expectedResult": "Pay period is selected and displayed in date picker"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Retrieve Data' button to retrieve data for empty pay period",
+          "expectedResult": "Loading spinner appears and completes quickly"
+        },
+        {
+          "step": 3,
+          "action": "Observe the result message displayed",
+          "expectedResult": "Informational message appears in blue banner: 'Data retrieval complete. 0 time entries found for selected pay period.'"
+        },
+        {
+          "step": 4,
+          "action": "Verify data grid displays appropriate empty state",
+          "expectedResult": "Data grid shows empty state illustration with message 'No time entries found for this pay period. Select a different date range or check back later.'"
+        },
+        {
+          "step": 5,
+          "action": "Verify validation and reporting buttons are disabled",
+          "expectedResult": "'Validate Entries' and 'Generate Report' buttons are grayed out with tooltips explaining no data available"
+        }
+      ],
+      "postconditions": [
+        "No data is stored for empty retrieval",
+        "Retrieval event is logged with zero entries result",
+        "User can select different pay period to retrieve data",
+        "System handles empty dataset gracefully"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Verify system handles maximum allowed time entries (10,000+) in single retrieval",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Timekeeping integration is configured",
+        "User is logged in as Payroll Specialist",
+        "Timekeeping API contains 15,000 time entries for selected period",
+        "User is on Timekeeping Data page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select large pay period 'Q1 2024 (01/01/2024 - 03/31/2024)' containing 15,000 entries",
+          "expectedResult": "Quarterly date range is selected"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Retrieve Data' button to retrieve large dataset",
+          "expectedResult": "Loading spinner appears with progress indicator showing 'Retrieving large dataset...'"
+        },
+        {
+          "step": 3,
+          "action": "Monitor retrieval progress and completion time",
+          "expectedResult": "Retrieval completes within 5 minutes with message 'Successfully retrieved 15,000 time entries. Processing time: 4 minutes 23 seconds.'"
+        },
+        {
+          "step": 4,
+          "action": "Verify data grid implements pagination for large dataset",
+          "expectedResult": "Data grid displays first 100 entries with pagination controls showing 'Page 1 of 150' and page size selector"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to page 75 using pagination controls",
+          "expectedResult": "Page 75 loads within 2 seconds showing entries 7,401-7,500 without performance degradation"
+        },
+        {
+          "step": 6,
+          "action": "Click 'Validate Entries' to validate entire large dataset",
+          "expectedResult": "Validation processes all 15,000 entries with progress updates every 10% and completes within 5 minutes"
+        }
+      ],
+      "postconditions": [
+        "All 15,000 entries are stored in database successfully",
+        "Pagination allows efficient navigation of large dataset",
+        "System performance remains acceptable with large data volume",
+        "Validation completes within acceptable timeframe"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Verify system handles time entries with boundary values (0 hours and 24 hours)",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Timekeeping data has been retrieved containing entries with 0 hours and 24 hours",
+        "User is logged in as Payroll Specialist",
+        "Validation rules allow 0-24 hours range",
+        "User is on Timekeeping Data page with data displayed"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Locate time entry with 0 hours worked (employee on unpaid leave)",
+          "expectedResult": "Entry displays '0.00' hours in the Hours Worked column"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Validate Entries' button to validate all entries including boundary values",
+          "expectedResult": "Validation process completes successfully"
+        },
+        {
+          "step": 3,
+          "action": "Verify that 0 hours entry passes validation",
+          "expectedResult": "Entry with 0 hours shows green checkmark with status 'Valid' and no error flags"
+        },
+        {
+          "step": 4,
+          "action": "Locate time entry with exactly 24 hours worked (employee worked full 24-hour shift)",
+          "expectedResult": "Entry displays '24.00' hours in the Hours Worked column"
+        },
+        {
+          "step": 5,
+          "action": "Verify that 24 hours entry passes validation",
+          "expectedResult": "Entry with 24 hours shows green checkmark with status 'Valid' and no error flags"
+        },
+        {
+          "step": 6,
+          "action": "Generate validation report including boundary value entries",
+          "expectedResult": "Report includes both 0 and 24 hour entries in 'Valid Entries' section without flagging as discrepancies"
+        }
+      ],
+      "postconditions": [
+        "Boundary value entries are correctly validated and processed",
+        "No false positive discrepancies are generated for valid boundary values",
+        "Entries are ready for payroll processing",
+        "Validation logic correctly handles edge values"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Verify system handles special characters and Unicode in employee names",
+      "category": "Edge Cases",
+      "priority": "Low",
+      "preconditions": [
+        "Timekeeping data contains employee names with special characters (O'Brien, José, François, 李明)",
+        "User is logged in as Payroll Specialist",
+        "Data has been retrieved from API",
+        "User is on Timekeeping Data page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Search for employee with apostrophe in name: \"O'Brien\" using search filter",
+          "expectedResult": "Search returns employee 'Patrick O'Brien' with apostrophe correctly displayed"
+        },
+        {
+          "step": 2,
+          "action": "Verify employee name with accent characters 'José García' displays correctly in data grid",
+          "expectedResult": "Name displays as 'José García' with proper accent marks on 'o' and 'í'"
+        },
+        {
+          "step": 3,
+          "action": "Locate employee with Chinese characters '李明' in the data grid",
+          "expectedResult": "Chinese characters display correctly without corruption or replacement characters"
+        },
+        {
+          "step": 4,
+          "action": "Generate PDF report including all employees with special characters",
+          "expectedResult": "PDF report renders all special characters and Unicode correctly: O'Brien, José, François, 李明"
+        },
+        {
+          "step": 5,
+          "action": "Export data to CSV and open in spreadsheet application",
+          "expectedResult": "CSV file maintains UTF-8 encoding and all special characters display correctly when opened"
+        }
+      ],
+      "postconditions": [
+        "All special characters and Unicode are preserved in database",
+        "Display rendering handles international characters correctly",
+        "Export formats maintain character encoding",
+        "System supports diverse employee name formats"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Verify system handles concurrent data retrieval by multiple users",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Three Payroll Specialist users are logged in simultaneously",
+        "Timekeeping integration is configured and active",
+        "All users are on Timekeeping Data page",
+        "Same pay period is selected by all users"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Have all three users click 'Retrieve Data' button within 5 seconds of each other",
+          "expectedResult": "All three users see loading spinners indicating data retrieval in progress"
+        },
+        {
+          "step": 2,
+          "action": "Monitor API calls to verify system behavior",
+          "expectedResult": "System either processes requests sequentially or uses caching to avoid duplicate API calls for same pay period"
+        },
+        {
+          "step": 3,
+          "action": "Verify all three users receive successful completion messages",
+          "expectedResult": "Each user sees success message 'Successfully retrieved 150 time entries' with consistent data count"
+        },
+        {
+          "step": 4,
+          "action": "Compare data displayed in all three user sessions",
+          "expectedResult": "All three users see identical data with same 150 entries, same values, and same timestamps"
+        },
+        {
+          "step": 5,
+          "action": "Have one user validate entries while others view data",
+          "expectedResult": "Validation completes successfully without locking or blocking other users from viewing data"
+        }
+      ],
+      "postconditions": [
+        "Data consistency is maintained across concurrent sessions",
+        "No duplicate data is created from concurrent retrievals",
+        "System handles concurrent access without errors",
+        "Performance remains acceptable with multiple simultaneous users"
+      ]
+    },
+    {
+      "id": "TC-EDGE-006",
+      "title": "Verify system handles API rate limiting and throttling gracefully",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Timekeeping API has rate limit of 10 requests per minute",
+        "User is logged in as Payroll Specialist",
+        "User has already made 9 API requests in current minute",
+        "User is on Timekeeping Data page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to retrieve data for 10th time within the same minute",
+          "expectedResult": "Request initiates normally with loading spinner"
+        },
+        {
+          "step": 2,
+          "action": "Observe system response when rate limit is reached",
+          "expectedResult": "Warning message appears: 'API rate limit reached. Request will be retried automatically in 45 seconds.'"
+        },
+        {
+          "step": 3,
+          "action": "Verify system implements automatic retry mechanism",
+          "expectedResult": "Countdown timer displays 'Retrying in 45... 44... 43...' and request automatically retries after wait period"
+        },
+        {
+          "step": 4,
+          "action": "Wait for automatic retry to complete",
+          "expectedResult": "After countdown, request succeeds with message 'Successfully retrieved 150 time entries'"
+        },
+        {
+          "step": 5,
+          "action": "Verify user can continue working during wait period",
+          "expectedResult": "Interface remains responsive, user can navigate to other pages or cancel the retry if needed"
+        }
+      ],
+      "postconditions": [
+        "Rate limit error is handled gracefully without system failure",
+        "Automatic retry mechanism successfully retrieves data",
+        "User experience is maintained with clear communication",
+        "Rate limit events are logged for monitoring"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Verify complete keyboard navigation through timekeeping integration settings",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Payroll Specialist",
+        "User is on Timekeeping Integration settings page",
+        "Screen reader is not active (keyboard-only test)",
+        "Browser is set to show focus indicators"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key to navigate to first interactive element on the page",
+          "expectedResult": "Focus moves to 'API Endpoint' input field with visible blue focus ring (2px solid) around the field"
+        },
+        {
+          "step": 2,
+          "action": "Type API endpoint URL and press Tab to move to next field",
+          "expectedResult": "Focus moves to 'API Key' field with visible focus indicator, entered URL remains in previous field"
+        },
+        {
+          "step": 3,
+          "action": "Continue pressing Tab through all form fields and buttons",
+          "expectedResult": "Focus moves in logical order: API Key → Authentication Method dropdown → Test Connection button → Save Configuration button → Cancel button"
+        },
+        {
+          "step": 4,
+          "action": "Press Shift+Tab to navigate backwards through elements",
+          "expectedResult": "Focus moves in reverse order through all interactive elements with visible focus indicators"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to 'Authentication Method' dropdown and press Space or Enter to open",
+          "expectedResult": "Dropdown opens showing options, focus remains on dropdown, arrow keys navigate options"
+        },
+        {
+          "step": 6,
+          "action": "Press Escape key while dropdown is open",
+          "expectedResult": "Dropdown closes and focus returns to dropdown trigger button"
+        },
+        {
+          "step": 7,
+          "action": "Navigate to 'Save Configuration' button and press Enter",
+          "expectedResult": "Form submits successfully, success message appears and receives focus for announcement"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements are reachable via keyboard",
+        "Focus order follows logical visual layout",
+        "Focus indicators are clearly visible throughout navigation",
+        "No keyboard traps prevent user from navigating away"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Verify screen reader announces timekeeping data retrieval process and results",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "NVDA or JAWS screen reader is active and running",
+        "User is logged in as Payroll Specialist",
+        "User is on Timekeeping Data page",
+        "Timekeeping integration is configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to 'Retrieve Data' button using Tab key",
+          "expectedResult": "Screen reader announces: 'Retrieve Data, button. Press Enter to retrieve timekeeping data for selected pay period.'"
+        },
+        {
+          "step": 2,
+          "action": "Press Enter to activate data retrieval",
+          "expectedResult": "Screen reader announces: 'Loading. Retrieving timekeeping data. Please wait.' with aria-live region updating"
+        },
+        {
+          "step": 3,
+          "action": "Wait for data retrieval to complete",
+          "expectedResult": "Screen reader announces: 'Success. Successfully retrieved 150 time entries. Data grid updated with 150 rows.'"
+        },
+        {
+          "step": 4,
+          "action": "Navigate to data grid using Tab key",
+          "expectedResult": "Screen reader announces: 'Timekeeping data grid. Table with 150 rows and 5 columns. Column headers: Employee ID, Employee Name, Date, Hours Worked, Status.'"
+        },
+        {
+          "step": 5,
+          "action": "Navigate through first row of data using arrow keys",
+          "expectedResult": "Screen reader announces each cell: 'Employee ID: 12345', 'Employee Name: John Smith', 'Date: January 5, 2024', 'Hours Worked: 8.00', 'Status: Valid'"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to 'Validate Entries' button and activate",
+          "expectedResult": "Screen reader announces validation progress: 'Validating time entries. 50% complete... Validation complete. 147 valid entries, 3 discrepancies found.'"
+        }
+      ],
+      "postconditions": [
+        "All dynamic content updates are announced via aria-live regions",
+        "Screen reader provides context for all interactive elements",
+        "Data table structure is properly conveyed to screen reader users",
+        "Loading states and completion messages are announced"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify focus management when opening and closing discrepancy resolution modal",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Discrepancies exist in timekeeping data",
+        "User is logged in as Payroll Specialist",
+        "User is on Timekeeping Data page with discrepancies displayed",
+        "Keyboard navigation is being used"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use Tab key to navigate to first discrepancy entry row",
+          "expectedResult": "Focus indicator appears on discrepancy row with visible focus ring"
+        },
+        {
+          "step": 2,
+          "action": "Press Enter to expand discrepancy details panel",
+          "expectedResult": "Details panel expands and focus automatically moves to first interactive element (Resolution Action dropdown) inside panel"
+        },
+        {
+          "step": 3,
+          "action": "Press Tab to navigate through all elements in the expanded panel",
+          "expectedResult": "Focus moves through: Resolution Action dropdown → Hours field → Resolution Note field → Save Resolution button → Cancel button, then stops (focus trapped in panel)"
+        },
+        {
+          "step": 4,
+          "action": "Press Escape key to close the expanded panel",
+          "expectedResult": "Panel closes and focus returns to the discrepancy row that was originally activated"
+        },
+        {
+          "step": 5,
+          "action": "Re-open panel, make changes, and activate 'Save Resolution' button using Enter key",
+          "expectedResult": "Resolution saves, success message appears and receives focus, then focus returns to data grid at next discrepancy or summary area"
+        }
+      ],
+      "postconditions": [
+        "Focus is managed logically when opening/closing panels",
+        "Focus is trapped within modal/panel when open",
+        "Focus returns to triggering element when panel closes",
+        "Keyboard users can efficiently navigate and resolve discrepancies"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify color contrast ratios meet WCAG 2.1 AA standards throughout interface",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is on Timekeeping Data page with data displayed",
+        "Color contrast analyzer tool is available (e.g., browser extension)",
+        "Page displays various states: valid entries, discrepancies, buttons, messages",
+        "Both light and dark mode are available for testing"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use color contrast analyzer to check normal text (14px) against background",
+          "expectedResult": "Text color #333333 on white background #FFFFFF has contrast ratio of at least 4.5:1 (meets WCAG AA)"
+        },
+        {
+          "step": 2,
+          "action": "Check contrast of error messages and discrepancy indicators",
+          "expectedResult": "Red error text #D32F2F on white background has contrast ratio of at least 4.5:1, error icons have sufficient contrast"
+        },
+        {
+          "step": 3,
+          "action": "Check contrast of success messages and valid entry indicators",
+          "expectedResult": "Green success text #388E3C on white background has contrast ratio of at least 4.5:1"
+        },
+        {
+          "step": 4,
+          "action": "Check contrast of interactive elements (buttons, links) in normal and hover states",
+          "expectedResult": "Primary button text white #FFFFFF on blue background #1976D2 has contrast ratio of at least 4.5:1, hover state maintains contrast"
+        },
+        {
+          "step": 5,
+          "action": "Check contrast of disabled elements",
+          "expectedResult": "Disabled button text has contrast ratio of at least 3:1 to indicate disabled state while remaining perceivable"
+        },
+        {
+          "step": 6,
+          "action": "Verify information is not conveyed by color alone",
+          "expectedResult": "Discrepancies use red color PLUS error icon, valid entries use green color PLUS checkmark icon, ensuring non-color indicators exist"
+        }
+      ],
+      "postconditions": [
+        "All text meets minimum 4.5:1 contrast ratio for WCAG AA",
+        "Interactive elements have sufficient contrast in all states",
+        "Information is conveyed through multiple visual means, not color alone",
+        "Interface is usable for users with color vision deficiencies"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify ARIA labels and roles are properly implemented for data grid",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is on Timekeeping Data page with data grid displayed",
+        "Browser developer tools are open to inspect ARIA attributes",
+        "Screen reader is active for testing announcements",
+        "Data grid contains at least 50 entries"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Inspect data grid container element in browser developer tools",
+          "expectedResult": "Grid has role='grid' attribute and aria-label='Timekeeping data grid with 150 entries'"
+        },
+        {
+          "step": 2,
+          "action": "Inspect column header elements",
+          "expectedResult": "Each header has role='columnheader' and appropriate aria-sort attribute (e.g., aria-sort='ascending' for sorted columns)"
+        },
+        {
+          "step": 3,
+          "action": "Inspect data row elements",
+          "expectedResult": "Each row has role='row' and aria-rowindex attribute indicating position (e.g., aria-rowindex='1', aria-rowindex='2')"
+        },
+        {
+          "step": 4,
+          "action": "Inspect individual cell elements",
+          "expectedResult": "Each cell has role='gridcell' and aria-colindex attribute, cells with interactive elements have appropriate aria-labels"
+        },
+        {
+          "step": 5,
+          "action": "Navigate grid using screen reader table navigation commands",
+          "expectedResult": "Screen reader correctly announces row and column positions: 'Row 1 of 150, Column 2 of 5, Employee Name: John Smith'"
+        },
+        {
+          "step": 6,
+          "action": "Inspect discrepancy indicators and status icons",
+          "expectedResult": "Icons have aria-label attributes: 'Error: Hours exceeded maximum' for error icons, 'Valid entry' for checkmarks"
+        },
+        {
+          "step": 7,
+          "action": "Check pagination controls for ARIA attributes",
+          "expectedResult": "Pagination has aria-label='Pagination navigation', current page button has aria-current='page', disabled buttons have aria-disabled='true'"
+        }
+      ],
+      "postconditions": [
+        "All grid elements have appropriate ARIA roles",
+        "Screen reader users can navigate and understand grid structure",
+        "Dynamic content updates include aria-live announcements",
+        "Grid meets WCAG 2.1 accessibility standards for complex widgets"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "Verify interface remains usable at 200% browser zoom level",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is on Timekeeping Data page with data displayed",
+        "Browser zoom is set to 100% initially",
+        "Page contains data grid, buttons, forms, and notifications",
+        "Viewport is set to 1920x1080 resolution"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Increase browser zoom to 200% using Ctrl + Plus key (or Cmd + Plus on Mac)",
+          "expectedResult": "Page content scales to 200% without horizontal scrolling, all text remains readable"
+        },
+        {
+          "step": 2,
+          "action": "Verify data grid remains functional at 200% zoom",
+          "expectedResult": "Grid columns adjust responsively, horizontal scroll appears only for grid content (not entire page), all data remains accessible"
+        },
+        {
+          "step": 3,
+          "action": "Check that all buttons and interactive elements remain clickable",
+          "expectedResult": "All buttons maintain minimum 44x44 pixel touch target size, no overlapping elements, all controls are accessible"
+        },
+        {
+          "step": 4,
+          "action": "Verify form fields in integration settings at 200% zoom",
+          "expectedResult": "Form fields stack vertically if needed, labels remain associated with inputs, no text truncation occurs"
+        },
+        {
+          "step": 5,
+          "action": "Test notification messages and error banners at 200% zoom",
+          "expectedResult": "Messages display fully without text cutoff, close buttons remain accessible, content reflows appropriately"
+        },
+        {
+          "step": 6,
+          "action": "Navigate through entire workflow (retrieve, validate, resolve) at 200% zoom",
+          "expectedResult": "All functionality works correctly, no loss of information or functionality due to zoom level"
+        }
+      ],
+      "postconditions": [
+        "Interface remains fully functional at 200% zoom",
+        "No horizontal scrolling required for main page content",
+        "All text is readable without truncation",
+        "Touch targets meet minimum size requirements"
+      ]
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true
+  },
+  "userStoryObject": {
+    "id": "ado-16586",
+    "title": "As Payroll Specialist, I want to ensure timekeeping data is accurately integrated to achieve smooth payroll processing",
+    "description": "<div><strong>CONTEXT &amp; BACKGROUND:</strong><br><br>The integration of timekeeping data is crucial for payroll accuracy and efficiency.<br><br><strong>CURRENT STATE:</strong><br><br>Manual input of timekeeping data leads to errors and delays in payroll processing.<br><br><strong>DESIRED STATE:</strong><br><br>Automated timekeeping integration will ensure timely and accurate payroll processing.<br><br><strong>KEY FUNCTIONALITY:</strong><br><br><ul><li>Automated data retrieval from timekeeping systems </li><li>Validation of time entries </li><li>Error handling mechanisms </li><li>Reporting on timekeeping discrepancies </li><li>User notifications for data issues </li> </ul><br><br><strong>USER INTERACTION FLOW:</strong><br><br><ol><li>User configures timekeeping integration settings. </li><li>System retrieves timekeeping data. </li><li>System validates entries for accuracy. </li><li>User receives notifications for any discrepancies. </li><li>User reviews and resolves discrepancies as needed. </li> </ol><br><br><strong>TECHNICAL CONSIDERATIONS:</strong><br><br><ul><li>Data source: Timekeeping API endpoints </li><li>Validation rules: Time entry validation rules </li><li>API endpoints: Retrieval and validation endpoints for timekeeping data </li><li>Security: Secure data access protocols </li><li>Performance: Processing time under </li> </ul>5 minutes.<br><br><strong>OUT OF SCOPE:</strong><br><br><ul><li>Manual entry of timekeeping data. </li> </ul><br><br><strong>SUCCESS METRICS:</strong><br><br><ul><li>98% accuracy in timekeeping data. </li><li>Payroll processing time reduced by 30%. </li> </ul> </div><br><div><strong>Persona:</strong> Payroll Specialist (Payroll Specialist) </div>",
+    "acceptanceCriteria": "<div><strong>Criteria 1:</strong> System retrieves timekeeping data from the API without errors. </div><br><div><strong>Criteria 2:</strong> All time entries are validated against predefined rules. </div><br><div><strong>Criteria 3:</strong> Users receive notifications for any discrepancies found during validation. </div><br>",
+    "adoWorkItemId": 16586,
+    "state": "New",
+    "assignedTo": "Unassigned",
+    "createdDate": "2026-02-05T05:27:24.067Z",
+    "priority": 2,
+    "storyPoints": 8,
+    "tags": "",
+    "epicId": "epic-16185",
+    "featureId": "feature-16216",
+    "source": "ado",
+    "adoUrl": "https://dev.azure.com/QS001/Venus/_workitems/edit/16586"
+  }
+}
