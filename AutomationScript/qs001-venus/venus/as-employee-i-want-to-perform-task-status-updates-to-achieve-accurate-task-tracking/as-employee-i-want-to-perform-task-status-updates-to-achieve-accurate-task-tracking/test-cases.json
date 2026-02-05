@@ -1,0 +1,999 @@
+{
+  "storyId": "ado-14064",
+  "storyTitle": "As Employee, I want to perform task status updates to achieve accurate task tracking",
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify employee can successfully update task status from 'In Progress' to 'Completed'",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Employee is logged in with valid credentials and has 'Employee' role permissions",
+        "Employee is on the task list page with at least one task visible",
+        "At least one task exists with status 'In Progress' assigned to the logged-in employee",
+        "Database connection is active and tasks table is accessible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the task list page by clicking 'Tasks' in the main navigation menu",
+          "expectedResult": "Task list page loads successfully displaying all tasks assigned to the employee with current status visible"
+        },
+        {
+          "step": 2,
+          "action": "Locate a task with status 'In Progress' and click on the task row to select it",
+          "expectedResult": "Task details are displayed and the task is highlighted with a blue border indicating selection"
+        },
+        {
+          "step": 3,
+          "action": "Click on the 'Status' dropdown menu located in the task details section",
+          "expectedResult": "Dropdown menu expands showing all available status options: 'Not Started', 'In Progress', 'Completed', 'On Hold', 'Cancelled'"
+        },
+        {
+          "step": 4,
+          "action": "Select 'Completed' from the dropdown menu by clicking on it",
+          "expectedResult": "Dropdown closes and 'Completed' is now displayed in the status field"
+        },
+        {
+          "step": 5,
+          "action": "Click the 'Save' button located at the bottom-right of the task details section",
+          "expectedResult": "Save button shows a loading spinner for up to 2 seconds while processing the update"
+        },
+        {
+          "step": 6,
+          "action": "Wait for the system to process the status update",
+          "expectedResult": "Green confirmation banner appears at the top of the page displaying message 'Task status updated successfully' and the task status is updated to 'Completed' in the task list"
+        }
+      ],
+      "postconditions": [
+        "Task status is permanently updated to 'Completed' in the tasks table database",
+        "Status change is logged in the system with timestamp and employee user ID",
+        "Employee remains on the task list page with the updated task visible",
+        "Confirmation message automatically dismisses after 5 seconds"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify status change is logged with timestamp and user details",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Employee is logged in as user 'john.doe@company.com' with employee ID 'EMP-12345'",
+        "Employee has access to a task with ID 'TASK-001' with current status 'Not Started'",
+        "System time is synchronized and accurate",
+        "Audit logging is enabled in the system configuration"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the task list and select task 'TASK-001'",
+          "expectedResult": "Task 'TASK-001' is selected and details are displayed with current status 'Not Started'"
+        },
+        {
+          "step": 2,
+          "action": "Change the status from 'Not Started' to 'In Progress' using the status dropdown",
+          "expectedResult": "Status dropdown shows 'In Progress' as selected"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'Save' button to confirm the status change",
+          "expectedResult": "Confirmation message 'Task status updated successfully' appears and status is updated to 'In Progress'"
+        },
+        {
+          "step": 4,
+          "action": "Navigate to the task history or audit log section by clicking 'View History' link on the task details",
+          "expectedResult": "Task history page opens showing all status changes for task 'TASK-001'"
+        },
+        {
+          "step": 5,
+          "action": "Verify the most recent log entry contains: previous status, new status, timestamp, and user details",
+          "expectedResult": "Log entry displays: 'Status changed from Not Started to In Progress by john.doe@company.com (EMP-12345) at [current timestamp in format YYYY-MM-DD HH:MM:SS]'"
+        }
+      ],
+      "postconditions": [
+        "Status change log entry is permanently stored in the audit log table",
+        "Log entry includes all required fields: task ID, previous status, new status, user ID, user email, timestamp",
+        "Task history is accessible for future reference and reporting",
+        "No duplicate log entries are created for the same status change"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify employee can update status for multiple different tasks sequentially",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "Employee is logged in with valid credentials",
+        "Task list contains at least 3 tasks with different statuses assigned to the employee",
+        "All tasks are in different states: Task A is 'Not Started', Task B is 'In Progress', Task C is 'On Hold'",
+        "Network connection is stable"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select Task A with status 'Not Started' from the task list",
+          "expectedResult": "Task A details are displayed with status 'Not Started'"
+        },
+        {
+          "step": 2,
+          "action": "Change Task A status to 'In Progress' and click 'Save'",
+          "expectedResult": "Confirmation message appears and Task A status updates to 'In Progress' in the task list"
+        },
+        {
+          "step": 3,
+          "action": "Select Task B with status 'In Progress' from the task list",
+          "expectedResult": "Task B details are displayed with status 'In Progress'"
+        },
+        {
+          "step": 4,
+          "action": "Change Task B status to 'Completed' and click 'Save'",
+          "expectedResult": "Confirmation message appears and Task B status updates to 'Completed' in the task list"
+        },
+        {
+          "step": 5,
+          "action": "Select Task C with status 'On Hold' from the task list",
+          "expectedResult": "Task C details are displayed with status 'On Hold'"
+        },
+        {
+          "step": 6,
+          "action": "Change Task C status to 'In Progress' and click 'Save'",
+          "expectedResult": "Confirmation message appears and Task C status updates to 'In Progress' in the task list"
+        }
+      ],
+      "postconditions": [
+        "All three tasks have their statuses updated correctly in the database",
+        "Each status change is logged separately with individual timestamps",
+        "Task list displays all updated statuses accurately",
+        "No status updates interfere with each other or cause data corruption"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify status update completes within 2 seconds performance requirement",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Employee is logged in with valid credentials",
+        "Employee has access to a task with ID 'TASK-PERF-001' with status 'Not Started'",
+        "System is under normal load conditions (not peak hours)",
+        "Performance monitoring tools are available to measure response time"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to task list and select task 'TASK-PERF-001'",
+          "expectedResult": "Task 'TASK-PERF-001' is selected and details are displayed"
+        },
+        {
+          "step": 2,
+          "action": "Start a timer and change the status from 'Not Started' to 'In Progress' using the dropdown",
+          "expectedResult": "Status dropdown shows 'In Progress' as selected"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'Save' button and measure the time until confirmation message appears",
+          "expectedResult": "Confirmation message 'Task status updated successfully' appears within 2 seconds of clicking Save"
+        },
+        {
+          "step": 4,
+          "action": "Stop the timer when the confirmation message is fully displayed",
+          "expectedResult": "Total elapsed time from clicking Save to confirmation message display is less than or equal to 2 seconds"
+        },
+        {
+          "step": 5,
+          "action": "Verify the task status is updated in the task list",
+          "expectedResult": "Task 'TASK-PERF-001' shows status 'In Progress' in the task list immediately after confirmation"
+        }
+      ],
+      "postconditions": [
+        "Status update API call to POST /api/tasks/{id}/status completed within 2 seconds",
+        "Database transaction committed successfully within performance threshold",
+        "User experience is smooth with no perceived lag or delay",
+        "Performance metrics are logged for monitoring and analysis"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify confirmation message displays correctly and dismisses automatically",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "Employee is logged in with valid credentials",
+        "Employee is on the task list page with at least one task available",
+        "Task with ID 'TASK-MSG-001' exists with status 'In Progress'",
+        "Browser supports CSS animations and JavaScript"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select task 'TASK-MSG-001' from the task list",
+          "expectedResult": "Task details are displayed with current status 'In Progress'"
+        },
+        {
+          "step": 2,
+          "action": "Change the status to 'Completed' using the status dropdown and click 'Save'",
+          "expectedResult": "Save button processes the request and shows loading state"
+        },
+        {
+          "step": 3,
+          "action": "Observe the confirmation message that appears at the top of the page",
+          "expectedResult": "Green banner with white text appears at the top displaying 'Task status updated successfully' with a checkmark icon"
+        },
+        {
+          "step": 4,
+          "action": "Verify the message styling includes: green background (#4CAF50), white text, checkmark icon, and close button",
+          "expectedResult": "Confirmation banner has all specified styling elements and is clearly visible against the page background"
+        },
+        {
+          "step": 5,
+          "action": "Wait for 5 seconds without interacting with the confirmation message",
+          "expectedResult": "Confirmation message automatically fades out and disappears after 5 seconds with a smooth animation"
+        }
+      ],
+      "postconditions": [
+        "Task status is successfully updated to 'Completed' in the database",
+        "Confirmation message is no longer visible on the page after auto-dismiss",
+        "Page remains functional and responsive after message dismissal",
+        "No error messages or console errors are present"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify system prevents status update when user is not authenticated",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User session has expired or authentication token is invalid",
+        "User was previously logged in but session timeout occurred (30 minutes of inactivity)",
+        "Task list page is still displayed in the browser from previous session",
+        "At least one task is visible on the page from cached data"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Without logging in again, attempt to select a task from the cached task list",
+          "expectedResult": "Task appears to be selected but system detects invalid session"
+        },
+        {
+          "step": 2,
+          "action": "Try to open the status dropdown menu",
+          "expectedResult": "Dropdown either does not open or opens but is disabled"
+        },
+        {
+          "step": 3,
+          "action": "If dropdown opens, select a new status and click 'Save' button",
+          "expectedResult": "System detects unauthenticated request and displays error message 'Your session has expired. Please log in again.'"
+        },
+        {
+          "step": 4,
+          "action": "Verify that the API call to POST /api/tasks/{id}/status returns 401 Unauthorized status code",
+          "expectedResult": "API returns 401 Unauthorized error and no database update occurs"
+        },
+        {
+          "step": 5,
+          "action": "Observe the system behavior after authentication failure",
+          "expectedResult": "User is redirected to the login page with a message 'Session expired. Please log in to continue.'"
+        }
+      ],
+      "postconditions": [
+        "No task status is updated in the database",
+        "No audit log entry is created for the failed update attempt",
+        "User is redirected to login page to re-authenticate",
+        "Original task status remains unchanged in the database"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify system handles invalid status value not in predefined options",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Employee is logged in with valid credentials",
+        "Employee has access to task 'TASK-INV-001' with status 'In Progress'",
+        "Browser developer tools are open to manipulate DOM or API requests",
+        "Valid status options are: 'Not Started', 'In Progress', 'Completed', 'On Hold', 'Cancelled'"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select task 'TASK-INV-001' from the task list",
+          "expectedResult": "Task details are displayed with current status 'In Progress'"
+        },
+        {
+          "step": 2,
+          "action": "Using browser developer tools, modify the status dropdown to add an invalid option 'InvalidStatus' or directly modify the API request payload to include status: 'InvalidStatus'",
+          "expectedResult": "Invalid status value is injected into the request"
+        },
+        {
+          "step": 3,
+          "action": "Submit the status update by clicking 'Save' button",
+          "expectedResult": "System validates the status value against predefined options"
+        },
+        {
+          "step": 4,
+          "action": "Observe the error response from the API",
+          "expectedResult": "API returns 400 Bad Request with error message 'Invalid status value. Status must be one of: Not Started, In Progress, Completed, On Hold, Cancelled'"
+        },
+        {
+          "step": 5,
+          "action": "Verify the UI displays the error message to the user",
+          "expectedResult": "Red error banner appears at the top displaying 'Failed to update task status. Invalid status value provided.'"
+        }
+      ],
+      "postconditions": [
+        "Task status remains unchanged at 'In Progress' in the database",
+        "No audit log entry is created for the invalid update attempt",
+        "Error is logged in the system error log with details of the invalid request",
+        "User remains on the task details page with the original status displayed"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify system handles network failure during status update",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Employee is logged in with valid credentials",
+        "Employee has selected task 'TASK-NET-001' with status 'Not Started'",
+        "Network connection is active initially",
+        "Browser developer tools are available to simulate network conditions"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select task 'TASK-NET-001' and change status from 'Not Started' to 'In Progress'",
+          "expectedResult": "Status dropdown shows 'In Progress' as selected"
+        },
+        {
+          "step": 2,
+          "action": "Using browser developer tools, set network to 'Offline' mode to simulate network failure",
+          "expectedResult": "Network connection is disabled"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'Save' button to attempt status update",
+          "expectedResult": "Save button shows loading spinner and attempts to send API request"
+        },
+        {
+          "step": 4,
+          "action": "Wait for the request to timeout (maximum 10 seconds)",
+          "expectedResult": "Request fails due to network unavailability"
+        },
+        {
+          "step": 5,
+          "action": "Observe the error message displayed to the user",
+          "expectedResult": "Red error banner appears displaying 'Network error. Unable to update task status. Please check your connection and try again.'"
+        },
+        {
+          "step": 6,
+          "action": "Verify the task status in the UI remains at the original value",
+          "expectedResult": "Task status still shows 'Not Started' and the dropdown resets to the original value"
+        }
+      ],
+      "postconditions": [
+        "No database update occurs due to failed network request",
+        "No audit log entry is created for the failed update",
+        "Task status remains 'Not Started' in the database",
+        "User can retry the update once network connection is restored"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify system prevents status update for tasks not assigned to the logged-in employee",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Employee A is logged in as 'employeeA@company.com' with employee ID 'EMP-001'",
+        "Task 'TASK-UNAUTH-001' exists and is assigned to Employee B with employee ID 'EMP-002'",
+        "Employee A attempts to access task 'TASK-UNAUTH-001' by direct URL or task ID manipulation",
+        "System has role-based access control enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "As Employee A, attempt to navigate to task 'TASK-UNAUTH-001' by entering the task URL directly or manipulating the task ID in the browser",
+          "expectedResult": "System checks task ownership against logged-in user"
+        },
+        {
+          "step": 2,
+          "action": "Try to view the task details",
+          "expectedResult": "System displays error message 'Access Denied. You do not have permission to view this task.' or redirects to task list"
+        },
+        {
+          "step": 3,
+          "action": "If task details are somehow visible, attempt to change the status using the dropdown",
+          "expectedResult": "Status dropdown is disabled or not visible"
+        },
+        {
+          "step": 4,
+          "action": "Using API tools or browser developer tools, attempt to send a direct POST request to /api/tasks/TASK-UNAUTH-001/status with a new status value",
+          "expectedResult": "API validates task ownership and returns 403 Forbidden with message 'You do not have permission to update this task'"
+        }
+      ],
+      "postconditions": [
+        "Task 'TASK-UNAUTH-001' status remains unchanged in the database",
+        "No audit log entry is created for the unauthorized update attempt",
+        "Security event is logged indicating unauthorized access attempt by Employee A",
+        "Employee A remains on the task list page or error page without access to the task"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify system handles database connection failure during status update",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Employee is logged in with valid credentials",
+        "Employee has selected task 'TASK-DB-001' with status 'In Progress'",
+        "Database connection is initially active",
+        "System administrator has ability to simulate database failure for testing"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select task 'TASK-DB-001' and change status from 'In Progress' to 'Completed'",
+          "expectedResult": "Status dropdown shows 'Completed' as selected"
+        },
+        {
+          "step": 2,
+          "action": "Simulate database connection failure on the backend (disconnect database or stop database service)",
+          "expectedResult": "Database becomes unavailable for write operations"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'Save' button to attempt status update",
+          "expectedResult": "API attempts to connect to database and encounters connection error"
+        },
+        {
+          "step": 4,
+          "action": "Wait for the system to handle the database error",
+          "expectedResult": "API returns 500 Internal Server Error with message 'Unable to process request. Please try again later.'"
+        },
+        {
+          "step": 5,
+          "action": "Observe the error message displayed to the user",
+          "expectedResult": "Red error banner appears displaying 'System error. Unable to update task status. Please try again later or contact support if the issue persists.'"
+        }
+      ],
+      "postconditions": [
+        "Task status remains 'In Progress' in the database (no partial update occurs)",
+        "No audit log entry is created due to database unavailability",
+        "Error is logged in the application error log with database connection failure details",
+        "User can retry the update once database connection is restored"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Verify system handles rapid consecutive status updates on the same task",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Employee is logged in with valid credentials",
+        "Task 'TASK-RAPID-001' exists with status 'Not Started'",
+        "Network connection is stable with low latency",
+        "System allows multiple rapid API calls"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select task 'TASK-RAPID-001' from the task list",
+          "expectedResult": "Task details are displayed with status 'Not Started'"
+        },
+        {
+          "step": 2,
+          "action": "Quickly change status to 'In Progress' and click 'Save' button",
+          "expectedResult": "First update request is sent to API"
+        },
+        {
+          "step": 3,
+          "action": "Immediately (within 1 second) change status to 'Completed' and click 'Save' button again before first request completes",
+          "expectedResult": "Second update request is sent while first is still processing"
+        },
+        {
+          "step": 4,
+          "action": "Immediately change status to 'On Hold' and click 'Save' button a third time",
+          "expectedResult": "Third update request is sent in rapid succession"
+        },
+        {
+          "step": 5,
+          "action": "Wait for all requests to complete and observe the final task status",
+          "expectedResult": "System handles race condition appropriately: either processes requests sequentially with the last update winning, or implements request debouncing to prevent conflicts"
+        },
+        {
+          "step": 6,
+          "action": "Check the audit log for all status changes",
+          "expectedResult": "Audit log shows all status transitions in correct chronological order with accurate timestamps, or shows only the final status change if debouncing is implemented"
+        }
+      ],
+      "postconditions": [
+        "Task status reflects the last submitted status update without data corruption",
+        "No duplicate or conflicting audit log entries exist",
+        "Database integrity is maintained with no orphaned records",
+        "System performance remains stable after rapid updates"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Verify status update behavior when task is updated by another user simultaneously",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "Employee A is logged in as 'employeeA@company.com' on Browser 1",
+        "Employee B is logged in as 'employeeB@company.com' on Browser 2",
+        "Both employees have access to shared task 'TASK-CONCURRENT-001' with status 'In Progress'",
+        "Task allows updates from multiple users (shared task scenario)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Employee A selects task 'TASK-CONCURRENT-001' on Browser 1",
+          "expectedResult": "Task details display with status 'In Progress' on Browser 1"
+        },
+        {
+          "step": 2,
+          "action": "Employee B selects the same task 'TASK-CONCURRENT-001' on Browser 2",
+          "expectedResult": "Task details display with status 'In Progress' on Browser 2"
+        },
+        {
+          "step": 3,
+          "action": "Employee A changes status to 'Completed' and clicks 'Save' on Browser 1",
+          "expectedResult": "Status updates to 'Completed' successfully on Browser 1 with confirmation message"
+        },
+        {
+          "step": 4,
+          "action": "Immediately after (within 2 seconds), Employee B changes status to 'On Hold' and clicks 'Save' on Browser 2 without refreshing",
+          "expectedResult": "System detects concurrent modification and either: (1) shows warning 'This task was recently updated by another user. Please refresh and try again.' or (2) allows update with last-write-wins strategy"
+        },
+        {
+          "step": 5,
+          "action": "Refresh both browsers and verify the final task status",
+          "expectedResult": "Both browsers show the same final status based on the system's concurrency strategy, and audit log shows both update attempts with timestamps"
+        }
+      ],
+      "postconditions": [
+        "Task status is consistent across all user sessions after refresh",
+        "Audit log contains entries for both update attempts with correct user attribution",
+        "No data loss or corruption occurs due to concurrent updates",
+        "System behavior follows documented concurrency control strategy"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Verify status update with maximum allowed task ID length and special characters",
+      "category": "Edge Cases",
+      "priority": "Low",
+      "preconditions": [
+        "Employee is logged in with valid credentials",
+        "Task exists with ID containing maximum allowed characters (e.g., 'TASK-ABCDEFGHIJKLMNOPQRSTUVWXYZ-1234567890-SPECIAL-CHARS-!@#$%') if system allows special characters",
+        "Task has status 'Not Started'",
+        "System has defined maximum task ID length (e.g., 100 characters)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to task list and locate the task with maximum length ID containing special characters",
+          "expectedResult": "Task is displayed correctly in the list with full ID visible or truncated with ellipsis"
+        },
+        {
+          "step": 2,
+          "action": "Select the task by clicking on it",
+          "expectedResult": "Task details load successfully and display the complete task ID"
+        },
+        {
+          "step": 3,
+          "action": "Change the status from 'Not Started' to 'In Progress' using the dropdown",
+          "expectedResult": "Status dropdown functions normally and shows 'In Progress' as selected"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save' button to update the status",
+          "expectedResult": "API call to POST /api/tasks/{long-task-id-with-special-chars}/status processes successfully"
+        },
+        {
+          "step": 5,
+          "action": "Verify the confirmation message and updated status",
+          "expectedResult": "Confirmation message 'Task status updated successfully' appears and task status updates to 'In Progress' without any URL encoding or special character issues"
+        }
+      ],
+      "postconditions": [
+        "Task status is updated correctly in database regardless of ID length or special characters",
+        "Audit log entry is created with the full task ID stored correctly",
+        "No truncation or data corruption occurs in the database",
+        "Task remains accessible and functional after update"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Verify status update behavior when browser tab is inactive or in background",
+      "category": "Edge Cases",
+      "priority": "Low",
+      "preconditions": [
+        "Employee is logged in with valid credentials",
+        "Employee has task 'TASK-BG-001' selected with status 'In Progress'",
+        "Browser supports tab visibility API",
+        "Multiple browser tabs are open"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select task 'TASK-BG-001' and change status to 'Completed' in the dropdown",
+          "expectedResult": "Status dropdown shows 'Completed' as selected"
+        },
+        {
+          "step": 2,
+          "action": "Click the 'Save' button to initiate the status update",
+          "expectedResult": "Save button shows loading state and API request is initiated"
+        },
+        {
+          "step": 3,
+          "action": "Immediately switch to another browser tab or minimize the browser window while the request is processing",
+          "expectedResult": "Browser tab becomes inactive or goes to background"
+        },
+        {
+          "step": 4,
+          "action": "Wait for 5 seconds while the tab is inactive",
+          "expectedResult": "API request continues processing in the background"
+        },
+        {
+          "step": 5,
+          "action": "Switch back to the task management tab",
+          "expectedResult": "Confirmation message 'Task status updated successfully' is visible and task status shows 'Completed'"
+        },
+        {
+          "step": 6,
+          "action": "Verify the status was saved correctly in the database by refreshing the page",
+          "expectedResult": "After refresh, task 'TASK-BG-001' still shows status 'Completed' confirming successful update"
+        }
+      ],
+      "postconditions": [
+        "Task status is updated to 'Completed' in the database despite tab being inactive",
+        "Audit log entry is created with correct timestamp",
+        "No timeout or request cancellation occurs due to tab inactivity",
+        "User experience is seamless when returning to the tab"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Verify status update when system is at exactly 2 seconds response time threshold",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Employee is logged in with valid credentials",
+        "Task 'TASK-PERF-EDGE-001' exists with status 'Not Started'",
+        "System is configured to simulate exactly 2 seconds processing time (at performance threshold)",
+        "Performance monitoring tools are active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select task 'TASK-PERF-EDGE-001' from the task list",
+          "expectedResult": "Task details are displayed with status 'Not Started'"
+        },
+        {
+          "step": 2,
+          "action": "Configure backend to introduce exactly 2000ms delay in processing (at the maximum allowed threshold)",
+          "expectedResult": "Backend is configured to process request at exactly 2 seconds"
+        },
+        {
+          "step": 3,
+          "action": "Change status to 'In Progress' and click 'Save' button while measuring response time",
+          "expectedResult": "Save button shows loading spinner for exactly 2 seconds"
+        },
+        {
+          "step": 4,
+          "action": "Wait for the response and observe the confirmation message timing",
+          "expectedResult": "Confirmation message 'Task status updated successfully' appears at exactly 2 seconds (within acceptable margin of ±100ms)"
+        },
+        {
+          "step": 5,
+          "action": "Verify the status update completed successfully without timeout",
+          "expectedResult": "Task status is updated to 'In Progress' and no timeout error occurs"
+        }
+      ],
+      "postconditions": [
+        "Task status is successfully updated to 'In Progress' in the database",
+        "System meets the 2-second performance requirement at the threshold",
+        "No timeout errors or performance warnings are triggered",
+        "Audit log entry is created with accurate timestamp"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Verify complete keyboard navigation for task status update workflow",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Employee is logged in with valid credentials",
+        "Task list page is loaded with at least 3 tasks visible",
+        "Keyboard is the only input device being used (mouse is not used)",
+        "Browser supports standard keyboard navigation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key repeatedly from the page header to navigate through the task list",
+          "expectedResult": "Focus moves sequentially through each interactive element with visible focus indicator (blue outline), reaching the first task in the list"
+        },
+        {
+          "step": 2,
+          "action": "Press Enter key to select the focused task",
+          "expectedResult": "Task details panel opens and focus moves to the first interactive element in the task details (task title or status dropdown)"
+        },
+        {
+          "step": 3,
+          "action": "Press Tab key to navigate to the status dropdown and press Enter or Space to open it",
+          "expectedResult": "Status dropdown expands showing all status options with the current status highlighted, and focus is on the dropdown menu"
+        },
+        {
+          "step": 4,
+          "action": "Use Arrow Down key to navigate through status options in the dropdown",
+          "expectedResult": "Focus moves to each status option sequentially (Not Started → In Progress → Completed → On Hold → Cancelled) with visual highlight on focused option"
+        },
+        {
+          "step": 5,
+          "action": "Press Enter key to select 'Completed' status option",
+          "expectedResult": "Dropdown closes, 'Completed' is displayed in the status field, and focus returns to the status dropdown button"
+        },
+        {
+          "step": 6,
+          "action": "Press Tab key to navigate to the 'Save' button and press Enter to activate it",
+          "expectedResult": "Status update is submitted, confirmation message appears, and focus moves to the confirmation message or remains on a logical element"
+        },
+        {
+          "step": 7,
+          "action": "Press Escape key to dismiss the confirmation message if it has focus",
+          "expectedResult": "Confirmation message dismisses and focus returns to the task details or task list in a logical position"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements are accessible via keyboard without requiring mouse",
+        "Focus order is logical and follows visual layout",
+        "Focus is never trapped in any component",
+        "Task status is successfully updated using only keyboard input"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Verify screen reader announces task status changes and confirmation messages",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Employee is logged in with valid credentials",
+        "Screen reader is active (NVDA, JAWS, or VoiceOver)",
+        "Task 'TASK-SR-001' exists with status 'In Progress'",
+        "Screen reader is configured to announce ARIA live regions"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to task 'TASK-SR-001' using screen reader navigation commands",
+          "expectedResult": "Screen reader announces 'Task TASK-SR-001, Status: In Progress, button' or similar descriptive text including task name and current status"
+        },
+        {
+          "step": 2,
+          "action": "Activate the task to open details and navigate to the status dropdown",
+          "expectedResult": "Screen reader announces 'Status dropdown, In Progress selected, collapsed' indicating the current state"
+        },
+        {
+          "step": 3,
+          "action": "Activate the status dropdown to expand it",
+          "expectedResult": "Screen reader announces 'Status dropdown expanded, In Progress selected, 1 of 5' indicating dropdown is open and current position"
+        },
+        {
+          "step": 4,
+          "action": "Navigate through status options using arrow keys",
+          "expectedResult": "Screen reader announces each option as focus moves: 'Not Started, 1 of 5', 'In Progress, 2 of 5', 'Completed, 3 of 5', etc."
+        },
+        {
+          "step": 5,
+          "action": "Select 'Completed' and activate the Save button",
+          "expectedResult": "Screen reader announces 'Save button' when focused, then after activation announces 'Status updated successfully' from ARIA live region"
+        },
+        {
+          "step": 6,
+          "action": "Navigate back to the task in the task list",
+          "expectedResult": "Screen reader announces 'Task TASK-SR-001, Status: Completed' confirming the updated status"
+        }
+      ],
+      "postconditions": [
+        "All status changes are announced clearly by screen reader",
+        "ARIA live regions are properly implemented for dynamic content updates",
+        "Screen reader users can complete the entire workflow independently",
+        "All interactive elements have appropriate ARIA labels and roles"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify focus management and focus indicators throughout status update workflow",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Employee is logged in with valid credentials",
+        "Task list page is displayed with multiple tasks",
+        "Browser supports CSS focus-visible pseudo-class",
+        "System has defined focus indicator styles (minimum 2px outline with 3:1 contrast ratio)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use Tab key to navigate to a task in the task list",
+          "expectedResult": "Task receives visible focus indicator: 2px solid blue outline (#0066CC) with sufficient contrast against background"
+        },
+        {
+          "step": 2,
+          "action": "Press Enter to open task details and observe where focus moves",
+          "expectedResult": "Focus automatically moves to the first interactive element in the task details panel (not lost or reset to page top)"
+        },
+        {
+          "step": 3,
+          "action": "Tab to the status dropdown and observe the focus indicator",
+          "expectedResult": "Status dropdown shows clear focus indicator with 2px outline, and the indicator is visible against all background colors"
+        },
+        {
+          "step": 4,
+          "action": "Open the dropdown and navigate through options, observing focus indicators on each option",
+          "expectedResult": "Each dropdown option shows a distinct focus indicator (background highlight or outline) that is clearly visible"
+        },
+        {
+          "step": 5,
+          "action": "Select a new status and observe focus after dropdown closes",
+          "expectedResult": "Focus returns to the status dropdown button (not lost), and focus indicator remains visible"
+        },
+        {
+          "step": 6,
+          "action": "Tab to Save button and observe focus indicator",
+          "expectedResult": "Save button shows clear focus indicator with 2px outline and sufficient contrast"
+        },
+        {
+          "step": 7,
+          "action": "Activate Save and observe focus after confirmation message appears",
+          "expectedResult": "Focus moves to confirmation message or remains in a logical location (not lost), and focus indicator remains visible throughout"
+        }
+      ],
+      "postconditions": [
+        "Focus is never lost or reset to page top during the workflow",
+        "All focus indicators meet WCAG 2.1 Level AA requirements (minimum 2px, 3:1 contrast)",
+        "Focus order is logical and predictable",
+        "Focus indicators are visible on all interactive elements"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify color contrast ratios meet WCAG 2.1 AA standards for all status update UI elements",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Employee is logged in and viewing task list page",
+        "Color contrast analyzer tool is available (e.g., browser extension or WAVE tool)",
+        "Task with all possible statuses are visible for testing",
+        "Page is displayed at 100% zoom level"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use color contrast analyzer to measure the contrast ratio between task status text and its background for each status type",
+          "expectedResult": "All status labels have minimum 4.5:1 contrast ratio for normal text or 3:1 for large text (18pt+): 'Not Started' (gray on white), 'In Progress' (blue on white), 'Completed' (green on white), 'On Hold' (orange on white), 'Cancelled' (red on white)"
+        },
+        {
+          "step": 2,
+          "action": "Measure contrast ratio of the status dropdown button text against its background",
+          "expectedResult": "Dropdown button text has minimum 4.5:1 contrast ratio in all states: default, hover, focus, and disabled"
+        },
+        {
+          "step": 3,
+          "action": "Measure contrast ratio of dropdown menu options text against menu background",
+          "expectedResult": "All dropdown options have minimum 4.5:1 contrast ratio in default state and maintain sufficient contrast in hover/focus states"
+        },
+        {
+          "step": 4,
+          "action": "Measure contrast ratio of the Save button text against button background",
+          "expectedResult": "Save button has minimum 4.5:1 contrast ratio in all states: default (white text on blue #0066CC), hover, focus, and disabled (gray text on light gray)"
+        },
+        {
+          "step": 5,
+          "action": "Measure contrast ratio of success confirmation message text against green banner background",
+          "expectedResult": "Confirmation message 'Task status updated successfully' has minimum 4.5:1 contrast ratio (white text #FFFFFF on green background #4CAF50)"
+        },
+        {
+          "step": 6,
+          "action": "Measure contrast ratio of error message text against red banner background",
+          "expectedResult": "Error messages have minimum 4.5:1 contrast ratio (white text on red background)"
+        }
+      ],
+      "postconditions": [
+        "All text elements meet WCAG 2.1 Level AA contrast requirements (4.5:1 for normal text, 3:1 for large text)",
+        "Color is not the only means of conveying status information (icons or text labels are also present)",
+        "UI remains usable for users with color vision deficiencies",
+        "Contrast ratios are documented for future reference"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify status update interface remains functional and usable at 200% browser zoom",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "Employee is logged in with valid credentials",
+        "Task list page is displayed with multiple tasks",
+        "Browser zoom is initially set to 100%",
+        "Browser window is at standard desktop resolution (1920x1080 or 1366x768)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Set browser zoom to 200% using Ctrl/Cmd + Plus key or browser zoom controls",
+          "expectedResult": "Page content scales to 200% and remains readable without horizontal scrolling required for main content"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to a task in the task list and verify all task information is visible",
+          "expectedResult": "Task name, status, and other details are fully visible without text truncation or overlapping elements"
+        },
+        {
+          "step": 3,
+          "action": "Click on a task to open task details panel",
+          "expectedResult": "Task details panel opens and all content is accessible, with vertical scrolling available if needed but no horizontal scrolling required"
+        },
+        {
+          "step": 4,
+          "action": "Locate and interact with the status dropdown at 200% zoom",
+          "expectedResult": "Status dropdown is fully visible, clickable, and opens properly showing all status options without layout breaking"
+        },
+        {
+          "step": 5,
+          "action": "Select a new status from the dropdown",
+          "expectedResult": "Dropdown options are readable and selectable, with no overlapping text or cut-off content"
+        },
+        {
+          "step": 6,
+          "action": "Locate and click the Save button at 200% zoom",
+          "expectedResult": "Save button is fully visible, properly sized (minimum 44x44px touch target), and clickable without precision issues"
+        },
+        {
+          "step": 7,
+          "action": "Verify the confirmation message displays correctly at 200% zoom",
+          "expectedResult": "Confirmation message is fully visible, readable, and does not overflow or break the layout"
+        }
+      ],
+      "postconditions": [
+        "All functionality remains accessible at 200% zoom level",
+        "No horizontal scrolling is required for main content (WCAG 2.1 Level AA requirement)",
+        "Text remains readable and does not overlap or truncate",
+        "Layout adapts responsively without breaking at increased zoom levels"
+      ]
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true,
+    "performance": true,
+    "security": true,
+    "usability": true,
+    "reliability": true
+  },
+  "userStoryObject": {
+    "id": "ado-14064",
+    "title": "As Employee, I want to perform task status updates to achieve accurate task tracking",
+    "description": "<div>CONTEXT &amp; BACKGROUND:\nThis story exists to ensure that employees can keep their task statuses up to date, which is crucial for project visibility and management.\n\nCURRENT STATE:\nCurrently, there is no mechanism for employees to update task statuses, leading to confusion and miscommunication.\n\nDESIRED STATE:\nEmployees can easily update their task statuses, ensuring that all stakeholders are aware of the current progress.\n\nKEY FUNCTIONALITY:\n• Dropdown menu for status selection\n• Save button for confirming updates\n• Confirmation message upon successful update\n• Logging of status changes\n\nUSER INTERACTION FLOW:\n1. Employee navigates to the task list.\n2. Employee selects a task to update.\n3. Employee chooses a new status from the dropdown.\n4. Employee clicks the save button.\n5. System validates the selection.\n6. Confirmation message is displayed.\n\nTECHNICAL CONSIDERATIONS:\n• Data source: tasks table in the database\n• Validation rules: status must be one of the predefined options\n• API endpoints: POST /api/tasks/{id}/status\n• Security: Only authenticated employees can update task statuses\n• Performance: Updates should be processed within 2 seconds\n\nOUT OF SCOPE:\n• Bulk status updates\n\nSUCCESS METRICS:\n• 95% of status updates processed successfully </div><br><div><strong>Persona:</strong> Employee (Employee) </div>",
+    "acceptanceCriteria": "<div><strong>Criteria 1:</strong> System allows employees to select a task status from a dropdown and save the changes successfully. </div><br><div><strong>Criteria 2:</strong> System displays a confirmation message upon successful status update. </div><br><div><strong>Criteria 3:</strong> System logs the status change with a timestamp and user details. </div><br>",
+    "adoWorkItemId": 14064,
+    "state": "New",
+    "assignedTo": "Unassigned",
+    "createdDate": "2026-01-29T09:28:47.497Z",
+    "priority": 2,
+    "storyPoints": 5,
+    "tags": "",
+    "epicId": "epic-13800",
+    "featureId": "feature-13823",
+    "source": "ado",
+    "adoUrl": "https://dev.azure.com/QS001/Venus/_workitems/edit/14064"
+  }
+}
