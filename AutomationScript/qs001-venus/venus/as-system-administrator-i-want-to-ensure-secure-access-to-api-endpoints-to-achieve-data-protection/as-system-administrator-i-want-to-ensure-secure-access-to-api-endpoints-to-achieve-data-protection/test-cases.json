@@ -1,0 +1,1926 @@
+{
+  "storyId": "ado-16591",
+  "storyTitle": "As System Administrator, I want to ensure secure access to API endpoints to achieve data protection",
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify successful API access with valid role-based permissions for Administrator role",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "System Administrator user account is created with valid credentials and Administrator role assigned",
+        "OAuth 2.0 authentication is configured and operational",
+        "API endpoints are deployed and accessible",
+        "Role-based access control (RBAC) is configured with Administrator having full access permissions",
+        "Test API endpoint '/api/v1/payroll/employees' is available for testing"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the API authentication page and enter valid System Administrator credentials (username: 'admin@company.com', password: 'SecurePass123!')",
+          "expectedResult": "Login successful message appears, OAuth 2.0 token is generated and displayed"
+        },
+        {
+          "step": 2,
+          "action": "Copy the generated OAuth 2.0 bearer token from the authentication response",
+          "expectedResult": "Token is copied successfully, token format is 'Bearer <token_string>'"
+        },
+        {
+          "step": 3,
+          "action": "Send GET request to '/api/v1/payroll/employees' endpoint with the bearer token in Authorization header",
+          "expectedResult": "API request is processed, HTTP 200 OK status is returned within 2 seconds"
+        },
+        {
+          "step": 4,
+          "action": "Verify the response payload contains employee data with proper encryption indicators",
+          "expectedResult": "Response contains JSON array of employee records, sensitive fields show encryption status, data is transmitted over HTTPS"
+        },
+        {
+          "step": 5,
+          "action": "Check the system logs for the API access attempt",
+          "expectedResult": "Access log entry is created with timestamp, user ID, endpoint accessed, HTTP status 200, and 'AUTHORIZED' status"
+        }
+      ],
+      "postconditions": [
+        "API access is logged in the system with successful authorization status",
+        "User session remains active with valid OAuth token",
+        "No security alerts are triggered",
+        "Employee data remains encrypted and secure in database"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify role-based access control blocks access for users with insufficient permissions",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Standard Employee user account exists with limited read-only permissions",
+        "User is authenticated with valid OAuth 2.0 token",
+        "RBAC is configured with Employee role having restricted access to sensitive endpoints",
+        "Protected API endpoint '/api/v1/payroll/salaries' requires Administrator role",
+        "Logging and monitoring system is active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Authenticate as Standard Employee user (username: 'employee@company.com', password: 'EmpPass456!')",
+          "expectedResult": "Authentication successful, OAuth 2.0 token generated with Employee role permissions"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to send GET request to restricted endpoint '/api/v1/payroll/salaries' with Employee role token",
+          "expectedResult": "API request is received and role verification process initiates within 1 second"
+        },
+        {
+          "step": 3,
+          "action": "Observe the API response status and error message",
+          "expectedResult": "HTTP 403 Forbidden status is returned, error message states 'Access Denied: Insufficient permissions to access this resource'"
+        },
+        {
+          "step": 4,
+          "action": "Check the security logs for unauthorized access attempt",
+          "expectedResult": "Log entry created with timestamp, user ID 'employee@company.com', endpoint '/api/v1/payroll/salaries', HTTP 403, status 'UNAUTHORIZED ACCESS BLOCKED'"
+        },
+        {
+          "step": 5,
+          "action": "Verify security alert notification is generated",
+          "expectedResult": "Alert notification sent to System Administrator dashboard showing unauthorized access attempt with user details and timestamp"
+        }
+      ],
+      "postconditions": [
+        "Unauthorized access attempt is blocked and logged",
+        "Security alert is generated and visible in admin dashboard",
+        "User's valid token remains active for authorized endpoints only",
+        "No sensitive salary data is exposed or transmitted"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify OAuth 2.0 token expiration and re-authentication workflow",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "System Administrator user is authenticated with valid OAuth 2.0 token",
+        "Token expiration time is set to 30 minutes in system configuration",
+        "API endpoint '/api/v1/payroll/reports' is available",
+        "System clock is synchronized and accurate",
+        "Token refresh mechanism is configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Authenticate as System Administrator and note the token expiration timestamp in the response",
+          "expectedResult": "OAuth 2.0 token generated with 'expires_in: 1800' (30 minutes), refresh token also provided"
+        },
+        {
+          "step": 2,
+          "action": "Successfully access '/api/v1/payroll/reports' endpoint with the valid token",
+          "expectedResult": "HTTP 200 OK returned, report data is retrieved successfully within 2 seconds"
+        },
+        {
+          "step": 3,
+          "action": "Wait for token to expire (or simulate time advancement by 31 minutes), then attempt to access the same endpoint with expired token",
+          "expectedResult": "HTTP 401 Unauthorized status returned, error message states 'Token expired. Please re-authenticate.'"
+        },
+        {
+          "step": 4,
+          "action": "Use the refresh token to obtain a new access token via '/oauth/token/refresh' endpoint",
+          "expectedResult": "New OAuth 2.0 access token is generated successfully, new expiration time is set, HTTP 200 OK returned"
+        },
+        {
+          "step": 5,
+          "action": "Retry accessing '/api/v1/payroll/reports' with the new access token",
+          "expectedResult": "HTTP 200 OK returned, report data is retrieved successfully, access is logged as authorized"
+        }
+      ],
+      "postconditions": [
+        "Expired token access attempt is logged with 'TOKEN_EXPIRED' status",
+        "New token is active and valid for next 30 minutes",
+        "User maintains continuous access through token refresh mechanism",
+        "All token lifecycle events are logged in security audit trail"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify data encryption in transit for all API communications",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "SSL/TLS certificates are installed and valid on API server",
+        "HTTPS protocol is enforced for all API endpoints",
+        "System Administrator is authenticated with valid OAuth token",
+        "Network monitoring tool is available to inspect traffic",
+        "API endpoint '/api/v1/payroll/employees/12345' contains sensitive employee data"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to access API endpoint using HTTP protocol 'http://api.company.com/api/v1/payroll/employees/12345'",
+          "expectedResult": "Request is automatically redirected to HTTPS 'https://api.company.com/api/v1/payroll/employees/12345' with HTTP 301 or 308 status"
+        },
+        {
+          "step": 2,
+          "action": "Send GET request to 'https://api.company.com/api/v1/payroll/employees/12345' with valid authorization token",
+          "expectedResult": "HTTPS connection established with TLS 1.2 or higher, HTTP 200 OK returned within 2 seconds"
+        },
+        {
+          "step": 3,
+          "action": "Inspect the network traffic using monitoring tool to verify encryption",
+          "expectedResult": "All data packets are encrypted, TLS handshake is visible, payload data is not readable in plain text"
+        },
+        {
+          "step": 4,
+          "action": "Verify the SSL certificate details in the response headers",
+          "expectedResult": "Valid SSL certificate is presented, certificate is issued by trusted CA, not expired, matches domain name"
+        },
+        {
+          "step": 5,
+          "action": "Check response headers for security-related headers (Strict-Transport-Security, X-Content-Type-Options)",
+          "expectedResult": "Security headers are present: 'Strict-Transport-Security: max-age=31536000', 'X-Content-Type-Options: nosniff', 'X-Frame-Options: DENY'"
+        }
+      ],
+      "postconditions": [
+        "All API communications are encrypted using TLS 1.2 or higher",
+        "HTTP requests are automatically upgraded to HTTPS",
+        "Security headers enforce additional protection measures",
+        "Encryption status is logged for compliance auditing"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify comprehensive logging and monitoring of all API access attempts",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Logging system is configured and operational",
+        "Multiple user accounts exist with different roles (Administrator, Manager, Employee)",
+        "API endpoints are accessible and configured for logging",
+        "Log storage has sufficient capacity",
+        "System Administrator has access to log viewing interface"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Perform successful API access as Administrator to endpoint '/api/v1/payroll/employees'",
+          "expectedResult": "API request succeeds with HTTP 200, access is granted"
+        },
+        {
+          "step": 2,
+          "action": "Perform failed API access attempt as Employee to restricted endpoint '/api/v1/admin/settings'",
+          "expectedResult": "API request is blocked with HTTP 403, access is denied"
+        },
+        {
+          "step": 3,
+          "action": "Navigate to System Administrator dashboard and open 'API Access Logs' section",
+          "expectedResult": "Log viewer interface loads, displays recent API access attempts in chronological order"
+        },
+        {
+          "step": 4,
+          "action": "Verify log entries contain all required fields: timestamp, user ID, role, endpoint, HTTP method, status code, response time, IP address",
+          "expectedResult": "Both log entries are present with complete information: successful access shows 'AUTHORIZED' status, failed access shows 'UNAUTHORIZED' status with reason"
+        },
+        {
+          "step": 5,
+          "action": "Filter logs by 'UNAUTHORIZED' status and verify alert indicators",
+          "expectedResult": "Unauthorized attempt is highlighted with red indicator, alert icon is visible, entry includes 'Alert Sent: Yes' field"
+        },
+        {
+          "step": 6,
+          "action": "Export logs to CSV format for audit purposes",
+          "expectedResult": "CSV file is generated with all log entries, file includes headers and properly formatted data, download completes successfully"
+        }
+      ],
+      "postconditions": [
+        "All API access attempts are logged with complete details",
+        "Unauthorized attempts trigger alerts visible in dashboard",
+        "Logs are exportable for compliance and audit requirements",
+        "Log retention policy is enforced according to security requirements"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify role-based access control configuration and permission management interface",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "System Administrator is logged into admin console",
+        "RBAC configuration interface is accessible at '/admin/security/rbac'",
+        "Multiple API endpoints exist requiring different permission levels",
+        "At least three user roles are defined: Administrator, Manager, Employee",
+        "Test user account 'testmanager@company.com' exists with Manager role"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to '/admin/security/rbac' and click 'Configure Role Permissions' button",
+          "expectedResult": "RBAC configuration page loads, displays list of all defined roles with current permissions matrix"
+        },
+        {
+          "step": 2,
+          "action": "Select 'Manager' role and click 'Edit Permissions' button",
+          "expectedResult": "Permission editor modal opens, displays all available API endpoints with checkboxes for GET, POST, PUT, DELETE methods"
+        },
+        {
+          "step": 3,
+          "action": "Enable GET permission for endpoint '/api/v1/payroll/reports' for Manager role and click 'Save Changes' button",
+          "expectedResult": "Success message 'Permissions updated successfully' appears, modal closes, permissions matrix updates to show new permission"
+        },
+        {
+          "step": 4,
+          "action": "Authenticate as 'testmanager@company.com' and attempt GET request to '/api/v1/payroll/reports'",
+          "expectedResult": "HTTP 200 OK returned, report data is accessible, access is logged as authorized for Manager role"
+        },
+        {
+          "step": 5,
+          "action": "Verify permission verification time by checking response headers or logs",
+          "expectedResult": "Permission verification completed in under 2 seconds, response header shows 'X-Auth-Time: <time_in_ms>' with value less than 2000ms"
+        }
+      ],
+      "postconditions": [
+        "Manager role permissions are updated in RBAC system",
+        "Permission changes take effect immediately without system restart",
+        "All permission changes are logged in audit trail with administrator ID and timestamp",
+        "Test user can access newly permitted endpoint successfully"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify API access is blocked when OAuth token is missing from request",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "API endpoints require OAuth 2.0 authentication",
+        "API endpoint '/api/v1/payroll/employees' is configured and operational",
+        "No authentication token is present in the request",
+        "Security logging is enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send GET request to '/api/v1/payroll/employees' without including Authorization header",
+          "expectedResult": "Request is received by API gateway"
+        },
+        {
+          "step": 2,
+          "action": "Observe the API response status code and error message",
+          "expectedResult": "HTTP 401 Unauthorized status returned, error message states 'Authentication required. No authorization token provided.'"
+        },
+        {
+          "step": 3,
+          "action": "Verify response body contains no sensitive data",
+          "expectedResult": "Response body contains only error details, no employee data is exposed, response format is JSON with 'error' and 'message' fields"
+        },
+        {
+          "step": 4,
+          "action": "Check security logs for the failed access attempt",
+          "expectedResult": "Log entry created with status 'AUTHENTICATION_FAILED', reason 'Missing token', endpoint '/api/v1/payroll/employees', timestamp, and source IP address"
+        }
+      ],
+      "postconditions": [
+        "No data is returned or exposed",
+        "Failed authentication attempt is logged",
+        "No security alert is triggered for missing token (expected behavior)",
+        "API endpoint remains secure and operational"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify API access is blocked with invalid or malformed OAuth token",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "API endpoint '/api/v1/payroll/salaries' requires valid OAuth 2.0 token",
+        "Invalid token string is prepared: 'Bearer INVALID_TOKEN_12345_MALFORMED'",
+        "Token validation mechanism is active",
+        "Security monitoring is enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send GET request to '/api/v1/payroll/salaries' with Authorization header containing invalid token 'Bearer INVALID_TOKEN_12345_MALFORMED'",
+          "expectedResult": "Request is received and token validation process initiates"
+        },
+        {
+          "step": 2,
+          "action": "Observe the API response and timing",
+          "expectedResult": "HTTP 401 Unauthorized returned within 2 seconds, error message states 'Invalid authentication token. Please re-authenticate.'"
+        },
+        {
+          "step": 3,
+          "action": "Verify no sensitive salary data is included in error response",
+          "expectedResult": "Response contains only error information, no salary records or sensitive data is exposed"
+        },
+        {
+          "step": 4,
+          "action": "Check security logs and alert system",
+          "expectedResult": "Log entry shows 'INVALID_TOKEN' status, security alert is generated for potential security threat, alert includes source IP and timestamp"
+        }
+      ],
+      "postconditions": [
+        "Invalid token attempt is blocked and logged",
+        "Security alert is sent to System Administrator",
+        "No data breach occurs",
+        "Source IP may be flagged for monitoring if multiple attempts occur"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify API blocks SQL injection attempts in endpoint parameters",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "API endpoint '/api/v1/payroll/employees/{employeeId}' accepts employee ID parameter",
+        "System Administrator is authenticated with valid OAuth token",
+        "SQL injection protection is implemented",
+        "Security monitoring detects injection attempts"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send GET request to '/api/v1/payroll/employees/123' OR '1'='1' with valid authorization token",
+          "expectedResult": "Request is received and parameter validation occurs"
+        },
+        {
+          "step": 2,
+          "action": "Observe API response status and error handling",
+          "expectedResult": "HTTP 400 Bad Request returned, error message states 'Invalid employee ID format. Only numeric values are allowed.'"
+        },
+        {
+          "step": 3,
+          "action": "Attempt another SQL injection with encoded characters: '/api/v1/payroll/employees/123%27%20OR%20%271%27%3D%271'",
+          "expectedResult": "HTTP 400 Bad Request returned, same validation error message displayed, request is blocked before reaching database"
+        },
+        {
+          "step": 4,
+          "action": "Check security logs for injection attempt detection",
+          "expectedResult": "Log entry created with 'SQL_INJECTION_ATTEMPT' flag, high-priority security alert generated, user ID and IP address logged, incident marked for review"
+        }
+      ],
+      "postconditions": [
+        "SQL injection attempt is blocked at API layer",
+        "Database is not queried with malicious input",
+        "High-priority security alert is generated and visible in admin dashboard",
+        "User account may be temporarily flagged for security review"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify API rate limiting blocks excessive requests from single user",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Rate limiting is configured: maximum 100 requests per minute per user",
+        "System Administrator is authenticated with valid OAuth token",
+        "API endpoint '/api/v1/payroll/employees' is available",
+        "Rate limiting counter is reset to zero for test user"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send 100 consecutive GET requests to '/api/v1/payroll/employees' within 30 seconds using valid authorization token",
+          "expectedResult": "All 100 requests return HTTP 200 OK, data is returned successfully, rate limit counter increments"
+        },
+        {
+          "step": 2,
+          "action": "Send the 101st request immediately after the 100th request",
+          "expectedResult": "HTTP 429 Too Many Requests status returned, error message states 'Rate limit exceeded. Maximum 100 requests per minute allowed.'"
+        },
+        {
+          "step": 3,
+          "action": "Check response headers for rate limit information",
+          "expectedResult": "Response includes headers: 'X-RateLimit-Limit: 100', 'X-RateLimit-Remaining: 0', 'X-RateLimit-Reset: <timestamp>', 'Retry-After: <seconds>'"
+        },
+        {
+          "step": 4,
+          "action": "Wait for rate limit window to reset (60 seconds from first request) and send another request",
+          "expectedResult": "HTTP 200 OK returned, rate limit counter is reset, request succeeds normally"
+        },
+        {
+          "step": 5,
+          "action": "Verify rate limit violation is logged",
+          "expectedResult": "Log entry shows 'RATE_LIMIT_EXCEEDED', includes user ID, number of requests attempted, and timestamp"
+        }
+      ],
+      "postconditions": [
+        "Rate limiting successfully prevents API abuse",
+        "User can resume normal access after rate limit window resets",
+        "Rate limit violations are logged for monitoring",
+        "System performance is protected from excessive requests"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify API blocks access attempts with revoked or blacklisted tokens",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User account 'compromised@company.com' exists with valid OAuth token",
+        "Token revocation mechanism is implemented",
+        "System Administrator has access to token management interface",
+        "API endpoint '/api/v1/payroll/reports' is available"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Authenticate as 'compromised@company.com' and successfully access '/api/v1/payroll/reports' to verify token works",
+          "expectedResult": "HTTP 200 OK returned, token is valid and functional"
+        },
+        {
+          "step": 2,
+          "action": "As System Administrator, navigate to token management interface and revoke the token for 'compromised@company.com' by clicking 'Revoke Token' button",
+          "expectedResult": "Confirmation message 'Token revoked successfully' appears, token is added to blacklist, revocation timestamp is recorded"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to access '/api/v1/payroll/reports' again using the revoked token",
+          "expectedResult": "HTTP 401 Unauthorized returned within 1 second, error message states 'Token has been revoked. Please re-authenticate.'"
+        },
+        {
+          "step": 4,
+          "action": "Check security logs for revoked token usage attempt",
+          "expectedResult": "Log entry created with 'REVOKED_TOKEN_ATTEMPT' status, high-priority alert generated, includes user ID, token ID, and reason for revocation"
+        },
+        {
+          "step": 5,
+          "action": "Verify user cannot generate new token without proper re-authentication",
+          "expectedResult": "Token refresh endpoint returns HTTP 401, user must complete full authentication flow to obtain new token"
+        }
+      ],
+      "postconditions": [
+        "Revoked token is permanently blocked from API access",
+        "Security alert is generated for revoked token usage attempt",
+        "User must re-authenticate to regain access",
+        "Token revocation is logged in audit trail with administrator ID"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify API handles and blocks requests with tampered or modified tokens",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Valid OAuth 2.0 token is generated for System Administrator",
+        "Token signature verification is implemented using JWT",
+        "API endpoint '/api/v1/admin/settings' requires Administrator role",
+        "Token tampering detection is active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Generate valid OAuth token and decode the JWT payload to view claims (role: Administrator)",
+          "expectedResult": "Token is decoded successfully, shows 'role: Administrator' in payload"
+        },
+        {
+          "step": 2,
+          "action": "Manually modify the token payload to change role from 'Administrator' to 'SuperAdmin' without updating signature",
+          "expectedResult": "Modified token string is created with altered payload but original signature"
+        },
+        {
+          "step": 3,
+          "action": "Send GET request to '/api/v1/admin/settings' with the tampered token in Authorization header",
+          "expectedResult": "Token signature verification fails, HTTP 401 Unauthorized returned immediately"
+        },
+        {
+          "step": 4,
+          "action": "Observe error message and security response",
+          "expectedResult": "Error message states 'Token signature verification failed. Authentication denied.', no data is returned"
+        },
+        {
+          "step": 5,
+          "action": "Check security logs and alert system",
+          "expectedResult": "Critical security alert generated with 'TOKEN_TAMPERING_DETECTED' status, includes original user ID, source IP, timestamp, and full token details for forensic analysis"
+        }
+      ],
+      "postconditions": [
+        "Tampered token is rejected and access is denied",
+        "Critical security alert is sent to System Administrator immediately",
+        "Incident is logged for security investigation",
+        "Source IP address is flagged for potential blocking"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Verify API performance with maximum allowed concurrent authenticated requests",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "System supports maximum 1000 concurrent API connections",
+        "1000 valid user accounts with different roles are created",
+        "Load testing tool is configured to simulate concurrent requests",
+        "API endpoint '/api/v1/payroll/employees' is available",
+        "Performance monitoring is active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Authenticate all 1000 users simultaneously and obtain valid OAuth tokens for each",
+          "expectedResult": "All 1000 authentication requests succeed, tokens are generated within acceptable time frame"
+        },
+        {
+          "step": 2,
+          "action": "Send 1000 concurrent GET requests to '/api/v1/payroll/employees' with valid tokens from all users",
+          "expectedResult": "All requests are queued and processed, no requests are dropped or rejected"
+        },
+        {
+          "step": 3,
+          "action": "Measure response time for each request and calculate average",
+          "expectedResult": "95% of requests complete within 2 seconds, average response time is under 1.5 seconds, no timeout errors occur"
+        },
+        {
+          "step": 4,
+          "action": "Verify all requests are properly authorized based on user roles",
+          "expectedResult": "Each request is validated against correct user permissions, no authorization errors occur for valid access"
+        },
+        {
+          "step": 5,
+          "action": "Check system logs for all 1000 access attempts",
+          "expectedResult": "All 1000 requests are logged with complete details, no log entries are missing, logging system handles high volume without degradation"
+        }
+      ],
+      "postconditions": [
+        "System handles maximum concurrent load successfully",
+        "All requests are properly authenticated and authorized",
+        "Performance remains within acceptable limits under maximum load",
+        "Logging system captures all access attempts without data loss"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Verify API behavior when token expires during active request processing",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "OAuth token is configured with 30-minute expiration",
+        "System Administrator is authenticated with token expiring in 5 seconds",
+        "API endpoint '/api/v1/payroll/reports/generate' has long processing time (10 seconds)",
+        "Token expiration check occurs at request initiation and during processing"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Verify current token expiration time shows 5 seconds remaining",
+          "expectedResult": "Token metadata shows 'expires_in: 5' seconds"
+        },
+        {
+          "step": 2,
+          "action": "Send POST request to '/api/v1/payroll/reports/generate' which takes 10 seconds to process",
+          "expectedResult": "Request is accepted, initial token validation passes, processing begins"
+        },
+        {
+          "step": 3,
+          "action": "Monitor request processing as token expires mid-processing (after 5 seconds)",
+          "expectedResult": "Request continues processing despite token expiration during execution"
+        },
+        {
+          "step": 4,
+          "action": "Observe final response after 10 seconds of processing",
+          "expectedResult": "HTTP 200 OK returned, report is generated successfully, response includes note 'Request completed with token validated at initiation'"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to use the same expired token for a new request immediately after",
+          "expectedResult": "HTTP 401 Unauthorized returned, error message states 'Token expired', new request is rejected"
+        }
+      ],
+      "postconditions": [
+        "Long-running requests complete successfully if token was valid at initiation",
+        "Expired token cannot be used for new requests",
+        "Token expiration during processing is logged with special status",
+        "System behavior is consistent and predictable for edge timing scenarios"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Verify API handles requests with extremely long but valid OAuth tokens",
+      "category": "Edge Cases",
+      "priority": "Low",
+      "preconditions": [
+        "OAuth token generation supports custom claims and metadata",
+        "Test token is generated with maximum allowed size (8KB including header, payload, signature)",
+        "API endpoint '/api/v1/payroll/employees' is available",
+        "Token validation mechanism handles variable token sizes"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Generate OAuth token with maximum allowed custom claims to reach 8KB size limit",
+          "expectedResult": "Token is generated successfully, size is approximately 8KB, token contains valid signature"
+        },
+        {
+          "step": 2,
+          "action": "Send GET request to '/api/v1/payroll/employees' with the 8KB token in Authorization header",
+          "expectedResult": "Request is received, header parsing completes successfully"
+        },
+        {
+          "step": 3,
+          "action": "Measure token validation and permission verification time",
+          "expectedResult": "Token validation completes within 2 seconds despite large size, HTTP 200 OK returned"
+        },
+        {
+          "step": 4,
+          "action": "Verify all custom claims in large token are properly parsed and validated",
+          "expectedResult": "All claims are accessible, role-based permissions are correctly extracted and applied"
+        },
+        {
+          "step": 5,
+          "action": "Check system logs for any warnings or performance issues",
+          "expectedResult": "Access is logged normally, no warnings about token size, performance metrics are within acceptable range"
+        }
+      ],
+      "postconditions": [
+        "Large valid tokens are processed successfully",
+        "Performance remains acceptable with maximum-size tokens",
+        "No buffer overflow or parsing errors occur",
+        "System handles edge case token sizes gracefully"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Verify API behavior when user role is changed while active session exists",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User 'manager@company.com' is authenticated with Manager role and valid OAuth token",
+        "User has active session accessing '/api/v1/payroll/reports' endpoint",
+        "System Administrator has access to user role management interface",
+        "Role changes take effect immediately in RBAC system"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "As 'manager@company.com', successfully access '/api/v1/payroll/reports' with Manager role permissions",
+          "expectedResult": "HTTP 200 OK returned, report data is accessible, access is logged with Manager role"
+        },
+        {
+          "step": 2,
+          "action": "As System Administrator, navigate to user management and change 'manager@company.com' role from Manager to Employee",
+          "expectedResult": "Role change is saved successfully, confirmation message 'User role updated to Employee' appears"
+        },
+        {
+          "step": 3,
+          "action": "Immediately attempt to access '/api/v1/payroll/reports' again using the same active token without re-authentication",
+          "expectedResult": "Token is re-validated against current user role, HTTP 403 Forbidden returned, error message states 'Access denied: Your role has changed. Please re-authenticate.'"
+        },
+        {
+          "step": 4,
+          "action": "Verify token is invalidated and user must re-authenticate",
+          "expectedResult": "Subsequent requests with same token return HTTP 401, user is forced to re-authenticate to obtain new token with updated role"
+        },
+        {
+          "step": 5,
+          "action": "Re-authenticate as 'manager@company.com' and verify new token reflects Employee role",
+          "expectedResult": "New token is generated with Employee role, access to '/api/v1/payroll/reports' is denied with HTTP 403, access to Employee-level endpoints succeeds"
+        }
+      ],
+      "postconditions": [
+        "Role changes take effect immediately for active sessions",
+        "Existing tokens are invalidated when role changes",
+        "User must re-authenticate to receive token with updated permissions",
+        "Role change event is logged in audit trail with before/after values"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Verify API handles requests from users with multiple simultaneous valid tokens",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "System allows multiple active tokens per user (e.g., different devices/sessions)",
+        "System Administrator authenticates from three different devices/browsers",
+        "Three valid OAuth tokens are generated for same user account",
+        "API endpoint '/api/v1/payroll/employees' is available",
+        "Token tracking system monitors active tokens per user"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Authenticate as System Administrator from Device 1 (Chrome browser) and obtain Token A",
+          "expectedResult": "Token A is generated successfully, marked as active for Device 1"
+        },
+        {
+          "step": 2,
+          "action": "Authenticate as same System Administrator from Device 2 (Firefox browser) and obtain Token B",
+          "expectedResult": "Token B is generated successfully, Token A remains valid, both tokens are active simultaneously"
+        },
+        {
+          "step": 3,
+          "action": "Authenticate as same System Administrator from Device 3 (Mobile app) and obtain Token C",
+          "expectedResult": "Token C is generated successfully, all three tokens (A, B, C) are active for same user"
+        },
+        {
+          "step": 4,
+          "action": "Send concurrent requests to '/api/v1/payroll/employees' using all three tokens simultaneously",
+          "expectedResult": "All three requests succeed with HTTP 200 OK, each request is logged separately with device identifier, no token conflicts occur"
+        },
+        {
+          "step": 5,
+          "action": "Revoke Token B from Device 2 and verify other tokens remain functional",
+          "expectedResult": "Token B is revoked, requests with Token B return HTTP 401, requests with Token A and Token C continue to succeed"
+        }
+      ],
+      "postconditions": [
+        "System supports multiple simultaneous tokens per user",
+        "Each token is tracked independently with device/session information",
+        "Revoking one token does not affect other active tokens",
+        "All token activities are logged with device identifiers for audit trail"
+      ]
+    },
+    {
+      "id": "TC-EDGE-006",
+      "title": "Verify API security behavior during system clock time synchronization issues",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "OAuth tokens include timestamp-based expiration (exp claim)",
+        "System Administrator is authenticated with valid token",
+        "System clock can be adjusted for testing purposes",
+        "Token expiration is set to 30 minutes from issuance",
+        "API endpoint '/api/v1/payroll/reports' is available"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Generate OAuth token at current system time (e.g., 10:00 AM) with 30-minute expiration (expires at 10:30 AM)",
+          "expectedResult": "Token generated successfully with exp claim set to 10:30 AM timestamp"
+        },
+        {
+          "step": 2,
+          "action": "Successfully access '/api/v1/payroll/reports' at 10:05 AM to verify token works",
+          "expectedResult": "HTTP 200 OK returned, token is valid, 25 minutes remaining"
+        },
+        {
+          "step": 3,
+          "action": "Simulate system clock being set backward to 9:50 AM (before token issuance time)",
+          "expectedResult": "System clock shows 9:50 AM, token exp claim shows future time 10:30 AM"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to access '/api/v1/payroll/reports' with the token after clock adjustment",
+          "expectedResult": "Token validation detects clock skew, applies tolerance window (typically 5 minutes), token is still accepted if within tolerance, or HTTP 401 returned with error 'Clock skew detected. Token validation failed.'"
+        },
+        {
+          "step": 5,
+          "action": "Check security logs for clock skew detection",
+          "expectedResult": "Warning log entry created: 'CLOCK_SKEW_DETECTED', includes detected time difference, token ID, and validation decision"
+        }
+      ],
+      "postconditions": [
+        "System handles clock synchronization issues gracefully with tolerance window",
+        "Clock skew events are logged for system administrator review",
+        "Tokens remain functional within acceptable time tolerance",
+        "Extreme clock differences trigger security warnings and token rejection"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Verify keyboard navigation for API access control configuration interface",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "System Administrator is logged into admin console",
+        "RBAC configuration page is accessible at '/admin/security/rbac'",
+        "Keyboard is the only input device being used (mouse disabled for test)",
+        "Screen reader is available but not required for this test",
+        "Browser supports standard keyboard navigation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to '/admin/security/rbac' page and press Tab key to move focus to first interactive element",
+          "expectedResult": "Focus moves to first focusable element (likely 'Configure Role Permissions' button), visible focus indicator appears (blue outline or highlight)"
+        },
+        {
+          "step": 2,
+          "action": "Continue pressing Tab key to navigate through all interactive elements on the page (buttons, links, form fields)",
+          "expectedResult": "Focus moves sequentially through all interactive elements in logical order, focus indicator is visible on each element, no focus traps occur"
+        },
+        {
+          "step": 3,
+          "action": "Press Enter key on 'Configure Role Permissions' button when focused",
+          "expectedResult": "Button activates, permission configuration modal opens, focus automatically moves to first element inside modal"
+        },
+        {
+          "step": 4,
+          "action": "Press Tab to navigate through modal elements, then press Escape key to close modal",
+          "expectedResult": "Modal closes, focus returns to 'Configure Role Permissions' button that originally opened the modal"
+        },
+        {
+          "step": 5,
+          "action": "Use Shift+Tab to navigate backwards through elements",
+          "expectedResult": "Focus moves in reverse order through all interactive elements, focus indicator remains visible, navigation is logical and predictable"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements are keyboard accessible",
+        "Focus order is logical and follows visual layout",
+        "Focus is never trapped in any component",
+        "Focus indicators are visible throughout navigation"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Verify screen reader announces API access logs and security alerts appropriately",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "System Administrator is logged into admin console",
+        "API Access Logs page is accessible at '/admin/security/logs'",
+        "Screen reader software (NVDA or JAWS) is active",
+        "Multiple log entries exist including authorized and unauthorized access attempts",
+        "Security alerts are present in the interface"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to '/admin/security/logs' page with screen reader active",
+          "expectedResult": "Screen reader announces page title 'API Access Logs', main heading level 1, and page landmark 'main content region'"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to the log entries table using screen reader table navigation commands",
+          "expectedResult": "Screen reader announces 'Table with X rows and Y columns', column headers are announced: 'Timestamp', 'User', 'Endpoint', 'Status', 'Action'"
+        },
+        {
+          "step": 3,
+          "action": "Navigate through table rows using arrow keys with screen reader",
+          "expectedResult": "Each cell content is announced with column header context, e.g., 'Timestamp: 2024-01-15 10:30:45, User: admin@company.com, Status: Authorized'"
+        },
+        {
+          "step": 4,
+          "action": "Navigate to a log entry marked as 'Unauthorized' with security alert icon",
+          "expectedResult": "Screen reader announces 'Status: Unauthorized, Alert icon, Warning: Unauthorized access attempt detected' with appropriate alert role"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to filter controls and interact with dropdown for status filtering",
+          "expectedResult": "Screen reader announces 'Filter by status, combo box, collapsed', when expanded announces 'expanded' and lists available options with current selection"
+        },
+        {
+          "step": 6,
+          "action": "Trigger a new security alert while on the page",
+          "expectedResult": "Screen reader announces live region update: 'Alert: New unauthorized access attempt detected at endpoint /api/v1/admin/settings' without moving focus"
+        }
+      ],
+      "postconditions": [
+        "All log information is accessible via screen reader",
+        "Table structure is properly announced with headers",
+        "Security alerts are announced with appropriate urgency",
+        "Live updates are communicated without disrupting user workflow"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify ARIA labels and roles for role-based permission configuration interface",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "System Administrator is logged into admin console",
+        "RBAC permission editor is accessible",
+        "Browser developer tools are available to inspect ARIA attributes",
+        "Screen reader is active for testing announcements",
+        "Permission matrix with checkboxes is displayed"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Inspect the permission matrix table element in browser developer tools",
+          "expectedResult": "Table has role='table' or is semantic <table> element, has aria-label='API Endpoint Permissions Matrix' or aria-labelledby pointing to visible heading"
+        },
+        {
+          "step": 2,
+          "action": "Inspect checkbox elements for enabling/disabling permissions",
+          "expectedResult": "Each checkbox has aria-label describing the permission, e.g., 'Enable GET access to /api/v1/payroll/employees for Manager role', checked state is programmatically determinable"
+        },
+        {
+          "step": 3,
+          "action": "Inspect the 'Save Changes' button after making permission changes",
+          "expectedResult": "Button has aria-describedby pointing to text indicating unsaved changes, or aria-label includes 'Save Changes (unsaved changes present)'"
+        },
+        {
+          "step": 4,
+          "action": "Trigger a validation error by attempting to save invalid permission configuration",
+          "expectedResult": "Error message has role='alert' or aria-live='assertive', error is announced immediately by screen reader, aria-invalid='true' is set on relevant form controls"
+        },
+        {
+          "step": 5,
+          "action": "Inspect success message after successfully saving permissions",
+          "expectedResult": "Success message has role='status' or aria-live='polite', message is announced by screen reader without interrupting user, includes aria-label='Success notification'"
+        },
+        {
+          "step": 6,
+          "action": "Inspect loading state when permission changes are being saved",
+          "expectedResult": "Loading indicator has aria-live='polite' and aria-busy='true', screen reader announces 'Saving permissions, please wait', button is disabled with aria-disabled='true'"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements have appropriate ARIA labels",
+        "Dynamic content changes are announced via ARIA live regions",
+        "Form validation errors are properly associated with form controls",
+        "Loading and success states are communicated to assistive technologies"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify color contrast and visual indicators for security status meet WCAG 2.1 AA standards",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "API Access Logs page is displayed with various status indicators",
+        "Color contrast analyzer tool is available (e.g., browser extension or WAVE tool)",
+        "Page contains authorized (green), unauthorized (red), and warning (yellow) status indicators",
+        "System Administrator is viewing the security dashboard"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use color contrast analyzer to measure contrast ratio between 'Authorized' status text (green) and background",
+          "expectedResult": "Contrast ratio is at least 4.5:1 for normal text or 3:1 for large text (18pt+), meets WCAG 2.1 AA standard"
+        },
+        {
+          "step": 2,
+          "action": "Measure contrast ratio for 'Unauthorized' status text (red) and background",
+          "expectedResult": "Contrast ratio is at least 4.5:1 for normal text, red color is not the only indicator (icon or text label also present)"
+        },
+        {
+          "step": 3,
+          "action": "Verify security alert indicators use more than color alone to convey information",
+          "expectedResult": "Alerts include icon (exclamation mark or warning symbol) in addition to red color, text label 'Alert' or 'Warning' is present"
+        },
+        {
+          "step": 4,
+          "action": "Enable browser's high contrast mode or Windows High Contrast theme",
+          "expectedResult": "All status indicators remain visible and distinguishable, icons and text labels provide information independent of color"
+        },
+        {
+          "step": 5,
+          "action": "Test with color blindness simulator (deuteranopia - red-green color blindness)",
+          "expectedResult": "Status differences are still perceivable through icons, text labels, or patterns, not relying solely on red/green color distinction"
+        }
+      ],
+      "postconditions": [
+        "All text meets WCAG 2.1 AA contrast requirements (4.5:1 for normal text)",
+        "Security status is conveyed through multiple visual indicators, not color alone",
+        "Interface remains usable in high contrast mode",
+        "Information is accessible to users with color vision deficiencies"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify focus management and keyboard traps in OAuth token management modal dialogs",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "System Administrator is logged into token management interface",
+        "Modal dialog for token revocation is available",
+        "Keyboard is the only input device (mouse disabled)",
+        "Multiple interactive elements exist within modal (buttons, form fields)",
+        "Screen reader is active for testing announcements"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click 'Revoke Token' button using keyboard (Enter key) to open revocation confirmation modal",
+          "expectedResult": "Modal opens, focus automatically moves to first focusable element in modal (typically close button or first form field), screen reader announces modal title and role='dialog'"
+        },
+        {
+          "step": 2,
+          "action": "Press Tab key repeatedly to navigate through all focusable elements in modal",
+          "expectedResult": "Focus cycles through all interactive elements within modal only (close button, reason dropdown, confirm button, cancel button), focus does not escape to background page"
+        },
+        {
+          "step": 3,
+          "action": "After reaching last focusable element (Cancel button), press Tab again",
+          "expectedResult": "Focus wraps to first focusable element in modal (close button), creating a focus loop within modal boundaries"
+        },
+        {
+          "step": 4,
+          "action": "Press Escape key while focus is anywhere within modal",
+          "expectedResult": "Modal closes, focus returns to 'Revoke Token' button that originally opened the modal, screen reader announces modal closed"
+        },
+        {
+          "step": 5,
+          "action": "Reopen modal, navigate to 'Confirm Revocation' button and press Enter",
+          "expectedResult": "Token revocation is processed, modal closes, focus returns to token list, success message is announced by screen reader via aria-live region"
+        },
+        {
+          "step": 6,
+          "action": "Verify background page content is not accessible while modal is open",
+          "expectedResult": "Background content has aria-hidden='true' or inert attribute, attempting to Tab to background elements is prevented, screen reader does not read background content"
+        }
+      ],
+      "postconditions": [
+        "Focus is properly trapped within modal when open",
+        "Focus returns to triggering element when modal closes",
+        "Escape key closes modal as expected",
+        "Background content is properly hidden from assistive technologies",
+        "No keyboard traps prevent user from closing modal"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "Verify text scaling and zoom functionality for security configuration interface",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "System Administrator is logged into RBAC configuration page",
+        "Browser supports zoom functionality (all modern browsers)",
+        "Page contains tables, forms, buttons, and text content",
+        "Default zoom level is 100%"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Set browser zoom to 200% using Ctrl + Plus key (or Cmd + Plus on Mac)",
+          "expectedResult": "Page content scales to 200%, all text is readable, no horizontal scrolling is required for reading content, layout adapts responsively"
+        },
+        {
+          "step": 2,
+          "action": "Verify all interactive elements (buttons, checkboxes, dropdowns) are still accessible and usable at 200% zoom",
+          "expectedResult": "All buttons remain clickable, checkboxes are large enough to interact with, dropdown menus open correctly, no elements are cut off or overlapping"
+        },
+        {
+          "step": 3,
+          "action": "Navigate through permission matrix table at 200% zoom",
+          "expectedResult": "Table remains readable, column headers are visible, horizontal scrolling may be present for table but is smooth and functional, no data is hidden or inaccessible"
+        },
+        {
+          "step": 4,
+          "action": "Test form submission at 200% zoom by modifying permissions and clicking Save",
+          "expectedResult": "Form submits successfully, success/error messages are visible and readable, no functionality is lost due to zoom level"
+        },
+        {
+          "step": 5,
+          "action": "Increase zoom to 400% (maximum WCAG requirement)",
+          "expectedResult": "Content remains accessible, vertical scrolling is acceptable, all functionality remains available, text does not overlap or become unreadable"
+        },
+        {
+          "step": 6,
+          "action": "Test with browser text-only zoom (increase text size without zooming layout)",
+          "expectedResult": "Text increases in size, containers expand to accommodate larger text, no text is cut off, layout remains functional"
+        }
+      ],
+      "postconditions": [
+        "Interface is fully functional at 200% zoom (WCAG 2.1 AA requirement)",
+        "Content remains accessible up to 400% zoom",
+        "No loss of functionality occurs at any zoom level",
+        "Text scaling does not cause overlapping or hidden content"
+      ]
+    }
+  ],
+  "performance": [
+    {
+      "id": "PERF-LOAD-001",
+      "title": "API Authentication and Authorization Performance Under Peak Concurrent Load",
+      "category": "performance",
+      "subCategory": "Load Testing",
+      "priority": "Critical",
+      "description": "Validate that the secure API endpoint authentication and role-based access control mechanisms maintain performance SLA (access verification under 2 seconds) under peak concurrent user load of 1000 simultaneous authentication requests with various role permissions.",
+      "preconditions": [
+        "API endpoints are deployed with OAuth 2.0 authentication",
+        "Role-based access control (RBAC) is configured with at least 5 different role types",
+        "Test users with varying permission levels are provisioned (Admin, Manager, Employee, ReadOnly, Guest)",
+        "Monitoring tools are configured to capture response times, throughput, and resource utilization",
+        "Baseline performance metrics are established"
+      ],
+      "testCaseSteps": [
+        {
+          "Steps": 1,
+          "Action": "Configure load testing tool (JMeter/Gatling) to simulate 1000 concurrent users attempting to authenticate and access protected API endpoints with valid OAuth 2.0 tokens",
+          "Expected Results": "Load test configuration is validated and ready to execute with proper token generation and role distribution"
+        },
+        {
+          "Steps": 2,
+          "Action": "Execute load test with ramp-up period of 5 minutes, sustain peak load for 15 minutes, and ramp-down over 2 minutes. Monitor authentication requests, authorization checks, and API access patterns",
+          "Expected Results": "All 1000 concurrent users successfully authenticate and receive appropriate access based on their roles"
+        },
+        {
+          "Steps": 3,
+          "Action": "Measure and record P50, P95, and P99 response times for authentication and authorization operations, throughput (TPS), error rate, CPU utilization, and memory consumption",
+          "Expected Results": "P95 response time ≤ 2 seconds for access verification, P99 ≤ 3 seconds, throughput ≥ 500 TPS, error rate < 0.1%, CPU utilization < 70%, memory utilization < 75%"
+        },
+        {
+          "Steps": 4,
+          "Action": "Verify that role-based access control correctly blocks unauthorized access attempts and logs all access requests during peak load",
+          "Expected Results": "100% of unauthorized access attempts are blocked with appropriate HTTP 403 responses, all access attempts are logged with timestamps and user identifiers"
+        },
+        {
+          "Steps": 5,
+          "Action": "Analyze system behavior for any performance degradation, bottlenecks in authentication/authorization pipeline, or resource contention issues",
+          "Expected Results": "No critical bottlenecks identified, system maintains stable performance throughout test duration, no connection timeouts or dropped requests"
+        }
+      ],
+      "postconditions": [
+        "All test users are logged out and sessions terminated",
+        "Performance metrics are captured and stored for analysis",
+        "System resources return to baseline levels within 5 minutes",
+        "All audit logs are verified for completeness"
+      ],
+      "testData": "1000 test user accounts with OAuth 2.0 credentials distributed across roles: 100 Admin, 200 Manager, 500 Employee, 150 ReadOnly, 50 Guest. Sample API endpoints: /api/v1/payroll/*, /api/v1/employees/*, /api/v1/reports/*",
+      "toolsRequired": [
+        "Apache JMeter or Gatling for load generation",
+        "OAuth 2.0 token generator",
+        "Application Performance Monitoring (APM) tool (New Relic/Datadog/Dynatrace)",
+        "Prometheus/Grafana for metrics visualization",
+        "ELK Stack for log analysis"
+      ],
+      "estimatedTime": "90 minutes",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": "OWASP-A01, SOC2-CC6.1"
+    },
+    {
+      "id": "PERF-STRESS-001",
+      "title": "API Security Layer Breaking Point and Graceful Degradation Under Extreme Load",
+      "category": "performance",
+      "subCategory": "Stress Testing",
+      "priority": "Critical",
+      "description": "Determine the breaking point of the secure API authentication and authorization system by progressively increasing load beyond normal capacity, validate graceful degradation mechanisms, and verify that security controls remain intact even under extreme stress conditions.",
+      "preconditions": [
+        "API endpoints with OAuth 2.0 and RBAC are fully operational",
+        "Rate limiting and throttling mechanisms are configured",
+        "Circuit breaker patterns are implemented",
+        "Alert monitoring system is active for unauthorized access attempts",
+        "Disaster recovery procedures are documented and team is on standby"
+      ],
+      "testCaseSteps": [
+        {
+          "Steps": 1,
+          "Action": "Configure stress test to start with 500 concurrent users and incrementally increase by 500 users every 5 minutes until system failure or degradation threshold is reached (max 5000 users)",
+          "Expected Results": "Stress test configuration is validated with progressive load increase strategy"
+        },
+        {
+          "Steps": 2,
+          "Action": "Execute stress test while continuously monitoring authentication success rate, authorization accuracy, response times, error rates, CPU/memory utilization, and database connection pool saturation",
+          "Expected Results": "System handles increasing load with measurable performance metrics at each load level increment"
+        },
+        {
+          "Steps": 3,
+          "Action": "Identify the breaking point where response times exceed 10 seconds, error rate exceeds 5%, or system becomes unresponsive. Document the exact concurrent user count at failure",
+          "Expected Results": "Breaking point is identified with specific metrics: concurrent users at failure, response time degradation curve, error rate progression, resource exhaustion indicators"
+        },
+        {
+          "Steps": 4,
+          "Action": "Verify that security controls remain functional during stress conditions: unauthorized access attempts are still blocked, data encryption remains active, audit logging continues, and no security bypass occurs due to performance degradation",
+          "Expected Results": "100% of unauthorized access attempts are blocked even under stress, no security vulnerabilities exposed, all access attempts logged, encryption overhead maintained, alert system triggers for suspicious patterns"
+        },
+        {
+          "Steps": 5,
+          "Action": "Reduce load by 50% and verify system recovery: response times return to acceptable levels, error rates decrease, resource utilization stabilizes, and normal operations resume",
+          "Expected Results": "System recovers within 10 minutes after load reduction, response times return to < 3 seconds, error rate drops below 1%, no data corruption or security policy violations during recovery"
+        }
+      ],
+      "postconditions": [
+        "System is restored to normal operational state",
+        "Breaking point metrics are documented with recommendations",
+        "Security audit logs are reviewed for any anomalies during stress period",
+        "Capacity planning recommendations are generated",
+        "Incident reports are filed if any security controls failed"
+      ],
+      "testData": "5000 test user accounts with valid OAuth 2.0 tokens, 500 test accounts with invalid/expired tokens to simulate unauthorized access during stress, API endpoints covering all permission levels",
+      "toolsRequired": [
+        "Apache JMeter or Gatling with progressive load plugin",
+        "Real-time monitoring dashboard (Grafana)",
+        "APM tool with alerting capabilities",
+        "Database performance monitoring tool",
+        "Security Information and Event Management (SIEM) system"
+      ],
+      "estimatedTime": "120 minutes",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": "OWASP-A04, SOC2-CC7.2, PCI-DSS-6.5"
+    },
+    {
+      "id": "PERF-SPIKE-001",
+      "title": "API Security Performance During Sudden Traffic Surge and Potential DDoS Simulation",
+      "category": "performance",
+      "subCategory": "Spike Testing",
+      "priority": "Critical",
+      "description": "Validate API authentication and authorization system behavior during sudden traffic spikes from 100 to 2000 concurrent users within 30 seconds, simulating potential DDoS attack patterns while ensuring legitimate users maintain access and security controls remain effective.",
+      "preconditions": [
+        "API endpoints with OAuth 2.0 authentication are operational",
+        "Auto-scaling policies are configured (horizontal pod autoscaling with 2-10 replicas)",
+        "Rate limiting is configured (100 requests per minute per user)",
+        "DDoS protection mechanisms are enabled",
+        "Alert system is configured for abnormal traffic patterns",
+        "Baseline performance with 100 concurrent users is established"
+      ],
+      "testCaseSteps": [
+        {
+          "Steps": 1,
+          "Action": "Establish baseline load with 100 concurrent authenticated users accessing API endpoints with normal request patterns for 5 minutes",
+          "Expected Results": "Baseline metrics captured: P95 response time < 1 second, throughput ~50 TPS, error rate < 0.1%, CPU utilization ~30%, memory utilization ~40%"
+        },
+        {
+          "Steps": 2,
+          "Action": "Trigger sudden spike by increasing load from 100 to 2000 concurrent users within 30 seconds, simulating legitimate authentication requests mixed with potential attack patterns (rapid repeated requests, token reuse attempts)",
+          "Expected Results": "Load spike is successfully generated with 2000 concurrent users attempting authentication and API access within 30-second window"
+        },
+        {
+          "Steps": 3,
+          "Action": "Monitor auto-scaling response: measure time to scale from baseline to required capacity, track authentication service response times during scaling, verify rate limiting activation, and observe DDoS protection mechanisms",
+          "Expected Results": "Auto-scaling triggers within 60 seconds, new instances become available within 2-3 minutes, rate limiting blocks excessive requests (HTTP 429 responses), legitimate users experience temporary degradation (P95 < 5 seconds) but maintain access, no complete service outage"
+        },
+        {
+          "Steps": 4,
+          "Action": "Verify security controls during spike: unauthorized access attempts are blocked, alert system triggers for abnormal traffic patterns, audit logging captures all authentication attempts, data encryption remains active, and no security bypass occurs",
+          "Expected Results": "100% of unauthorized access blocked with appropriate responses, alerts generated within 1 minute of spike detection, all access attempts logged with source IP and user agent, encryption overhead maintained, no authentication token leakage or privilege escalation"
+        },
+        {
+          "Steps": 5,
+          "Action": "Reduce load back to 100 users within 30 seconds and monitor system stabilization: response time recovery, auto-scaling down behavior, resource utilization normalization, and sustained security posture",
+          "Expected Results": "Response times return to baseline (P95 < 1 second) within 5 minutes, auto-scaling reduces instances to baseline within 10 minutes, no memory leaks or resource exhaustion, security controls remain fully functional, all spike-related logs are accessible for forensic analysis"
+        }
+      ],
+      "postconditions": [
+        "System returns to baseline operational state",
+        "Auto-scaling policies are validated and tuned if necessary",
+        "Spike handling metrics are documented",
+        "Security incident logs are reviewed for false positives/negatives",
+        "DDoS protection effectiveness is assessed",
+        "Capacity and scaling recommendations are generated"
+      ],
+      "testData": "2000 test user accounts: 1800 with valid OAuth 2.0 tokens (legitimate users), 200 with invalid/expired tokens or malformed requests (simulated attack), API endpoints: /api/v1/auth/token, /api/v1/employees/*, /api/v1/payroll/*",
+      "toolsRequired": [
+        "Apache JMeter or Gatling with spike test profile",
+        "Kubernetes metrics server for auto-scaling monitoring",
+        "APM tool with real-time alerting",
+        "Cloud provider monitoring (AWS CloudWatch/Azure Monitor/GCP Stackdriver)",
+        "SIEM system for security event correlation",
+        "Network traffic analyzer (Wireshark/tcpdump)"
+      ],
+      "estimatedTime": "75 minutes",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": "OWASP-A05, SOC2-CC7.1, PCI-DSS-6.6"
+    }
+  ],
+  "security": [
+    {
+      "id": "SEC-ELEV-001",
+      "title": "Vertical Privilege Escalation - Unauthorized Role-Based Access Control Bypass",
+      "category": "security",
+      "subCategory": "STRIDE-Elevation of Privilege",
+      "priority": "Critical",
+      "description": "Verify that API endpoints enforce strict role-based access control and prevent users from accessing resources or performing actions beyond their assigned role permissions. Test attempts by lower-privileged users (e.g., regular employee) to access administrative API endpoints that should only be accessible to System Administrators.",
+      "preconditions": [
+        "API endpoints are deployed and accessible",
+        "Multiple user accounts with different roles exist (Employee, Manager, System Administrator)",
+        "OAuth 2.0 authentication is configured",
+        "Role-based access control policies are implemented",
+        "Test environment has valid authentication tokens for each role"
+      ],
+      "testCaseSteps": [
+        {
+          "Steps": 1,
+          "Action": "Authenticate as a regular Employee user and obtain a valid OAuth 2.0 access token",
+          "Expected Results": "Authentication succeeds and valid access token is returned for Employee role"
+        },
+        {
+          "Steps": 2,
+          "Action": "Attempt to access administrative API endpoint (e.g., GET /api/admin/users, POST /api/admin/roles, DELETE /api/admin/payroll) using the Employee access token",
+          "Expected Results": "API returns HTTP 403 Forbidden status code with error message indicating insufficient permissions"
+        },
+        {
+          "Steps": 3,
+          "Action": "Attempt to modify the access token payload by changing role claim from 'Employee' to 'Administrator' and replay the request",
+          "Expected Results": "API rejects the tampered token with HTTP 401 Unauthorized due to invalid signature verification"
+        },
+        {
+          "Steps": 4,
+          "Action": "Attempt to access the same administrative endpoint by manipulating request parameters (e.g., adding ?role=admin, X-User-Role: admin header)",
+          "Expected Results": "API ignores parameter manipulation and returns HTTP 403 Forbidden based on token-based authorization"
+        },
+        {
+          "Steps": 5,
+          "Action": "Verify that the unauthorized access attempt is logged with timestamp, user identity, attempted endpoint, and denial reason",
+          "Expected Results": "Security log contains detailed entry of the unauthorized access attempt with all relevant information"
+        },
+        {
+          "Steps": 6,
+          "Action": "Verify that security alert is triggered for the unauthorized access attempt",
+          "Expected Results": "Alert notification is generated and sent to security monitoring system within 5 seconds"
+        }
+      ],
+      "postconditions": [
+        "No unauthorized access is granted",
+        "All access attempts are logged",
+        "Security alerts are triggered for unauthorized attempts",
+        "System state remains unchanged"
+      ],
+      "testData": "Employee Token: {user_id: 'EMP001', role: 'Employee', permissions: ['read:own_data']}, Admin Endpoint: /api/admin/payroll/configure, Expected Response: {error: 'Forbidden', message: 'Insufficient permissions'}",
+      "toolsRequired": [
+        "Postman or cURL for API testing",
+        "JWT decoder/manipulator tool",
+        "Security log monitoring tool",
+        "Burp Suite or OWASP ZAP for request manipulation"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9.2,
+      "complianceTag": "OWASP-A01, SOC2-CC6.1, STRIDE-ElevationOfPrivilege"
+    },
+    {
+      "id": "SEC-AUTH-002",
+      "title": "Broken Authentication - Brute Force Attack and Account Lockout Validation",
+      "category": "security",
+      "subCategory": "STRIDE-Spoofing",
+      "priority": "Critical",
+      "description": "Test the API's resilience against brute force authentication attacks by attempting multiple failed login attempts. Verify that the system implements rate limiting, account lockout mechanisms, and proper authentication failure handling to prevent credential stuffing and brute force attacks on OAuth 2.0 authentication endpoints.",
+      "preconditions": [
+        "OAuth 2.0 authentication endpoint is accessible",
+        "Valid test user account exists with known credentials",
+        "Rate limiting and account lockout policies are configured",
+        "Security monitoring and alerting system is active"
+      ],
+      "testCaseSteps": [
+        {
+          "Steps": 1,
+          "Action": "Attempt to authenticate with valid username but incorrect password 5 times consecutively within 30 seconds",
+          "Expected Results": "Each attempt returns HTTP 401 Unauthorized with generic error message (not revealing if username exists)"
+        },
+        {
+          "Steps": 2,
+          "Action": "Continue failed authentication attempts (6th through 10th attempt) with the same username",
+          "Expected Results": "After configured threshold (e.g., 5 attempts), API implements rate limiting with HTTP 429 Too Many Requests or temporarily locks the account"
+        },
+        {
+          "Steps": 3,
+          "Action": "Attempt immediate authentication with correct credentials for the locked account",
+          "Expected Results": "API returns HTTP 423 Locked or HTTP 401 with message indicating account is temporarily locked due to multiple failed attempts"
+        },
+        {
+          "Steps": 4,
+          "Action": "Wait for the configured lockout period (e.g., 15 minutes) and attempt authentication with correct credentials",
+          "Expected Results": "Authentication succeeds after lockout period expires, returning valid OAuth 2.0 access token"
+        },
+        {
+          "Steps": 5,
+          "Action": "Verify that all failed authentication attempts are logged with source IP, timestamp, username attempted, and failure reason",
+          "Expected Results": "Security logs contain detailed entries for each failed attempt with complete audit trail"
+        },
+        {
+          "Steps": 6,
+          "Action": "Verify that security alert is triggered after threshold of failed attempts is exceeded",
+          "Expected Results": "Alert notification is sent to security team indicating potential brute force attack with attacker details"
+        },
+        {
+          "Steps": 7,
+          "Action": "Test distributed brute force attack by attempting failed logins from multiple IP addresses",
+          "Expected Results": "System detects pattern and implements account-level protection regardless of source IP"
+        }
+      ],
+      "postconditions": [
+        "Account lockout mechanism functions correctly",
+        "All authentication attempts are logged",
+        "Security alerts are triggered appropriately",
+        "Legitimate user can access account after lockout period"
+      ],
+      "testData": "Test Account: {username: 'testadmin@company.com', password: 'CorrectP@ssw0rd'}, Invalid Passwords: ['wrong1', 'wrong2', 'wrong3', 'wrong4', 'wrong5', 'wrong6'], Lockout Threshold: 5 attempts, Lockout Duration: 15 minutes",
+      "toolsRequired": [
+        "Hydra or Burp Suite Intruder for brute force simulation",
+        "Postman for API authentication testing",
+        "Log analysis tool",
+        "Multiple IP addresses or proxy for distributed attack testing"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 8.8,
+      "complianceTag": "OWASP-A07, NIST-800-63B, STRIDE-Spoofing, PCI-DSS-8.1.6"
+    },
+    {
+      "id": "SEC-INFO-003",
+      "title": "Information Disclosure - Sensitive Data Exposure via Unencrypted Transit",
+      "category": "security",
+      "subCategory": "STRIDE-Information Disclosure",
+      "priority": "Critical",
+      "description": "Verify that all API communications containing sensitive employee and payroll data are encrypted in transit using TLS 1.2 or higher. Test for cryptographic failures including weak cipher suites, missing HTTPS enforcement, sensitive data in URLs, and proper certificate validation to prevent man-in-the-middle attacks and data interception.",
+      "preconditions": [
+        "API endpoints are accessible via both HTTP and HTTPS protocols",
+        "TLS/SSL certificates are configured on the server",
+        "Test environment allows network traffic interception",
+        "Sample sensitive payroll data is available for testing"
+      ],
+      "testCaseSteps": [
+        {
+          "Steps": 1,
+          "Action": "Attempt to access API endpoint containing sensitive payroll data using HTTP protocol (http://api.company.com/api/payroll/employee/12345)",
+          "Expected Results": "API automatically redirects to HTTPS (HTTP 301/308) or rejects the request with HTTP 403/400 indicating HTTPS is required"
+        },
+        {
+          "Steps": 2,
+          "Action": "Verify TLS version by establishing HTTPS connection and inspecting the negotiated protocol version",
+          "Expected Results": "Connection uses TLS 1.2 or TLS 1.3 only; TLS 1.0 and 1.1 are disabled and connection fails if forced"
+        },
+        {
+          "Steps": 3,
+          "Action": "Analyze cipher suites accepted by the API server using SSL/TLS scanning tool",
+          "Expected Results": "Only strong cipher suites are enabled (e.g., AES-256-GCM, ChaCha20-Poly1305); weak ciphers (RC4, DES, 3DES, MD5) are disabled"
+        },
+        {
+          "Steps": 4,
+          "Action": "Intercept HTTPS traffic using proxy tool and attempt to decrypt the payload containing employee salary data",
+          "Expected Results": "Traffic is encrypted and cannot be decrypted without proper certificates; sensitive data is not visible in plaintext"
+        },
+        {
+          "Steps": 5,
+          "Action": "Verify that sensitive data (passwords, tokens, SSN, salary) is not transmitted in URL parameters or query strings",
+          "Expected Results": "All sensitive data is transmitted in encrypted request body or headers, never in URLs which may be logged"
+        },
+        {
+          "Steps": 6,
+          "Action": "Check API response headers for security headers: Strict-Transport-Security (HSTS), X-Content-Type-Options, X-Frame-Options",
+          "Expected Results": "All security headers are present with appropriate values (HSTS with max-age >= 31536000, includeSubDomains)"
+        },
+        {
+          "Steps": 7,
+          "Action": "Verify that API responses containing sensitive data do not include caching headers (Cache-Control: no-store, Pragma: no-cache)",
+          "Expected Results": "Sensitive endpoints return proper cache prevention headers to avoid data storage in browser/proxy caches"
+        },
+        {
+          "Steps": 8,
+          "Action": "Test certificate validation by attempting connection with self-signed or expired certificate",
+          "Expected Results": "Client properly validates certificates and rejects connections with invalid certificates"
+        }
+      ],
+      "postconditions": [
+        "All data transmission occurs over encrypted channels",
+        "No sensitive data is exposed in logs or URLs",
+        "Strong cryptographic protocols are enforced",
+        "Security headers are properly configured"
+      ],
+      "testData": "Sample Payroll Data: {employee_id: '12345', ssn: '123-45-6789', salary: 95000, bank_account: '9876543210'}, Test URLs: http://api.company.com/api/payroll, https://api.company.com/api/payroll",
+      "toolsRequired": [
+        "Wireshark or tcpdump for traffic analysis",
+        "SSL Labs SSL Test or testssl.sh for TLS configuration analysis",
+        "Burp Suite or OWASP ZAP for HTTPS interception",
+        "cURL with --insecure flag for certificate testing",
+        "Browser Developer Tools for header inspection"
+      ],
+      "estimatedTime": "50 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 9,
+      "complianceTag": "OWASP-A02, PCI-DSS-4.1, HIPAA-164.312(e)(1), SOC2-CC6.7, STRIDE-InformationDisclosure"
+    }
+  ],
+  "usability": [
+    {
+      "id": "UX-H01-001",
+      "title": "Verify System Provides Clear Feedback During API Access Verification Process",
+      "category": "usability",
+      "subCategory": "Nielsen-H01-Visibility of System Status",
+      "priority": "Critical",
+      "description": "Evaluate whether the system provides clear, real-time feedback to the System Administrator during the API access verification process, including authentication status, permission checks, and access grant/denial outcomes. This ensures administrators understand what the system is doing at all times during security operations.",
+      "preconditions": [
+        "System Administrator is logged into the admin console",
+        "API endpoints are configured with role-based access controls",
+        "Test user accounts with varying permission levels exist",
+        "Access verification process is functional"
+      ],
+      "testCaseSteps": [
+        {
+          "Steps": 1,
+          "Action": "Navigate to API access control configuration interface",
+          "Expected Results": "Interface loads with clear indication of current section and available options"
+        },
+        {
+          "Steps": 2,
+          "Action": "Initiate configuration of role-based permissions for a specific API endpoint",
+          "Expected Results": "System displays progress indicator showing 'Configuring permissions...' with visual feedback"
+        },
+        {
+          "Steps": 3,
+          "Action": "Attempt to access an API endpoint as a test user with appropriate permissions",
+          "Expected Results": "System displays real-time status: 'Verifying credentials...' → 'Checking permissions...' → 'Access granted' with timestamp and user details"
+        },
+        {
+          "Steps": 4,
+          "Action": "Attempt to access an API endpoint as a test user without appropriate permissions",
+          "Expected Results": "System displays clear status progression: 'Verifying credentials...' → 'Checking permissions...' → 'Access denied - Insufficient permissions' with specific reason"
+        },
+        {
+          "Steps": 5,
+          "Action": "Monitor the access logs dashboard during multiple concurrent access attempts",
+          "Expected Results": "Dashboard updates in real-time showing each access attempt status, verification time (should be under 2 seconds), and outcome with color-coded indicators (green for granted, red for denied)"
+        },
+        {
+          "Steps": 6,
+          "Action": "Observe system behavior when an unauthorized access attempt triggers an alert",
+          "Expected Results": "System immediately displays prominent notification banner with alert details, timestamp, and affected endpoint without requiring page refresh"
+        }
+      ],
+      "postconditions": [
+        "All status messages were clear and appeared within appropriate timeframes",
+        "Administrator could understand system state at every step without confusion",
+        "Recommendation: Implement progress bars with percentage completion for multi-step verification processes",
+        "Recommendation: Add estimated time remaining indicators for operations exceeding 1 second",
+        "Recommendation: Use consistent iconography (lock icons, checkmarks, warning symbols) alongside text status messages"
+      ],
+      "testData": "Test users: admin_user (full access), developer_user (read-only access), guest_user (no access); API endpoints: /api/payroll/sensitive, /api/employee/data",
+      "toolsRequired": [
+        "Browser developer tools for monitoring real-time updates",
+        "Screen recording software",
+        "Stopwatch for timing verification"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": null,
+      "complianceTag": "Nielsen-Heuristic-01"
+    },
+    {
+      "id": "UX-H05-002",
+      "title": "Evaluate Error Prevention Mechanisms in Access Control Configuration",
+      "category": "usability",
+      "subCategory": "Nielsen-H05-Error Prevention",
+      "priority": "Critical",
+      "description": "Assess whether the system implements proactive error prevention mechanisms when System Administrators configure role-based access controls, including validation warnings, confirmation dialogs for critical actions, and constraints that prevent misconfiguration of security settings that could lead to data exposure or system lockout.",
+      "preconditions": [
+        "System Administrator has appropriate privileges to configure API access controls",
+        "Multiple API endpoints exist with varying sensitivity levels",
+        "Role-based permission templates are available",
+        "At least one active user session exists for testing lockout prevention"
+      ],
+      "testCaseSteps": [
+        {
+          "Steps": 1,
+          "Action": "Attempt to remove all administrator roles from the currently logged-in admin account",
+          "Expected Results": "System displays warning dialog: 'Warning: This action will remove your own admin access. You must assign another administrator before proceeding.' with 'Cancel' and 'Assign Another Admin First' options, preventing immediate execution"
+        },
+        {
+          "Steps": 2,
+          "Action": "Try to configure an API endpoint to allow public access without authentication for sensitive payroll data",
+          "Expected Results": "System displays prominent warning: 'Security Risk Detected: This endpoint contains sensitive data. Public access is not recommended.' with options to 'Review Security Settings' or 'Require Authentication' (default), preventing accidental exposure"
+        },
+        {
+          "Steps": 3,
+          "Action": "Begin configuring role permissions but attempt to navigate away without saving changes",
+          "Expected Results": "System displays confirmation dialog: 'You have unsaved changes to access control settings. Discard changes?' with 'Save Changes', 'Discard', and 'Cancel' options"
+        },
+        {
+          "Steps": 4,
+          "Action": "Attempt to assign conflicting permissions (e.g., deny-all and allow-specific simultaneously) to a user role",
+          "Expected Results": "System prevents submission and displays inline validation error: 'Conflicting permissions detected. Please resolve: Role cannot have both deny-all and specific allow rules.' with suggested resolution"
+        },
+        {
+          "Steps": 5,
+          "Action": "Try to save access control configuration with empty required fields (e.g., no roles assigned to critical endpoint)",
+          "Expected Results": "Save button remains disabled with tooltip explaining 'Required: At least one role must be assigned to this endpoint' and required fields are highlighted in red"
+        },
+        {
+          "Steps": 6,
+          "Action": "Attempt to delete a role that is currently assigned to active users accessing API endpoints",
+          "Expected Results": "System displays detailed warning: 'This role is assigned to 5 active users. Deleting will immediately revoke their access. Affected users: [list]. Confirm deletion?' with 'Cancel' as the default action"
+        }
+      ],
+      "postconditions": [
+        "No critical security misconfigurations were possible without explicit warnings",
+        "System prevented self-lockout scenarios effectively",
+        "All error prevention mechanisms appeared before errors occurred, not after",
+        "Recommendation: Implement a 'dry run' or 'preview impact' feature showing which users/systems will be affected before applying changes",
+        "Recommendation: Add intelligent defaults that select secure options automatically (e.g., authentication required by default)",
+        "Recommendation: Provide configuration templates for common secure scenarios to reduce manual configuration errors"
+      ],
+      "testData": "Test roles: SuperAdmin, APIAdmin, ReadOnlyUser, NoAccess; Test endpoints: /api/payroll/process (critical), /api/employee/public (low sensitivity)",
+      "toolsRequired": [
+        "Admin console access",
+        "Multiple test user accounts",
+        "Documentation of expected validation rules"
+      ],
+      "estimatedTime": "50 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": null,
+      "complianceTag": "Nielsen-Heuristic-05"
+    },
+    {
+      "id": "UX-H09-003",
+      "title": "Assess Error Message Quality and Recovery Guidance for Access Denial Scenarios",
+      "category": "usability",
+      "subCategory": "Nielsen-H09-Help Users Recognize and Recover from Errors",
+      "priority": "High",
+      "description": "Evaluate whether error messages displayed during unauthorized access attempts and configuration failures are clear, specific, constructive, and provide actionable recovery steps. This ensures System Administrators can quickly understand what went wrong and how to resolve access issues without requiring external support.",
+      "preconditions": [
+        "API endpoints are configured with role-based access controls",
+        "Test user accounts with insufficient permissions exist",
+        "OAuth 2.0 authentication is properly configured",
+        "Logging and monitoring systems are active"
+      ],
+      "testCaseSteps": [
+        {
+          "Steps": 1,
+          "Action": "Attempt to access a restricted API endpoint using credentials without proper role assignment",
+          "Expected Results": "System displays specific error message: 'Access Denied: Your account lacks the required 'PayrollAdmin' role for this endpoint. Contact your administrator or request access via [link to access request form].' Error code and timestamp are included for reference."
+        },
+        {
+          "Steps": 2,
+          "Action": "Try to authenticate with an expired OAuth token",
+          "Expected Results": "Error message states: 'Authentication Failed: Your session has expired. Please log in again to continue.' with prominent 'Log In' button and explanation that sessions expire after 30 minutes of inactivity for security"
+        },
+        {
+          "Steps": 3,
+          "Action": "Attempt to configure access controls with invalid permission syntax or malformed rules",
+          "Expected Results": "Inline error appears: 'Invalid Permission Format: Expected format is 'resource:action' (e.g., 'payroll:read'). Current value 'payroll-read' is invalid.' with example of correct format and link to documentation"
+        },
+        {
+          "Steps": 4,
+          "Action": "Trigger a rate limiting error by making excessive API access verification requests",
+          "Expected Results": "Error message displays: 'Rate Limit Exceeded: Too many verification requests. Please wait 60 seconds before trying again. Current limit: 100 requests per minute.' with countdown timer showing when access will be restored"
+        },
+        {
+          "Steps": 5,
+          "Action": "Attempt to access an API endpoint during a system maintenance window",
+          "Expected Results": "User-friendly message appears: 'Service Temporarily Unavailable: This API endpoint is undergoing scheduled maintenance until [specific time]. Estimated restoration: 15 minutes. Check system status at [status page link].' with option to subscribe to maintenance notifications"
+        },
+        {
+          "Steps": 6,
+          "Action": "Review the access logs for a failed unauthorized access attempt and examine the alert details",
+          "Expected Results": "Alert provides comprehensive information: 'Unauthorized Access Attempt Detected - User: john.doe@company.com attempted to access /api/payroll/sensitive at [timestamp]. Reason: Missing required role. Recommended Action: Review user's role assignments in User Management > Roles.' with direct link to user's profile"
+        }
+      ],
+      "postconditions": [
+        "All error messages were written in plain language without technical jargon",
+        "Each error provided specific cause and actionable recovery steps",
+        "No generic 'Error 403' or 'Access Denied' messages without context were displayed",
+        "Recommendation: Implement contextual help links in error messages that open relevant documentation sections",
+        "Recommendation: Add 'What happened?', 'Why?', and 'What can I do?' sections to all error messages for clarity",
+        "Recommendation: Provide 'Copy error details' button for easy sharing with support team including error code, timestamp, and user context",
+        "Recommendation: Use color coding (red for errors) and icons consistently across all error states"
+      ],
+      "testData": "Test scenarios: expired_token, insufficient_permissions, invalid_syntax, rate_limited, maintenance_mode; Test users: unauthorized_user, expired_session_user",
+      "toolsRequired": [
+        "API testing tool (Postman or similar)",
+        "Access to authentication token management",
+        "Admin console for reviewing alerts and logs"
+      ],
+      "estimatedTime": "40 minutes",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": "Nielsen-Heuristic-09"
+    }
+  ],
+  "reliability": [
+    {
+      "id": "REL-CHAOS-001",
+      "title": "Authentication Service Failure During Active API Access - Circuit Breaker and Graceful Degradation Validation",
+      "category": "reliability",
+      "subCategory": "Chaos Engineering - Service Failure Injection",
+      "priority": "Critical",
+      "description": "Validate system resilience when OAuth 2.0 authentication service fails during active API access attempts. Test circuit breaker activation, retry logic with exponential backoff, and graceful degradation to ensure unauthorized access is blocked while maintaining system stability. Verify MTTR compliance and steady-state recovery.",
+      "preconditions": [
+        "API endpoints are operational with OAuth 2.0 authentication configured",
+        "Role-based access control (RBAC) is implemented and functional",
+        "Circuit breaker pattern is configured with thresholds (failure rate: 50%, minimum requests: 10)",
+        "Baseline metrics established: 99.9% availability SLO, MTTR < 5 minutes",
+        "Monitoring and alerting systems are active",
+        "Load generator configured to simulate 100 concurrent authenticated users"
+      ],
+      "testCaseSteps": [
+        {
+          "Steps": 1,
+          "Action": "Establish steady-state baseline: Monitor API access success rate, authentication latency (target <2s), and error rates for 10 minutes with 100 concurrent users making authenticated API requests",
+          "Expected Results": "Baseline metrics captured: 99.9%+ success rate, <2s authentication latency, 0% error rate, all authorized requests succeed"
+        },
+        {
+          "Steps": 2,
+          "Action": "Inject chaos: Terminate OAuth 2.0 authentication service abruptly while maintaining API request load. Monitor circuit breaker state transitions and system behavior",
+          "Expected Results": "Circuit breaker detects failures and transitions to OPEN state within 10 requests. System blocks all new authentication attempts. No unauthorized access is granted. Alert triggered for authentication service failure"
+        },
+        {
+          "Steps": 3,
+          "Action": "Validate retry logic: Observe system retry attempts with exponential backoff (initial: 1s, max: 32s). Monitor for cascading failures and resource exhaustion",
+          "Expected Results": "System implements exponential backoff correctly. No cascading failures occur. CPU and memory remain within normal thresholds (<80%). All unauthorized access attempts are blocked (100% block rate maintained)"
+        },
+        {
+          "Steps": 4,
+          "Action": "Test circuit breaker half-open state: After timeout period (30s), allow limited requests through. Monitor success/failure patterns",
+          "Expected Results": "Circuit breaker transitions to HALF-OPEN state after timeout. Limited probe requests are attempted. If authentication service still unavailable, circuit breaker returns to OPEN state"
+        },
+        {
+          "Steps": 5,
+          "Action": "Restore authentication service and validate recovery: Bring OAuth 2.0 service back online. Monitor MTTR, circuit breaker state transition to CLOSED, and return to steady state",
+          "Expected Results": "Authentication service recovers successfully. Circuit breaker detects successful requests and transitions to CLOSED state. System returns to steady state within MTTR target (<5 minutes). 100% of unauthorized access attempts blocked throughout entire test. Access verification latency returns to <2s"
+        }
+      ],
+      "postconditions": [
+        "Authentication service is fully operational",
+        "Circuit breaker is in CLOSED state",
+        "All monitoring alerts are resolved",
+        "System has returned to baseline performance metrics",
+        "Incident logs captured for post-mortem analysis",
+        "Zero unauthorized access occurred during failure period"
+      ],
+      "testData": "100 test user accounts with varying roles (Admin: 10, Manager: 30, Employee: 60), API endpoints: /api/payroll/data, /api/employee/records, /api/admin/settings",
+      "toolsRequired": [
+        "Chaos Mesh or Gremlin for service failure injection",
+        "JMeter or Gatling for load generation",
+        "Prometheus + Grafana for metrics monitoring",
+        "ELK Stack for log analysis",
+        "Circuit breaker monitoring dashboard"
+      ],
+      "estimatedTime": "90 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9,
+      "complianceTag": "SOC2-CC7.2, MTTR-SLO, Availability-99.9%"
+    },
+    {
+      "id": "REL-DEP-002",
+      "title": "Database Connection Pool Exhaustion and Network Partition - Data Integrity and Transaction Rollback Validation",
+      "category": "reliability",
+      "subCategory": "Dependency Resilience - Database Failure",
+      "priority": "Critical",
+      "description": "Test system behavior when database connection pool is exhausted and network partition occurs during role permission validation and access logging operations. Validate transaction rollback mechanisms, data consistency, RPO/RTO compliance, and ensure no unauthorized access is granted during database unavailability.",
+      "preconditions": [
+        "Database cluster is operational with replication configured",
+        "Connection pool configured with max connections: 50, timeout: 5s",
+        "Transaction logging enabled for all API access attempts",
+        "RPO target: 1 minute, RTO target: 5 minutes",
+        "Database backup completed within last hour",
+        "50 concurrent users actively accessing API endpoints"
+      ],
+      "testCaseSteps": [
+        {
+          "Steps": 1,
+          "Action": "Establish baseline: Monitor database connection pool utilization, query latency, transaction success rate, and access logging completeness for 5 minutes",
+          "Expected Results": "Baseline established: Connection pool at 60% utilization, query latency <500ms, 100% transaction success rate, all access attempts logged successfully"
+        },
+        {
+          "Steps": 2,
+          "Action": "Inject failure: Exhaust database connection pool by creating 50+ concurrent long-running queries. Simultaneously inject network latency (500ms) between API service and database",
+          "Expected Results": "Connection pool reaches 100% utilization. New connection requests timeout after 5s. System queues requests and does not grant access without permission validation. Error responses returned with appropriate HTTP 503 status codes"
+        },
+        {
+          "Steps": 3,
+          "Action": "Escalate chaos: Introduce network partition between primary database and API service. Attempt API access requests requiring role validation and logging",
+          "Expected Results": "System detects database unavailability. All API access requests are denied (fail-secure behavior). No unauthorized access granted. Transactions are not committed. Alert triggered for database connectivity failure"
+        },
+        {
+          "Steps": 4,
+          "Action": "Validate transaction rollback: Verify that incomplete transactions (permission checks, access logs) are rolled back. Check for orphaned records or inconsistent state",
+          "Expected Results": "All incomplete transactions successfully rolled back. No partial data commits. Database maintains ACID properties. No orphaned access logs or permission grants. Data integrity maintained at 100%"
+        },
+        {
+          "Steps": 5,
+          "Action": "Restore database connectivity and validate recovery: Remove network partition, release connection pool. Monitor automatic failover to replica, RTO/RPO compliance, and data synchronization",
+          "Expected Results": "System automatically fails over to database replica within RTO (<5 minutes). Connection pool recovers to normal utilization. Data loss is within RPO (<1 minute). All queued legitimate requests are processed with correct authorization. Access logging resumes with no gaps. 100% unauthorized access block rate maintained throughout failure"
+        }
+      ],
+      "postconditions": [
+        "Database connectivity fully restored to primary and replica",
+        "Connection pool utilization returned to normal levels (<70%)",
+        "All transactions completed or rolled back cleanly",
+        "Access logs are complete and consistent",
+        "No data corruption or integrity issues detected",
+        "RTO and RPO targets met and documented"
+      ],
+      "testData": "50 concurrent API requests with mixed operations: permission validation (30%), access logging (40%), data retrieval (30%). Test accounts spanning all role types",
+      "toolsRequired": [
+        "Toxiproxy or Pumba for network partition injection",
+        "Database connection pool monitoring tools",
+        "Transaction log analyzer",
+        "Data integrity validation scripts",
+        "Database replication monitoring dashboard"
+      ],
+      "estimatedTime": "120 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 10,
+      "complianceTag": "SOC2-CC7.2, PCI-DSS-6.5.5, RTO-5min, RPO-1min"
+    },
+    {
+      "id": "REL-HA-003",
+      "title": "Multi-Region Load Balancer Failover with Encryption Service Degradation - Zero Data Loss and Availability Validation",
+      "category": "reliability",
+      "subCategory": "High Availability - Failover Testing",
+      "priority": "Critical",
+      "description": "Validate automatic failover mechanisms when primary region load balancer fails while data encryption service experiences degraded performance. Test zero data loss during failover, continuous blocking of unauthorized access, encryption key availability, and compliance with 99.9% availability SLO and MTBF targets.",
+      "preconditions": [
+        "Multi-region deployment active (Primary: Region A, Secondary: Region B)",
+        "Load balancer health checks configured (interval: 10s, threshold: 3 failures)",
+        "TLS 1.3 encryption configured for data in transit",
+        "Key management service (KMS) operational in both regions",
+        "Availability SLO: 99.9% (max downtime: 43.2 minutes/month)",
+        "MTBF target: 720 hours (30 days)",
+        "200 concurrent users distributed across regions"
+      ],
+      "testCaseSteps": [
+        {
+          "Steps": 1,
+          "Action": "Establish steady state: Monitor load balancer health, request distribution (Primary: 70%, Secondary: 30%), encryption/decryption latency, and successful authorization rate across both regions for 10 minutes",
+          "Expected Results": "Steady state confirmed: Load balanced correctly, encryption latency <100ms, 100% authorization success rate for valid users, 100% block rate for unauthorized attempts, zero failed requests"
+        },
+        {
+          "Steps": 2,
+          "Action": "Inject cascading failure: Terminate primary region load balancer abruptly. Simultaneously inject 80% performance degradation to encryption service (increase latency from 100ms to 500ms)",
+          "Expected Results": "Health checks detect load balancer failure within 30s (3 failed checks). Automatic failover initiated to secondary region. No requests are dropped during transition. Encryption service degradation detected but continues processing"
+        },
+        {
+          "Steps": 3,
+          "Action": "Validate failover behavior: Monitor request routing, session persistence, authorization continuity, and encryption key availability during transition. Attempt unauthorized access during failover window",
+          "Expected Results": "100% of traffic automatically routed to secondary region within 45s. Session state preserved or gracefully re-established. All unauthorized access attempts blocked (100% block rate maintained). Encryption keys successfully retrieved from secondary KMS. No plaintext data exposed"
+        },
+        {
+          "Steps": 4,
+          "Action": "Stress test secondary region: Increase load to 200 concurrent users on secondary region while encryption service remains degraded. Monitor access verification latency and authorization accuracy",
+          "Expected Results": "Secondary region handles full load successfully. Access verification completes within degraded SLA (<5s, acceptable during incident). Authorization decisions remain accurate (100% correct allow/deny). No unauthorized access granted despite degraded performance. System remains stable without cascading failures"
+        },
+        {
+          "Steps": 5,
+          "Action": "Restore services and validate recovery: Restore primary load balancer and encryption service to full performance. Monitor automatic rebalancing, MTTR measurement, and return to steady state",
+          "Expected Results": "Primary load balancer restored and passes health checks. Traffic gradually rebalances to optimal distribution (70/30). Encryption service returns to <100ms latency. Total downtime <5 minutes (within MTTR target). Zero data loss confirmed. Availability SLO maintained (>99.9%). All security controls remained effective throughout incident"
+        }
+      ],
+      "postconditions": [
+        "Both regions operational and load balanced correctly",
+        "Encryption service performing at baseline levels",
+        "All security controls verified functional",
+        "Zero unauthorized access occurred during entire test",
+        "Availability metrics calculated and documented",
+        "Failover event logged for MTBF tracking",
+        "Post-incident review data collected"
+      ],
+      "testData": "200 user sessions with active API requests, mix of read (60%) and write (40%) operations, sensitive payroll data requiring encryption, unauthorized access attempts: 50 during failover window",
+      "toolsRequired": [
+        "Multi-region load balancer (AWS ALB, Azure Load Balancer, or GCP Load Balancer)",
+        "Chaos engineering platform with region-level failure injection",
+        "Encryption service monitoring tools",
+        "Distributed tracing system (Jaeger, Zipkin)",
+        "Real-time availability dashboard",
+        "Session state validation scripts"
+      ],
+      "estimatedTime": "150 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 10,
+      "complianceTag": "SOC2-CC9.1, HIPAA-164.312(e)(1), Availability-99.9%, MTBF-720h"
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true,
+    "performance": true,
+    "security": true,
+    "usability": true,
+    "reliability": true
+  },
+  "userStoryObject": {
+    "id": "ado-16591",
+    "title": "As System Administrator, I want to ensure secure access to API endpoints to achieve data protection",
+    "description": "<div><strong>CONTEXT &amp; BACKGROUND:</strong><br><br>This story focuses on the security measures necessary for protecting sensitive employee and payroll data.<br><br><strong>CURRENT STATE:</strong><br><br>Existing API endpoints lack robust security measures, exposing data to potential threats.<br><br><strong>DESIRED STATE:</strong><br><br>Implementing secure access controls will protect sensitive data from unauthorized access.<br><br><strong>KEY FUNCTIONALITY:</strong><br><br><ul><li>Role-based access control for API endpoints </li> </ul><ul><li>Secure authentication mechanisms </li><li>Logging and monitoring of API access </li><li>Alerts for unauthorized access attempts </li><li>Data encryption in transit </li> </ul><br><br><strong>USER INTERACTION FLOW:</strong><br><br><ol><li>User configures access control settings for APIs. </li><li>System implements role-based permissions. </li><li>User attempts to access endpoints. </li><li>System verifies user permissions. </li><li>User receives feedback on access status. </li> </ol><br><br><strong>TECHNICAL CONSIDERATIONS:</strong><br><br><ul><li>Data source: Security protocols for API endpoints </li><li>Validation rules: Role permissions validation </li><li>Security: OAuth </li> </ul>2.0 and data encryption<ul><li>Performance: Access verification under 2 seconds. </li> </ul><br><br><strong>OUT OF SCOPE:</strong><br><br><ul><li>Unauthenticated access attempts. </li> </ul><br><br><strong>SUCCESS METRICS:</strong><br><br><ul><li>100% of unauthorized access attempts are blocked. </li><li>Access verification completed within 2 seconds. </li> </ul> </div><br><div><strong>Persona:</strong> System Administrator (System Administrator) </div>",
+    "acceptanceCriteria": "<div><strong>Criteria 1:</strong> System implements role-based access control for all API endpoints. </div><br><div><strong>Criteria 2:</strong> All unauthorized access attempts are logged and reported. </div><br><div><strong>Criteria 3:</strong> User permissions are verified successfully before granting access. </div><br>",
+    "adoWorkItemId": 16591,
+    "state": "New",
+    "assignedTo": "Unassigned",
+    "createdDate": "2026-02-05T05:27:27.157Z",
+    "priority": 2,
+    "storyPoints": 5,
+    "tags": "",
+    "epicId": "epic-16185",
+    "featureId": "feature-16215",
+    "source": "ado",
+    "adoUrl": "https://dev.azure.com/QS001/Venus/_workitems/edit/16591"
+  }
+}
