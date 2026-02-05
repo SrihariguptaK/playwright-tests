@@ -1,0 +1,1956 @@
+{
+  "storyId": "ado-16596",
+  "storyTitle": "As Compliance Officer, I want to monitor data access logs to achieve regulatory compliance",
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify Compliance Officer can successfully view all data access logs without filters",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Compliance Officer with valid credentials",
+        "Access logs database contains at least 50 log entries from the past 30 days",
+        "User has 'View Access Logs' permission enabled",
+        "Browser is Chrome version 90 or higher"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the main dashboard and click on 'Data Access Logs' menu item in the left navigation panel",
+          "expectedResult": "Data Access Logs page loads successfully within 3 seconds, displaying the log table with columns: Timestamp, User ID, Action Type, Resource Accessed, IP Address, Status"
+        },
+        {
+          "step": 2,
+          "action": "Observe the default view of access logs without applying any filters",
+          "expectedResult": "System displays logs in descending chronological order (newest first), showing 25 entries per page with pagination controls at the bottom"
+        },
+        {
+          "step": 3,
+          "action": "Verify each log entry contains complete information in all columns",
+          "expectedResult": "All log entries display complete data: valid timestamps in 'YYYY-MM-DD HH:MM:SS' format, user identifiers, action types (READ/WRITE/DELETE/UPDATE), resource names, IP addresses in valid format, and status indicators (Success/Failed)"
+        },
+        {
+          "step": 4,
+          "action": "Click on the 'Next Page' button in pagination controls",
+          "expectedResult": "Next 25 log entries load within 3 seconds, page counter updates to show 'Page 2 of X', and scroll position returns to top of table"
+        },
+        {
+          "step": 5,
+          "action": "Verify the page load time indicator or browser network tab",
+          "expectedResult": "Log retrieval and display completes within 3 seconds as indicated by performance metrics or network timing"
+        }
+      ],
+      "postconditions": [
+        "User remains on Data Access Logs page with logs displayed",
+        "No errors are logged in browser console or application error logs",
+        "Session remains active and user is still authenticated",
+        "Database connection is properly closed after query execution"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify Compliance Officer can filter access logs by date range and retrieve results within performance requirements",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "User is on the Data Access Logs page",
+        "Access logs database contains entries spanning at least 90 days",
+        "Date range filter controls are visible and enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on the 'Start Date' calendar input field in the filter panel at the top of the page",
+          "expectedResult": "Calendar picker opens displaying current month with selectable dates, today's date is highlighted"
+        },
+        {
+          "step": 2,
+          "action": "Select a start date 30 days in the past from today's date",
+          "expectedResult": "Selected date appears in 'Start Date' field in format 'MM/DD/YYYY', calendar picker closes automatically"
+        },
+        {
+          "step": 3,
+          "action": "Click on the 'End Date' calendar input field",
+          "expectedResult": "Calendar picker opens with dates before the start date disabled/grayed out"
+        },
+        {
+          "step": 4,
+          "action": "Select today's date as the end date",
+          "expectedResult": "Selected date appears in 'End Date' field, calendar picker closes"
+        },
+        {
+          "step": 5,
+          "action": "Click the 'Apply Filters' button with blue background in the filter panel",
+          "expectedResult": "Loading spinner appears, system retrieves filtered logs within 3 seconds, table updates to show only logs within the selected date range, result count displays 'Showing X results for selected date range'"
+        },
+        {
+          "step": 6,
+          "action": "Verify the first and last log entries in the filtered results",
+          "expectedResult": "All displayed log entries have timestamps within the selected date range (between start date 00:00:00 and end date 23:59:59)"
+        }
+      ],
+      "postconditions": [
+        "Filtered logs are displayed matching the selected date range criteria",
+        "Filter selections remain visible in the filter panel for reference",
+        "Performance metric confirms retrieval completed within 3 seconds",
+        "User can clear filters or apply additional filters without page reload"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify Compliance Officer can filter logs by user ID and action type to identify specific access patterns",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "User is on the Data Access Logs page with unfiltered logs displayed",
+        "Test data includes logs for user 'user12345' with multiple action types",
+        "Filter panel contains 'User ID' text input and 'Action Type' dropdown"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter 'user12345' in the 'User ID' text input field in the filter panel",
+          "expectedResult": "Text appears in the input field as typed, no auto-submit occurs"
+        },
+        {
+          "step": 2,
+          "action": "Click on the 'Action Type' dropdown menu",
+          "expectedResult": "Dropdown expands showing options: 'All', 'READ', 'WRITE', 'DELETE', 'UPDATE' with 'All' currently selected"
+        },
+        {
+          "step": 3,
+          "action": "Select 'READ' from the Action Type dropdown",
+          "expectedResult": "Dropdown closes, 'READ' is now displayed in the dropdown field"
+        },
+        {
+          "step": 4,
+          "action": "Click the 'Apply Filters' button",
+          "expectedResult": "System retrieves and displays logs within 3 seconds showing only entries where User ID is 'user12345' AND Action Type is 'READ', result count updates to show number of matching entries"
+        },
+        {
+          "step": 5,
+          "action": "Scroll through the filtered results and verify each entry",
+          "expectedResult": "All displayed log entries show User ID as 'user12345' and Action Type as 'READ', no entries with different user IDs or action types are visible"
+        }
+      ],
+      "postconditions": [
+        "Filtered results accurately reflect the combined filter criteria",
+        "Filter values remain in the filter panel for user reference",
+        "User can export or generate reports based on these filtered results",
+        "Original unfiltered data remains unchanged in the database"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify Compliance Officer can view complete audit trail details for a specific access log entry",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "Data Access Logs page is displayed with at least 10 log entries visible",
+        "Each log entry has an 'View Details' or expand icon in the Actions column",
+        "Test log entry 'LOG-2024-001' exists with complete audit trail information"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Locate log entry 'LOG-2024-001' in the access logs table",
+          "expectedResult": "Log entry is visible in the table with basic information displayed in row format"
+        },
+        {
+          "step": 2,
+          "action": "Click on the 'View Details' icon (eye icon) in the Actions column for log entry 'LOG-2024-001'",
+          "expectedResult": "Modal dialog or expandable panel opens displaying detailed audit trail information within 1 second"
+        },
+        {
+          "step": 3,
+          "action": "Review the detailed audit trail information displayed",
+          "expectedResult": "Details panel shows: Full timestamp with milliseconds, User ID and User Name, Action Type with description, Resource Accessed with full path, IP Address and Geolocation, Browser/User Agent information, Session ID, Request Method, Response Status Code, Data Modified (if applicable), Previous Value and New Value (for UPDATE actions)"
+        },
+        {
+          "step": 4,
+          "action": "Verify the completeness and accuracy of the audit trail data",
+          "expectedResult": "All fields contain valid data with no 'null' or 'undefined' values, timestamps are consistent, and data integrity checks pass (indicated by green checkmark or 'Verified' status)"
+        },
+        {
+          "step": 5,
+          "action": "Click the 'Close' or 'X' button on the details panel",
+          "expectedResult": "Details panel closes smoothly, user returns to the main logs table view with the same scroll position maintained"
+        }
+      ],
+      "postconditions": [
+        "User has successfully viewed complete audit trail for the selected log entry",
+        "Audit trail viewing action itself is logged in the system",
+        "Details panel can be reopened for the same or different log entries",
+        "No data modifications occurred during the view operation"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify Compliance Officer receives alerts for suspicious access patterns detected in logs",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "Alert system is configured with rules for suspicious patterns (e.g., multiple failed login attempts, access from unusual locations)",
+        "Test data includes log entries that trigger suspicious pattern alerts",
+        "User is on the Data Access Logs page",
+        "Notification panel or alert icon is visible in the top navigation bar"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Observe the notification icon (bell icon) in the top-right corner of the page",
+          "expectedResult": "Notification icon displays a red badge with number '3' indicating 3 unread alerts"
+        },
+        {
+          "step": 2,
+          "action": "Click on the notification icon",
+          "expectedResult": "Notification dropdown panel opens displaying list of 3 alerts with titles: 'Multiple Failed Login Attempts Detected', 'Unusual Access Location', 'High Volume Data Export', each with timestamp and severity indicator (High/Medium/Low)"
+        },
+        {
+          "step": 3,
+          "action": "Click on the first alert 'Multiple Failed Login Attempts Detected'",
+          "expectedResult": "Alert details expand showing: User ID 'user67890', 5 failed login attempts within 10 minutes, timestamps of attempts, IP address '192.168.1.100', recommended action 'Review and potentially lock account', and 'View Related Logs' button"
+        },
+        {
+          "step": 4,
+          "action": "Click the 'View Related Logs' button within the alert details",
+          "expectedResult": "Notification panel closes, main logs table automatically filters to show only the 5 related log entries for user 'user67890' with failed login attempts, entries are highlighted in yellow for visibility"
+        },
+        {
+          "step": 5,
+          "action": "Return to notifications and click 'Mark All as Read' button at the bottom of the notification panel",
+          "expectedResult": "All alerts are marked as read, red badge on notification icon disappears, alerts remain in notification history but are no longer highlighted as unread"
+        }
+      ],
+      "postconditions": [
+        "Compliance Officer has been successfully alerted to suspicious access patterns",
+        "Related logs are easily accessible from alert notifications",
+        "Alert acknowledgment is recorded in the system audit trail",
+        "Alerts remain in history for future reference and compliance reporting"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify Compliance Officer can generate and download compliance reports from access logs",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "User is on the Data Access Logs page with filtered or unfiltered logs displayed",
+        "Report generation functionality is available via 'Generate Report' button",
+        "System has access to report generation service",
+        "At least 100 log entries exist for meaningful report generation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Apply date range filter for the last 30 days using the filter panel",
+          "expectedResult": "Logs are filtered to show only entries from the last 30 days, result count displays number of matching entries"
+        },
+        {
+          "step": 2,
+          "action": "Click the 'Generate Report' button located in the top-right corner of the page",
+          "expectedResult": "Report configuration modal opens with options: Report Type (Summary/Detailed/Compliance Audit), Format (PDF/Excel/CSV), Include Charts (Yes/No), Date Range (pre-filled with current filter), and 'Generate' and 'Cancel' buttons"
+        },
+        {
+          "step": 3,
+          "action": "Select 'Compliance Audit' as Report Type, 'PDF' as Format, and 'Yes' for Include Charts",
+          "expectedResult": "Selected options are highlighted, preview text shows 'Compliance Audit Report will include: Access summary, User activity breakdown, Suspicious activity alerts, Compliance metrics, Visual charts and graphs'"
+        },
+        {
+          "step": 4,
+          "action": "Click the 'Generate' button in the modal",
+          "expectedResult": "Modal shows progress indicator 'Generating report... 0%', progress updates to 100% within 10 seconds, success message 'Report generated successfully' appears with 'Download' button"
+        },
+        {
+          "step": 5,
+          "action": "Click the 'Download' button",
+          "expectedResult": "PDF file 'Compliance_Audit_Report_YYYY-MM-DD.pdf' downloads to default downloads folder, file size is appropriate (500KB-5MB), modal closes automatically"
+        },
+        {
+          "step": 6,
+          "action": "Open the downloaded PDF report",
+          "expectedResult": "Report opens successfully showing: Cover page with report title and date range, Table of contents, Executive summary, Detailed access logs table, User activity charts, Suspicious activity section, Compliance metrics (100% logging accuracy, average retrieval time), and footer with generation timestamp and Compliance Officer name"
+        }
+      ],
+      "postconditions": [
+        "Compliance report is successfully generated and downloaded",
+        "Report contains accurate data matching the filtered log entries",
+        "Report generation action is logged in the audit trail",
+        "Generated report is stored in system for 90 days for re-download if needed",
+        "User can generate additional reports with different parameters"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify system handles unauthorized access attempt to Data Access Logs page by non-Compliance Officer user",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with 'Standard User' role without 'View Access Logs' permission",
+        "User is on the main dashboard",
+        "Access control is properly configured to restrict log viewing",
+        "Data Access Logs page URL is known: '/compliance/access-logs'"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to navigate to Data Access Logs by clicking on 'Data Access Logs' menu item (if visible) or by directly entering URL '/compliance/access-logs' in browser address bar",
+          "expectedResult": "System immediately redirects to 'Access Denied' page or displays error modal with message 'Access Denied: You do not have permission to view access logs. Contact your administrator for access.', HTTP 403 Forbidden status is returned"
+        },
+        {
+          "step": 2,
+          "action": "Verify the user's current location and available options",
+          "expectedResult": "User remains on dashboard or Access Denied page, Data Access Logs content is not displayed, no log data is visible in page source or network responses"
+        },
+        {
+          "step": 3,
+          "action": "Check browser console and network tab for any data leakage",
+          "expectedResult": "No access log data is returned in API responses, console shows authorization error, no sensitive information is exposed in error messages"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to access the logs API endpoint directly using browser developer tools or API client with current session token",
+          "expectedResult": "API returns 403 Forbidden status with JSON response: {\"error\": \"Insufficient permissions\", \"required_role\": \"Compliance Officer\"}, no log data is returned"
+        }
+      ],
+      "postconditions": [
+        "Unauthorized access attempt is logged in security audit trail with user ID, timestamp, and attempted resource",
+        "User's session remains active but access to logs is denied",
+        "Security team is notified of unauthorized access attempt if configured",
+        "No data breach or information leakage occurred"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify system handles invalid date range filter inputs and displays appropriate error messages",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "User is on the Data Access Logs page",
+        "Date range filter controls are visible and enabled",
+        "No filters are currently applied"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on 'Start Date' field and manually type invalid date '99/99/9999' instead of using calendar picker",
+          "expectedResult": "Field validation triggers immediately on blur, red border appears around the field, error message 'Invalid date format. Please use MM/DD/YYYY' displays below the field"
+        },
+        {
+          "step": 2,
+          "action": "Clear the Start Date field and select a valid start date of '01/15/2024', then select an End Date of '01/10/2024' (before start date)",
+          "expectedResult": "When End Date is selected, validation error appears: 'End date must be after start date', End Date field shows red border, 'Apply Filters' button is disabled"
+        },
+        {
+          "step": 3,
+          "action": "Correct the End Date to '01/20/2024' and then change Start Date to a future date '12/31/2025'",
+          "expectedResult": "Validation error displays: 'Start date cannot be in the future', Start Date field shows red border, 'Apply Filters' button remains disabled"
+        },
+        {
+          "step": 4,
+          "action": "Set Start Date to '01/01/2020' and End Date to '12/31/2024' (date range exceeding 2 years if system has limit)",
+          "expectedResult": "Warning message appears: 'Date range exceeds maximum allowed period of 1 year. Please select a shorter range for optimal performance', 'Apply Filters' button shows warning icon but may remain enabled with confirmation"
+        },
+        {
+          "step": 5,
+          "action": "Clear both date fields completely and click 'Apply Filters' button",
+          "expectedResult": "Validation error displays: 'Please select both start and end dates', both date fields show red borders, no API call is made, logs table remains unchanged"
+        }
+      ],
+      "postconditions": [
+        "No invalid filter queries are sent to the database",
+        "User is clearly informed of validation errors with specific guidance",
+        "System remains stable with no crashes or unexpected behavior",
+        "User can correct errors and successfully apply valid filters"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify system handles database connection failure during log retrieval gracefully",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "User is on the Data Access Logs page",
+        "Test environment allows simulation of database connection failure",
+        "Database connection can be temporarily disabled for testing"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Simulate database connection failure (disconnect database or block database port)",
+          "expectedResult": "Database connection is unavailable for testing purposes"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Refresh' button or apply any filter to trigger log retrieval",
+          "expectedResult": "Loading spinner appears briefly, after timeout period (max 10 seconds), error message displays: 'Unable to retrieve access logs. Database connection failed. Please try again later or contact support if the issue persists.', error icon (red exclamation) is shown"
+        },
+        {
+          "step": 3,
+          "action": "Verify the logs table state",
+          "expectedResult": "Logs table shows empty state with message 'No logs available due to connection error', no partial or stale data is displayed, previous data (if any) is cleared"
+        },
+        {
+          "step": 4,
+          "action": "Check browser console for error details",
+          "expectedResult": "Console shows appropriate error logging without exposing sensitive database connection strings or credentials, error code and timestamp are logged for debugging"
+        },
+        {
+          "step": 5,
+          "action": "Restore database connection and click 'Retry' button or refresh the page",
+          "expectedResult": "System successfully reconnects to database, logs are retrieved and displayed within 3 seconds, error message disappears, normal functionality is restored"
+        }
+      ],
+      "postconditions": [
+        "System gracefully handles database failure without crashing",
+        "User is informed of the issue with clear error messaging",
+        "No sensitive technical details are exposed to the user",
+        "Database connection failure is logged in system error logs for administrator review",
+        "System recovers automatically when connection is restored"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify system handles SQL injection attempts in User ID filter field",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "User is on the Data Access Logs page",
+        "User ID filter field is available and accepts text input",
+        "System has SQL injection protection mechanisms in place"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter SQL injection payload \"' OR '1'='1\" in the User ID filter field",
+          "expectedResult": "Input is accepted in the field as plain text"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Apply Filters' button",
+          "expectedResult": "System treats the input as literal string search value, not as SQL code, either returns no results (if no user ID matches that exact string) or returns error 'Invalid User ID format', no database error occurs, no unauthorized data is returned"
+        },
+        {
+          "step": 3,
+          "action": "Clear the field and enter another SQL injection payload \"admin'--\" in User ID field",
+          "expectedResult": "Input is sanitized or parameterized, query executes safely searching for literal string \"admin'--\", no SQL syntax error occurs, no comment-based SQL injection succeeds"
+        },
+        {
+          "step": 4,
+          "action": "Enter payload \"1; DROP TABLE access_logs;--\" in User ID field and apply filter",
+          "expectedResult": "System safely handles the input, no database tables are dropped, query searches for the literal string, appropriate error or no results message is displayed, database integrity remains intact"
+        },
+        {
+          "step": 5,
+          "action": "Check application logs and database logs for any SQL errors or injection attempts",
+          "expectedResult": "Security logs show the injection attempt was detected and blocked, alert is generated for security team, user's action is logged with details of attempted payload, database shows no structural changes or unauthorized queries"
+        }
+      ],
+      "postconditions": [
+        "SQL injection attempts are successfully prevented",
+        "Database integrity is maintained with no data loss or corruption",
+        "Security incident is logged for review",
+        "User account may be flagged for suspicious activity depending on security policy",
+        "System remains functional and secure"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify system handles session timeout during log viewing and report generation",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "User is on the Data Access Logs page with logs displayed",
+        "Session timeout is set to 30 minutes of inactivity",
+        "User session can be expired for testing purposes"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Wait for session to expire (simulate by clearing session cookie or waiting for timeout period) while on the Data Access Logs page",
+          "expectedResult": "After session expires, page remains visible but session is invalid in backend"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to apply a filter or click 'Refresh' button to trigger an API call",
+          "expectedResult": "System detects expired session, displays modal overlay with message 'Your session has expired for security reasons. Please log in again to continue.', 'Log In' button is provided, all interactive elements are disabled"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to click 'Generate Report' button with expired session",
+          "expectedResult": "Same session expiration modal appears, report generation does not proceed, no API call is made with invalid session token"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Log In' button in the session expiration modal",
+          "expectedResult": "User is redirected to login page, current page URL is saved as return URL parameter, after successful login user is returned to Data Access Logs page"
+        },
+        {
+          "step": 5,
+          "action": "Log in again with valid Compliance Officer credentials",
+          "expectedResult": "Login succeeds, user is redirected back to Data Access Logs page, new session is established, page loads fresh data, user can resume normal operations"
+        }
+      ],
+      "postconditions": [
+        "Expired session is handled gracefully without data loss",
+        "User is clearly informed of session expiration",
+        "User can easily re-authenticate and continue work",
+        "No unauthorized access occurs with expired session token",
+        "Session expiration event is logged in audit trail"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify system handles report generation failure due to insufficient system resources",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "User is on the Data Access Logs page",
+        "Report generation service can be configured to fail or timeout",
+        "Large dataset of 100,000+ log entries exists for report generation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select date range covering 1 year with 100,000+ log entries",
+          "expectedResult": "Filter is applied, large number of results is indicated in result count"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Generate Report' button and select 'Detailed' report type with 'Excel' format including all charts",
+          "expectedResult": "Report configuration modal opens with selections made"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Generate' button to start report generation (simulate resource exhaustion or timeout in backend)",
+          "expectedResult": "Progress indicator starts showing 'Generating report... 15%', progress continues for a period"
+        },
+        {
+          "step": 4,
+          "action": "Wait for report generation to fail due to timeout or resource limitation (after 60 seconds)",
+          "expectedResult": "Progress stops, error message displays: 'Report generation failed due to system resource limitations. Try reducing the date range or selecting Summary report type instead of Detailed.', 'Retry' and 'Close' buttons are provided, progress indicator shows red error state"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Close' button and reduce date range to 30 days, select 'Summary' report type",
+          "expectedResult": "Modal closes, user can adjust parameters, smaller report configuration is set"
+        },
+        {
+          "step": 6,
+          "action": "Attempt report generation again with reduced parameters",
+          "expectedResult": "Report generates successfully within 10 seconds with smaller dataset, download completes successfully"
+        }
+      ],
+      "postconditions": [
+        "Report generation failure is handled gracefully with helpful error message",
+        "User is provided with actionable guidance to resolve the issue",
+        "System remains stable without crashes",
+        "Failed report generation attempt is logged for system monitoring",
+        "User can successfully generate report with adjusted parameters"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Verify system handles retrieval and display of maximum allowed log entries (10,000 records) within performance requirements",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "Database contains exactly 10,000 or more log entries for a specific date range",
+        "System has maximum result limit configured to 10,000 records",
+        "User is on the Data Access Logs page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Apply date range filter that returns exactly 10,000 log entries",
+          "expectedResult": "System displays loading indicator"
+        },
+        {
+          "step": 2,
+          "action": "Measure the time taken for log retrieval and initial page render",
+          "expectedResult": "Logs are retrieved and first page (25 entries) is displayed within 3 seconds, result count shows '10,000 results (maximum limit reached)', warning message displays: 'Maximum result limit of 10,000 records reached. Refine your filters for more specific results.'"
+        },
+        {
+          "step": 3,
+          "action": "Navigate through pagination to the last page (page 400 if 25 entries per page)",
+          "expectedResult": "Pagination works smoothly, last page loads within 3 seconds, page shows remaining entries (25 entries on page 400), no performance degradation occurs"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to export all 10,000 records by clicking 'Export to CSV' button",
+          "expectedResult": "Export process starts with progress indicator, CSV file is generated within 30 seconds, file size is appropriate (5-15MB), file contains all 10,000 records with complete data"
+        },
+        {
+          "step": 5,
+          "action": "Verify browser memory usage and system performance during large dataset handling",
+          "expectedResult": "Browser memory usage remains under 500MB, page remains responsive, no browser freezing or crashes occur, scrolling and interactions remain smooth"
+        }
+      ],
+      "postconditions": [
+        "System successfully handles maximum record limit without performance issues",
+        "User is informed when result limit is reached",
+        "All 10,000 records are accessible through pagination",
+        "Export functionality works correctly with large datasets",
+        "System performance remains within acceptable parameters"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Verify system handles empty result set when no logs match filter criteria",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "User is on the Data Access Logs page",
+        "Database contains log entries but none matching specific filter criteria",
+        "Filter for non-existent user ID 'NONEXISTENT_USER_999' is available"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter 'NONEXISTENT_USER_999' in the User ID filter field",
+          "expectedResult": "Text is entered in the field"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Apply Filters' button",
+          "expectedResult": "Loading indicator appears briefly, system completes query within 3 seconds"
+        },
+        {
+          "step": 3,
+          "action": "Observe the logs table and result display",
+          "expectedResult": "Empty state is displayed with icon (empty folder or magnifying glass), message reads: 'No access logs found matching your filter criteria', sub-message: 'Try adjusting your filters or clearing them to see all logs', 'Clear Filters' button is prominently displayed, result count shows '0 results'"
+        },
+        {
+          "step": 4,
+          "action": "Verify that pagination controls are hidden or disabled",
+          "expectedResult": "Pagination controls are not displayed or are disabled/grayed out, no page numbers are shown"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to generate a report with empty result set",
+          "expectedResult": "'Generate Report' button is disabled or clicking it shows message: 'Cannot generate report with no data. Please adjust filters to include log entries.'"
+        },
+        {
+          "step": 6,
+          "action": "Click 'Clear Filters' button",
+          "expectedResult": "All filters are cleared, page reloads with all available logs displayed, result count updates to show total number of logs, empty state is replaced with data table"
+        }
+      ],
+      "postconditions": [
+        "Empty result set is handled gracefully with clear user guidance",
+        "No errors or broken UI elements appear",
+        "User can easily clear filters and return to viewing all logs",
+        "System performance is not impacted by empty results"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Verify system handles log entries with special characters, Unicode, and extremely long text values in all fields",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "Test database contains log entries with special characters: User ID 'test<script>alert(1)</script>', Resource name with Unicode '文档/Документ/مستند.pdf', and 500-character long action description",
+        "User is on the Data Access Logs page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Load the Data Access Logs page without filters to display all logs including special character entries",
+          "expectedResult": "Page loads successfully within 3 seconds, all log entries are displayed"
+        },
+        {
+          "step": 2,
+          "action": "Locate and observe the log entry with User ID containing HTML/script tags 'test<script>alert(1)</script>'",
+          "expectedResult": "User ID is displayed as plain text with HTML entities properly escaped: 'test&lt;script&gt;alert(1)&lt;/script&gt;', no JavaScript execution occurs, no XSS vulnerability is present, text is safely rendered"
+        },
+        {
+          "step": 3,
+          "action": "Locate and observe the log entry with Unicode characters in Resource name '文档/Документ/مستند.pdf'",
+          "expectedResult": "Unicode characters are displayed correctly without corruption or replacement characters, text renders properly in all scripts (Chinese, Cyrillic, Arabic), file name is fully readable"
+        },
+        {
+          "step": 4,
+          "action": "Click 'View Details' for the log entry with 500-character long action description",
+          "expectedResult": "Details modal opens, long text is displayed with proper text wrapping or scrollable container, no text overflow outside container boundaries, full text is accessible, modal remains properly sized and functional"
+        },
+        {
+          "step": 5,
+          "action": "Filter logs by entering Unicode characters '文档' in the search/filter field",
+          "expectedResult": "Filter accepts Unicode input, search executes successfully, matching log entry with Unicode resource name is returned and displayed correctly"
+        },
+        {
+          "step": 6,
+          "action": "Generate a PDF report including entries with special characters and Unicode",
+          "expectedResult": "Report generates successfully, PDF displays all special characters and Unicode correctly with proper encoding, HTML tags remain escaped in report, no formatting issues occur"
+        }
+      ],
+      "postconditions": [
+        "All special characters and Unicode are handled safely without XSS vulnerabilities",
+        "Text rendering is correct across all character sets",
+        "Long text values are displayed properly without breaking UI layout",
+        "Filtering and reporting work correctly with special characters",
+        "Data integrity is maintained for all character types"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Verify system handles concurrent access by multiple Compliance Officers viewing and filtering logs simultaneously",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Three Compliance Officer users are logged in from different browsers/sessions: User A, User B, User C",
+        "All users are on the Data Access Logs page",
+        "Database contains sufficient log entries for testing",
+        "System supports concurrent user sessions"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "User A applies date range filter for last 7 days",
+          "expectedResult": "User A sees filtered results for last 7 days within 3 seconds"
+        },
+        {
+          "step": 2,
+          "action": "Simultaneously, User B applies filter for User ID 'user123' and User C applies filter for Action Type 'DELETE'",
+          "expectedResult": "Each user sees their own filtered results independently within 3 seconds, no cross-contamination of filter results occurs, each session maintains separate filter state"
+        },
+        {
+          "step": 3,
+          "action": "User A starts generating a Compliance Audit report while User B and User C continue browsing logs",
+          "expectedResult": "Report generation for User A proceeds without affecting User B and User C's browsing experience, all users maintain responsive page performance, no session conflicts occur"
+        },
+        {
+          "step": 4,
+          "action": "All three users simultaneously click 'Refresh' button to reload logs",
+          "expectedResult": "All three users receive updated log data within 3 seconds, database handles concurrent queries without deadlocks or errors, each user's filter preferences are maintained after refresh"
+        },
+        {
+          "step": 5,
+          "action": "User B generates a report while User A and User C are viewing log details",
+          "expectedResult": "Report generation completes successfully for User B, User A and User C experience no interruption or performance degradation, system resources are properly managed across concurrent operations"
+        }
+      ],
+      "postconditions": [
+        "System successfully handles concurrent access by multiple users",
+        "Each user's session and filters remain independent and isolated",
+        "Performance remains within acceptable limits (3 seconds) for all users",
+        "No data corruption or session conflicts occur",
+        "Database connection pooling handles concurrent queries efficiently"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Verify system handles log viewing at exactly 3-second performance boundary under various network conditions",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "Network throttling tools are available for testing (Chrome DevTools or similar)",
+        "Database contains 1,000 log entries for consistent testing",
+        "User is on the Data Access Logs page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Set network throttling to 'Fast 3G' (1.6 Mbps download, 750 Kbps upload, 562ms latency) in browser developer tools",
+          "expectedResult": "Network conditions are simulated as configured"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Refresh' button to reload logs and measure load time using browser performance tools",
+          "expectedResult": "Logs load within 3 seconds even under throttled network conditions, performance metric shows load time between 2.5-3.0 seconds, page remains functional, loading indicator displays during retrieval"
+        },
+        {
+          "step": 3,
+          "action": "Apply a complex filter (date range + user ID + action type) and measure retrieval time",
+          "expectedResult": "Filtered results are returned within 3 seconds, system optimizes query to meet performance requirement, result count and data display correctly"
+        },
+        {
+          "step": 4,
+          "action": "Change network throttling to 'Slow 3G' (400 Kbps download, 400 Kbps upload, 2000ms latency)",
+          "expectedResult": "Network conditions are updated to slower speed"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to load logs under slow network conditions",
+          "expectedResult": "System may exceed 3-second target (acceptable for extremely slow networks), timeout is set to 10 seconds maximum, if load time exceeds 10 seconds, error message displays: 'Log retrieval is taking longer than expected due to network conditions. Please check your connection.', partial results may be displayed if available"
+        },
+        {
+          "step": 6,
+          "action": "Reset network to normal conditions and verify recovery",
+          "expectedResult": "With normal network, logs load within 3 seconds consistently, system performance returns to expected levels"
+        }
+      ],
+      "postconditions": [
+        "System meets 3-second performance requirement under normal and fast network conditions",
+        "Graceful degradation occurs under extremely slow network conditions",
+        "User is informed of performance issues related to network conditions",
+        "System remains functional across various network speeds",
+        "Performance metrics are logged for monitoring and optimization"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Verify complete keyboard navigation through Data Access Logs page including filters, table, and pagination",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "User is on the Data Access Logs page with logs displayed",
+        "Keyboard is the only input method being used (mouse disconnected or not used)",
+        "Page contains filter panel, logs table with 50+ entries, and pagination controls"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key repeatedly from the top of the page to navigate through all interactive elements",
+          "expectedResult": "Focus moves in logical order: Skip to main content link → Main navigation → Filter panel (Start Date → End Date → User ID → Action Type dropdown → Apply Filters button → Clear Filters button) → Logs table → First row 'View Details' button → Pagination controls → Footer links, visible focus indicator (2px solid blue outline) appears on each focused element"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to the 'Start Date' calendar field using Tab and press Enter or Space to open calendar picker",
+          "expectedResult": "Calendar picker opens, focus moves to current date, arrow keys (Up/Down/Left/Right) navigate between dates, Enter selects date, Escape closes calendar without selection, selected date is announced by screen reader"
+        },
+        {
+          "step": 3,
+          "action": "Tab to 'Action Type' dropdown and press Enter or Space to open dropdown menu",
+          "expectedResult": "Dropdown menu opens, focus moves to currently selected option, Up/Down arrow keys navigate through options ('All', 'READ', 'WRITE', 'DELETE', 'UPDATE'), Enter selects option, Escape closes dropdown, selected option is announced"
+        },
+        {
+          "step": 4,
+          "action": "Tab to 'Apply Filters' button and press Enter",
+          "expectedResult": "Filters are applied, focus remains on button or moves to results area, loading state is announced to screen readers, filtered results load and result count is announced"
+        },
+        {
+          "step": 5,
+          "action": "Tab into the logs table and navigate through rows using Tab key",
+          "expectedResult": "Focus moves to first interactive element in table (View Details button in first row), Tab continues through each row's action buttons, table navigation is logical and predictable"
+        },
+        {
+          "step": 6,
+          "action": "Press Enter on a 'View Details' button while focused",
+          "expectedResult": "Details modal opens, focus automatically moves to modal content (first focusable element or close button), Tab key cycles through modal elements only (focus is trapped in modal), Escape key closes modal and returns focus to the 'View Details' button that opened it"
+        },
+        {
+          "step": 7,
+          "action": "Navigate to pagination controls using Tab and use Enter to activate 'Next Page' button",
+          "expectedResult": "Next page loads, focus moves to first log entry or result count announcement, page change is announced to screen readers: 'Page 2 of 10 loaded', keyboard navigation continues to work on new page"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements are accessible via keyboard without requiring mouse",
+        "Focus order is logical and follows visual layout",
+        "Focus indicators are clearly visible on all elements",
+        "Focus management works correctly for modals and dynamic content",
+        "User can complete all tasks using keyboard only"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Verify screen reader compatibility and proper ARIA labels for all page elements and interactions",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "Screen reader is active (NVDA, JAWS, or VoiceOver)",
+        "User is on the Data Access Logs page",
+        "Page contains filters, data table, and interactive elements"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the Data Access Logs page and listen to page title and main heading announcement",
+          "expectedResult": "Screen reader announces: 'Data Access Logs, main heading level 1', page title in browser tab reads 'Data Access Logs - Compliance Portal', main landmark regions are announced: 'banner', 'navigation', 'main', 'contentinfo'"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to the filter panel and listen to form field announcements",
+          "expectedResult": "Screen reader announces each field with label and type: 'Start Date, date picker, edit', 'End Date, date picker, edit', 'User ID, text input, edit', 'Action Type, combo box, All selected', 'Apply Filters, button', 'Clear Filters, button', required fields are announced as 'required' if applicable"
+        },
+        {
+          "step": 3,
+          "action": "Apply a filter and listen to the result announcement",
+          "expectedResult": "Screen reader announces: 'Loading results' (via aria-live region), then 'Showing 47 results for selected filters' (via aria-live='polite' region), table region is announced: 'Access logs table, 47 rows, 6 columns'"
+        },
+        {
+          "step": 4,
+          "action": "Navigate into the data table using screen reader table navigation commands",
+          "expectedResult": "Screen reader announces: 'Table with 6 columns and 47 rows', column headers are announced: 'Timestamp, column header', 'User ID, column header', 'Action Type, column header', 'Resource Accessed, column header', 'IP Address, column header', 'Status, column header', each cell content is announced with row and column context"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to a 'View Details' button in the table and activate it",
+          "expectedResult": "Button is announced as: 'View Details for log entry from January 15, 2024, button', when activated, screen reader announces: 'Dialog opened, Log Entry Details', focus moves to modal, modal content is accessible and announced properly"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to an alert notification for suspicious activity",
+          "expectedResult": "Alert is announced immediately via aria-live='assertive': 'Alert: Multiple Failed Login Attempts Detected, High severity', alert content is accessible and properly labeled, dismiss button is announced: 'Dismiss alert, button'"
+        },
+        {
+          "step": 7,
+          "action": "Navigate to pagination controls and listen to announcements",
+          "expectedResult": "Pagination is announced: 'Pagination navigation', current page is announced: 'Current page, page 1 of 10', other page buttons are announced: 'Go to page 2, button', 'Next page, button', 'Previous page, button, disabled'"
+        }
+      ],
+      "postconditions": [
+        "All page elements have proper ARIA labels and roles",
+        "Screen reader users receive all necessary information to use the page",
+        "Dynamic content updates are announced via aria-live regions",
+        "Table structure is properly conveyed with headers and relationships",
+        "Interactive elements have descriptive accessible names"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify color contrast ratios meet WCAG 2.1 AA standards (4.5:1 for normal text, 3:1 for large text)",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is on the Data Access Logs page",
+        "Color contrast analyzer tool is available (browser extension or online tool)",
+        "Page displays various UI elements: text, buttons, links, form fields, table data, alerts"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use color contrast analyzer to check the contrast ratio of main body text (normal size, 16px) against page background",
+          "expectedResult": "Contrast ratio is at least 4.5:1, text color (e.g., #333333) against white background (#FFFFFF) provides sufficient contrast, text is easily readable"
+        },
+        {
+          "step": 2,
+          "action": "Check contrast ratio of page heading (h1, 32px) against background",
+          "expectedResult": "Contrast ratio is at least 3:1 for large text (18pt/24px or 14pt/18.5px bold), heading color provides sufficient contrast, heading is clearly visible"
+        },
+        {
+          "step": 3,
+          "action": "Check contrast ratio of primary action button ('Apply Filters' button with blue background #0066CC and white text #FFFFFF)",
+          "expectedResult": "Text contrast ratio is at least 4.5:1, button text is clearly readable against button background, button is easily identifiable"
+        },
+        {
+          "step": 4,
+          "action": "Check contrast ratio of form field labels and input borders",
+          "expectedResult": "Label text has contrast ratio of at least 4.5:1 against background, input field borders have contrast ratio of at least 3:1 against adjacent colors, placeholder text (if used) has at least 4.5:1 contrast"
+        },
+        {
+          "step": 5,
+          "action": "Check contrast ratio of table text and borders",
+          "expectedResult": "Table cell text has contrast ratio of at least 4.5:1, table borders and gridlines have contrast ratio of at least 3:1, alternating row backgrounds (if used) maintain sufficient contrast for text"
+        },
+        {
+          "step": 6,
+          "action": "Check contrast ratio of alert messages (success in green, error in red, warning in yellow)",
+          "expectedResult": "Alert text has contrast ratio of at least 4.5:1 against alert background, alert icons have contrast ratio of at least 3:1, alerts do not rely solely on color to convey meaning (icons and text labels are present)"
+        },
+        {
+          "step": 7,
+          "action": "Check contrast ratio of focus indicators on interactive elements",
+          "expectedResult": "Focus indicator (outline or border) has contrast ratio of at least 3:1 against both the focused element and adjacent background, focus indicator is clearly visible on all interactive elements"
+        }
+      ],
+      "postconditions": [
+        "All text meets WCAG 2.1 AA contrast requirements",
+        "Interactive elements have sufficient contrast for visibility",
+        "Color is not the only means of conveying information",
+        "Page is usable by users with low vision or color blindness",
+        "Focus indicators are clearly visible for keyboard navigation"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify page functionality and readability at 200% browser zoom level",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "User is on the Data Access Logs page with logs displayed",
+        "Browser zoom is set to 100% initially",
+        "Page contains all standard elements: filters, table, pagination"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Increase browser zoom to 200% using Ctrl/Cmd + Plus key or browser zoom controls",
+          "expectedResult": "Page scales to 200% zoom, all content remains visible without horizontal scrolling (or minimal horizontal scrolling is acceptable), text is larger and more readable, no content is cut off or hidden"
+        },
+        {
+          "step": 2,
+          "action": "Verify the filter panel layout and functionality at 200% zoom",
+          "expectedResult": "Filter fields stack vertically or reflow appropriately, all labels remain associated with their inputs, buttons remain fully visible and clickable, no overlapping elements occur, filter functionality works correctly"
+        },
+        {
+          "step": 3,
+          "action": "Scroll through the page vertically and verify all content is accessible",
+          "expectedResult": "Vertical scrolling works smoothly, all page sections are accessible, sticky headers (if present) remain functional, no content is obscured or unreachable"
+        },
+        {
+          "step": 4,
+          "action": "Verify the data table display and functionality at 200% zoom",
+          "expectedResult": "Table remains readable, columns may stack or horizontal scroll is provided for table only (not entire page), all table data is accessible, 'View Details' buttons remain visible and functional, table headers remain associated with data"
+        },
+        {
+          "step": 5,
+          "action": "Open a log details modal at 200% zoom",
+          "expectedResult": "Modal opens and displays correctly, modal content is readable and not cut off, modal remains centered or positioned appropriately, close button is visible and accessible, modal scrolls internally if content exceeds viewport"
+        },
+        {
+          "step": 6,
+          "action": "Test pagination controls at 200% zoom",
+          "expectedResult": "Pagination buttons are large enough to click easily (minimum 44x44 pixels touch target), page numbers are readable, pagination functionality works correctly, current page indicator is clearly visible"
+        },
+        {
+          "step": 7,
+          "action": "Generate a report at 200% zoom",
+          "expectedResult": "Report generation modal opens correctly, all form fields and buttons are accessible, report configuration options are readable, report generation completes successfully"
+        }
+      ],
+      "postconditions": [
+        "Page remains fully functional at 200% zoom",
+        "All content is accessible without loss of information or functionality",
+        "Text remains readable and properly sized",
+        "Interactive elements remain usable with appropriate touch target sizes",
+        "Layout adapts appropriately to increased zoom level"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify proper focus management and no keyboard traps throughout the page and modal interactions",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "User is on the Data Access Logs page",
+        "Keyboard is the only input method being used",
+        "Page contains modals, dropdowns, and dynamic content"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Tab through all page elements from top to bottom without interacting",
+          "expectedResult": "Focus moves through all interactive elements in logical order, focus never gets stuck on any element (no keyboard trap), Tab key always moves focus forward, Shift+Tab always moves focus backward, focus eventually reaches the last element and cycles back to first (or stops at last)"
+        },
+        {
+          "step": 2,
+          "action": "Open the Action Type dropdown using Enter key and navigate options with arrow keys",
+          "expectedResult": "Dropdown opens, focus moves to selected option, Up/Down arrows navigate options, focus stays within dropdown options, Enter selects and closes dropdown returning focus to dropdown trigger, Escape closes dropdown without selection and returns focus to trigger, no keyboard trap occurs"
+        },
+        {
+          "step": 3,
+          "action": "Open a log details modal by pressing Enter on 'View Details' button",
+          "expectedResult": "Modal opens, focus automatically moves to first focusable element in modal (close button or first interactive element), Tab key cycles through modal elements only (focus is trapped within modal intentionally), Shift+Tab cycles backward through modal elements, focus never escapes modal while it's open"
+        },
+        {
+          "step": 4,
+          "action": "Press Escape key while modal is open",
+          "expectedResult": "Modal closes immediately, focus returns to the 'View Details' button that opened the modal, user can continue tabbing from that point, no focus is lost"
+        },
+        {
+          "step": 5,
+          "action": "Close modal using the 'X' close button with Enter key",
+          "expectedResult": "Modal closes, focus returns to the 'View Details' button that opened the modal, focus management is consistent regardless of close method"
+        },
+        {
+          "step": 6,
+          "action": "Apply filters and verify focus management when content updates dynamically",
+          "expectedResult": "After applying filters, focus moves to results area or remains on 'Apply Filters' button, screen reader announces results update, user can continue keyboard navigation from a logical point, no focus is lost during dynamic content update"
+        },
+        {
+          "step": 7,
+          "action": "Navigate to pagination and change pages using keyboard",
+          "expectedResult": "After page change, focus moves to first log entry or result count, user is not forced to tab through entire page again, focus management facilitates efficient navigation, no keyboard trap occurs during pagination"
+        }
+      ],
+      "postconditions": [
+        "No keyboard traps exist anywhere on the page",
+        "Focus management is logical and predictable",
+        "Focus is properly managed during dynamic content updates",
+        "Modal focus trapping works correctly and releases properly",
+        "Users can navigate efficiently using keyboard only"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "Verify mobile accessibility including touch target sizes and gesture alternatives",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Compliance Officer on mobile device or mobile emulator",
+        "Device screen size is 375x667 pixels (iPhone SE) or similar small mobile screen",
+        "User is on the Data Access Logs page",
+        "Touch is the primary input method"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Verify all interactive elements (buttons, links, form fields) have adequate touch target sizes",
+          "expectedResult": "All touch targets are at least 44x44 pixels (iOS) or 48x48 pixels (Android) in size, buttons like 'Apply Filters', 'View Details', pagination controls are easily tappable, adequate spacing exists between adjacent touch targets (at least 8 pixels), no accidental taps occur due to small or crowded targets"
+        },
+        {
+          "step": 2,
+          "action": "Test the date picker on mobile by tapping the Start Date field",
+          "expectedResult": "Native mobile date picker opens (or custom picker optimized for touch), date selection is easy with touch, selected date is clearly indicated, picker closes after selection, no pinch-zoom is required to use the picker"
+        },
+        {
+          "step": 3,
+          "action": "Test the Action Type dropdown on mobile",
+          "expectedResult": "Dropdown opens in mobile-optimized format (native select or touch-friendly custom dropdown), options are large enough to tap easily (minimum 44px height), selected option is clearly indicated, dropdown closes after selection"
+        },
+        {
+          "step": 4,
+          "action": "Scroll through the logs table on mobile device",
+          "expectedResult": "Table is responsive and scrolls horizontally if needed (with scroll indicator), or columns stack vertically for mobile view, scrolling is smooth without lag, all data remains accessible, pinch-to-zoom works if needed for small text"
+        },
+        {
+          "step": 5,
+          "action": "Tap 'View Details' button for a log entry on mobile",
+          "expectedResult": "Modal opens in mobile-optimized format (full screen or large overlay), modal content is readable without zooming, close button is large and easy to tap (top-right corner, minimum 44x44px), modal scrolls vertically if content is long, swipe-down gesture to close works (if implemented)"
+        },
+        {
+          "step": 6,
+          "action": "Test pagination controls on mobile",
+          "expectedResult": "Pagination buttons are large enough for touch (minimum 44x44px), adequate spacing between page numbers prevents mis-taps, current page is clearly indicated with sufficient contrast, 'Previous' and 'Next' buttons are easily accessible"
+        },
+        {
+          "step": 7,
+          "action": "Verify page works in both portrait and landscape orientations",
+          "expectedResult": "Page layout adapts to orientation change, all content remains accessible in both orientations, no functionality is lost, touch targets remain adequately sized, orientation change doesn't cause data loss or unexpected behavior"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements meet minimum touch target size requirements",
+        "Page is fully functional on mobile devices",
+        "No pinch-zoom is required for basic interactions",
+        "Mobile-specific input methods (native pickers) are utilized",
+        "Page works correctly in both portrait and landscape orientations"
+      ]
+    }
+  ],
+  "performance": [
+    {
+      "id": "PERF-LOAD-001",
+      "title": "Concurrent User Load Testing for Access Log Retrieval with Filters",
+      "category": "performance",
+      "subCategory": "Load Testing",
+      "priority": "Critical",
+      "description": "Validate system performance when multiple compliance officers simultaneously retrieve and filter access logs under normal and peak load conditions. Ensure log retrieval meets the 3-second SLA requirement and system maintains stability with acceptable resource utilization.",
+      "preconditions": [
+        "Access logs database populated with minimum 1 million log entries spanning 90 days",
+        "Test environment configured to match production specifications",
+        "Load testing tool (JMeter/LoadRunner) configured and calibrated",
+        "Monitoring tools active for CPU, memory, database connections, and network metrics",
+        "Baseline performance metrics established"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure load test with 50 concurrent users (normal load) accessing the data access logs page and applying various filters (date range, user ID, resource type)",
+          "expectedResult": "Test environment initialized successfully with 50 virtual users ready"
+        },
+        {
+          "step": 2,
+          "action": "Execute 15-minute load test with users performing log retrieval operations every 30 seconds with random filter combinations",
+          "expectedResult": "P95 response time ≤ 3 seconds, P99 response time ≤ 4 seconds, 0% error rate, throughput ≥ 100 requests/second"
+        },
+        {
+          "step": 3,
+          "action": "Increase load to 200 concurrent users (peak load) and execute for 20 minutes with same user behavior pattern",
+          "expectedResult": "P95 response time ≤ 3 seconds, P99 response time ≤ 5 seconds, error rate < 0.1%, throughput ≥ 350 requests/second"
+        },
+        {
+          "step": 4,
+          "action": "Monitor and record CPU utilization, memory consumption, database connection pool usage, and network I/O throughout test execution",
+          "expectedResult": "CPU utilization < 75%, memory usage < 80%, database connections < 85% of pool limit, no connection timeouts"
+        },
+        {
+          "step": 5,
+          "action": "Analyze response time distribution, identify bottlenecks, and validate log retrieval accuracy by sampling 100 random responses",
+          "expectedResult": "All sampled log entries are complete and accurate, no data corruption, response time degradation < 20% from baseline"
+        }
+      ],
+      "postconditions": [
+        "System returns to idle state within 2 minutes after test completion",
+        "No memory leaks detected",
+        "All database connections properly released",
+        "Application logs contain no errors or exceptions",
+        "Test results documented with performance metrics dashboard"
+      ],
+      "testData": "1 million access log entries with varied attributes: timestamps (last 90 days), user IDs (500 unique users), resource types (10 categories), access types (read/write/delete), IP addresses, session IDs, compliance flags",
+      "toolsRequired": [
+        "Apache JMeter or LoadRunner",
+        "Application Performance Monitoring (APM) tool - New Relic/Dynatrace",
+        "Database monitoring tool",
+        "System resource monitors (top/htop/Windows Performance Monitor)",
+        "Log analysis tool"
+      ],
+      "estimatedTime": "90 minutes",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": "Performance-SLA"
+    },
+    {
+      "id": "PERF-STRESS-001",
+      "title": "Stress Testing to Identify Breaking Point and Validate Graceful Degradation",
+      "category": "performance",
+      "subCategory": "Stress Testing",
+      "priority": "High",
+      "description": "Determine the system breaking point by progressively increasing load beyond peak capacity while monitoring system behavior, error handling, and recovery capabilities. Validate that the system degrades gracefully and provides meaningful error messages when capacity is exceeded.",
+      "preconditions": [
+        "Access logs database populated with 2 million log entries",
+        "System configured with production-equivalent resources",
+        "Circuit breakers and rate limiters configured",
+        "Monitoring and alerting systems active",
+        "Incident response team on standby",
+        "Database backup completed"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Start with 200 concurrent users and incrementally increase by 100 users every 5 minutes until system failure or unacceptable performance (response time > 10 seconds or error rate > 5%)",
+          "expectedResult": "Load increases progressively with metrics captured at each increment level"
+        },
+        {
+          "step": 2,
+          "action": "Monitor response times, error rates, throughput, and system resources at each load increment, identifying the point where P95 response time exceeds 10 seconds",
+          "expectedResult": "Breaking point identified (expected between 500-800 concurrent users), detailed metrics captured showing performance degradation curve"
+        },
+        {
+          "step": 3,
+          "action": "Validate graceful degradation by checking error messages, system availability, and whether critical functions remain operational during overload",
+          "expectedResult": "System returns HTTP 503 or 429 status codes with meaningful error messages, read-only operations still functional, no system crashes or data corruption"
+        },
+        {
+          "step": 4,
+          "action": "Reduce load to 50% of breaking point and monitor system recovery time and resource stabilization",
+          "expectedResult": "System recovers to normal performance within 5 minutes, response times return to < 3 seconds, error rate drops to 0%, resources stabilize"
+        },
+        {
+          "step": 5,
+          "action": "Verify data integrity by comparing log counts and sample log entries before and after stress test",
+          "expectedResult": "100% data integrity maintained, no log entries lost or corrupted, audit trail remains complete"
+        }
+      ],
+      "postconditions": [
+        "System fully recovered and operational",
+        "All services restarted if necessary",
+        "Breaking point documented with specific user count and resource metrics",
+        "Capacity planning recommendations generated",
+        "No data loss or corruption verified"
+      ],
+      "testData": "2 million access log entries with realistic distribution, complex filter queries including multi-field searches, date range queries spanning 6 months, wildcard searches",
+      "toolsRequired": [
+        "Apache JMeter with ramp-up configuration",
+        "Real-time monitoring dashboard (Grafana/Kibana)",
+        "APM tool with alerting capabilities",
+        "Database performance analyzer",
+        "System health check scripts"
+      ],
+      "estimatedTime": "120 minutes",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": "Reliability-Stress"
+    },
+    {
+      "id": "PERF-SOAK-001",
+      "title": "Endurance Testing for Memory Leaks and Resource Exhaustion Over Extended Duration",
+      "category": "performance",
+      "subCategory": "Endurance/Soak Testing",
+      "priority": "High",
+      "description": "Execute sustained load test over 8-hour duration to identify memory leaks, resource exhaustion, database connection leaks, and performance degradation over time. Validate system stability for continuous compliance monitoring operations.",
+      "preconditions": [
+        "Access logs database with 5 million entries and continuous log ingestion enabled",
+        "Production-like environment with full monitoring stack",
+        "Baseline memory and resource metrics established",
+        "Automated log generation simulating real-time access events (100 events/minute)",
+        "Disk space monitoring configured with alerts"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure sustained load of 150 concurrent users performing continuous log retrieval, filtering, and report generation operations for 8 hours",
+          "expectedResult": "Load test initialized with consistent user behavior patterns including 60% log viewing, 30% filtering, 10% report generation"
+        },
+        {
+          "step": 2,
+          "action": "Execute soak test while capturing memory usage, heap size, garbage collection frequency, database connection pool metrics every 15 minutes",
+          "expectedResult": "Test runs continuously for 8 hours with metrics collected at 32 intervals, no test interruptions"
+        },
+        {
+          "step": 3,
+          "action": "Monitor response time trends throughout the test duration, comparing hourly P95 and P99 response times against baseline",
+          "expectedResult": "Response time degradation < 10% over 8 hours, P95 remains ≤ 3.5 seconds, no exponential increase in response times"
+        },
+        {
+          "step": 4,
+          "action": "Analyze memory consumption patterns, heap dumps, and garbage collection logs to identify memory leaks or inefficient memory management",
+          "expectedResult": "Memory usage stabilizes after initial ramp-up (within first hour), no continuous memory growth, GC frequency remains stable, heap utilization < 85%"
+        },
+        {
+          "step": 5,
+          "action": "Verify database connection pool health, check for connection leaks, validate query performance consistency, and confirm log integrity",
+          "expectedResult": "No connection leaks detected, active connections remain within normal range, query execution times stable, all generated logs during test period are retrievable and accurate"
+        }
+      ],
+      "postconditions": [
+        "System remains stable and responsive after 8-hour test",
+        "Memory usage returns to baseline within 30 minutes after test completion",
+        "No database connection leaks identified",
+        "Application logs reviewed for warnings or errors",
+        "Performance trend analysis report generated",
+        "Recommendations for optimization documented if degradation > 5%"
+      ],
+      "testData": "5 million initial log entries plus 48,000 new entries generated during 8-hour test (100 entries/minute), varied query patterns including simple filters (40%), complex multi-field queries (40%), and compliance report generation (20%)",
+      "toolsRequired": [
+        "Apache JMeter with duration-based thread groups",
+        "Memory profiler (JProfiler/YourKit/VisualVM)",
+        "APM tool with memory leak detection",
+        "Database connection pool monitor",
+        "Heap dump analyzer",
+        "Time-series metrics database (Prometheus/InfluxDB)"
+      ],
+      "estimatedTime": "10 hours (including setup and analysis)",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": "Reliability-Endurance"
+    }
+  ],
+  "security": [
+    {
+      "id": "SEC-AUTHZ-001",
+      "title": "Horizontal Privilege Escalation - Unauthorized Access to Other Users' Access Logs",
+      "category": "security",
+      "subCategory": "STRIDE-Elevation of Privilege",
+      "priority": "Critical",
+      "description": "Verify that a Compliance Officer cannot view access logs belonging to other organizations or user contexts by manipulating user identifiers, session tokens, or URL parameters. This tests for broken access control vulnerabilities where attackers could access sensitive audit logs of other entities.",
+      "preconditions": [
+        "Two separate Compliance Officer accounts exist (User A and User B) with different organizational contexts",
+        "Both users have valid authenticated sessions",
+        "Access logs exist for both User A and User B contexts",
+        "Test environment with logging system deployed"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Authenticate as Compliance Officer User A and navigate to data access logs page",
+          "expectedResult": "User A successfully logs in and accesses their own organization's access logs dashboard"
+        },
+        {
+          "step": 2,
+          "action": "Capture the API request/URL parameters used to retrieve User A's access logs (e.g., userId, orgId, tenantId)",
+          "expectedResult": "Request parameters are identified (e.g., GET /api/logs?userId=123&orgId=456)"
+        },
+        {
+          "step": 3,
+          "action": "Modify the request parameters to User B's identifiers (e.g., change userId=123 to userId=789, orgId=456 to orgId=999) using browser developer tools or proxy tool",
+          "expectedResult": "Modified request is sent to the server"
+        },
+        {
+          "step": 4,
+          "action": "Observe the system response and verify access control enforcement",
+          "expectedResult": "System returns HTTP 403 Forbidden or 401 Unauthorized error. No access logs from User B's context are displayed. Error message indicates insufficient permissions"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to access logs using direct object reference manipulation (e.g., /api/logs/[logId] with User B's log IDs)",
+          "expectedResult": "System denies access and returns appropriate error. Audit trail logs the unauthorized access attempt with User A's identity"
+        },
+        {
+          "step": 6,
+          "action": "Verify that the unauthorized access attempt is logged in the security audit trail",
+          "expectedResult": "Security logs contain entry showing User A attempted to access User B's logs with timestamp, IP address, and denial reason"
+        }
+      ],
+      "postconditions": [
+        "User A remains authenticated with access only to their authorized logs",
+        "No data leakage occurred",
+        "Security incident is logged for monitoring",
+        "User B's logs remain confidential"
+      ],
+      "testData": "User A: userId=123, orgId=456, sessionToken=abc123xyz; User B: userId=789, orgId=999, sessionToken=def456uvw; Sample log IDs: log_001, log_002",
+      "toolsRequired": [
+        "Browser Developer Tools (Network tab)",
+        "Burp Suite or OWASP ZAP proxy",
+        "Postman or cURL for API testing",
+        "Database access for audit log verification"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9.2,
+      "complianceTag": "OWASP-A01, SOC2-CC6.1, HIPAA-164.312(a)(1)"
+    },
+    {
+      "id": "SEC-TAMP-001",
+      "title": "Log Tampering and Integrity Validation - Unauthorized Modification of Access Logs",
+      "category": "security",
+      "subCategory": "STRIDE-Tampering",
+      "priority": "Critical",
+      "description": "Verify that access logs cannot be modified, deleted, or tampered with by any user including Compliance Officers. Test log integrity mechanisms to ensure audit trails remain immutable for regulatory compliance. This validates protection against data integrity failures and repudiation threats.",
+      "preconditions": [
+        "Compliance Officer account with authenticated session",
+        "Existing access logs in the database with known checksums/hashes",
+        "Log integrity verification mechanism is implemented",
+        "Database access credentials available for testing"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Authenticate as Compliance Officer and navigate to access logs page. Identify a specific log entry and note its details (timestamp, user, action, logId)",
+          "expectedResult": "Log entry is displayed with all details visible. Log integrity indicator shows 'verified' status"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to modify the log entry through the UI by inspecting element and changing displayed values, then trying to save",
+          "expectedResult": "UI does not provide any edit/modify functionality. No save or update buttons are available for log entries"
+        },
+        {
+          "step": 3,
+          "action": "Intercept API requests and attempt to send PUT/PATCH/DELETE requests to log endpoints (e.g., PUT /api/logs/[logId] with modified payload)",
+          "expectedResult": "API returns HTTP 405 Method Not Allowed or 403 Forbidden. Server rejects modification attempts with error message 'Log modification not permitted'"
+        },
+        {
+          "step": 4,
+          "action": "Using database access, attempt to directly modify a log record in the database (UPDATE logs SET action='modified' WHERE logId='123')",
+          "expectedResult": "Database triggers prevent modification or log integrity hash becomes invalid. Integrity verification mechanism detects tampering"
+        },
+        {
+          "step": 5,
+          "action": "Run log integrity verification check through the system's audit validation tool",
+          "expectedResult": "System detects the tampering attempt, flags the compromised log entry, generates security alert, and displays integrity violation warning"
+        },
+        {
+          "step": 6,
+          "action": "Verify that the tampering attempt itself is logged as a security event with full context",
+          "expectedResult": "New security log entry created documenting the tampering attempt including: timestamp, user identity, affected log ID, action attempted, and source IP"
+        }
+      ],
+      "postconditions": [
+        "Original log entries remain unchanged and verifiable",
+        "Log integrity checksums/hashes remain valid for untampered logs",
+        "Tampering attempt is documented in security audit trail",
+        "Alerts are triggered for security team review"
+      ],
+      "testData": "Sample log entry: {logId: 'LOG-2024-001', timestamp: '2024-01-15T10:30:00Z', userId: 'user123', action: 'DATA_ACCESS', resource: '/patient/records/456', hash: 'sha256:abc123...'}",
+      "toolsRequired": [
+        "Burp Suite or OWASP ZAP",
+        "Database client (pgAdmin, MySQL Workbench)",
+        "API testing tool (Postman, cURL)",
+        "Log integrity verification tool",
+        "Hash calculation utility"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 9.4,
+      "complianceTag": "OWASP-A08, SOC2-CC7.2, HIPAA-164.312(c)(1), PCI-DSS-10.5"
+    },
+    {
+      "id": "SEC-INJ-001",
+      "title": "SQL Injection in Log Filter Parameters - Data Exfiltration and Unauthorized Access",
+      "category": "security",
+      "subCategory": "OWASP-A03-Injection",
+      "priority": "Critical",
+      "description": "Verify that log filtering functionality properly sanitizes and validates input parameters to prevent SQL injection attacks. Test various SQL injection payloads in filter fields (date range, user ID, action type) to ensure attackers cannot extract sensitive data, bypass access controls, or compromise the logging database.",
+      "preconditions": [
+        "Compliance Officer authenticated session",
+        "Access logs page with filter functionality available",
+        "Multiple filter fields present (date range, user filter, action type, resource filter)",
+        "Backend uses SQL database for log storage"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to data access logs page and identify all filter input fields (user ID, date range, action type, resource name)",
+          "expectedResult": "Filter interface is displayed with multiple input fields for refining log search"
+        },
+        {
+          "step": 2,
+          "action": "In the user ID filter field, enter basic SQL injection payload: ' OR '1'='1' -- and submit the filter",
+          "expectedResult": "System sanitizes input and either returns no results or only authorized logs. No SQL error messages are displayed. Input is treated as literal string"
+        },
+        {
+          "step": 3,
+          "action": "Test union-based SQL injection in date filter: ' UNION SELECT username, password, email, null, null FROM users -- and submit",
+          "expectedResult": "System rejects malformed input with validation error. No database schema information is leaked. Returns error message 'Invalid date format' without SQL details"
+        },
+        {
+          "step": 4,
+          "action": "Attempt time-based blind SQL injection in action type filter: '; WAITFOR DELAY '00:00:10'-- and measure response time",
+          "expectedResult": "Response returns immediately (within 3 seconds as per performance requirement). No delay occurs indicating SQL injection was not executed"
+        },
+        {
+          "step": 5,
+          "action": "Test stacked queries injection in resource filter: '; DROP TABLE access_logs; -- and submit",
+          "expectedResult": "Input is properly escaped/parameterized. No database modification occurs. Logs table remains intact. System returns validation error or treats input as literal search string"
+        },
+        {
+          "step": 6,
+          "action": "Verify application logs and WAF logs for injection attempt detection and blocking",
+          "expectedResult": "Security logs show all injection attempts were detected and blocked. WAF (if present) logged the malicious payloads. Alert is generated for security team"
+        },
+        {
+          "step": 7,
+          "action": "Confirm that parameterized queries or ORM are used by reviewing application code or database query logs",
+          "expectedResult": "All database queries use prepared statements or parameterized queries. No string concatenation is used for building SQL queries with user input"
+        }
+      ],
+      "postconditions": [
+        "No unauthorized data access occurred",
+        "Database integrity is maintained",
+        "All injection attempts are logged",
+        "Application remains functional and secure"
+      ],
+      "testData": "SQL Injection payloads: [\"' OR '1'='1' --\", \"' UNION SELECT null, null, null--\", \"'; DROP TABLE logs;--\", \"' AND 1=CONVERT(int, (SELECT @@version))--\", \"admin'--\", \"' OR 'x'='x\"]",
+      "toolsRequired": [
+        "Burp Suite with Intruder",
+        "SQLMap automated injection tool",
+        "OWASP ZAP with SQL injection scanner",
+        "Browser Developer Tools",
+        "Database query monitoring tool"
+      ],
+      "estimatedTime": "50 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9.6,
+      "complianceTag": "OWASP-A03, PCI-DSS-6.5.1, SOC2-CC7.1"
+    }
+  ],
+  "usability": [
+    {
+      "id": "UX-H01-001",
+      "title": "Verify system provides real-time feedback during log retrieval and filtering operations",
+      "category": "usability",
+      "subCategory": "Nielsen-H01-Visibility of System Status",
+      "priority": "Critical",
+      "description": "Validate that the compliance officer receives clear, continuous feedback about system status during log retrieval, filtering, and report generation operations. This ensures users understand what the system is doing, especially during the 3-second log retrieval window and when applying complex filters.",
+      "preconditions": [
+        "User is logged in as Compliance Officer with appropriate permissions",
+        "Access logs database contains at least 10,000 log entries",
+        "User is on the data access logs page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the data access logs page",
+          "expectedResult": "Page loads with a clear indication of loading status (progress indicator, skeleton screen, or loading message)"
+        },
+        {
+          "step": 2,
+          "action": "Apply multiple filters (date range: last 30 days, user type: admin, action type: data export)",
+          "expectedResult": "System displays loading indicator immediately with message like 'Filtering logs...' or progress percentage"
+        },
+        {
+          "step": 3,
+          "action": "Observe the interface during the retrieval process (up to 3 seconds)",
+          "expectedResult": "Loading indicator remains visible throughout retrieval with estimated time or progress indication"
+        },
+        {
+          "step": 4,
+          "action": "Wait for log results to display",
+          "expectedResult": "System shows number of records found (e.g., '247 records match your criteria') and confirms filters applied"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Generate Compliance Report' button",
+          "expectedResult": "System displays progress indicator with status messages (e.g., 'Analyzing logs...', 'Generating report...', 'Report ready for download')"
+        },
+        {
+          "step": 6,
+          "action": "Observe any alerts for suspicious access patterns",
+          "expectedResult": "Alerts are clearly highlighted with visual indicators (badges, color coding) showing number of suspicious activities detected"
+        }
+      ],
+      "postconditions": [
+        "All system operations provide visible feedback within 100ms of user action",
+        "Loading states are clearly communicated with appropriate visual indicators",
+        "Recommendations: Implement progress bars for operations >1 second, use skeleton screens for initial page load, display record counts after filtering, show toast notifications for completed background operations"
+      ],
+      "testData": "Test dataset with 10,000+ access log entries spanning 90 days, including 5-10 flagged suspicious activities",
+      "toolsRequired": [
+        "Browser developer tools for timing measurement",
+        "Screen recording software for documentation"
+      ],
+      "estimatedTime": "25 minutes",
+      "automationFeasibility": "Medium"
+    },
+    {
+      "id": "UX-H06-002",
+      "title": "Validate log filtering interface supports recognition over recall with visible filter options and applied criteria",
+      "category": "usability",
+      "subCategory": "Nielsen-H06-Recognition Rather Than Recall",
+      "priority": "High",
+      "description": "Ensure that compliance officers can easily recognize available filtering options, previously applied filters, and common audit patterns without needing to memorize commands, field names, or filter syntax. The interface should make all relevant information visible and accessible.",
+      "preconditions": [
+        "User is logged in as Compliance Officer",
+        "User has previously applied filters in past sessions",
+        "Access logs page is loaded with data available"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the data access logs page and observe the filter panel",
+          "expectedResult": "All available filter options are clearly visible with labels (Date Range, User, Action Type, Resource, Status) without requiring user to remember field names"
+        },
+        {
+          "step": 2,
+          "action": "Click on 'Date Range' filter dropdown",
+          "expectedResult": "Common preset options are visible (Today, Last 7 Days, Last 30 Days, Last Quarter, Custom) eliminating need to remember date formats"
+        },
+        {
+          "step": 3,
+          "action": "Click on 'Action Type' filter",
+          "expectedResult": "All possible action types are displayed as checkboxes or dropdown options (View, Edit, Delete, Export, Download) with icons or descriptions"
+        },
+        {
+          "step": 4,
+          "action": "Apply filters: Last 30 Days, Action Type: Export, User: All Admins",
+          "expectedResult": "Applied filters are displayed as removable tags/chips above the results showing 'Last 30 Days [X]', 'Export [X]', 'All Admins [X]'"
+        },
+        {
+          "step": 5,
+          "action": "Look for saved filter templates or recent searches section",
+          "expectedResult": "Interface shows 'Recent Filters' or 'Saved Searches' section with previously used filter combinations (e.g., 'Quarterly Audit Review', 'Admin Export Activities')"
+        },
+        {
+          "step": 6,
+          "action": "Hover over suspicious activity alerts in the log results",
+          "expectedResult": "Tooltip or inline explanation appears describing why the activity was flagged without requiring user to remember alert criteria"
+        },
+        {
+          "step": 7,
+          "action": "Navigate to report generation section",
+          "expectedResult": "Report templates are visible with descriptive names (e.g., 'GDPR Compliance Report', 'SOC2 Access Audit', 'Quarterly Review') rather than codes"
+        }
+      ],
+      "postconditions": [
+        "All filter options are discoverable through the interface",
+        "Applied filters remain visible throughout the session",
+        "Users can access common filter patterns without memorization",
+        "Recommendations: Implement filter presets for common compliance scenarios, add 'Save Current Filters' functionality, display filter history, use autocomplete for user/resource fields, provide visual legends for alert types and status indicators"
+      ],
+      "testData": "Access logs with diverse action types, multiple users, various resources, and 3-5 suspicious activities flagged",
+      "toolsRequired": [
+        "User session recording tool",
+        "Usability testing checklist"
+      ],
+      "estimatedTime": "30 minutes",
+      "automationFeasibility": "Low"
+    },
+    {
+      "id": "UX-H07-003",
+      "title": "Assess flexibility and efficiency features for expert compliance officers including shortcuts and bulk operations",
+      "category": "usability",
+      "subCategory": "Nielsen-H07-Flexibility and Efficiency of Use",
+      "priority": "High",
+      "description": "Evaluate whether the log monitoring interface provides accelerators, shortcuts, and advanced features that allow experienced compliance officers to work more efficiently while remaining accessible to novice users. This includes keyboard shortcuts, bulk operations, customizable views, and quick access to frequent tasks.",
+      "preconditions": [
+        "User is logged in as experienced Compliance Officer",
+        "Access logs database contains substantial data (50,000+ entries)",
+        "User has performed log analysis tasks multiple times previously"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to use keyboard shortcuts for common actions (e.g., Ctrl+F for filter, Ctrl+R for refresh, Ctrl+E for export)",
+          "expectedResult": "Keyboard shortcuts are functional and documented (visible in tooltips or help menu). Common shortcuts work as expected."
+        },
+        {
+          "step": 2,
+          "action": "Look for and test 'Quick Filter' or 'Advanced Search' toggle option",
+          "expectedResult": "Interface provides both simple filter mode (for novices) and advanced filter mode (for experts with complex query builder or boolean operators)"
+        },
+        {
+          "step": 3,
+          "action": "Select multiple log entries (10-20 entries) using shift-click or ctrl-click",
+          "expectedResult": "Bulk selection is supported with visual indication of selected items and bulk action menu appears (Export Selected, Flag for Review, Add to Report)"
+        },
+        {
+          "step": 4,
+          "action": "Right-click on a log entry",
+          "expectedResult": "Context menu appears with quick actions (View Details, Flag as Suspicious, Add to Report, Export Entry, View User History)"
+        },
+        {
+          "step": 5,
+          "action": "Look for customization options for the log table view (column visibility, sorting, grouping)",
+          "expectedResult": "User can customize columns displayed, reorder columns via drag-and-drop, save custom view layouts, and switch between saved layouts"
+        },
+        {
+          "step": 6,
+          "action": "Test if frequently used filter combinations can be saved and quickly accessed",
+          "expectedResult": "Interface provides 'Save Filter as Template' option and quick access dropdown/sidebar showing saved templates with one-click application"
+        },
+        {
+          "step": 7,
+          "action": "Check for dashboard or summary view option vs. detailed log view",
+          "expectedResult": "User can toggle between summary dashboard (for quick overview) and detailed log table (for deep analysis) with persistent preference"
+        },
+        {
+          "step": 8,
+          "action": "Attempt to export logs in multiple formats without navigating away",
+          "expectedResult": "Export dropdown offers multiple formats (CSV, JSON, PDF, Excel) with quick export option that remembers last used format"
+        }
+      ],
+      "postconditions": [
+        "Expert users can complete common tasks 40-60% faster using shortcuts and advanced features",
+        "Novice users are not overwhelmed by advanced features (progressive disclosure)",
+        "Customizations persist across sessions",
+        "Recommendations: Implement keyboard shortcut legend (accessible via '?' key), add bulk operations for common compliance tasks, provide customizable dashboard widgets, enable filter template sharing across compliance team, add 'Recent Actions' quick access menu, implement column presets for different compliance frameworks (GDPR, SOC2, HIPAA)"
+      ],
+      "testData": "Large dataset with 50,000+ log entries, multiple user types, various action types, and diverse resources accessed",
+      "toolsRequired": [
+        "Task completion timer",
+        "Keyboard shortcut documentation",
+        "Screen recording for workflow analysis"
+      ],
+      "estimatedTime": "35 minutes",
+      "automationFeasibility": "Low"
+    }
+  ],
+  "reliability": [
+    {
+      "id": "REL-DATA-001",
+      "title": "Access Log Database Failure and Recovery Validation with Zero Data Loss",
+      "category": "reliability",
+      "subCategory": "Data Integrity & Recovery",
+      "priority": "Critical",
+      "description": "Validate that access log data integrity is maintained during database failure scenarios and that the system recovers within RTO/RPO compliance requirements. This test ensures 100% of access events are logged correctly even during database unavailability, with automatic recovery and no data loss.",
+      "preconditions": [
+        "Access logs database is operational and connected",
+        "Monitoring system is actively logging access events",
+        "Database replication/backup mechanisms are configured",
+        "Baseline steady state: 100% log capture rate, <3s retrieval time",
+        "Test environment mirrors production database configuration"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish baseline steady state by generating 1000 access events per minute and verify 100% are logged with retrieval time <3 seconds",
+          "expectedResult": "All 1000 events/min are captured in logs, retrieval time averages 1-2 seconds, system shows healthy state"
+        },
+        {
+          "step": 2,
+          "action": "Inject database failure by stopping the primary database instance while continuing to generate access events at normal rate",
+          "expectedResult": "System detects database failure within 5 seconds, activates buffering/queuing mechanism, no access events are lost"
+        },
+        {
+          "step": 3,
+          "action": "Continue generating access events for 5 minutes during database outage and monitor buffer/queue status",
+          "expectedResult": "All access events are queued in memory/message queue, system displays degraded state warning, no data loss occurs, buffer does not overflow"
+        },
+        {
+          "step": 4,
+          "action": "Restore database availability and monitor automatic recovery process",
+          "expectedResult": "System detects database availability within 10 seconds, begins flushing queued events to database, MTTR <2 minutes"
+        },
+        {
+          "step": 5,
+          "action": "Verify data integrity by counting all logged events during failure period and validate RPO=0 (zero data loss)",
+          "expectedResult": "100% of access events generated during outage are present in database, no duplicates, timestamps are accurate, RPO compliance achieved"
+        },
+        {
+          "step": 6,
+          "action": "Validate system returns to steady state with normal log retrieval performance <3 seconds",
+          "expectedResult": "Log retrieval time returns to <3 seconds, all monitoring dashboards show healthy state, no residual errors"
+        }
+      ],
+      "postconditions": [
+        "Database is fully operational",
+        "All queued events are persisted to database",
+        "System monitoring shows healthy state",
+        "No data loss occurred (RPO=0 validated)",
+        "Recovery time documented for MTTR calculation"
+      ],
+      "testData": "Generate synthetic access events with unique identifiers: user_id, timestamp, resource_accessed, action_type, IP_address. Use event generator producing 1000 events/min with sequential IDs for tracking.",
+      "toolsRequired": [
+        "Chaos engineering platform (Gremlin, Chaos Monkey, or LitmusChaos)",
+        "Database monitoring tool",
+        "Event generator script",
+        "Log integrity validation script",
+        "APM tool for MTTR measurement"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9,
+      "complianceTag": "SOC2-CC7.2, RTO<2min, RPO=0, MTBF>720hrs"
+    },
+    {
+      "id": "REL-CHAOS-001",
+      "title": "Network Partition Chaos Experiment - Log Service Isolation and Alert System Resilience",
+      "category": "reliability",
+      "subCategory": "Chaos Engineering - Network Failures",
+      "priority": "Critical",
+      "description": "Execute hypothesis-driven chaos experiment to validate that suspicious access pattern alerts continue functioning during network partition between log collection service and alert processing service. Tests system resilience to network failures and validates alert delivery SLO of 99.9% availability.",
+      "preconditions": [
+        "Access log monitoring system is operational across multiple services",
+        "Alert system for suspicious patterns is configured and tested",
+        "Network chaos tools are deployed and tested",
+        "Baseline: Alert detection latency <30 seconds, 100% alert delivery",
+        "Distributed tracing enabled for observability"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Define hypothesis: 'When network partition occurs between log collector and alert processor, alerts will still be delivered within 2 minutes via alternative path or queuing, maintaining >99% delivery rate'",
+          "expectedResult": "Hypothesis documented with success criteria: alert delivery >99%, latency <2min, no permanent alert loss"
+        },
+        {
+          "step": 2,
+          "action": "Establish steady state by generating normal access patterns plus 10 suspicious access patterns per minute, verify all alerts are triggered within 30 seconds",
+          "expectedResult": "100% of suspicious patterns generate alerts within 30 seconds, compliance officer receives all notifications"
+        },
+        {
+          "step": 3,
+          "action": "Inject network partition using chaos tool to isolate log collector from alert processor for 10 minutes, limit blast radius to test environment only",
+          "expectedResult": "Network partition confirmed via monitoring, services cannot communicate directly, partition isolated to test environment"
+        },
+        {
+          "step": 4,
+          "action": "Continue generating suspicious access patterns during partition and monitor alert queuing/alternative routing mechanisms",
+          "expectedResult": "Alerts are queued in message broker or routed via backup network path, no alerts are dropped, system shows degraded connectivity warning"
+        },
+        {
+          "step": 5,
+          "action": "Remove network partition and observe alert delivery recovery and queue processing",
+          "expectedResult": "Network connectivity restored within 30 seconds, queued alerts are delivered within 2 minutes, MTTR for alert system <2.5 minutes"
+        },
+        {
+          "step": 6,
+          "action": "Validate hypothesis by counting delivered alerts: verify >99% delivery rate and all critical suspicious patterns were reported",
+          "expectedResult": "Hypothesis validated: ≥99% alert delivery achieved, maximum alert delay <2 minutes, zero permanent alert loss, availability SLO maintained"
+        }
+      ],
+      "postconditions": [
+        "Network partition removed completely",
+        "All services return to normal communication",
+        "Alert queue is cleared",
+        "Chaos experiment results documented",
+        "Hypothesis outcome recorded (validated/invalidated)"
+      ],
+      "testData": "Suspicious pattern test data: 10 failed login attempts from same IP, access to 50+ records in <1 minute, access outside business hours, privilege escalation attempts. Normal patterns: 100 legitimate access events/min.",
+      "toolsRequired": [
+        "Network chaos tool (Pumba, Toxiproxy, or Chaos Mesh)",
+        "Message queue monitoring (Kafka/RabbitMQ dashboard)",
+        "Alert tracking system",
+        "Distributed tracing tool (Jaeger, Zipkin)",
+        "Network monitoring tool"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 8,
+      "complianceTag": "SOC2-CC7.2, SLO-Availability-99.9%, MTTR<2.5min"
+    },
+    {
+      "id": "REL-DEP-001",
+      "title": "External Compliance Reporting API Failure with Circuit Breaker Validation",
+      "category": "reliability",
+      "subCategory": "Circuit Breaker & Dependency Resilience",
+      "priority": "High",
+      "description": "Validate circuit breaker pattern implementation when external compliance reporting API becomes unavailable or degraded. Ensures compliance officers can still access logs and generate reports locally while external API is down, with proper circuit breaker state transitions (Closed->Open->Half-Open->Closed).",
+      "preconditions": [
+        "External compliance reporting API integration is active",
+        "Circuit breaker is configured with thresholds: 5 failures in 10s triggers open, 30s timeout, 3 success attempts to close",
+        "Local report generation fallback mechanism is implemented",
+        "Baseline: API response time <2 seconds, 99.5% success rate",
+        "Circuit breaker monitoring dashboard is available"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish steady state by generating 5 compliance reports using external API, verify all succeed within 2 seconds",
+          "expectedResult": "All 5 reports generated successfully via external API, circuit breaker in CLOSED state, response time <2 seconds"
+        },
+        {
+          "step": 2,
+          "action": "Inject failure into external API by configuring it to return 500 errors or timeout after 10 seconds",
+          "expectedResult": "External API becomes unavailable, returns errors or timeouts consistently"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to generate 5 compliance reports and monitor circuit breaker state transition to OPEN after threshold reached",
+          "expectedResult": "After 5 consecutive failures within 10 seconds, circuit breaker transitions to OPEN state, subsequent requests fail fast without calling API (<100ms response)"
+        },
+        {
+          "step": 4,
+          "action": "Verify fallback mechanism activates and compliance officer can generate reports using local data with degraded functionality warning",
+          "expectedResult": "System automatically switches to local report generation, reports are created from cached log data, user sees notification about limited external compliance validation"
+        },
+        {
+          "step": 5,
+          "action": "Wait 30 seconds for circuit breaker timeout, then restore external API to healthy state",
+          "expectedResult": "Circuit breaker transitions to HALF-OPEN state after 30s timeout, external API is operational and responding normally"
+        },
+        {
+          "step": 6,
+          "action": "Generate 3 test reports to validate circuit breaker transitions to CLOSED state after successful attempts",
+          "expectedResult": "First 3 report requests succeed via external API, circuit breaker transitions to CLOSED state, full functionality restored, MTTR <2 minutes"
+        },
+        {
+          "step": 7,
+          "action": "Validate retry policy with exponential backoff by monitoring retry attempts during recovery phase",
+          "expectedResult": "Retry attempts follow exponential backoff pattern: 1s, 2s, 4s intervals, maximum 3 retries before circuit opens, no retry storms observed"
+        }
+      ],
+      "postconditions": [
+        "External API is fully restored",
+        "Circuit breaker is in CLOSED state",
+        "All report generation functions normally",
+        "Fallback mechanism is deactivated",
+        "Circuit breaker metrics logged for analysis"
+      ],
+      "testData": "Compliance report requests: date range filters (last 30 days), user access patterns, failed access attempts, privilege changes. Test with 3 different report types: audit summary, detailed access log, suspicious activity report.",
+      "toolsRequired": [
+        "API mocking tool (WireMock, Mountebank)",
+        "Circuit breaker monitoring (Hystrix Dashboard, Resilience4j metrics)",
+        "APM tool for latency measurement",
+        "Log aggregation tool",
+        "Load testing tool for request generation"
+      ],
+      "estimatedTime": "40 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 7,
+      "complianceTag": "SOC2-CC7.2, MTTR<2min, Availability-99.5%"
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true,
+    "performance": true,
+    "security": true,
+    "usability": true,
+    "reliability": true
+  },
+  "userStoryObject": {
+    "id": "ado-16596",
+    "title": "As Compliance Officer, I want to monitor data access logs to achieve regulatory compliance",
+    "description": "<div><strong>CONTEXT &amp; BACKGROUND:</strong><br><br>Monitoring data access logs is essential for maintaining compliance with data protection regulations.<br><br><strong>CURRENT STATE:</strong><br><br>Lack of monitoring leads to difficulties in auditing and compliance verification.<br><br><strong>DESIRED STATE:</strong><br><br>Comprehensive logging and monitoring will facilitate compliance audits and improve data security.<br><br><strong>KEY FUNCTIONALITY:</strong><br><br><ul><li>Access log viewing capabilities </li><li>Audit trail for data access </li><li>Alerts for suspicious access patterns </li><li>Reporting tools for compliance verification </li><li>User </li> </ul>-friendly interface for log management<br><br><strong>USER INTERACTION FLOW:</strong><br><br><ol><li>User navigates to the data access logs page. </li><li>User applies filters to view specific access logs. </li><li>System retrieves and displays logs. </li><li>User analyzes logs for compliance checks. </li><li>User generates compliance reports as needed. </li> </ol><br><br><strong>TECHNICAL CONSIDERATIONS:</strong><br><br><ul><li>Data source: Access logs database </li><li>Validation rules: Log integrity checks </li><li>Security: Access controls for viewing logs </li><li>Performance: Log retrieval under </li> </ul>3 seconds.<br><br><strong>OUT OF SCOPE:</strong><br><br><ul><li>Detailed content of API requests and responses. </li> </ul><br><br><strong>SUCCESS METRICS:</strong><br><br><ul><li>100% of access events are logged correctly. </li><li>Log retrieval completed within 3 seconds. </li> </ul> </div><br><div><strong>Persona:</strong> Compliance Officer (Compliance Officer) </div>",
+    "acceptanceCriteria": "<div><strong>Criteria 1:</strong> Users can view access logs without errors. </div><br><div><strong>Criteria 2:</strong> Log retrieval happens within 3 seconds. </div><br><div><strong>Criteria 3:</strong> Audit trails are complete and accurate for compliance checks. </div><br>",
+    "adoWorkItemId": 16596,
+    "state": "New",
+    "assignedTo": "Unassigned",
+    "createdDate": "2026-02-05T05:27:30.093Z",
+    "priority": 2,
+    "storyPoints": 5,
+    "tags": "",
+    "epicId": "epic-16185",
+    "featureId": "feature-16215",
+    "source": "ado",
+    "adoUrl": "https://dev.azure.com/QS001/Venus/_workitems/edit/16596"
+  }
+}
