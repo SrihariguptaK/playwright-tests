@@ -1,0 +1,1157 @@
+{
+  "storyId": "story-2",
+  "storyTitle": "As Admin, I want to assign shift templates to employees to achieve efficient scheduling.",
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify successful assignment of shift template to employee with confirmation message",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Admin-level authentication credentials",
+        "At least one employee exists in the system with no current shift assignments",
+        "At least one shift template exists in the system and is active",
+        "User is on the Employee Schedule section page",
+        "Database connection is active and EmployeeSchedules table is accessible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the Employee Schedule section by clicking 'Employee Schedule' in the main navigation menu",
+          "expectedResult": "Employee Schedule page loads successfully displaying a list of all employees and a calendar view"
+        },
+        {
+          "step": 2,
+          "action": "Select employee 'John Doe' from the employee list by clicking on their name",
+          "expectedResult": "Employee details panel appears on the right side showing John Doe's current schedule, personal information, and available actions"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'Assign Shift Template' button in the employee details panel",
+          "expectedResult": "Modal dialog opens displaying a list of available shift templates with template names, times, and descriptions"
+        },
+        {
+          "step": 4,
+          "action": "Select 'Morning Shift (8AM-4PM)' template from the dropdown list and choose start date as '2024-01-15'",
+          "expectedResult": "Template is highlighted in blue and start date field shows '2024-01-15', 'Confirm Assignment' button becomes enabled"
+        },
+        {
+          "step": 5,
+          "action": "Click the 'Confirm Assignment' button at the bottom of the modal",
+          "expectedResult": "Green success banner appears at top of page with message 'Shift template successfully assigned to John Doe', modal closes automatically"
+        },
+        {
+          "step": 6,
+          "action": "Verify the employee schedule calendar view for John Doe",
+          "expectedResult": "Calendar displays the newly assigned Morning Shift (8AM-4PM) on 2024-01-15 with color-coded shift block and template name visible"
+        }
+      ],
+      "postconditions": [
+        "Shift template 'Morning Shift (8AM-4PM)' is saved in EmployeeSchedules table for employee John Doe with start date 2024-01-15",
+        "Employee schedule calendar reflects the new assignment in real-time without page refresh",
+        "Admin user remains logged in and on the Employee Schedule page",
+        "Assignment is logged in system audit trail with timestamp and admin user ID"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify real-time update of employee schedule after template assignment",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Admin",
+        "Employee 'Jane Smith' exists with at least one existing shift assignment",
+        "Multiple shift templates are available in the system",
+        "Employee Schedule page is loaded and displaying Jane Smith's current schedule"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Note the current schedule displayed for Jane Smith showing existing 'Evening Shift (4PM-12AM)' on 2024-01-20",
+          "expectedResult": "Calendar view shows Evening Shift assignment clearly with time range and color coding"
+        },
+        {
+          "step": 2,
+          "action": "Select Jane Smith from employee list and click 'Assign Shift Template' button",
+          "expectedResult": "Assignment modal opens with available templates listed"
+        },
+        {
+          "step": 3,
+          "action": "Select 'Night Shift (12AM-8AM)' template and set start date to '2024-01-22', then click 'Confirm Assignment'",
+          "expectedResult": "Success message 'Shift template successfully assigned to Jane Smith' appears, modal closes"
+        },
+        {
+          "step": 4,
+          "action": "Observe the calendar view without refreshing the page",
+          "expectedResult": "Calendar automatically updates to show both Evening Shift on 2024-01-20 and new Night Shift on 2024-01-22 without manual page refresh"
+        },
+        {
+          "step": 5,
+          "action": "Open a second browser window, login as Admin, and navigate to Jane Smith's schedule",
+          "expectedResult": "Second browser window displays the same updated schedule including the newly assigned Night Shift on 2024-01-22"
+        }
+      ],
+      "postconditions": [
+        "Both shift assignments are persisted in EmployeeSchedules table for Jane Smith",
+        "Real-time synchronization is confirmed across multiple browser sessions",
+        "No data conflicts or race conditions occurred during concurrent viewing",
+        "System performance remains responsive with real-time updates"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify editing of assigned shift template for an employee",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Admin user is authenticated and logged in",
+        "Employee 'Mike Johnson' has an existing shift assignment 'Morning Shift (8AM-4PM)' on 2024-01-25",
+        "User is viewing Mike Johnson's schedule in the Employee Schedule section",
+        "Edit permissions are enabled for Admin role"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on the assigned 'Morning Shift (8AM-4PM)' block in Mike Johnson's calendar on 2024-01-25",
+          "expectedResult": "Shift details popover appears showing shift name, time range, date, and 'Edit' and 'Delete' buttons"
+        },
+        {
+          "step": 2,
+          "action": "Click the 'Edit' button in the shift details popover",
+          "expectedResult": "Edit Shift modal opens pre-populated with current shift details: template 'Morning Shift (8AM-4PM)', date '2024-01-25'"
+        },
+        {
+          "step": 3,
+          "action": "Change the shift template to 'Afternoon Shift (12PM-8PM)' from the dropdown and keep the same date",
+          "expectedResult": "Dropdown updates to show 'Afternoon Shift (12PM-8PM)' selected, 'Save Changes' button is enabled"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save Changes' button at the bottom of the modal",
+          "expectedResult": "Green success message 'Shift updated successfully for Mike Johnson' appears at top of page, modal closes"
+        },
+        {
+          "step": 5,
+          "action": "Verify the calendar view for Mike Johnson on 2024-01-25",
+          "expectedResult": "Calendar now displays 'Afternoon Shift (12PM-8PM)' instead of Morning Shift, with updated time range and color coding"
+        }
+      ],
+      "postconditions": [
+        "EmployeeSchedules table is updated with new shift template 'Afternoon Shift (12PM-8PM)' for Mike Johnson on 2024-01-25",
+        "Previous Morning Shift assignment is replaced (not duplicated) in the database",
+        "Edit action is logged in audit trail with timestamp, admin user, and change details",
+        "Calendar view reflects changes in real-time across all active sessions"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify assignment of shift template to multiple employees sequentially",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "Admin user is logged in with valid credentials",
+        "At least three employees exist in the system: 'Alice Brown', 'Bob White', 'Carol Green'",
+        "Shift template 'Weekend Shift (9AM-5PM)' is available and active",
+        "Employee Schedule page is loaded and accessible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select employee 'Alice Brown' from the employee list",
+          "expectedResult": "Alice Brown's details and schedule are displayed in the employee panel"
+        },
+        {
+          "step": 2,
+          "action": "Assign 'Weekend Shift (9AM-5PM)' template to Alice Brown for date 2024-01-27 and confirm",
+          "expectedResult": "Success message appears, Alice Brown's calendar shows Weekend Shift on 2024-01-27"
+        },
+        {
+          "step": 3,
+          "action": "Select employee 'Bob White' from the employee list without refreshing the page",
+          "expectedResult": "Bob White's details and current schedule are displayed, Alice Brown's panel is replaced"
+        },
+        {
+          "step": 4,
+          "action": "Assign 'Weekend Shift (9AM-5PM)' template to Bob White for date 2024-01-27 and confirm",
+          "expectedResult": "Success message appears, Bob White's calendar shows Weekend Shift on 2024-01-27"
+        },
+        {
+          "step": 5,
+          "action": "Select employee 'Carol Green' from the employee list",
+          "expectedResult": "Carol Green's details and current schedule are displayed"
+        },
+        {
+          "step": 6,
+          "action": "Assign 'Weekend Shift (9AM-5PM)' template to Carol Green for date 2024-01-27 and confirm",
+          "expectedResult": "Success message appears, Carol Green's calendar shows Weekend Shift on 2024-01-27"
+        },
+        {
+          "step": 7,
+          "action": "Navigate back to view all three employees' schedules in the calendar overview",
+          "expectedResult": "Calendar overview shows all three employees (Alice, Bob, Carol) with Weekend Shift assigned on 2024-01-27"
+        }
+      ],
+      "postconditions": [
+        "All three employees have Weekend Shift (9AM-5PM) saved in EmployeeSchedules table for 2024-01-27",
+        "No scheduling conflicts exist for any of the three employees",
+        "System handled sequential assignments without performance degradation",
+        "All assignments are visible in the master calendar view"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify calendar view displays employee schedules correctly after multiple assignments",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "Admin user is authenticated and on Employee Schedule page",
+        "Employee 'David Lee' exists with no current assignments",
+        "Three different shift templates exist: 'Morning Shift', 'Evening Shift', 'Night Shift'",
+        "Calendar view is set to weekly view mode"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select employee 'David Lee' and assign 'Morning Shift (8AM-4PM)' for Monday 2024-01-15",
+          "expectedResult": "Assignment succeeds, success message displayed, calendar shows Morning Shift on Monday"
+        },
+        {
+          "step": 2,
+          "action": "Assign 'Evening Shift (4PM-12AM)' to David Lee for Wednesday 2024-01-17",
+          "expectedResult": "Assignment succeeds, calendar now shows both Morning Shift on Monday and Evening Shift on Wednesday"
+        },
+        {
+          "step": 3,
+          "action": "Assign 'Night Shift (12AM-8AM)' to David Lee for Friday 2024-01-19",
+          "expectedResult": "Assignment succeeds, calendar displays all three shifts across the week with different color codes"
+        },
+        {
+          "step": 4,
+          "action": "Switch calendar view from weekly to monthly view using the view toggle button",
+          "expectedResult": "Monthly calendar view loads showing January 2024 with all three assigned shifts visible on their respective dates"
+        },
+        {
+          "step": 5,
+          "action": "Hover over each shift block in the calendar",
+          "expectedResult": "Tooltip appears for each shift showing full details: shift name, time range, employee name, and date"
+        }
+      ],
+      "postconditions": [
+        "All three shift assignments are correctly stored in EmployeeSchedules table",
+        "Calendar view accurately represents all assignments with proper visual distinction",
+        "View switching (weekly/monthly) maintains data integrity and display accuracy",
+        "User remains on Employee Schedule page with David Lee's full schedule visible"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify system prevents double scheduling with overlapping shift times",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Admin user is logged in with valid credentials",
+        "Employee 'Sarah Connor' exists in the system",
+        "Sarah Connor already has 'Morning Shift (8AM-4PM)' assigned on 2024-02-01",
+        "Another shift template 'Extended Morning Shift (7AM-3PM)' exists that overlaps with Morning Shift",
+        "User is on Employee Schedule page viewing Sarah Connor's schedule"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Verify Sarah Connor's calendar shows existing 'Morning Shift (8AM-4PM)' on 2024-02-01",
+          "expectedResult": "Calendar displays Morning Shift assignment clearly on February 1st"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Assign Shift Template' button for Sarah Connor",
+          "expectedResult": "Assignment modal opens with list of available shift templates"
+        },
+        {
+          "step": 3,
+          "action": "Select 'Extended Morning Shift (7AM-3PM)' template and set date to '2024-02-01' (same date as existing shift)",
+          "expectedResult": "Template is selected and date field shows 2024-02-01"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Confirm Assignment' button to attempt the overlapping assignment",
+          "expectedResult": "Red error banner appears at top of page with message 'Cannot assign shift: Employee Sarah Connor is already scheduled during this time period (8AM-4PM on 2024-02-01)', modal remains open"
+        },
+        {
+          "step": 5,
+          "action": "Verify the calendar view has not changed",
+          "expectedResult": "Calendar still shows only the original Morning Shift (8AM-4PM) on 2024-02-01, no duplicate or overlapping shift appears"
+        },
+        {
+          "step": 6,
+          "action": "Check the EmployeeSchedules table via database query or admin panel",
+          "expectedResult": "Only one shift record exists for Sarah Connor on 2024-02-01, no duplicate entry was created"
+        }
+      ],
+      "postconditions": [
+        "No overlapping shift was saved to EmployeeSchedules table",
+        "Original shift assignment remains unchanged and intact",
+        "Error message was displayed to admin user preventing the conflict",
+        "System maintains data integrity with no double-scheduling",
+        "Failed assignment attempt is logged in system error logs with details"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify error handling when attempting to assign shift without selecting a template",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Admin user is logged in and authenticated",
+        "Employee 'Tom Hardy' exists in the system",
+        "User is on Employee Schedule page with Tom Hardy selected",
+        "Assignment modal is accessible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select employee 'Tom Hardy' from the employee list",
+          "expectedResult": "Tom Hardy's details and schedule panel are displayed"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Assign Shift Template' button",
+          "expectedResult": "Assignment modal opens with shift template dropdown showing placeholder text 'Select a shift template'"
+        },
+        {
+          "step": 3,
+          "action": "Leave the shift template dropdown empty (no selection made) and enter date '2024-02-10' in the date field",
+          "expectedResult": "Date field shows 2024-02-10, template dropdown remains empty with placeholder text"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Confirm Assignment' button without selecting any template",
+          "expectedResult": "Red validation error message appears below template dropdown stating 'Please select a shift template', 'Confirm Assignment' button may be disabled or assignment is blocked"
+        },
+        {
+          "step": 5,
+          "action": "Verify no API call was made to POST /api/employees/schedule",
+          "expectedResult": "Network tab shows no POST request was sent, client-side validation prevented the submission"
+        }
+      ],
+      "postconditions": [
+        "No shift assignment was created in EmployeeSchedules table",
+        "Modal remains open allowing user to correct the error",
+        "Tom Hardy's schedule remains unchanged",
+        "Form validation prevented invalid data submission"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify error handling when non-admin user attempts to access shift assignment functionality",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User account 'regular_user@company.com' exists with Employee role (non-admin)",
+        "User is logged in as 'regular_user@company.com'",
+        "Employee Schedule section requires Admin-level authentication",
+        "At least one employee exists in the system"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to navigate to Employee Schedule section by entering URL '/employee-schedule' directly in browser",
+          "expectedResult": "System redirects to 403 Forbidden page or displays error message 'Access Denied: Admin privileges required'"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to access the assignment API endpoint directly by sending POST request to '/api/employees/schedule' with valid shift data",
+          "expectedResult": "API returns 403 Forbidden status code with JSON response {'error': 'Unauthorized', 'message': 'Admin authentication required'}"
+        },
+        {
+          "step": 3,
+          "action": "Check if Employee Schedule navigation link is visible in the main menu",
+          "expectedResult": "Employee Schedule link is either hidden or disabled in navigation menu for non-admin users"
+        }
+      ],
+      "postconditions": [
+        "No unauthorized access was granted to shift assignment functionality",
+        "No data was modified in EmployeeSchedules table",
+        "Security logs record the unauthorized access attempt with user ID and timestamp",
+        "User remains logged in but restricted to authorized sections only"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify error handling when assigning shift with past date",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "Admin user is logged in",
+        "Employee 'Emma Watson' exists in the system",
+        "Current system date is 2024-02-15",
+        "Shift template 'Day Shift (9AM-5PM)' is available",
+        "User is on Employee Schedule page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select employee 'Emma Watson' and click 'Assign Shift Template' button",
+          "expectedResult": "Assignment modal opens with template dropdown and date picker"
+        },
+        {
+          "step": 2,
+          "action": "Select 'Day Shift (9AM-5PM)' template from dropdown",
+          "expectedResult": "Template is selected and displayed in the dropdown field"
+        },
+        {
+          "step": 3,
+          "action": "Enter past date '2024-01-15' in the date field (one month in the past)",
+          "expectedResult": "Date field accepts the input and shows 2024-01-15"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Confirm Assignment' button",
+          "expectedResult": "Orange warning message appears stating 'Warning: You are assigning a shift to a past date (2024-01-15). Please confirm this is intentional.' with 'Cancel' and 'Proceed Anyway' buttons, OR red error message 'Cannot assign shifts to past dates' if past assignments are blocked"
+        },
+        {
+          "step": 5,
+          "action": "If warning appears, click 'Cancel' button; if error appears, click 'Close' or 'OK'",
+          "expectedResult": "Modal closes or returns to editable state, no assignment is made"
+        }
+      ],
+      "postconditions": [
+        "No shift assignment was created for the past date in EmployeeSchedules table",
+        "Emma Watson's schedule remains unchanged",
+        "System enforced business rule regarding past date assignments",
+        "User is returned to a state where they can make a valid assignment"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify error handling when database connection fails during shift assignment",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Admin user is logged in",
+        "Employee 'Chris Evans' exists in the system",
+        "Shift template 'Night Shift (10PM-6AM)' is available",
+        "Database connection can be simulated to fail (test environment or mock)",
+        "User is on Employee Schedule page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Simulate database connection failure or timeout in test environment",
+          "expectedResult": "Database becomes unavailable for write operations"
+        },
+        {
+          "step": 2,
+          "action": "Select employee 'Chris Evans' and click 'Assign Shift Template' button",
+          "expectedResult": "Assignment modal opens (may load from cache or show loading state)"
+        },
+        {
+          "step": 3,
+          "action": "Select 'Night Shift (10PM-6AM)' template and date '2024-02-20', then click 'Confirm Assignment'",
+          "expectedResult": "Loading spinner appears briefly, then red error banner displays 'System error: Unable to save shift assignment. Please try again later.' or 'Database connection error'"
+        },
+        {
+          "step": 4,
+          "action": "Verify the calendar view for Chris Evans",
+          "expectedResult": "Calendar does not show the attempted Night Shift assignment, previous state is maintained"
+        },
+        {
+          "step": 5,
+          "action": "Check system error logs or monitoring dashboard",
+          "expectedResult": "Error is logged with details: timestamp, user ID, employee ID, error type 'Database Connection Failure', and stack trace"
+        }
+      ],
+      "postconditions": [
+        "No partial or corrupted data was written to EmployeeSchedules table",
+        "System gracefully handled the database failure without crashing",
+        "User received clear error message indicating system issue (not user error)",
+        "Error was logged for system administrator review and troubleshooting",
+        "User can retry the operation once database connection is restored"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify error handling when attempting to assign deleted or inactive shift template",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "Admin user is logged in",
+        "Employee 'Natalie Portman' exists in the system",
+        "Shift template 'Deprecated Shift (6AM-2PM)' exists but is marked as inactive or deleted in the database",
+        "User is on Employee Schedule page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select employee 'Natalie Portman' and click 'Assign Shift Template' button",
+          "expectedResult": "Assignment modal opens with dropdown showing only active shift templates"
+        },
+        {
+          "step": 2,
+          "action": "Verify that 'Deprecated Shift (6AM-2PM)' does not appear in the template dropdown list",
+          "expectedResult": "Dropdown shows only active templates, inactive/deleted template is not visible"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to assign the inactive template by directly calling API endpoint POST /api/employees/schedule with template ID of 'Deprecated Shift'",
+          "expectedResult": "API returns 400 Bad Request with error message 'Invalid template: Template is inactive or does not exist'"
+        },
+        {
+          "step": 4,
+          "action": "Verify no assignment was created in the database",
+          "expectedResult": "EmployeeSchedules table shows no new record for Natalie Portman with the inactive template"
+        }
+      ],
+      "postconditions": [
+        "System prevented assignment of inactive/deleted template through both UI and API",
+        "Data integrity is maintained with only valid, active templates assignable",
+        "Natalie Portman's schedule remains unchanged",
+        "Appropriate error response was returned for API-level attempt"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Verify system handles assignment of maximum allowed shifts to single employee",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Admin user is logged in",
+        "Employee 'Max Capacity' exists with no current assignments",
+        "System has a defined maximum limit of shifts per employee (e.g., 31 shifts per month)",
+        "Sufficient shift templates are available",
+        "User is on Employee Schedule page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select employee 'Max Capacity' from the employee list",
+          "expectedResult": "Employee details and empty schedule are displayed"
+        },
+        {
+          "step": 2,
+          "action": "Assign shift templates to cover every day of the month (31 consecutive days from 2024-03-01 to 2024-03-31)",
+          "expectedResult": "Each assignment succeeds with success message, calendar progressively fills with 31 shift assignments"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to assign one more shift for 2024-04-01 (32nd shift in sequence)",
+          "expectedResult": "System either allows the assignment (if no hard limit) or displays warning 'Employee has maximum shifts assigned for this period' depending on business rules"
+        },
+        {
+          "step": 4,
+          "action": "Verify calendar view displays all 31 shifts clearly without UI degradation",
+          "expectedResult": "Calendar renders all shifts properly with readable labels, proper spacing, and no overlapping visual elements"
+        },
+        {
+          "step": 5,
+          "action": "Check system performance and page load time with maximum shifts displayed",
+          "expectedResult": "Page remains responsive, calendar loads within 2 seconds, no browser freezing or memory issues"
+        }
+      ],
+      "postconditions": [
+        "All 31 shift assignments are correctly stored in EmployeeSchedules table",
+        "Calendar UI handles maximum shift display without performance degradation",
+        "System enforces or warns about maximum shift limits per business rules",
+        "Database queries remain performant with maximum data load"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Verify system handles 100 concurrent shift assignments from multiple admins",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "100 admin user accounts are created and authenticated",
+        "100 different employees exist in the system",
+        "Sufficient shift templates are available",
+        "Performance testing environment is configured",
+        "System performance requirement: handle 100 concurrent assignments"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Prepare automated test script to simulate 100 concurrent admin users accessing Employee Schedule section simultaneously",
+          "expectedResult": "Test script is ready with 100 concurrent user sessions"
+        },
+        {
+          "step": 2,
+          "action": "Execute concurrent assignment test: all 100 admins assign different shift templates to different employees at the same time",
+          "expectedResult": "System processes all 100 assignment requests without crashing or timing out"
+        },
+        {
+          "step": 3,
+          "action": "Monitor API response times for POST /api/employees/schedule during concurrent load",
+          "expectedResult": "95% of requests complete within 3 seconds, no requests fail with 500 errors, all return appropriate success or error responses"
+        },
+        {
+          "step": 4,
+          "action": "Verify all 100 shift assignments were successfully saved to EmployeeSchedules table",
+          "expectedResult": "Database contains exactly 100 new shift assignment records, no duplicates, no missing assignments"
+        },
+        {
+          "step": 5,
+          "action": "Check for any database deadlocks, race conditions, or data corruption",
+          "expectedResult": "No deadlocks occurred, all transactions completed successfully, data integrity is maintained"
+        },
+        {
+          "step": 6,
+          "action": "Verify real-time updates propagated correctly to all active user sessions",
+          "expectedResult": "Each admin sees their own assignment reflected in real-time, no stale data displayed"
+        }
+      ],
+      "postconditions": [
+        "System successfully handled 100 concurrent shift assignments meeting performance requirement",
+        "All assignments are correctly persisted with no data loss or corruption",
+        "Database maintained ACID properties under concurrent load",
+        "Real-time synchronization worked correctly across all sessions",
+        "System performance metrics are logged for analysis"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Verify shift assignment with employee name containing special characters and Unicode",
+      "category": "Edge Cases",
+      "priority": "Low",
+      "preconditions": [
+        "Admin user is logged in",
+        "Employee exists with name 'José O'Brien-Müller 李明' containing apostrophe, hyphen, umlaut, and Chinese characters",
+        "Shift template 'Standard Shift (9AM-5PM)' is available",
+        "User is on Employee Schedule page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Search for employee 'José O'Brien-Müller 李明' in the employee list using the search field",
+          "expectedResult": "Employee is found and displayed correctly with all special characters and Unicode rendered properly"
+        },
+        {
+          "step": 2,
+          "action": "Select employee 'José O'Brien-Müller 李明' from the list",
+          "expectedResult": "Employee details panel opens showing name with all special characters intact: José O'Brien-Müller 李明"
+        },
+        {
+          "step": 3,
+          "action": "Assign 'Standard Shift (9AM-5PM)' template for date 2024-02-25 and confirm",
+          "expectedResult": "Success message displays 'Shift template successfully assigned to José O'Brien-Müller 李明' with name rendered correctly"
+        },
+        {
+          "step": 4,
+          "action": "Verify calendar view shows the assignment with employee name",
+          "expectedResult": "Calendar displays shift with employee name 'José O'Brien-Müller 李明' properly encoded and rendered without character corruption"
+        },
+        {
+          "step": 5,
+          "action": "Query EmployeeSchedules table to verify data storage",
+          "expectedResult": "Database record contains employee name with all special characters and Unicode properly stored using UTF-8 encoding"
+        }
+      ],
+      "postconditions": [
+        "Shift assignment is saved with employee name containing special characters and Unicode",
+        "No character encoding issues or data corruption occurred",
+        "UI displays special characters correctly across all components",
+        "Database properly stores and retrieves Unicode data"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Verify shift assignment at exact midnight boundary (12:00 AM)",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Admin user is logged in",
+        "Employee 'Night Worker' exists in the system",
+        "Shift template 'Midnight Shift (12:00 AM - 8:00 AM)' exists with start time exactly at midnight",
+        "User is on Employee Schedule page",
+        "System timezone is configured (e.g., UTC or local timezone)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select employee 'Night Worker' and click 'Assign Shift Template' button",
+          "expectedResult": "Assignment modal opens"
+        },
+        {
+          "step": 2,
+          "action": "Select 'Midnight Shift (12:00 AM - 8:00 AM)' template and set date to '2024-02-28'",
+          "expectedResult": "Template and date are selected, showing shift starts at 12:00 AM on 2024-02-28"
+        },
+        {
+          "step": 3,
+          "action": "Confirm the assignment",
+          "expectedResult": "Success message appears, assignment is confirmed"
+        },
+        {
+          "step": 4,
+          "action": "Verify calendar displays the shift correctly spanning from midnight 2024-02-28 to 8:00 AM 2024-02-28",
+          "expectedResult": "Calendar shows shift block starting exactly at midnight boundary, properly positioned on February 28th"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to assign another shift 'Late Night Shift (8:00 PM - 12:00 AM)' for 2024-02-27 ending at midnight",
+          "expectedResult": "Assignment succeeds, calendar shows Late Night Shift ending at 11:59:59 PM on Feb 27 and Midnight Shift starting at 12:00:00 AM on Feb 28 with no overlap conflict"
+        },
+        {
+          "step": 6,
+          "action": "Verify database records show correct timestamp handling for midnight boundary",
+          "expectedResult": "EmployeeSchedules table shows Midnight Shift with start_time '2024-02-28 00:00:00' and end_time '2024-02-28 08:00:00' with proper timezone handling"
+        }
+      ],
+      "postconditions": [
+        "Midnight boundary shifts are correctly stored and displayed",
+        "No off-by-one errors in date/time calculations",
+        "Timezone handling is correct for midnight transitions",
+        "Adjacent shifts at midnight boundary do not create false overlap conflicts"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Verify system behavior when employee list is empty (no employees in system)",
+      "category": "Edge Cases",
+      "priority": "Low",
+      "preconditions": [
+        "Admin user is logged in",
+        "Database EmployeeSchedules table exists but contains no employee records",
+        "Shift templates exist in the system",
+        "User navigates to Employee Schedule section"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Employee Schedule section",
+          "expectedResult": "Page loads successfully showing empty state message 'No employees found. Please add employees to begin scheduling.' with an 'Add Employee' button or link"
+        },
+        {
+          "step": 2,
+          "action": "Verify employee list panel is empty or shows appropriate placeholder",
+          "expectedResult": "Employee list shows empty state illustration or message, no error messages displayed"
+        },
+        {
+          "step": 3,
+          "action": "Verify calendar view shows empty state",
+          "expectedResult": "Calendar displays with no shift assignments, shows message 'No schedules to display' or similar"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to access assignment functionality (if any buttons are visible)",
+          "expectedResult": "Assignment buttons are disabled or hidden, or clicking shows message 'Please select an employee first'"
+        },
+        {
+          "step": 5,
+          "action": "Verify no JavaScript errors appear in browser console",
+          "expectedResult": "Console shows no errors, application handles empty state gracefully"
+        }
+      ],
+      "postconditions": [
+        "Application displays appropriate empty state UI",
+        "No errors or crashes occur with empty employee list",
+        "User is guided to add employees before scheduling",
+        "System remains stable and functional"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Verify complete keyboard navigation through shift assignment workflow",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Admin user is logged in",
+        "Employee 'Keyboard User' exists in the system",
+        "Shift template 'Day Shift (9AM-5PM)' is available",
+        "User is on Employee Schedule page",
+        "Mouse is disconnected or not used for this test"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key repeatedly from page load to navigate through all interactive elements",
+          "expectedResult": "Focus moves in logical order: main navigation → employee search field → employee list items → 'Assign Shift Template' button, visible focus indicator (blue outline) appears on each element"
+        },
+        {
+          "step": 2,
+          "action": "Use Arrow Down key to navigate through employee list and press Enter on 'Keyboard User'",
+          "expectedResult": "Employee 'Keyboard User' is selected, details panel opens, focus moves to details panel"
+        },
+        {
+          "step": 3,
+          "action": "Press Tab to focus 'Assign Shift Template' button and press Enter or Space to activate",
+          "expectedResult": "Assignment modal opens, focus automatically moves to first interactive element in modal (shift template dropdown)"
+        },
+        {
+          "step": 4,
+          "action": "Press Space or Enter to open shift template dropdown, use Arrow Down/Up keys to navigate templates, press Enter to select 'Day Shift (9AM-5PM)'",
+          "expectedResult": "Dropdown opens, focus moves through template options with visual highlight, selected template is confirmed and dropdown closes"
+        },
+        {
+          "step": 5,
+          "action": "Press Tab to move to date field, type '02/26/2024' using keyboard",
+          "expectedResult": "Focus moves to date field with visible indicator, date is entered successfully, field shows '02/26/2024'"
+        },
+        {
+          "step": 6,
+          "action": "Press Tab to focus 'Confirm Assignment' button and press Enter",
+          "expectedResult": "Assignment is submitted, success message appears, focus moves to success message or returns to employee schedule with focus on newly assigned shift"
+        },
+        {
+          "step": 7,
+          "action": "Press Escape key while modal is open (test with a new assignment attempt)",
+          "expectedResult": "Modal closes, focus returns to 'Assign Shift Template' button that originally opened the modal"
+        }
+      ],
+      "postconditions": [
+        "All functionality is accessible via keyboard without requiring mouse",
+        "Focus order is logical and follows visual layout",
+        "Focus is always visible with clear indicators",
+        "Focus is properly managed when opening/closing modals",
+        "Keyboard shortcuts (Enter, Space, Escape, Arrows) work as expected"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Verify screen reader announces all critical information during shift assignment",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Admin user is logged in",
+        "Screen reader software is active (NVDA, JAWS, or VoiceOver)",
+        "Employee 'Screen Reader User' exists in the system",
+        "Shift template 'Evening Shift (4PM-12AM)' is available",
+        "User is on Employee Schedule page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Employee Schedule page and listen to screen reader announcement",
+          "expectedResult": "Screen reader announces 'Employee Schedule, main region' or 'Employee Schedule page loaded', page title and main heading are read"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to employee list and focus on 'Screen Reader User' item",
+          "expectedResult": "Screen reader announces 'Screen Reader User, list item, 1 of 10' with employee name and position in list"
+        },
+        {
+          "step": 3,
+          "action": "Activate 'Screen Reader User' and navigate to 'Assign Shift Template' button",
+          "expectedResult": "Screen reader announces 'Assign Shift Template, button' with clear button label"
+        },
+        {
+          "step": 4,
+          "action": "Activate 'Assign Shift Template' button to open modal",
+          "expectedResult": "Screen reader announces 'Assign Shift Template dialog opened' or 'Modal dialog', focus moves into modal, modal title is announced"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to shift template dropdown and open it",
+          "expectedResult": "Screen reader announces 'Shift template, combo box, collapsed' then 'expanded' when opened, announces number of options available"
+        },
+        {
+          "step": 6,
+          "action": "Navigate through template options and select 'Evening Shift (4PM-12AM)'",
+          "expectedResult": "Screen reader announces each template option as focused: 'Evening Shift 4PM to 12AM, option 2 of 5', announces 'selected' when chosen"
+        },
+        {
+          "step": 7,
+          "action": "Navigate to date field",
+          "expectedResult": "Screen reader announces 'Date, edit, required' or 'Select date, date picker', indicates field is required"
+        },
+        {
+          "step": 8,
+          "action": "Submit assignment and listen for confirmation",
+          "expectedResult": "Screen reader announces 'Shift template successfully assigned to Screen Reader User, alert' or success message is read automatically via ARIA live region"
+        },
+        {
+          "step": 9,
+          "action": "Trigger a double-scheduling error and listen for error announcement",
+          "expectedResult": "Screen reader announces error message 'Error: Cannot assign shift, employee already scheduled during this time, alert' via ARIA live region with assertive politeness"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements have proper ARIA labels and roles",
+        "Screen reader announces all state changes (modal open/close, success/error)",
+        "Form fields announce their labels, types, and required status",
+        "Error and success messages are announced via ARIA live regions",
+        "User can complete entire workflow using screen reader alone"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify sufficient color contrast ratios for all text and interactive elements",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Admin user is logged in and on Employee Schedule page",
+        "Color contrast analyzer tool is available (browser extension or standalone tool)",
+        "Page displays employee list, calendar, and assignment modal",
+        "WCAG 2.1 Level AA requires 4.5:1 contrast for normal text, 3:1 for large text and UI components"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use contrast analyzer to check employee names in the employee list (normal text)",
+          "expectedResult": "Text color against background has contrast ratio of at least 4.5:1, meets WCAG AA standard"
+        },
+        {
+          "step": 2,
+          "action": "Check contrast of 'Assign Shift Template' button text and background",
+          "expectedResult": "Button text has 4.5:1 contrast ratio, button border/background has 3:1 contrast against surrounding background"
+        },
+        {
+          "step": 3,
+          "action": "Check contrast of success message banner (green background with white text)",
+          "expectedResult": "White text on green background has minimum 4.5:1 contrast ratio"
+        },
+        {
+          "step": 4,
+          "action": "Check contrast of error message banner (red background with white text)",
+          "expectedResult": "White text on red background has minimum 4.5:1 contrast ratio"
+        },
+        {
+          "step": 5,
+          "action": "Check contrast of shift blocks in calendar view (colored backgrounds with text)",
+          "expectedResult": "Shift text on colored shift blocks has minimum 4.5:1 contrast, shift blocks have 3:1 contrast against calendar background"
+        },
+        {
+          "step": 6,
+          "action": "Check contrast of form field labels and input borders in assignment modal",
+          "expectedResult": "Labels have 4.5:1 contrast, input field borders have 3:1 contrast against background"
+        },
+        {
+          "step": 7,
+          "action": "Check contrast of focus indicators (blue outline on focused elements)",
+          "expectedResult": "Focus indicator has minimum 3:1 contrast ratio against both the focused element and adjacent background"
+        },
+        {
+          "step": 8,
+          "action": "Verify information is not conveyed by color alone (e.g., shift status, errors)",
+          "expectedResult": "Errors use icons or text in addition to red color, shift types use patterns or labels in addition to color coding"
+        }
+      ],
+      "postconditions": [
+        "All text meets WCAG 2.1 Level AA contrast requirements (4.5:1 for normal, 3:1 for large)",
+        "Interactive elements and UI components meet 3:1 contrast requirement",
+        "Focus indicators are clearly visible with sufficient contrast",
+        "Information is not conveyed by color alone",
+        "Page is usable for users with color blindness or low vision"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify page functionality at 200% browser zoom level",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "Admin user is logged in",
+        "Browser is set to 100% zoom (default)",
+        "Employee Schedule page is loaded with employee list and calendar visible",
+        "At least one employee and shift template exist"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Increase browser zoom to 200% using Ctrl/Cmd + Plus key or browser zoom controls",
+          "expectedResult": "Page content scales to 200%, text is larger and readable, no horizontal scrolling required for main content"
+        },
+        {
+          "step": 2,
+          "action": "Verify employee list is still visible and scrollable at 200% zoom",
+          "expectedResult": "Employee list displays properly, names are not truncated, vertical scrolling works if needed, no overlapping elements"
+        },
+        {
+          "step": 3,
+          "action": "Verify calendar view adapts to 200% zoom",
+          "expectedResult": "Calendar remains functional, shift blocks are visible and readable, dates and times are not cut off, responsive design adapts layout if needed"
+        },
+        {
+          "step": 4,
+          "action": "Select an employee and click 'Assign Shift Template' button at 200% zoom",
+          "expectedResult": "Button is fully visible and clickable, modal opens properly sized for zoomed viewport"
+        },
+        {
+          "step": 5,
+          "action": "Interact with assignment modal at 200% zoom: select template, enter date, submit",
+          "expectedResult": "All form fields are accessible and usable, dropdown options are readable, buttons are not cut off, modal content scrolls vertically if needed"
+        },
+        {
+          "step": 6,
+          "action": "Verify success/error messages display correctly at 200% zoom",
+          "expectedResult": "Messages are fully visible, text wraps appropriately, no content is hidden or inaccessible"
+        },
+        {
+          "step": 7,
+          "action": "Test at 400% zoom (WCAG AAA requirement) if possible",
+          "expectedResult": "Page remains functional at 400% zoom, content reflows to single column if needed, all functionality accessible via scrolling"
+        }
+      ],
+      "postconditions": [
+        "Page is fully functional at 200% zoom (WCAG 2.1 Level AA requirement)",
+        "No content is lost or becomes inaccessible when zoomed",
+        "Text reflows and wraps appropriately without horizontal scrolling",
+        "Interactive elements remain clickable and usable",
+        "Layout adapts responsively to zoomed viewport"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify proper ARIA landmarks and semantic HTML structure for assistive technologies",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "Admin user is logged in and on Employee Schedule page",
+        "Browser developer tools or accessibility inspector is open",
+        "Screen reader is available for testing landmark navigation",
+        "Page displays full interface with employee list, calendar, and controls"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Inspect page structure using accessibility inspector or developer tools",
+          "expectedResult": "Page uses semantic HTML5 elements: <header>, <nav>, <main>, <section>, <footer> where appropriate"
+        },
+        {
+          "step": 2,
+          "action": "Verify ARIA landmarks are properly implemented: banner, navigation, main, complementary, contentinfo",
+          "expectedResult": "Main content area has role='main' or <main> element, navigation has role='navigation' or <nav>, proper landmark structure exists"
+        },
+        {
+          "step": 3,
+          "action": "Use screen reader landmark navigation (NVDA: D key, JAWS: ; key, VoiceOver: VO+U) to jump between landmarks",
+          "expectedResult": "Screen reader can navigate between landmarks: 'Main navigation', 'Main content', 'Employee list region', 'Calendar region', each landmark is announced with proper label"
+        },
+        {
+          "step": 4,
+          "action": "Verify employee list has proper ARIA attributes: role='list' and role='listitem' or uses <ul>/<li> elements",
+          "expectedResult": "Employee list is announced as 'list with X items', each employee is announced as 'list item'"
+        },
+        {
+          "step": 5,
+          "action": "Verify assignment modal has proper ARIA dialog attributes: role='dialog', aria-labelledby, aria-modal='true'",
+          "expectedResult": "Modal is announced as 'dialog', has accessible name from title, aria-modal='true' restricts screen reader to modal content"
+        },
+        {
+          "step": 6,
+          "action": "Verify form fields have proper labels: <label> elements or aria-label/aria-labelledby",
+          "expectedResult": "All form inputs have associated labels, screen reader announces label when field is focused"
+        },
+        {
+          "step": 7,
+          "action": "Verify success/error messages use ARIA live regions: role='alert' or aria-live='polite/assertive'",
+          "expectedResult": "Success messages have aria-live='polite', error messages have aria-live='assertive' or role='alert', messages are announced automatically without focus change"
+        },
+        {
+          "step": 8,
+          "action": "Verify calendar has proper ARIA grid or table structure with row/column headers",
+          "expectedResult": "Calendar uses role='grid' or <table> with proper headers, dates are navigable and announced with context (day of week, date)"
+        }
+      ],
+      "postconditions": [
+        "Page structure uses semantic HTML5 elements appropriately",
+        "ARIA landmarks enable efficient navigation for screen reader users",
+        "All interactive elements have proper roles and labels",
+        "Form controls are properly labeled and associated",
+        "Dynamic content updates are announced via ARIA live regions",
+        "Complex widgets (calendar, modal) use appropriate ARIA patterns"
+      ]
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true
+  },
+  "userStoryObject": {
+    "id": "story-2",
+    "title": "As Admin, I want to assign shift templates to employees to achieve efficient scheduling.",
+    "epicId": "epic-1",
+    "persona": "Admin",
+    "priority": "Medium",
+    "subtasks": [
+      {
+        "category": "Planning",
+        "description": "Outline the process for assigning shift templates to employees.",
+        "estimatedHours": 3
+      },
+      {
+        "category": "Backend",
+        "description": "Implement API endpoint for assigning shift templates to employees.",
+        "estimatedHours": 5
+      },
+      {
+        "category": "Frontend",
+        "description": "Create UI for assigning shift templates to employees.",
+        "estimatedHours": 6
+      },
+      {
+        "category": "Testing",
+        "description": "Create unit tests for the assignment feature.",
+        "estimatedHours": 4
+      },
+      {
+        "category": "Documentation",
+        "description": "Document the employee shift assignment process and API.",
+        "estimatedHours": 2
+      }
+    ],
+    "featureId": "feature-2",
+    "testCases": [
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to Employee Schedule section",
+            "result": "Employee Schedule page is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Select an employee from the list",
+            "result": "Employee details are shown"
+          },
+          {
+            "step": 3,
+            "action": "Choose a shift template to assign",
+            "result": "Template selected successfully"
+          },
+          {
+            "step": 4,
+            "action": "Confirm the assignment",
+            "result": "Assignment confirmation message displayed"
+          }
+        ],
+        "title": "Validate successful assignment of shift template"
+      },
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Navigate to Employee Schedule section",
+            "result": "Employee Schedule page is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Assign a shift template to an employee",
+            "result": "Template assigned successfully"
+          },
+          {
+            "step": 3,
+            "action": "Attempt to assign another overlapping shift",
+            "result": "Error message displayed preventing double scheduling"
+          }
+        ],
+        "title": "Verify prevention of double scheduling"
+      }
+    ],
+    "description": "CONTEXT & BACKGROUND:\nEfficient scheduling is essential for ensuring that all shifts are covered appropriately without conflicts.\n\nCURRENT STATE:\nCurrently, the assignment of shifts is manual and time-consuming, often leading to errors.\n\nDESIRED STATE:\nBy assigning templates, the scheduling process will be streamlined, allowing for quick assignment of shifts to employees.\n\nKEY FUNCTIONALITY:\n• Assign existing templates to employees.\n• View employee schedules in a calendar format.\n• Edit assigned shifts as needed.\n\nUSER INTERACTION FLOW:\n1. Admin navigates to the Employee Schedule section.\n2. Admin selects an employee from the list.\n3. Admin chooses a shift template to assign.\n4. Admin confirms the assignment.\n5. System displays updated employee schedule.\n\nTECHNICAL CONSIDERATIONS:\n• Data source: EmployeeSchedules table in the database.\n• Validation rules: Ensure employees cannot be double-scheduled.\n• API endpoints: POST /api/employees/schedule for assignment.\n• Security: Admin-level authentication required.\n• Performance: System should handle 100 concurrent schedule assignments.\n\nOUT OF SCOPE:\n• Employee shift preferences.\n\nSUCCESS METRICS:\n• 90% of shifts assigned using templates within the first quarter.",
+    "storyPoints": 5,
+    "personaSource": "AI Suggested",
+    "acceptanceCriteria": [
+      "Admins can successfully assign shift templates to employees, with confirmation displayed.",
+      "System prevents double scheduling of employees and displays an appropriate error message.",
+      "Changes to employee schedules are reflected in real-time."
+    ],
+    "artifactId": "7fe7ba96-0102-49b5-afd4-2d6fc9184a2b"
+  }
+}
