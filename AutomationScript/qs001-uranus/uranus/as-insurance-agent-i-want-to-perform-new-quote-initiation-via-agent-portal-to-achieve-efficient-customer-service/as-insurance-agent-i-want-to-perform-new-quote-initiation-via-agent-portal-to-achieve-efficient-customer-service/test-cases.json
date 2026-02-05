@@ -1,0 +1,1125 @@
+{
+  "storyId": "story-1",
+  "storyTitle": "As Insurance Agent, I want to perform new quote initiation via agent portal to achieve efficient customer service",
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify successful quote initiation with all mandatory fields completed",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Agent has valid credentials with 'Agent' role assigned in the system",
+        "Agent Portal application is accessible and running",
+        "Database is available and quote tables are accessible",
+        "Browser supports OAuth2 authentication flow"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Agent Portal login page at '/login' and enter valid username 'agent@insurance.com' and password 'ValidPass123!'",
+          "expectedResult": "OAuth2 authentication succeeds and agent dashboard is displayed with 'Welcome Agent' message in header"
+        },
+        {
+          "step": 2,
+          "action": "Click 'New Quote' button in the main navigation menu",
+          "expectedResult": "Quote initiation form loads within 2 seconds displaying all mandatory fields marked with red asterisk (*)"
+        },
+        {
+          "step": 3,
+          "action": "Enter valid data: Customer Name 'John Smith', Policy Type 'Auto Insurance', Coverage Amount '$50000', Effective Date 'tomorrow's date', Contact Email 'john.smith@email.com', Phone '555-123-4567'",
+          "expectedResult": "All fields accept input without validation errors, green checkmarks appear next to validated fields"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Submit Quote' button at bottom right of form",
+          "expectedResult": "Form submits within 3 seconds, success message 'Quote successfully created' appears in green banner at top, unique quote reference number in format 'QT-YYYYMMDD-XXXX' is displayed prominently"
+        },
+        {
+          "step": 5,
+          "action": "Verify quote reference number is displayed and copy it to clipboard",
+          "expectedResult": "Reference number is selectable, copyable, and remains visible on confirmation page"
+        }
+      ],
+      "postconditions": [
+        "New quote record is created in database with status 'Submitted' and timestamp",
+        "Quote reference number is unique and retrievable via search",
+        "Agent remains logged in and can initiate another quote",
+        "Audit log entry created with agent ID, timestamp, and quote reference"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify save as draft functionality preserves partial quote data",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Agent is logged into Agent Portal with valid session",
+        "Agent is on the quote initiation form page",
+        "No existing draft quotes for this agent session",
+        "Database supports draft status for quotes"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Fill in partial quote data: Customer Name 'Jane Doe', Policy Type 'Home Insurance', leave Coverage Amount and other fields empty",
+          "expectedResult": "Form accepts partial data, no validation errors shown for incomplete fields"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Save as Draft' button in bottom left of form",
+          "expectedResult": "Blue notification banner appears with message 'Draft saved successfully' and draft reference number 'DRAFT-YYYYMMDD-XXXX' is displayed"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Logout' in top right corner and confirm logout",
+          "expectedResult": "Agent is logged out and redirected to login page, session is terminated"
+        },
+        {
+          "step": 4,
+          "action": "Log back in with same agent credentials 'agent@insurance.com'",
+          "expectedResult": "Agent dashboard displays with 'Drafts' section showing 1 draft quote with reference number and timestamp"
+        },
+        {
+          "step": 5,
+          "action": "Click on the draft quote reference number to resume editing",
+          "expectedResult": "Quote form loads with previously entered data intact: Customer Name 'Jane Doe' and Policy Type 'Home Insurance' are populated, empty fields remain empty"
+        },
+        {
+          "step": 6,
+          "action": "Complete remaining mandatory fields: Coverage Amount '$100000', Effective Date 'next week', Contact Email 'jane.doe@email.com', Phone '555-987-6543', then click 'Submit Quote'",
+          "expectedResult": "Quote submits successfully, draft status changes to 'Submitted', new quote reference number generated, confirmation message displayed"
+        }
+      ],
+      "postconditions": [
+        "Draft quote is removed from drafts list after successful submission",
+        "Final quote record exists with all data from draft plus newly added fields",
+        "Draft history is maintained in audit log",
+        "Agent can create new quotes or drafts without interference"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify real-time field validation provides immediate feedback",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Agent is logged into Agent Portal",
+        "Quote initiation form is displayed and fully loaded",
+        "JavaScript validation is enabled in browser",
+        "Network connection is stable for real-time validation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click into 'Contact Email' field and enter invalid email 'notanemail' then tab out of field",
+          "expectedResult": "Red error message 'Please enter a valid email address' appears below field immediately, field border turns red"
+        },
+        {
+          "step": 2,
+          "action": "Correct the email to 'valid@email.com' and tab out",
+          "expectedResult": "Error message disappears, field border turns green, green checkmark icon appears next to field"
+        },
+        {
+          "step": 3,
+          "action": "Click into 'Phone' field and enter '123' then tab out",
+          "expectedResult": "Red error message 'Phone number must be in format XXX-XXX-XXXX' appears below field"
+        },
+        {
+          "step": 4,
+          "action": "Enter valid phone '555-123-4567'",
+          "expectedResult": "Error clears, field validates with green indicator"
+        },
+        {
+          "step": 5,
+          "action": "Select 'Effective Date' and choose a date in the past",
+          "expectedResult": "Red error message 'Effective date must be today or in the future' appears, date field is highlighted in red"
+        },
+        {
+          "step": 6,
+          "action": "Change date to tomorrow's date",
+          "expectedResult": "Validation passes, green checkmark appears, error message disappears"
+        }
+      ],
+      "postconditions": [
+        "All validation states are cleared when form is reset",
+        "Validation messages are accessible and readable",
+        "Form maintains validation state if user navigates away and returns",
+        "No validation errors persist after correction"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify quote reference number generation is unique and follows correct format",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Agent is logged into Agent Portal",
+        "Multiple quotes can be created in sequence",
+        "Database sequence generator is functioning",
+        "System date and time are correctly configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create and submit first quote with valid data: Customer 'Test User 1', Policy 'Auto', Coverage '$25000', Date 'tomorrow', Email 'test1@email.com', Phone '555-111-1111'",
+          "expectedResult": "Quote submits successfully, reference number displayed in format 'QT-YYYYMMDD-0001' where YYYYMMDD is current date"
+        },
+        {
+          "step": 2,
+          "action": "Note the reference number and click 'Create Another Quote' button",
+          "expectedResult": "New blank quote form is displayed, previous reference number is no longer shown"
+        },
+        {
+          "step": 3,
+          "action": "Create and submit second quote with different valid data: Customer 'Test User 2', Policy 'Home', Coverage '$75000', Date 'next week', Email 'test2@email.com', Phone '555-222-2222'",
+          "expectedResult": "Quote submits successfully, new reference number displayed in format 'QT-YYYYMMDD-0002' with incremented sequence number"
+        },
+        {
+          "step": 4,
+          "action": "Compare both reference numbers for uniqueness",
+          "expectedResult": "Both reference numbers are unique, follow same format pattern, have same date prefix but different sequence numbers"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to 'Search Quotes' and search for both reference numbers individually",
+          "expectedResult": "Each reference number returns exactly one quote with correct customer details matching submission data"
+        }
+      ],
+      "postconditions": [
+        "Both quotes exist in database with unique reference numbers",
+        "Reference numbers are searchable and retrievable",
+        "Sequence counter increments correctly for subsequent quotes",
+        "No duplicate reference numbers exist in system"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify agent can navigate away from form and return without losing unsaved data warning",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "Agent is logged into Agent Portal",
+        "Quote initiation form is displayed",
+        "Browser supports beforeunload event handling",
+        "No draft has been saved yet"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter data in quote form: Customer Name 'Test Customer', Policy Type 'Life Insurance'",
+          "expectedResult": "Form accepts data, fields are populated"
+        },
+        {
+          "step": 2,
+          "action": "Click browser back button or attempt to navigate to dashboard without saving",
+          "expectedResult": "Browser warning dialog appears with message 'You have unsaved changes. Are you sure you want to leave this page?' with 'Stay' and 'Leave' options"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Stay' button in warning dialog",
+          "expectedResult": "Dialog closes, user remains on quote form, all entered data is still present in fields"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save as Draft' button",
+          "expectedResult": "Draft is saved successfully with confirmation message"
+        },
+        {
+          "step": 5,
+          "action": "Now click browser back button or navigate away",
+          "expectedResult": "No warning dialog appears since changes are saved, navigation proceeds normally"
+        }
+      ],
+      "postconditions": [
+        "Unsaved data warning only appears when there are unsaved changes",
+        "Draft data is preserved in database after save",
+        "Navigation works normally after saving",
+        "User experience is protected from accidental data loss"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify form submission is blocked when mandatory fields are empty",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Agent is logged into Agent Portal with valid session",
+        "Quote initiation form is displayed and loaded",
+        "All form fields are empty/default state",
+        "Client-side and server-side validation are active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Without entering any data, click 'Submit Quote' button directly",
+          "expectedResult": "Form submission is prevented, red error banner appears at top stating 'Please complete all mandatory fields', all mandatory fields are highlighted with red borders"
+        },
+        {
+          "step": 2,
+          "action": "Scroll through form to view all validation messages",
+          "expectedResult": "Each mandatory field displays specific error message: 'Customer Name is required', 'Policy Type is required', 'Coverage Amount is required', 'Effective Date is required', 'Contact Email is required', 'Phone is required'"
+        },
+        {
+          "step": 3,
+          "action": "Fill only Customer Name 'John Doe' and leave all other mandatory fields empty, then click 'Submit Quote'",
+          "expectedResult": "Submission still blocked, error banner persists, only Customer Name field shows green validation, remaining mandatory fields still show red borders and error messages"
+        },
+        {
+          "step": 4,
+          "action": "Check browser network tab for any API calls",
+          "expectedResult": "No POST request to '/api/agent/quotes' endpoint is made, validation is handled client-side before submission attempt"
+        }
+      ],
+      "postconditions": [
+        "No quote record is created in database",
+        "Form remains in edit mode with entered data preserved",
+        "Agent session remains active",
+        "No partial or invalid data is persisted"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify system rejects quote submission with SQL injection attempts in text fields",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Agent is logged into Agent Portal",
+        "Quote initiation form is displayed",
+        "Input sanitization is implemented on backend",
+        "Security logging is enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter SQL injection string in Customer Name field: \"Robert'; DROP TABLE quotes;--\" and fill other mandatory fields with valid data",
+          "expectedResult": "Field accepts input but sanitizes it, no SQL syntax is executed"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Submit Quote' button",
+          "expectedResult": "Either: (1) Form validation rejects special characters with error 'Customer Name contains invalid characters' OR (2) Submission succeeds but backend sanitizes input, storing safe text only"
+        },
+        {
+          "step": 3,
+          "action": "If submission succeeded, search for the created quote and verify stored data",
+          "expectedResult": "Customer Name is stored as sanitized text without SQL syntax, quotes table still exists and is not dropped, database integrity is maintained"
+        },
+        {
+          "step": 4,
+          "action": "Check security logs for the submission",
+          "expectedResult": "Security event is logged indicating potential SQL injection attempt with agent ID, timestamp, and input string"
+        }
+      ],
+      "postconditions": [
+        "Database tables remain intact and undamaged",
+        "No SQL injection is executed",
+        "Security incident is logged for review",
+        "Application continues to function normally"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify unauthorized access to quote initiation form is prevented",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Agent Portal application is running",
+        "User has account with 'Customer' role (not 'Agent' role)",
+        "Role-based access control is implemented",
+        "OAuth2 authentication is active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Log in with customer credentials 'customer@email.com' and valid password",
+          "expectedResult": "Login succeeds, customer dashboard is displayed without 'New Quote' option in navigation"
+        },
+        {
+          "step": 2,
+          "action": "Manually navigate to quote initiation URL by typing '/agent/quotes/new' in browser address bar",
+          "expectedResult": "Access is denied, HTTP 403 Forbidden error page is displayed with message 'You do not have permission to access this resource'"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to access quote API directly by opening browser console and executing: fetch('/api/agent/quotes', {method: 'POST', body: JSON.stringify({customer: 'Test'})})",
+          "expectedResult": "API returns 403 Forbidden status, response body contains error message 'Insufficient permissions', no quote is created"
+        },
+        {
+          "step": 4,
+          "action": "Check application logs for access attempt",
+          "expectedResult": "Security log entry created showing unauthorized access attempt with user ID, role, attempted resource, and timestamp"
+        }
+      ],
+      "postconditions": [
+        "No quote is created by unauthorized user",
+        "User remains logged in with customer role privileges only",
+        "Security event is logged",
+        "System security is maintained"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify form handles session timeout gracefully during quote creation",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Agent is logged into Agent Portal",
+        "Quote initiation form is displayed with partial data entered",
+        "Session timeout is configured (e.g., 30 minutes)",
+        "Ability to simulate session expiration"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Fill quote form with valid data: Customer Name 'Session Test', Policy Type 'Auto', Coverage '$30000', Effective Date 'tomorrow', Email 'session@test.com', Phone '555-999-9999'",
+          "expectedResult": "Form accepts all data, fields are populated"
+        },
+        {
+          "step": 2,
+          "action": "Simulate session timeout by clearing session cookie or waiting for timeout period, then click 'Submit Quote'",
+          "expectedResult": "Submission fails, error message appears: 'Your session has expired. Please log in again.' Form data is temporarily preserved in browser"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Login' button or link in error message",
+          "expectedResult": "User is redirected to login page, URL includes return parameter to quote form"
+        },
+        {
+          "step": 4,
+          "action": "Log in again with valid agent credentials",
+          "expectedResult": "After successful login, user is redirected back to quote form with previously entered data restored from browser storage"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Submit Quote' again with restored data",
+          "expectedResult": "Quote submits successfully with new valid session, confirmation and reference number displayed"
+        }
+      ],
+      "postconditions": [
+        "User data is not lost due to session timeout",
+        "New session is established after re-login",
+        "Quote is successfully created after session renewal",
+        "User experience is preserved despite timeout"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify system handles invalid data types in numeric fields",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "Agent is logged into Agent Portal",
+        "Quote initiation form is displayed",
+        "Coverage Amount field expects numeric input",
+        "Field validation is active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter alphabetic characters 'ABCDEF' in Coverage Amount field and tab out",
+          "expectedResult": "Red error message appears: 'Coverage Amount must be a valid number', field border turns red"
+        },
+        {
+          "step": 2,
+          "action": "Clear field and enter special characters '!@#$%^' in Coverage Amount field",
+          "expectedResult": "Same error message appears, special characters are rejected or field remains invalid"
+        },
+        {
+          "step": 3,
+          "action": "Clear field and enter negative number '-5000' in Coverage Amount field",
+          "expectedResult": "Error message appears: 'Coverage Amount must be a positive number', validation fails"
+        },
+        {
+          "step": 4,
+          "action": "Clear field and enter decimal with excessive precision '50000.123456789' in Coverage Amount field",
+          "expectedResult": "Either: (1) Value is auto-formatted to 2 decimal places '50000.12' OR (2) Error message appears: 'Coverage Amount can have maximum 2 decimal places'"
+        },
+        {
+          "step": 5,
+          "action": "Fill all other mandatory fields with valid data and attempt to submit with invalid Coverage Amount",
+          "expectedResult": "Form submission is blocked, error banner appears, Coverage Amount field is highlighted, focus moves to invalid field"
+        }
+      ],
+      "postconditions": [
+        "No quote is created with invalid numeric data",
+        "Form remains in edit mode for correction",
+        "All other valid data is preserved",
+        "Data type integrity is maintained"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify system handles network failure during quote submission",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "Agent is logged into Agent Portal",
+        "Quote form is filled with valid data",
+        "Ability to simulate network disconnection",
+        "Browser developer tools are accessible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Fill quote form with complete valid data: Customer 'Network Test', Policy 'Home', Coverage '$60000', Date 'next week', Email 'network@test.com', Phone '555-888-8888'",
+          "expectedResult": "All fields validate successfully with green indicators"
+        },
+        {
+          "step": 2,
+          "action": "Open browser developer tools, go to Network tab, enable 'Offline' mode to simulate network failure",
+          "expectedResult": "Browser is now in offline mode, no network requests can succeed"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Submit Quote' button",
+          "expectedResult": "Loading spinner appears briefly, then error message displays: 'Network error. Please check your connection and try again.' Submit button becomes enabled again"
+        },
+        {
+          "step": 4,
+          "action": "Verify form data is still present in all fields",
+          "expectedResult": "All entered data remains in form fields, no data is lost"
+        },
+        {
+          "step": 5,
+          "action": "Disable offline mode to restore network connection and click 'Submit Quote' again",
+          "expectedResult": "Quote submits successfully, confirmation message and reference number displayed"
+        }
+      ],
+      "postconditions": [
+        "Form data is preserved during network failure",
+        "User receives clear error message about network issue",
+        "Quote is successfully created once network is restored",
+        "No duplicate quotes are created from retry"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Verify form handles maximum character limits in text fields",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Agent is logged into Agent Portal",
+        "Quote initiation form is displayed",
+        "Character limits are defined for text fields (e.g., Customer Name: 100 chars)",
+        "Field validation enforces character limits"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Generate and enter exactly 100 characters in Customer Name field (at maximum limit): 'A' repeated 100 times",
+          "expectedResult": "Field accepts exactly 100 characters, character counter shows '100/100', no error message appears"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to enter 101st character by typing additional 'A'",
+          "expectedResult": "Either: (1) 101st character is not accepted, field stops at 100 chars OR (2) Warning message appears: 'Maximum 100 characters allowed'"
+        },
+        {
+          "step": 3,
+          "action": "Fill all other mandatory fields with valid data and submit quote with 100-character Customer Name",
+          "expectedResult": "Quote submits successfully, full 100-character name is stored and displayed in confirmation"
+        },
+        {
+          "step": 4,
+          "action": "Create new quote and enter exactly 1 character 'X' in Customer Name field (minimum valid input)",
+          "expectedResult": "Field accepts single character, validation passes with green indicator"
+        },
+        {
+          "step": 5,
+          "action": "Submit quote with single-character Customer Name and other valid data",
+          "expectedResult": "Quote submits successfully, single character name is accepted and stored"
+        }
+      ],
+      "postconditions": [
+        "Both maximum and minimum length inputs are handled correctly",
+        "Database stores full character data without truncation",
+        "Character limits are enforced consistently",
+        "No data corruption occurs at boundaries"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Verify form handles special characters and Unicode in text fields",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Agent is logged into Agent Portal",
+        "Quote initiation form is displayed",
+        "System supports UTF-8 character encoding",
+        "Database can store Unicode characters"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter Customer Name with accented characters: 'José María Ñoño'",
+          "expectedResult": "Field accepts accented characters, displays them correctly, validation passes"
+        },
+        {
+          "step": 2,
+          "action": "Enter Customer Name with Unicode characters: '李明 (Chinese)', 'Владимир (Russian)', 'محمد (Arabic)'",
+          "expectedResult": "Field accepts and displays Unicode characters correctly without corruption"
+        },
+        {
+          "step": 3,
+          "action": "Enter Customer Name with emojis: 'John Smith 😀🏠'",
+          "expectedResult": "Either: (1) Emojis are accepted and displayed OR (2) Validation message appears: 'Special symbols not allowed in name'"
+        },
+        {
+          "step": 4,
+          "action": "Fill remaining mandatory fields with valid data and submit quote with special characters in Customer Name",
+          "expectedResult": "Quote submits successfully, special characters are preserved in database and displayed correctly in confirmation"
+        },
+        {
+          "step": 5,
+          "action": "Search for created quote using special characters from Customer Name",
+          "expectedResult": "Search finds quote correctly, special characters match exactly as entered"
+        }
+      ],
+      "postconditions": [
+        "Special characters and Unicode are stored correctly in database",
+        "Character encoding is preserved throughout system",
+        "Search and retrieval work with special characters",
+        "No character corruption or data loss occurs"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Verify form handles boundary values for Coverage Amount field",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "Agent is logged into Agent Portal",
+        "Quote initiation form is displayed",
+        "Coverage Amount has defined min/max limits (e.g., $1 to $10,000,000)",
+        "Numeric validation is active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter minimum valid Coverage Amount: '$1' or '1'",
+          "expectedResult": "Field accepts value, formats it as currency '$1.00', validation passes with green indicator"
+        },
+        {
+          "step": 2,
+          "action": "Enter value below minimum: '$0' or '0'",
+          "expectedResult": "Red error message appears: 'Coverage Amount must be at least $1', validation fails"
+        },
+        {
+          "step": 3,
+          "action": "Enter maximum valid Coverage Amount: '$10000000' (10 million)",
+          "expectedResult": "Field accepts value, formats it as '$10,000,000.00', validation passes"
+        },
+        {
+          "step": 4,
+          "action": "Enter value above maximum: '$10000001' (10 million + 1)",
+          "expectedResult": "Red error message appears: 'Coverage Amount cannot exceed $10,000,000', validation fails"
+        },
+        {
+          "step": 5,
+          "action": "Enter value with many decimal places: '$50000.999999'",
+          "expectedResult": "Value is auto-rounded to 2 decimal places: '$50,001.00' OR error message appears about decimal precision"
+        },
+        {
+          "step": 6,
+          "action": "Fill other mandatory fields and submit quote with minimum Coverage Amount '$1'",
+          "expectedResult": "Quote submits successfully, minimum amount is accepted and stored correctly"
+        }
+      ],
+      "postconditions": [
+        "Boundary values are enforced correctly",
+        "Minimum and maximum limits prevent invalid data",
+        "Currency formatting is consistent",
+        "Decimal precision is handled appropriately"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Verify system handles rapid successive quote submissions from same agent",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Agent is logged into Agent Portal",
+        "Quote initiation form is displayed",
+        "No rate limiting is expected for legitimate agent use",
+        "System can handle concurrent requests"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Fill quote form with valid data: Customer 'Rapid Test 1', Policy 'Auto', Coverage '$25000', Date 'tomorrow', Email 'rapid1@test.com', Phone '555-111-0001'",
+          "expectedResult": "Form is filled and ready to submit"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Submit Quote' button rapidly 5 times in quick succession (double-click scenario)",
+          "expectedResult": "Only ONE quote is created, submit button is disabled after first click, subsequent clicks are ignored, single confirmation message appears with one reference number"
+        },
+        {
+          "step": 3,
+          "action": "Verify in database or quote list that only one quote was created",
+          "expectedResult": "Exactly one quote record exists for 'Rapid Test 1', no duplicate quotes created"
+        },
+        {
+          "step": 4,
+          "action": "Create 10 different quotes in rapid succession (one after another within 2 minutes) with different customer names: 'Rapid Test 2' through 'Rapid Test 11'",
+          "expectedResult": "All 10 quotes are created successfully, each receives unique reference number, system handles rapid legitimate submissions without errors"
+        },
+        {
+          "step": 5,
+          "action": "Verify all 10 quotes exist in system with correct data",
+          "expectedResult": "All 10 quotes are retrievable, have unique reference numbers, contain correct customer data, no data corruption occurred"
+        }
+      ],
+      "postconditions": [
+        "No duplicate quotes created from double-clicking",
+        "System handles legitimate rapid submissions correctly",
+        "All quotes have unique reference numbers",
+        "Performance remains acceptable under rapid use"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Verify form behavior when browser auto-fill populates fields",
+      "category": "Edge Cases",
+      "priority": "Low",
+      "preconditions": [
+        "Agent is logged into Agent Portal",
+        "Browser has auto-fill enabled with saved form data",
+        "Quote initiation form supports auto-fill attributes",
+        "Previous quote data exists in browser auto-fill memory"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to quote initiation form and click into first field (Customer Name)",
+          "expectedResult": "Browser auto-fill dropdown appears showing previously entered names"
+        },
+        {
+          "step": 2,
+          "action": "Select an auto-fill suggestion from dropdown",
+          "expectedResult": "Browser auto-fills multiple fields with saved data (name, email, phone), fields are populated instantly"
+        },
+        {
+          "step": 3,
+          "action": "Verify that real-time validation triggers for auto-filled fields",
+          "expectedResult": "All auto-filled fields are validated automatically, green checkmarks appear for valid data, any invalid auto-filled data shows error messages"
+        },
+        {
+          "step": 4,
+          "action": "Complete remaining mandatory fields not auto-filled (Policy Type, Coverage Amount, Effective Date) and submit",
+          "expectedResult": "Quote submits successfully, auto-filled data is accepted and processed correctly"
+        },
+        {
+          "step": 5,
+          "action": "Verify submitted quote contains correct data from auto-fill",
+          "expectedResult": "Quote confirmation shows all data correctly, auto-filled information matches what was populated"
+        }
+      ],
+      "postconditions": [
+        "Auto-fill data is validated same as manually entered data",
+        "Form works correctly with browser auto-fill feature",
+        "No validation is bypassed due to auto-fill",
+        "User experience is enhanced by auto-fill support"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Verify complete keyboard navigation through quote initiation form",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Agent is logged into Agent Portal using keyboard only (no mouse)",
+        "Quote initiation form is displayed",
+        "Screen reader is not required for this test (keyboard only)",
+        "Browser supports standard keyboard navigation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key repeatedly from top of page to navigate through all form elements",
+          "expectedResult": "Focus moves sequentially through: Customer Name field, Policy Type dropdown, Coverage Amount field, Effective Date picker, Contact Email field, Phone field, 'Save as Draft' button, 'Submit Quote' button. Focus indicator is clearly visible on each element with blue outline"
+        },
+        {
+          "step": 2,
+          "action": "Press Shift+Tab to navigate backwards through form",
+          "expectedResult": "Focus moves in reverse order through all interactive elements, no focus traps occur, focus indicator remains visible"
+        },
+        {
+          "step": 3,
+          "action": "Navigate to Policy Type dropdown and press Space or Enter key to open",
+          "expectedResult": "Dropdown opens showing policy options, focus moves to first option"
+        },
+        {
+          "step": 4,
+          "action": "Use Arrow Down/Up keys to navigate dropdown options, then press Enter to select",
+          "expectedResult": "Arrow keys move through options with visual highlight, Enter key selects highlighted option and closes dropdown, selected value appears in field"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to Effective Date field and press Enter or Space to open date picker",
+          "expectedResult": "Date picker calendar opens, focus is on current date, Arrow keys navigate dates, Enter selects date, Escape closes picker"
+        },
+        {
+          "step": 6,
+          "action": "Fill all mandatory fields using keyboard only, navigate to 'Submit Quote' button and press Enter",
+          "expectedResult": "Form submits successfully, confirmation message appears and receives focus, reference number is announced"
+        }
+      ],
+      "postconditions": [
+        "All form functionality is accessible via keyboard",
+        "No keyboard traps prevent navigation",
+        "Focus order is logical and predictable",
+        "Visual focus indicators are always visible"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Verify screen reader announces all form elements and validation messages correctly",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Agent is logged into Agent Portal",
+        "Screen reader is active (NVDA, JAWS, or VoiceOver)",
+        "Quote initiation form is displayed",
+        "ARIA labels and live regions are implemented"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to quote initiation form with screen reader active and listen to page announcement",
+          "expectedResult": "Screen reader announces: 'Quote Initiation Form, form landmark, heading level 1' and reads form instructions if present"
+        },
+        {
+          "step": 2,
+          "action": "Tab to Customer Name field and listen to screen reader announcement",
+          "expectedResult": "Screen reader announces: 'Customer Name, required, edit text' indicating field label, required status, and field type"
+        },
+        {
+          "step": 3,
+          "action": "Leave Customer Name empty and tab out to trigger validation error",
+          "expectedResult": "Screen reader immediately announces: 'Error: Customer Name is required' via ARIA live region, error is associated with field"
+        },
+        {
+          "step": 4,
+          "action": "Enter valid data in Customer Name and tab out",
+          "expectedResult": "Screen reader announces: 'Customer Name valid' or similar confirmation message"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to Policy Type dropdown and activate it",
+          "expectedResult": "Screen reader announces: 'Policy Type, required, combo box collapsed' then 'combo box expanded' when opened, announces each option as focus moves"
+        },
+        {
+          "step": 6,
+          "action": "Attempt to submit form with missing fields and listen to error announcement",
+          "expectedResult": "Screen reader announces: 'Error: Please complete all mandatory fields. 3 errors found.' Focus moves to first error, each error is announced as user navigates"
+        },
+        {
+          "step": 7,
+          "action": "Complete form and submit successfully",
+          "expectedResult": "Screen reader announces: 'Success: Quote successfully created. Reference number QT-YYYYMMDD-XXXX' via ARIA live region"
+        }
+      ],
+      "postconditions": [
+        "All form elements have proper ARIA labels",
+        "Required fields are announced as required",
+        "Validation errors are announced immediately",
+        "Success messages are announced to screen reader users"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify color contrast ratios meet WCAG 2.1 AA standards throughout form",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Agent Portal is accessible in browser",
+        "Color contrast checking tool is available (e.g., browser extension or online tool)",
+        "Quote initiation form is displayed",
+        "WCAG 2.1 Level AA requires 4.5:1 for normal text, 3:1 for large text"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use contrast checker tool to measure contrast ratio between form field labels (text) and background",
+          "expectedResult": "Contrast ratio is at least 4.5:1 for normal-sized label text, meets WCAG AA standard"
+        },
+        {
+          "step": 2,
+          "action": "Measure contrast ratio between input field text and field background",
+          "expectedResult": "Contrast ratio is at least 4.5:1, text is clearly readable"
+        },
+        {
+          "step": 3,
+          "action": "Measure contrast ratio of error messages (red text) against background",
+          "expectedResult": "Red error text has at least 4.5:1 contrast ratio, errors are not conveyed by color alone (icon or text indicator also present)"
+        },
+        {
+          "step": 4,
+          "action": "Measure contrast ratio of success indicators (green checkmarks/text) against background",
+          "expectedResult": "Green success indicators have at least 3:1 contrast ratio, success is not conveyed by color alone"
+        },
+        {
+          "step": 5,
+          "action": "Measure contrast ratio of 'Submit Quote' button text against button background in normal, hover, and focus states",
+          "expectedResult": "All button states have at least 4.5:1 contrast ratio for text, button remains clearly visible and readable in all states"
+        },
+        {
+          "step": 6,
+          "action": "Measure contrast ratio of focus indicators (outline/border) against background",
+          "expectedResult": "Focus indicators have at least 3:1 contrast ratio against adjacent colors, focus is always clearly visible"
+        }
+      ],
+      "postconditions": [
+        "All text meets WCAG 2.1 AA contrast requirements",
+        "Form is usable by users with low vision or color blindness",
+        "Information is not conveyed by color alone",
+        "Focus indicators are clearly visible"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify form remains functional and readable at 200% browser zoom",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "Agent is logged into Agent Portal",
+        "Quote initiation form is displayed at 100% zoom",
+        "Browser supports zoom functionality",
+        "Responsive design is implemented"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Set browser zoom to 200% using Ctrl/Cmd + Plus key or browser zoom menu",
+          "expectedResult": "Page zooms to 200%, all content scales proportionally, no horizontal scrolling is required for form content"
+        },
+        {
+          "step": 2,
+          "action": "Verify all form field labels are fully visible and readable at 200% zoom",
+          "expectedResult": "All labels are visible, not truncated, and remain associated with their fields, text is clear and readable"
+        },
+        {
+          "step": 3,
+          "action": "Verify all form input fields are fully visible and usable at 200% zoom",
+          "expectedResult": "Input fields are appropriately sized, not cut off, cursor is visible when typing, field boundaries are clear"
+        },
+        {
+          "step": 4,
+          "action": "Verify error messages and validation indicators are visible at 200% zoom",
+          "expectedResult": "Error messages appear in full, are not hidden or truncated, validation icons are visible and appropriately sized"
+        },
+        {
+          "step": 5,
+          "action": "Navigate through entire form using Tab key at 200% zoom",
+          "expectedResult": "Focus indicator is visible and appropriately sized, focused elements scroll into view automatically, no content is inaccessible"
+        },
+        {
+          "step": 6,
+          "action": "Fill out and submit form at 200% zoom",
+          "expectedResult": "All form functionality works correctly, submission succeeds, confirmation message is fully visible and readable"
+        }
+      ],
+      "postconditions": [
+        "Form is fully functional at 200% zoom",
+        "No content is lost or becomes inaccessible",
+        "Layout adapts appropriately to zoom level",
+        "Users with low vision can use form effectively"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify form provides clear focus management and no keyboard traps exist",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Agent is logged into Agent Portal using keyboard only",
+        "Quote initiation form is displayed",
+        "Modal dialogs or overlays may appear during interaction",
+        "Focus management is implemented for dynamic content"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to quote form and trigger validation error by submitting empty form using keyboard",
+          "expectedResult": "After error appears, focus automatically moves to first field with error or to error summary, focus is not lost"
+        },
+        {
+          "step": 2,
+          "action": "Open Policy Type dropdown using keyboard (Space or Enter), then press Escape key",
+          "expectedResult": "Dropdown closes, focus returns to Policy Type field (not lost), user can continue navigating form"
+        },
+        {
+          "step": 3,
+          "action": "Open Effective Date picker using keyboard, navigate dates, then press Escape",
+          "expectedResult": "Date picker closes, focus returns to Effective Date field, no keyboard trap occurs"
+        },
+        {
+          "step": 4,
+          "action": "Fill form and click 'Save as Draft', observe focus after success message appears",
+          "expectedResult": "Success message appears, focus moves to message or remains on 'Save as Draft' button, user can navigate away from message using Tab"
+        },
+        {
+          "step": 5,
+          "action": "If confirmation dialog appears after submission, navigate through dialog using Tab",
+          "expectedResult": "Focus is trapped within dialog (cannot tab to background content), can navigate all dialog elements, Escape or 'Close' button exits dialog and returns focus appropriately"
+        },
+        {
+          "step": 6,
+          "action": "Test that focus never becomes invisible or stuck in any part of the form",
+          "expectedResult": "Focus indicator is always visible, focus never gets trapped in any component, user can always navigate forward and backward through all interactive elements"
+        }
+      ],
+      "postconditions": [
+        "No keyboard traps exist anywhere in form",
+        "Focus is managed logically for all dynamic content",
+        "Focus indicator is always visible",
+        "Users can complete entire workflow using keyboard only"
+      ]
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true
+  },
+  "userStoryObject": {
+    "id": "story-1",
+    "title": "As Insurance Agent, I want to perform new quote initiation via agent portal to achieve efficient customer service",
+    "epicId": "epic-1",
+    "persona": "Insurance Agent",
+    "priority": "Medium",
+    "subtasks": [
+      {
+        "category": "Planning",
+        "description": "Define agent portal quote initiation requirements and validation rules",
+        "estimatedHours": 4
+      },
+      {
+        "category": "Backend",
+        "description": "Implement API POST /api/agent/quotes to accept new quote data",
+        "estimatedHours": 8
+      },
+      {
+        "category": "Backend",
+        "description": "Develop database schema changes to support quote drafts and submissions",
+        "estimatedHours": 6
+      },
+      {
+        "category": "Frontend",
+        "description": "Design and develop agent portal quote initiation form with real-time validation",
+        "estimatedHours": 8
+      },
+      {
+        "category": "Frontend",
+        "description": "Implement save draft and resume functionality in the agent portal UI",
+        "estimatedHours": 6
+      },
+      {
+        "category": "Testing",
+        "description": "Create unit tests for backend API and validation logic",
+        "estimatedHours": 6
+      },
+      {
+        "category": "Testing",
+        "description": "Perform integration and UI testing for quote initiation workflow",
+        "estimatedHours": 8
+      },
+      {
+        "category": "Documentation",
+        "description": "Document API endpoint and agent portal usage instructions",
+        "estimatedHours": 4
+      },
+      {
+        "category": "DevOps",
+        "description": "Deploy agent portal quote initiation feature to staging environment",
+        "estimatedHours": 4
+      }
+    ],
+    "featureId": "feature-1",
+    "testCases": [
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Agent logs into the agent portal",
+            "result": "Agent dashboard is displayed"
+          },
+          {
+            "step": 2,
+            "action": "Agent navigates to new quote initiation page",
+            "result": "Quote initiation form is displayed"
+          },
+          {
+            "step": 3,
+            "action": "Agent enters valid data in all mandatory fields",
+            "result": "No validation errors are shown"
+          },
+          {
+            "step": 4,
+            "action": "Agent submits the quote",
+            "result": "Quote is successfully created, confirmation with reference number is displayed"
+          }
+        ],
+        "title": "Validate successful quote initiation with valid data"
+      },
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Agent opens the quote initiation form",
+            "result": "Form is displayed with all mandatory fields"
+          },
+          {
+            "step": 2,
+            "action": "Agent leaves one or more mandatory fields empty",
+            "result": "Real-time validation highlights missing fields"
+          },
+          {
+            "step": 3,
+            "action": "Agent attempts to submit the form",
+            "result": "Submission is blocked and error messages are displayed"
+          }
+        ],
+        "title": "Verify form validation prevents submission with missing mandatory fields"
+      },
+      {
+        "steps": [
+          {
+            "step": 1,
+            "action": "Agent fills partial data in quote initiation form",
+            "result": "Form accepts data without errors"
+          },
+          {
+            "step": 2,
+            "action": "Agent saves the quote as draft",
+            "result": "'Draft saved' notification is displayed"
+          },
+          {
+            "step": 3,
+            "action": "Agent logs out and logs back in, then resumes draft",
+            "result": "Previously entered data is loaded correctly for editing"
+          }
+        ],
+        "title": "Test save draft and resume functionality"
+      }
+    ],
+    "description": "CONTEXT & BACKGROUND:\nInsurance agents need to initiate new insurance quotes via the agent portal to serve customers promptly and accurately.\n\nCURRENT STATE:\nCurrently, agents use multiple disconnected tools leading to inefficiencies and errors.\n\nDESIRED STATE:\nAgents can use a unified portal interface to initiate quotes quickly with validation support.\n\nKEY FUNCTIONALITY:\n• Secure login for agents\n• Responsive and intuitive quote initiation form\n• Mandatory field validations\n• Save as draft functionality\n• Submit quote and receive confirmation\n• View quote reference number\n\nUSER INTERACTION FLOW:\n1. Agent logs into the agent portal\n2. Navigates to the new quote initiation page\n3. Fills out required quote details in the form\n4. System validates data in real-time\n5. Agent saves as draft or submits the quote\n6. System processes submission and generates reference\n7. Confirmation with reference number is displayed\n\nTECHNICAL CONSIDERATIONS:\n• Data source: Agent Portal database tables for quotes\n• Validation rules: Frontend real-time and backend server-side validation\n• API endpoints: POST /api/agent/quotes\n• Security: OAuth2 authentication, role-based access control, input sanitization\n• Performance: Form loads within 2 seconds, submission response under 3 seconds\n\nOUT OF SCOPE:\n• Quote pricing calculations\n• Policy issuance\n\nSUCCESS METRICS:\n• 90% of agents successfully initiate quotes without errors\n• 95% form submission success rate\n• Average quote initiation time under 5 minutes",
+    "storyPoints": 5,
+    "personaSource": "AI Suggested",
+    "acceptanceCriteria": [
+      "Agent portal displays a secure login page accessible only to authorized agents",
+      "Quote initiation form enforces validation on all mandatory fields before submission",
+      "Agent can save a quote as draft and resume editing later without data loss",
+      "System generates and displays a unique quote reference number upon successful submission",
+      "System prevents submission if any mandatory field is missing or invalid"
+    ]
+  }
+}
