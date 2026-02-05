@@ -1,0 +1,2097 @@
+{
+  "storyId": "ado-14144",
+  "storyTitle": "As Performance Manager, I want to schedule review cycles to achieve timely performance evaluations",
+  "testCases": [],
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Successfully schedule a daily review cycle with notification settings",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Manager with review scheduling permissions",
+        "User is on the Review Cycle Management page at /review-cycles/schedule",
+        "No existing review cycles are scheduled for the current period",
+        "System time is set to a valid business date"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on 'Create New Review Cycle' button in the top-right corner of the page",
+          "expectedResult": "Review cycle creation modal opens with empty form fields for frequency, start date, notification settings, and description"
+        },
+        {
+          "step": 2,
+          "action": "Select 'Daily' from the 'Frequency' dropdown menu",
+          "expectedResult": "Frequency field displays 'Daily' and additional daily-specific options appear (time of day, weekdays only checkbox)"
+        },
+        {
+          "step": 3,
+          "action": "Set start date to tomorrow's date using the date picker and set time to '09:00 AM'",
+          "expectedResult": "Start date field shows tomorrow's date in MM/DD/YYYY format and time shows '09:00 AM'"
+        },
+        {
+          "step": 4,
+          "action": "Enable 'Send Notification' toggle and set notification time to '24 hours before review'",
+          "expectedResult": "Notification toggle turns green/active and notification timing dropdown shows '24 hours before'"
+        },
+        {
+          "step": 5,
+          "action": "Enter 'Daily Performance Check-in' in the 'Review Cycle Name' field and click 'Save Schedule' button",
+          "expectedResult": "Success message 'Review cycle scheduled successfully' appears in green banner at top of page, modal closes, and new review cycle appears in the calendar view"
+        }
+      ],
+      "postconditions": [
+        "Review cycle is saved in the database with status 'Active'",
+        "Calendar view displays the daily review cycle starting from tomorrow",
+        "Notification job is created in the system for 24 hours before each review",
+        "User remains on the Review Cycle Management page with updated calendar view"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Successfully schedule a weekly review cycle and verify calendar view display",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Manager with scheduling permissions",
+        "User is on the Review Cycle Management page",
+        "Calendar view is set to 'Month' view mode",
+        "No conflicting weekly review cycles exist"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click 'Create New Review Cycle' button",
+          "expectedResult": "Review cycle creation modal opens with all required fields visible"
+        },
+        {
+          "step": 2,
+          "action": "Select 'Weekly' from the 'Frequency' dropdown and choose 'Monday' as the review day",
+          "expectedResult": "Frequency shows 'Weekly' and 'Day of Week' dropdown displays 'Monday' selected"
+        },
+        {
+          "step": 3,
+          "action": "Set start date to next Monday, enter 'Weekly Team Review' as name, and click 'Save Schedule'",
+          "expectedResult": "Success message appears, modal closes, and calendar view shows recurring Monday markers for the weekly review cycle"
+        },
+        {
+          "step": 4,
+          "action": "Navigate through calendar months using next/previous arrows to view future scheduled reviews",
+          "expectedResult": "Calendar displays weekly review markers on every Monday for the next 3 months with 'Weekly Team Review' label on hover"
+        }
+      ],
+      "postconditions": [
+        "Weekly review cycle is saved with recurrence pattern set to 'Every Monday'",
+        "Calendar view shows all upcoming Monday reviews for the configured period",
+        "Review cycle appears in the 'Active Schedules' list with frequency 'Weekly'",
+        "System creates individual review instances for each Monday in the schedule"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Successfully schedule a monthly review cycle with custom notification timing",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "User has access to the Review Cycle Management page",
+        "At least one employee exists in the system to be reviewed",
+        "Email notification service is configured and active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Review Cycle Management page and click 'Create New Review Cycle' button",
+          "expectedResult": "Review cycle creation modal opens successfully"
+        },
+        {
+          "step": 2,
+          "action": "Select 'Monthly' from frequency dropdown and choose '1st day of month' from the 'Day of Month' dropdown",
+          "expectedResult": "Monthly frequency is selected and day selector shows '1st day of month'"
+        },
+        {
+          "step": 3,
+          "action": "Enable notifications toggle, select '72 hours before review' from notification timing dropdown",
+          "expectedResult": "Notification settings expand showing '72 hours before' selected and email template preview appears"
+        },
+        {
+          "step": 4,
+          "action": "Enter 'Monthly Performance Evaluation' as review name, add description 'Comprehensive monthly review of team performance', and click 'Save Schedule'",
+          "expectedResult": "Success message 'Review cycle scheduled successfully' displays, modal closes, and monthly review appears on calendar on the 1st of each month"
+        },
+        {
+          "step": 5,
+          "action": "Click on the newly created review cycle in the calendar view",
+          "expectedResult": "Review cycle details panel opens showing frequency 'Monthly', notification timing '72 hours before', and description text"
+        }
+      ],
+      "postconditions": [
+        "Monthly review cycle is saved with recurrence on 1st of each month",
+        "Notification jobs are scheduled for 72 hours before each monthly review date",
+        "Review cycle appears in both calendar view and active schedules list",
+        "System logs the creation action with timestamp and user details"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Edit an existing scheduled review cycle and verify changes are reflected",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "At least one active review cycle exists (e.g., 'Weekly Team Review' scheduled for Mondays)",
+        "User is on the Review Cycle Management page with calendar view visible",
+        "No reviews from this cycle are currently in progress"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on the existing 'Weekly Team Review' cycle in the calendar view",
+          "expectedResult": "Review cycle details panel opens on the right side showing current settings: frequency 'Weekly', day 'Monday', notification settings"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Edit' button in the details panel",
+          "expectedResult": "Edit review cycle modal opens with all current values pre-populated in the form fields"
+        },
+        {
+          "step": 3,
+          "action": "Change frequency from 'Weekly' to 'Bi-weekly' and change day from 'Monday' to 'Friday'",
+          "expectedResult": "Frequency dropdown shows 'Bi-weekly' and day dropdown shows 'Friday' selected"
+        },
+        {
+          "step": 4,
+          "action": "Change notification timing from '24 hours before' to '48 hours before' and click 'Save Changes' button",
+          "expectedResult": "Success message 'Review cycle updated successfully' appears, modal closes, and calendar refreshes showing reviews on alternating Fridays"
+        },
+        {
+          "step": 5,
+          "action": "Click on the updated review cycle in calendar to view details",
+          "expectedResult": "Details panel shows updated frequency 'Bi-weekly', day 'Friday', and notification timing '48 hours before'"
+        }
+      ],
+      "postconditions": [
+        "Review cycle is updated in database with new frequency and day settings",
+        "Old notification jobs are cancelled and new ones are created for 48 hours before each bi-weekly Friday",
+        "Calendar view displays reviews on alternating Fridays instead of every Monday",
+        "Audit log records the modification with old and new values, timestamp, and user who made the change"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Delete a scheduled review cycle and verify removal from calendar",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Performance Manager with delete permissions",
+        "At least one scheduled review cycle exists that has not started yet",
+        "User is on the Review Cycle Management page",
+        "No completed reviews exist for the cycle to be deleted"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Locate the review cycle 'Daily Performance Check-in' in the Active Schedules list and click on it",
+          "expectedResult": "Review cycle details panel opens showing all cycle information and action buttons including 'Delete'"
+        },
+        {
+          "step": 2,
+          "action": "Click the 'Delete' button with trash icon",
+          "expectedResult": "Confirmation dialog appears with message 'Are you sure you want to delete this review cycle? This action cannot be undone.' and buttons 'Cancel' and 'Delete'"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Delete' button in the confirmation dialog",
+          "expectedResult": "Success message 'Review cycle deleted successfully' appears in green banner, confirmation dialog closes, and review cycle disappears from the Active Schedules list"
+        },
+        {
+          "step": 4,
+          "action": "Check the calendar view for any remaining instances of the deleted review cycle",
+          "expectedResult": "Calendar view no longer shows any markers or entries for 'Daily Performance Check-in' review cycle"
+        }
+      ],
+      "postconditions": [
+        "Review cycle is marked as deleted in the database with deletion timestamp",
+        "All future scheduled review instances are cancelled",
+        "All associated notification jobs are removed from the notification queue",
+        "Calendar view is updated and no longer displays the deleted review cycle"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify notification is sent to users prior to scheduled review cycle",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "A review cycle is scheduled for tomorrow at 10:00 AM with notification set to '24 hours before'",
+        "Test user email account is accessible for verification",
+        "Email notification service is running and configured correctly",
+        "System time can be advanced for testing purposes"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Review Cycle Management page and verify the scheduled review cycle 'Monthly Performance Evaluation' is set for tomorrow at 10:00 AM",
+          "expectedResult": "Calendar shows review scheduled for tomorrow with notification icon indicating '24 hours before' notification is enabled"
+        },
+        {
+          "step": 2,
+          "action": "Advance system time to 24 hours before the scheduled review (today at 10:00 AM) or wait for scheduled notification time",
+          "expectedResult": "System time is advanced successfully or current time matches notification trigger time"
+        },
+        {
+          "step": 3,
+          "action": "Check the in-app notifications bell icon in the top-right corner of the application",
+          "expectedResult": "Notification badge shows '1' new notification and clicking it displays 'Upcoming Review: Monthly Performance Evaluation scheduled for tomorrow at 10:00 AM'"
+        },
+        {
+          "step": 4,
+          "action": "Check the registered email inbox for notification email",
+          "expectedResult": "Email received with subject 'Reminder: Performance Review Scheduled for Tomorrow' containing review cycle name, date, time, and preparation instructions"
+        },
+        {
+          "step": 5,
+          "action": "Click on the notification in the app to view full details",
+          "expectedResult": "Notification expands showing full review details with link to 'View Review Cycle' that navigates to the review cycle details page"
+        }
+      ],
+      "postconditions": [
+        "Notification is marked as sent in the database with timestamp",
+        "Email is delivered successfully to all participants in the review cycle",
+        "In-app notification remains visible until dismissed by user",
+        "Notification log records successful delivery with recipient list and delivery status"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Attempt to schedule review cycle with overlapping dates and verify validation error",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "An existing daily review cycle 'Daily Check-in' is already scheduled starting from today",
+        "User is on the Review Cycle Management page",
+        "Validation rules for overlapping cycles are active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click 'Create New Review Cycle' button to open the creation modal",
+          "expectedResult": "Review cycle creation modal opens with empty form fields"
+        },
+        {
+          "step": 2,
+          "action": "Select 'Daily' frequency, set start date to today (same as existing cycle), enter name 'Duplicate Daily Review', and click 'Save Schedule'",
+          "expectedResult": "Error message appears in red banner at top of modal stating 'Cannot create review cycle: Overlapping schedule detected with existing cycle Daily Check-in. Please choose a different frequency or start date.'"
+        },
+        {
+          "step": 3,
+          "action": "Verify the 'Save Schedule' button remains enabled and form fields retain entered values",
+          "expectedResult": "Form remains open with all entered data intact, Save button is still clickable, and no review cycle is created"
+        },
+        {
+          "step": 4,
+          "action": "Check the calendar view and Active Schedules list for the attempted duplicate cycle",
+          "expectedResult": "Calendar and Active Schedules list show only the original 'Daily Check-in' cycle, no duplicate entry exists"
+        }
+      ],
+      "postconditions": [
+        "No new review cycle is created in the database",
+        "Existing review cycle 'Daily Check-in' remains unchanged",
+        "User remains on the creation modal with error message displayed",
+        "System logs the validation failure with details of the overlap conflict"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Attempt to schedule review cycle without required fields and verify validation errors",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "User is on the Review Cycle Management page",
+        "No form fields are pre-filled",
+        "Client-side and server-side validation are both active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click 'Create New Review Cycle' button to open the creation modal",
+          "expectedResult": "Review cycle creation modal opens with all fields empty and no validation errors displayed initially"
+        },
+        {
+          "step": 2,
+          "action": "Leave all fields empty (frequency, start date, review name) and immediately click 'Save Schedule' button",
+          "expectedResult": "Multiple validation error messages appear: 'Frequency is required' below frequency dropdown, 'Start date is required' below date picker, 'Review cycle name is required' below name field, all in red text"
+        },
+        {
+          "step": 3,
+          "action": "Verify the modal remains open and no API call is made to the backend",
+          "expectedResult": "Modal stays open with all validation errors visible, network tab shows no POST request to /api/review-cycles/schedule, and no success message appears"
+        },
+        {
+          "step": 4,
+          "action": "Check the calendar view and database for any new review cycle entries",
+          "expectedResult": "Calendar view shows no new entries and database query confirms no new review cycle record was created"
+        }
+      ],
+      "postconditions": [
+        "No review cycle is created in the database",
+        "User remains on the creation modal with validation errors displayed",
+        "All form fields remain empty as originally left",
+        "No notification jobs are created"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Attempt to schedule review cycle with past start date and verify error handling",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "User is on the Review Cycle Management page with creation modal open",
+        "Current system date is known and accessible",
+        "Date validation rules prevent past dates"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "In the review cycle creation modal, select 'Weekly' from frequency dropdown",
+          "expectedResult": "Frequency field shows 'Weekly' and day of week selector appears"
+        },
+        {
+          "step": 2,
+          "action": "Manually enter a past date (e.g., last week's date) in the start date field or select it from date picker if allowed",
+          "expectedResult": "Date field shows the past date entered"
+        },
+        {
+          "step": 3,
+          "action": "Enter 'Past Date Test Review' as review name and click 'Save Schedule' button",
+          "expectedResult": "Error message appears stating 'Start date cannot be in the past. Please select a current or future date.' in red text below the date field or in error banner"
+        },
+        {
+          "step": 4,
+          "action": "Verify no review cycle is created by checking the calendar view and Active Schedules list",
+          "expectedResult": "No new review cycle appears in calendar or schedules list, confirming validation prevented creation"
+        }
+      ],
+      "postconditions": [
+        "No review cycle is saved to the database",
+        "User remains on the creation modal with error message visible",
+        "Form retains all entered values except the invalid date may be cleared",
+        "System logs the validation failure with attempted past date value"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Attempt to access review cycle scheduling without proper permissions and verify access denial",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as a regular Employee (not Performance Manager)",
+        "User does not have 'schedule_review_cycles' permission in their role",
+        "Role-based access control is enforced on both frontend and backend",
+        "User is on the main dashboard or any accessible page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to navigate to Review Cycle Management page by entering URL /review-cycles/schedule directly in browser",
+          "expectedResult": "Page redirects to 403 Forbidden error page or dashboard with error message 'Access Denied: You do not have permission to schedule review cycles. Please contact your administrator.'"
+        },
+        {
+          "step": 2,
+          "action": "Check the main navigation menu for any links to Review Cycle Management",
+          "expectedResult": "Navigation menu does not display 'Review Cycles' or 'Schedule Reviews' options for users without proper permissions"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to make a direct API call to POST /api/review-cycles/schedule using browser console or API testing tool with valid review cycle data",
+          "expectedResult": "API returns 403 Forbidden status code with response body containing error message 'Insufficient permissions to perform this action'"
+        },
+        {
+          "step": 4,
+          "action": "Verify no review cycle is created by logging in as Performance Manager and checking the calendar view",
+          "expectedResult": "Calendar view shows no unauthorized review cycles were created, confirming backend security prevented the action"
+        }
+      ],
+      "postconditions": [
+        "No review cycle is created in the database",
+        "User remains on error page or is redirected to authorized page",
+        "Security log records the unauthorized access attempt with user ID, timestamp, and attempted action",
+        "User's session remains active but access to scheduling features remains blocked"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Attempt to delete a review cycle that has already started and verify prevention",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "A review cycle 'Q1 Performance Review' exists with start date in the past (already started)",
+        "At least one review instance from this cycle has been completed or is in progress",
+        "User is on the Review Cycle Management page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Locate the active review cycle 'Q1 Performance Review' in the Active Schedules list and click on it",
+          "expectedResult": "Review cycle details panel opens showing cycle information with status 'In Progress' or 'Active'"
+        },
+        {
+          "step": 2,
+          "action": "Click the 'Delete' button in the details panel",
+          "expectedResult": "Error message appears stating 'Cannot delete review cycle: This cycle has already started and contains completed or in-progress reviews. You can only deactivate it.' Delete button may be disabled or grayed out"
+        },
+        {
+          "step": 3,
+          "action": "Verify the review cycle still exists in the Active Schedules list and calendar view",
+          "expectedResult": "Review cycle 'Q1 Performance Review' remains visible in both Active Schedules list and calendar with all scheduled reviews intact"
+        },
+        {
+          "step": 4,
+          "action": "Check if an alternative 'Deactivate' or 'End Cycle' option is available instead of delete",
+          "expectedResult": "Details panel shows 'Deactivate' button as an alternative action for cycles that have already started"
+        }
+      ],
+      "postconditions": [
+        "Review cycle remains in the database with status unchanged",
+        "All completed and in-progress reviews associated with the cycle remain intact",
+        "Calendar view continues to show the review cycle",
+        "System logs the failed deletion attempt with reason 'Cycle already started'"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Attempt to schedule review cycle with invalid frequency value and verify error handling",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "User has browser developer tools access for testing",
+        "Review cycle creation modal is open",
+        "API validation is active on the backend"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Open browser developer tools and inspect the frequency dropdown element in the review cycle creation form",
+          "expectedResult": "Frequency dropdown HTML element is visible in the inspector with valid options (Daily, Weekly, Monthly)"
+        },
+        {
+          "step": 2,
+          "action": "Using browser console, manually modify the frequency dropdown value to an invalid option 'Hourly' or inject a custom value not in the allowed list",
+          "expectedResult": "Dropdown value is changed to 'Hourly' in the DOM"
+        },
+        {
+          "step": 3,
+          "action": "Fill in other required fields (start date as tomorrow, name as 'Invalid Frequency Test') and click 'Save Schedule' button",
+          "expectedResult": "Error message appears stating 'Invalid frequency selected. Please choose from: Daily, Weekly, or Monthly.' or API returns 400 Bad Request with validation error"
+        },
+        {
+          "step": 4,
+          "action": "Verify no review cycle is created by checking the calendar view and making a database query",
+          "expectedResult": "No new review cycle appears in calendar, and database confirms no record was created with invalid frequency value"
+        }
+      ],
+      "postconditions": [
+        "No review cycle is saved to the database",
+        "User sees validation error message on the form",
+        "System logs the validation failure with details of invalid frequency value attempted",
+        "Form remains open allowing user to correct the frequency selection"
+      ]
+    },
+    {
+      "id": "TC-NEGA-007",
+      "title": "Attempt to schedule review cycle during system maintenance and verify graceful error handling",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "Backend API is temporarily unavailable or in maintenance mode (simulated or actual)",
+        "User is on the Review Cycle Management page with creation modal open",
+        "Network timeout is set to 30 seconds"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Fill in all required fields: select 'Monthly' frequency, set start date to next month, enter name 'Maintenance Test Review', enable notifications",
+          "expectedResult": "All form fields are populated with valid data"
+        },
+        {
+          "step": 2,
+          "action": "Simulate backend unavailability (disconnect network or use API mocking tool to return 503 Service Unavailable) and click 'Save Schedule' button",
+          "expectedResult": "Loading spinner appears on the Save button indicating request is being processed"
+        },
+        {
+          "step": 3,
+          "action": "Wait for the request to timeout or receive error response from backend",
+          "expectedResult": "Error message appears stating 'Unable to schedule review cycle. The system is currently unavailable. Please try again later.' with a 'Retry' button option"
+        },
+        {
+          "step": 4,
+          "action": "Verify no review cycle is created by checking calendar view and attempting to refresh the page",
+          "expectedResult": "Calendar shows no new review cycle, and after page refresh, the attempted cycle does not appear in Active Schedules list"
+        },
+        {
+          "step": 5,
+          "action": "Click the 'Retry' button if available to test retry functionality",
+          "expectedResult": "System attempts to resubmit the request, and if backend is still unavailable, same error message appears again"
+        }
+      ],
+      "postconditions": [
+        "No review cycle is created in the database due to system unavailability",
+        "User remains on the creation modal with error message and retry option",
+        "Form data is preserved allowing user to retry without re-entering information",
+        "System logs the failed attempt with error details (503 Service Unavailable, timestamp, user ID)"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Schedule review cycle at exact midnight boundary across time zones",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Manager with scheduling permissions",
+        "System is configured with multiple time zones (PST, EST, GMT)",
+        "Review cycle management page is loaded and responsive",
+        "No existing review cycles are scheduled for the target date"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to review cycle management page and click 'Schedule New Review Cycle' button",
+          "expectedResult": "Review cycle scheduling modal opens with all frequency options visible"
+        },
+        {
+          "step": 2,
+          "action": "Select 'Monthly' frequency from dropdown and set start date to exactly 12:00:00 AM (midnight) on the 1st of next month",
+          "expectedResult": "Date picker accepts midnight time and displays '12:00:00 AM' in the time field"
+        },
+        {
+          "step": 3,
+          "action": "Select time zone as 'PST (UTC-8)' from time zone dropdown",
+          "expectedResult": "Time zone is set to PST and system shows equivalent times in other zones (3:00 AM EST, 8:00 AM GMT)"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save Review Cycle' button",
+          "expectedResult": "Success message 'Review cycle scheduled successfully' appears in green banner at top of page"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to calendar view and verify the scheduled review appears at midnight PST",
+          "expectedResult": "Review cycle appears on calendar at 12:00 AM PST on the 1st, with correct time zone indicator displayed"
+        }
+      ],
+      "postconditions": [
+        "Review cycle is saved in database with exact midnight timestamp in PST",
+        "Calendar view displays the review cycle at correct time across all time zones",
+        "Notification scheduler has queued reminder notifications based on PST midnight time",
+        "User remains on review cycle management page with calendar view active"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Schedule maximum number of concurrent review cycles (100+) and verify system performance",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Manager with full scheduling permissions",
+        "Database has capacity for at least 150 review cycle records",
+        "Review cycle management page loads within 2 seconds baseline",
+        "System performance monitoring tools are active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to review cycle management page and note initial page load time",
+          "expectedResult": "Page loads in under 2 seconds with empty or minimal review cycles displayed"
+        },
+        {
+          "step": 2,
+          "action": "Use bulk scheduling feature or API to create 100 review cycles with different frequencies (daily, weekly, monthly) spanning next 12 months",
+          "expectedResult": "System processes bulk creation request and displays progress indicator showing '100 review cycles created successfully'"
+        },
+        {
+          "step": 3,
+          "action": "Refresh the review cycle management page and measure load time",
+          "expectedResult": "Page loads in under 2 seconds despite 100 review cycles, with pagination or lazy loading implemented"
+        },
+        {
+          "step": 4,
+          "action": "Navigate to calendar view and scroll through all months containing scheduled reviews",
+          "expectedResult": "Calendar renders smoothly without lag, displaying all 100 review cycles with appropriate visual indicators for overlapping dates"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to schedule 51st additional review cycle to exceed typical limits",
+          "expectedResult": "System either accepts the 101st review cycle or displays clear message indicating maximum limit reached with current count"
+        }
+      ],
+      "postconditions": [
+        "All 100+ review cycles are persisted in database with correct scheduling data",
+        "System performance remains within acceptable limits (page load under 2 seconds)",
+        "Calendar view displays all review cycles without data loss or rendering issues",
+        "No memory leaks or performance degradation observed in browser console"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Schedule review cycle on February 29th (leap year) and verify behavior in non-leap years",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "Current system date is within a leap year (e.g., 2024)",
+        "Review cycle management page is accessible",
+        "System calendar includes February 29th as selectable date"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to review cycle management page and click 'Schedule New Review Cycle' button",
+          "expectedResult": "Review cycle scheduling modal opens with date picker showing current leap year calendar"
+        },
+        {
+          "step": 2,
+          "action": "Select 'Yearly' frequency from dropdown and set start date to February 29th, 2024",
+          "expectedResult": "Date picker accepts February 29th and displays it in the selected date field"
+        },
+        {
+          "step": 3,
+          "action": "Set recurrence to repeat annually for next 5 years and click 'Save Review Cycle'",
+          "expectedResult": "Success message appears and system saves the yearly recurring review cycle starting Feb 29, 2024"
+        },
+        {
+          "step": 4,
+          "action": "Navigate to calendar view and advance to February 2025 (non-leap year)",
+          "expectedResult": "System displays review cycle on February 28th, 2025 with notation 'Adjusted from Feb 29 (non-leap year)' or similar indicator"
+        },
+        {
+          "step": 5,
+          "action": "Advance calendar to February 2028 (next leap year) and verify review cycle date",
+          "expectedResult": "Review cycle appears on February 29th, 2028 as originally scheduled"
+        }
+      ],
+      "postconditions": [
+        "Review cycle is saved with original February 29th date preserved in database",
+        "System intelligently adjusts to February 28th in non-leap years without data corruption",
+        "Calendar view correctly displays adjusted dates with clear user notifications",
+        "Recurring pattern maintains integrity across leap year boundaries"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Schedule overlapping review cycles with identical start times and verify validation",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "One review cycle already exists scheduled for January 15, 2025 at 9:00 AM",
+        "Review cycle management page is loaded",
+        "System validation rules for overlapping cycles are active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to review cycle management page and click 'Schedule New Review Cycle' button",
+          "expectedResult": "Review cycle scheduling modal opens with empty form fields"
+        },
+        {
+          "step": 2,
+          "action": "Select 'Weekly' frequency and set start date to January 15, 2025 at 9:00 AM (exact same as existing cycle)",
+          "expectedResult": "Date and time fields accept the input without immediate validation error"
+        },
+        {
+          "step": 3,
+          "action": "Fill in all required fields (review name, participants, duration) and click 'Save Review Cycle' button",
+          "expectedResult": "System displays validation error message 'A review cycle is already scheduled for this date and time. Please choose a different time or edit the existing cycle.' in red banner"
+        },
+        {
+          "step": 4,
+          "action": "Modify start time to 9:01 AM (1 minute after existing cycle) and click 'Save Review Cycle' again",
+          "expectedResult": "System accepts the schedule if cycles don't overlap in duration, or shows error if overlap detected based on cycle duration"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to calendar view and verify both review cycles are displayed if second was accepted",
+          "expectedResult": "Calendar shows both review cycles with visual indication of proximity (e.g., stacked or adjacent time slots)"
+        }
+      ],
+      "postconditions": [
+        "System enforces no-overlap validation rule as specified in technical requirements",
+        "Only valid non-overlapping review cycles are saved to database",
+        "Clear error messages guide user to resolve scheduling conflicts",
+        "Calendar view accurately reflects all successfully scheduled review cycles"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Schedule review cycle with special characters and Unicode in cycle name (emojis, non-Latin characters)",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "Review cycle management page is loaded",
+        "System supports UTF-8 character encoding",
+        "Database fields support Unicode storage"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to review cycle management page and click 'Schedule New Review Cycle' button",
+          "expectedResult": "Review cycle scheduling modal opens with review name input field visible"
+        },
+        {
+          "step": 2,
+          "action": "Enter review cycle name as 'Q1 Performance Review 📊 2025 - 业绩评估 (Überprüfung)' containing emoji, Chinese, and German characters",
+          "expectedResult": "Input field accepts all characters and displays them correctly without corruption or replacement characters"
+        },
+        {
+          "step": 3,
+          "action": "Select 'Monthly' frequency, set valid start date, and click 'Save Review Cycle' button",
+          "expectedResult": "Success message 'Review cycle scheduled successfully' appears and modal closes"
+        },
+        {
+          "step": 4,
+          "action": "Verify the review cycle appears in the list view with full name displayed correctly",
+          "expectedResult": "Review cycle name 'Q1 Performance Review 📊 2025 - 业绩评估 (Überprüfung)' displays correctly with all special characters and emoji rendered properly"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to calendar view and hover over the scheduled review cycle",
+          "expectedResult": "Tooltip or popup shows full review cycle name with all Unicode characters and emoji displayed correctly"
+        },
+        {
+          "step": 6,
+          "action": "Edit the review cycle and verify name is editable with all characters intact",
+          "expectedResult": "Edit modal opens with review name field showing all original characters correctly, allowing further editing"
+        }
+      ],
+      "postconditions": [
+        "Review cycle is saved in database with full Unicode name preserved",
+        "All UI components (list view, calendar, tooltips, notifications) render special characters correctly",
+        "No character corruption or encoding issues in database or display layers",
+        "System maintains data integrity for international and emoji characters"
+      ]
+    },
+    {
+      "id": "TC-EDGE-006",
+      "title": "Rapidly create and delete multiple review cycles in quick succession (stress test)",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Performance Manager with full permissions",
+        "Review cycle management page is loaded and responsive",
+        "Network connection is stable",
+        "Browser console is open to monitor for errors"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to review cycle management page and open browser developer console to monitor network requests",
+          "expectedResult": "Page loads successfully and console shows no errors"
+        },
+        {
+          "step": 2,
+          "action": "Rapidly click 'Schedule New Review Cycle' button, fill minimum required fields, and click 'Save' 10 times in under 30 seconds",
+          "expectedResult": "System processes all 10 requests without crashing, showing success messages for each or queuing requests appropriately"
+        },
+        {
+          "step": 3,
+          "action": "Immediately after creation, select all 10 newly created review cycles and click 'Delete' button",
+          "expectedResult": "System displays confirmation dialog 'Are you sure you want to delete 10 review cycles?' with 'Confirm' and 'Cancel' buttons"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Confirm' button to delete all 10 review cycles simultaneously",
+          "expectedResult": "System processes deletion request and displays success message 'Successfully deleted 10 review cycles' without errors"
+        },
+        {
+          "step": 5,
+          "action": "Check browser console for any JavaScript errors, failed API calls, or memory warnings",
+          "expectedResult": "Console shows no critical errors, all API calls return successful status codes (200/204), no memory leaks detected"
+        },
+        {
+          "step": 6,
+          "action": "Refresh the page and verify review cycle list is accurate and page loads within 2 seconds",
+          "expectedResult": "Page refreshes successfully, deleted review cycles are not displayed, and load time remains under 2 seconds"
+        }
+      ],
+      "postconditions": [
+        "All created review cycles are properly persisted or rolled back if errors occurred",
+        "Deleted review cycles are removed from database with proper cascade deletion of related records",
+        "System remains stable with no memory leaks or performance degradation",
+        "Database integrity is maintained with no orphaned records or inconsistent state"
+      ]
+    },
+    {
+      "id": "TC-EDGE-007",
+      "title": "Schedule review cycle while system clock changes during daylight saving time transition",
+      "category": "Edge Cases",
+      "priority": "Low",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "System is configured for a time zone that observes daylight saving time (e.g., PST/PDT)",
+        "Test is performed during or simulated for DST transition period (spring forward or fall back)",
+        "Review cycle management page is accessible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to review cycle management page at 1:30 AM on DST transition day (when clocks spring forward at 2:00 AM)",
+          "expectedResult": "Page loads successfully with current system time displayed correctly"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Schedule New Review Cycle' and set start time to 2:30 AM (during the 'lost hour' of spring forward)",
+          "expectedResult": "System either prevents selection of non-existent time or automatically adjusts to 3:30 AM with notification 'Time adjusted for daylight saving transition'"
+        },
+        {
+          "step": 3,
+          "action": "Select 'Weekly' frequency for recurring review and click 'Save Review Cycle' button",
+          "expectedResult": "Success message appears and review cycle is saved with DST-aware timestamp"
+        },
+        {
+          "step": 4,
+          "action": "Navigate to calendar view and verify the scheduled review appears at correct adjusted time",
+          "expectedResult": "Calendar displays review cycle at 3:30 AM (or appropriate adjusted time) with DST indicator if applicable"
+        },
+        {
+          "step": 5,
+          "action": "Check notification settings to verify reminder notifications account for DST transition",
+          "expectedResult": "Notification scheduler shows correct times adjusted for DST, ensuring reminders are sent at appropriate local times"
+        }
+      ],
+      "postconditions": [
+        "Review cycle is saved with UTC timestamp that correctly accounts for DST transition",
+        "All recurring instances of the review cycle maintain correct local time across DST boundaries",
+        "Notification system schedules reminders with DST-aware calculations",
+        "No duplicate or skipped review cycles occur due to DST transitions"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Complete keyboard navigation through entire review cycle scheduling workflow",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "Review cycle management page is loaded",
+        "No mouse or pointing device is used for this test",
+        "Screen reader is available but not required for this test"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key repeatedly from page load to navigate through all interactive elements on review cycle management page",
+          "expectedResult": "Focus indicator (visible outline or highlight) moves sequentially through all interactive elements: navigation menu, 'Schedule New Review Cycle' button, existing review cycle items, edit/delete buttons, calendar navigation controls"
+        },
+        {
+          "step": 2,
+          "action": "When focus reaches 'Schedule New Review Cycle' button, press Enter or Space key to activate",
+          "expectedResult": "Review cycle scheduling modal opens and focus automatically moves to first input field (review cycle name) with visible focus indicator"
+        },
+        {
+          "step": 3,
+          "action": "Press Tab to navigate through all form fields: cycle name, frequency dropdown, date picker, time picker, notification settings",
+          "expectedResult": "Focus moves logically through all form fields in reading order, each field shows clear focus indicator, no focus traps encountered"
+        },
+        {
+          "step": 4,
+          "action": "When focus reaches frequency dropdown, press Space or Enter to open, use Arrow keys to select 'Monthly', press Enter to confirm",
+          "expectedResult": "Dropdown opens on Space/Enter, Arrow keys navigate options with visual and programmatic focus, Enter selects option and closes dropdown, focus returns to dropdown trigger"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to date picker field, press Enter to open calendar widget, use Arrow keys to navigate dates, Enter to select",
+          "expectedResult": "Calendar widget opens, Arrow keys move between dates (Left/Right for days, Up/Down for weeks), current focused date is clearly highlighted, Enter selects date and closes calendar"
+        },
+        {
+          "step": 6,
+          "action": "Tab to 'Save Review Cycle' button and press Enter, then press Escape key",
+          "expectedResult": "Enter activates save action, success message appears and is keyboard accessible, Escape key closes modal and returns focus to 'Schedule New Review Cycle' button on main page"
+        },
+        {
+          "step": 7,
+          "action": "Navigate to calendar view using Tab, use Arrow keys to navigate between dates and scheduled reviews",
+          "expectedResult": "Calendar is keyboard navigable, Arrow keys move between dates, Enter opens review details, all interactive elements are reachable via keyboard"
+        }
+      ],
+      "postconditions": [
+        "All functionality is fully accessible via keyboard without requiring mouse",
+        "Focus order is logical and follows visual layout",
+        "No keyboard traps prevent user from navigating away from any element",
+        "Focus indicators are visible at all times during navigation"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Screen reader announces all review cycle information and state changes correctly",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "Screen reader is active (NVDA, JAWS, or VoiceOver)",
+        "Review cycle management page is loaded",
+        "At least one review cycle is already scheduled for testing"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to review cycle management page and listen to screen reader announcement when page loads",
+          "expectedResult": "Screen reader announces page title 'Review Cycle Management', main heading level 1, and summary 'You have X scheduled review cycles' with appropriate ARIA live region"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to 'Schedule New Review Cycle' button using screen reader navigation commands",
+          "expectedResult": "Screen reader announces 'Schedule New Review Cycle, button' with clear indication of element type and any associated keyboard shortcuts"
+        },
+        {
+          "step": 3,
+          "action": "Activate button and listen to announcement when modal opens",
+          "expectedResult": "Screen reader announces 'Schedule Review Cycle dialog opened' or similar, announces modal title, and indicates focus has moved to first form field with label 'Review Cycle Name, edit text, required'"
+        },
+        {
+          "step": 4,
+          "action": "Navigate through form fields and listen to screen reader announcements for each field",
+          "expectedResult": "Each field announces: label text, field type (edit text, combo box, date picker), required status, current value if any, and help text or instructions. Example: 'Frequency, combo box, required, currently selected: Monthly, use arrow keys to change'"
+        },
+        {
+          "step": 5,
+          "action": "Intentionally leave required field empty and activate 'Save' button, listen to error announcement",
+          "expectedResult": "Screen reader announces 'Error: Review Cycle Name is required' via ARIA live region with assertive politeness, focus moves to invalid field, field announces 'Review Cycle Name, edit text, required, invalid entry'"
+        },
+        {
+          "step": 6,
+          "action": "Fill all fields correctly, save review cycle, and listen to success announcement",
+          "expectedResult": "Screen reader announces 'Success: Review cycle scheduled successfully' via ARIA live region, modal closes, focus returns to main page with announcement 'Review Cycle Management, X review cycles scheduled'"
+        },
+        {
+          "step": 7,
+          "action": "Navigate to calendar view and use screen reader to explore scheduled review cycles",
+          "expectedResult": "Calendar structure is announced with proper table semantics or ARIA grid role, each date cell announces date and any scheduled reviews, example: 'January 15, 2025, has 2 scheduled reviews: Q1 Performance Review at 9:00 AM, Monthly Check-in at 2:00 PM'"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements have proper ARIA labels and roles",
+        "State changes (loading, success, error) are announced via ARIA live regions",
+        "Form validation errors are announced and associated with fields",
+        "Screen reader users can complete all tasks without visual reference"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify sufficient color contrast ratios for all text and interactive elements (WCAG 2.1 AA compliance)",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Review cycle management page is loaded in browser",
+        "Color contrast analyzer tool is available (browser extension or standalone tool)",
+        "Page displays various states: default, hover, focus, active, disabled, error",
+        "Both light and dark mode themes are tested if applicable"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use color contrast analyzer to measure contrast ratio between body text and background on review cycle management page",
+          "expectedResult": "Contrast ratio is at least 4.5:1 for normal text (under 18pt or 14pt bold) and 3:1 for large text (18pt+ or 14pt+ bold), meeting WCAG 2.1 AA standards"
+        },
+        {
+          "step": 2,
+          "action": "Measure contrast ratio for 'Schedule New Review Cycle' button text against button background in default state",
+          "expectedResult": "Button text has minimum 4.5:1 contrast ratio against button background color"
+        },
+        {
+          "step": 3,
+          "action": "Hover over button and measure contrast ratio in hover state",
+          "expectedResult": "Hover state maintains minimum 4.5:1 contrast ratio, and button background color change is not the only indicator of hover state"
+        },
+        {
+          "step": 4,
+          "action": "Focus on button using keyboard and measure contrast ratio of focus indicator against background",
+          "expectedResult": "Focus indicator has minimum 3:1 contrast ratio against adjacent colors and is at least 2px thick or equivalent visual weight"
+        },
+        {
+          "step": 5,
+          "action": "Measure contrast ratios for form field labels, input text, placeholder text, and borders in scheduling modal",
+          "expectedResult": "Labels: 4.5:1 minimum, Input text: 4.5:1 minimum, Placeholder text: 4.5:1 minimum (or clearly marked as non-essential), Borders: 3:1 minimum for interactive elements"
+        },
+        {
+          "step": 6,
+          "action": "Trigger validation error and measure contrast ratio of error message text and error indicators",
+          "expectedResult": "Error message text has 4.5:1 minimum contrast, error indicators (icons, borders) have 3:1 minimum contrast, errors are not indicated by color alone"
+        },
+        {
+          "step": 7,
+          "action": "Check calendar view and measure contrast for date numbers, selected dates, current date indicator, and scheduled review indicators",
+          "expectedResult": "All calendar elements meet minimum contrast requirements: date numbers 4.5:1, interactive elements 3:1, information is not conveyed by color alone (uses icons, patterns, or text labels)"
+        }
+      ],
+      "postconditions": [
+        "All text content meets WCAG 2.1 AA contrast requirements (4.5:1 for normal text, 3:1 for large text)",
+        "All interactive elements and UI components meet 3:1 contrast requirement",
+        "Information is not conveyed by color alone (uses additional indicators)",
+        "Focus indicators are clearly visible with sufficient contrast"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Test focus management and focus trap prevention in modal dialogs",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "Review cycle management page is loaded",
+        "Keyboard navigation is being used exclusively",
+        "At least one review cycle exists for testing delete confirmation modal"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Using keyboard, navigate to and activate 'Schedule New Review Cycle' button with Enter key",
+          "expectedResult": "Modal opens and focus automatically moves to first focusable element (review cycle name input field) with visible focus indicator"
+        },
+        {
+          "step": 2,
+          "action": "Press Tab repeatedly to cycle through all focusable elements in modal (form fields, buttons)",
+          "expectedResult": "Focus moves through all interactive elements within modal in logical order: form fields, 'Save' button, 'Cancel' button, then cycles back to first field"
+        },
+        {
+          "step": 3,
+          "action": "When focus is on last element ('Cancel' button), press Tab again",
+          "expectedResult": "Focus wraps to first focusable element in modal (review cycle name field), focus does not escape to page content behind modal"
+        },
+        {
+          "step": 4,
+          "action": "Press Shift+Tab when focus is on first element (review cycle name field)",
+          "expectedResult": "Focus wraps to last focusable element in modal ('Cancel' button), maintaining focus trap within modal"
+        },
+        {
+          "step": 5,
+          "action": "Press Escape key while modal is open",
+          "expectedResult": "Modal closes, focus returns to 'Schedule New Review Cycle' button that originally opened the modal, no focus loss occurs"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to existing review cycle, activate 'Delete' button to open confirmation dialog",
+          "expectedResult": "Confirmation dialog opens with focus on 'Cancel' button (safe default action) or clearly announced first element, focus is trapped within confirmation dialog"
+        },
+        {
+          "step": 7,
+          "action": "Press Tab to navigate between 'Cancel' and 'Confirm Delete' buttons, then press Escape or activate 'Cancel'",
+          "expectedResult": "Dialog closes, focus returns to 'Delete' button that triggered the confirmation, page content behind dialog is not accessible while dialog is open"
+        }
+      ],
+      "postconditions": [
+        "Focus is properly trapped within modal dialogs preventing access to background content",
+        "Focus returns to triggering element when modal closes",
+        "Tab and Shift+Tab cycle through modal elements in logical order",
+        "Escape key closes modal and returns focus appropriately"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify page functionality at 200% browser zoom level (text scaling)",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "Review cycle management page is loaded at 100% zoom (default)",
+        "Browser supports zoom functionality (Chrome, Firefox, Safari, Edge)",
+        "Test viewport is at least 1280x720 pixels at 100% zoom"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Set browser zoom to 200% using Ctrl/Cmd + Plus key or browser zoom controls",
+          "expectedResult": "Page content scales to 200% zoom, all text is readable and larger, no horizontal scrolling is required for main content (vertical scrolling is acceptable)"
+        },
+        {
+          "step": 2,
+          "action": "Verify all text content is visible and readable without truncation or overlap at 200% zoom",
+          "expectedResult": "All text including headings, labels, button text, and body content is fully visible, no text is cut off or overlapping other elements"
+        },
+        {
+          "step": 3,
+          "action": "Navigate to 'Schedule New Review Cycle' button and verify it is fully visible and clickable at 200% zoom",
+          "expectedResult": "Button is fully visible with all text readable, button remains clickable, no layout breaking or elements pushed off screen"
+        },
+        {
+          "step": 4,
+          "action": "Open review cycle scheduling modal and verify all form fields are accessible and usable at 200% zoom",
+          "expectedResult": "Modal scales appropriately, all form fields are visible and usable, labels are associated with inputs, dropdown menus and date pickers function correctly"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to calendar view at 200% zoom and verify calendar is usable",
+          "expectedResult": "Calendar scales appropriately, date cells are readable and clickable, scheduled reviews are visible with readable text, navigation controls are accessible"
+        },
+        {
+          "step": 6,
+          "action": "Test all interactive elements (buttons, links, form controls) at 200% zoom for usability",
+          "expectedResult": "All interactive elements remain functional, touch/click targets are at least 44x44 pixels (or CSS pixels equivalent), no functionality is lost due to zoom"
+        },
+        {
+          "step": 7,
+          "action": "Scroll through entire page at 200% zoom to verify no content is hidden or inaccessible",
+          "expectedResult": "All page content is accessible via scrolling, no fixed position elements obscure content, sticky headers/footers do not block interactive elements"
+        }
+      ],
+      "postconditions": [
+        "Page remains fully functional at 200% zoom level",
+        "All text is readable without horizontal scrolling",
+        "No loss of content or functionality due to zoom",
+        "Layout adapts responsively to increased text size"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "Verify ARIA landmarks and semantic HTML structure for assistive technology navigation",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Review cycle management page is loaded",
+        "Browser developer tools or accessibility inspector is open",
+        "Screen reader is available for testing landmark navigation",
+        "Page source code is accessible for inspection"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Open accessibility inspector in browser developer tools and examine page structure for ARIA landmarks",
+          "expectedResult": "Page contains proper landmark regions: banner/header (role='banner' or <header>), main content (role='main' or <main>), navigation (role='navigation' or <nav>), complementary content if applicable (role='complementary' or <aside>)"
+        },
+        {
+          "step": 2,
+          "action": "Use screen reader landmark navigation commands (NVDA: D key, JAWS: ; key, VoiceOver: VO+U then select Landmarks) to navigate between page regions",
+          "expectedResult": "Screen reader announces all landmarks with descriptive labels: 'Main navigation', 'Main content: Review Cycle Management', 'Complementary: Upcoming Reviews', each landmark is reachable via landmark navigation"
+        },
+        {
+          "step": 3,
+          "action": "Inspect heading structure using accessibility inspector or screen reader heading navigation (H key)",
+          "expectedResult": "Page has logical heading hierarchy: single H1 for page title 'Review Cycle Management', H2 for major sections 'Scheduled Review Cycles', 'Calendar View', H3 for subsections, no heading levels are skipped"
+        },
+        {
+          "step": 4,
+          "action": "Examine review cycle scheduling modal for proper ARIA attributes when opened",
+          "expectedResult": "Modal has role='dialog', aria-modal='true', aria-labelledby pointing to modal title, aria-describedby for modal description if present, focus is trapped within dialog"
+        },
+        {
+          "step": 5,
+          "action": "Inspect form fields for proper labeling using accessibility inspector",
+          "expectedResult": "All form inputs have associated labels via <label> element with for attribute or aria-labelledby, required fields have aria-required='true', invalid fields have aria-invalid='true' and aria-describedby pointing to error message"
+        },
+        {
+          "step": 6,
+          "action": "Check calendar component for proper ARIA grid or table semantics",
+          "expectedResult": "Calendar uses role='grid' or semantic <table> with proper row/column headers, date cells have aria-label with full date (e.g., 'January 15, 2025'), selected date has aria-selected='true', current date has aria-current='date'"
+        },
+        {
+          "step": 7,
+          "action": "Verify ARIA live regions for dynamic content updates (success messages, error messages, loading states)",
+          "expectedResult": "Success and error messages use aria-live='polite' or 'assertive', loading states announce via aria-live or aria-busy='true', dynamic content changes are announced to screen readers without requiring focus"
+        }
+      ],
+      "postconditions": [
+        "Page structure uses semantic HTML5 elements and ARIA landmarks appropriately",
+        "Heading hierarchy is logical and supports screen reader navigation",
+        "All interactive elements have proper ARIA attributes and labels",
+        "Dynamic content updates are announced to assistive technologies"
+      ]
+    },
+    {
+      "id": "TC-ACCE-007",
+      "title": "Test mobile accessibility with touch targets and screen reader on mobile devices",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "Review cycle management page is accessed on mobile device (iOS or Android) or mobile emulator",
+        "Mobile screen reader is available (VoiceOver on iOS or TalkBack on Android)",
+        "Device viewport is 375x667 pixels or smaller (iPhone SE size)",
+        "User is logged in as Performance Manager"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Load review cycle management page on mobile device and verify all interactive elements are appropriately sized",
+          "expectedResult": "All touch targets (buttons, links, form controls) are minimum 44x44 pixels (iOS) or 48x48 pixels (Android) with adequate spacing between targets"
+        },
+        {
+          "step": 2,
+          "action": "Enable mobile screen reader (VoiceOver or TalkBack) and swipe right to navigate through page elements",
+          "expectedResult": "Screen reader announces each element in logical order with proper labels, swipe gestures navigate through all interactive elements, no elements are skipped or unreachable"
+        },
+        {
+          "step": 3,
+          "action": "Navigate to 'Schedule New Review Cycle' button using screen reader and double-tap to activate",
+          "expectedResult": "Button is announced clearly, double-tap gesture activates button, modal opens and screen reader announces modal opening with focus on first field"
+        },
+        {
+          "step": 4,
+          "action": "Use screen reader to navigate through form fields in scheduling modal on mobile",
+          "expectedResult": "All form fields are announced with labels and types, date picker and dropdown controls are accessible via screen reader gestures, custom controls have proper mobile accessibility support"
+        },
+        {
+          "step": 5,
+          "action": "Test pinch-to-zoom gesture on mobile device to zoom page content",
+          "expectedResult": "Page supports pinch-to-zoom without viewport restrictions (no user-scalable=no), content reflows appropriately when zoomed, no horizontal scrolling required for main content"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to calendar view on mobile and test touch interaction with scheduled reviews",
+          "expectedResult": "Calendar is touch-friendly with appropriately sized date cells, swipe gestures navigate between months, tapping date cells opens review details, all interactions work with screen reader enabled"
+        },
+        {
+          "step": 7,
+          "action": "Test form submission with mobile screen reader enabled, verify success message is announced",
+          "expectedResult": "Form can be completed using screen reader, submit button is accessible, success message is announced via screen reader after submission, focus management works correctly on mobile"
+        }
+      ],
+      "postconditions": [
+        "All touch targets meet minimum size requirements for mobile accessibility",
+        "Mobile screen readers can access all functionality",
+        "Page supports zoom without breaking layout or functionality",
+        "Mobile-specific gestures and interactions are accessible to users with disabilities"
+      ]
+    }
+  ],
+  "performance": [
+    {
+      "id": "PERF-LOAD-001",
+      "title": "Validate review cycle scheduling performance under peak concurrent user load",
+      "category": "performance",
+      "subCategory": "Load Testing",
+      "priority": "Critical",
+      "description": "Test the system's ability to handle peak concurrent users scheduling review cycles simultaneously while maintaining response time SLA of under 2 seconds and ensuring no data corruption or overlapping cycles.",
+      "preconditions": [
+        "Review cycles database is populated with baseline data (1000 existing review cycles)",
+        "Performance testing environment is configured with production-like specifications",
+        "Load testing tool (JMeter/K6) is configured and ready",
+        "Monitoring tools are active for CPU, memory, and database metrics",
+        "Test user accounts with Performance Manager role are provisioned (500 users)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure load test to simulate 500 concurrent Performance Managers accessing the review cycle management page",
+          "expectedResult": "Load test script is configured with 500 virtual users with 30-second ramp-up time"
+        },
+        {
+          "step": 2,
+          "action": "Execute load test where each user navigates to review cycle management page, selects frequency (monthly/quarterly/annual), and saves schedule via POST /api/review-cycles/schedule",
+          "expectedResult": "All 500 users successfully complete the workflow without errors"
+        },
+        {
+          "step": 3,
+          "action": "Monitor and capture response times for page load and API endpoint during test execution",
+          "expectedResult": "P50 response time ≤ 1.2s, P95 ≤ 1.8s, P99 ≤ 2.0s for page load; API POST response P50 ≤ 800ms, P95 ≤ 1.5s, P99 ≤ 2.0s"
+        },
+        {
+          "step": 4,
+          "action": "Measure throughput and error rate throughout the test duration (15 minutes sustained load)",
+          "expectedResult": "Throughput: ≥ 30 TPS for API calls; Error rate: < 0.1%; HTTP 200 success rate: > 99.5%"
+        },
+        {
+          "step": 5,
+          "action": "Monitor system resource utilization (CPU, memory, database connections)",
+          "expectedResult": "CPU utilization: < 75%; Memory utilization: < 80%; Database connection pool: < 85% capacity; No connection timeouts"
+        },
+        {
+          "step": 6,
+          "action": "Validate data integrity by checking for overlapping review cycles in database",
+          "expectedResult": "Zero overlapping review cycles detected; All validation rules enforced; 100% data consistency"
+        }
+      ],
+      "postconditions": [
+        "All scheduled review cycles are persisted correctly in database",
+        "No orphaned or corrupted records exist",
+        "System returns to idle state with normal resource utilization",
+        "Application logs contain no errors or warnings related to performance",
+        "Database connection pool is released properly"
+      ],
+      "testData": "500 unique Performance Manager user credentials; Review cycle configurations with varying frequencies (40% monthly, 35% quarterly, 25% annual); Team sizes ranging from 5-50 members per manager",
+      "toolsRequired": [
+        "Apache JMeter or K6 for load generation",
+        "Application Performance Monitoring (APM) tool - New Relic/Dynatrace",
+        "Database monitoring tool",
+        "Server resource monitoring - Prometheus/Grafana"
+      ],
+      "estimatedTime": "90 minutes",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": "PERFORMANCE-SLA"
+    },
+    {
+      "id": "PERF-STRESS-001",
+      "title": "Identify system breaking point and validate graceful degradation when scheduling review cycles beyond capacity",
+      "category": "performance",
+      "subCategory": "Stress Testing",
+      "priority": "High",
+      "description": "Test system behavior beyond normal operational capacity to identify breaking point, validate graceful degradation mechanisms, and ensure system recovery. Progressively increase load until system failure or unacceptable performance degradation occurs.",
+      "preconditions": [
+        "System is in stable state with normal resource utilization",
+        "Database has 5000 existing review cycles for realistic load",
+        "Auto-scaling is disabled to identify true breaking point",
+        "Circuit breakers and rate limiters are configured",
+        "Alerting and monitoring systems are active",
+        "Backup and rollback procedures are documented and ready"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Start stress test with 200 concurrent users and incrementally increase by 200 users every 5 minutes until system degradation",
+          "expectedResult": "Load generator successfully ramps up users in incremental steps (200, 400, 600, 800, 1000+)"
+        },
+        {
+          "step": 2,
+          "action": "Monitor response times, error rates, and system resources at each load increment",
+          "expectedResult": "Metrics are captured at each increment showing progressive degradation pattern"
+        },
+        {
+          "step": 3,
+          "action": "Identify breaking point where response time exceeds 5 seconds or error rate exceeds 5%",
+          "expectedResult": "Breaking point is identified and documented (expected range: 800-1200 concurrent users); System exhibits predictable degradation pattern"
+        },
+        {
+          "step": 4,
+          "action": "Validate graceful degradation mechanisms (rate limiting, queue management, user-friendly error messages)",
+          "expectedResult": "Rate limiter activates with HTTP 429 responses; Queue depth increases but doesn't overflow; Users receive clear 'System busy, please retry' messages instead of crashes"
+        },
+        {
+          "step": 5,
+          "action": "Stop load generation and monitor system recovery time and behavior",
+          "expectedResult": "System recovers to normal state within 5 minutes; All queued requests are processed; No data loss or corruption; Resource utilization returns to baseline"
+        },
+        {
+          "step": 6,
+          "action": "Verify database integrity and check for any stuck transactions or deadlocks",
+          "expectedResult": "No deadlocks detected; All transactions completed or rolled back properly; Database consistency checks pass"
+        }
+      ],
+      "postconditions": [
+        "System is fully operational and responsive",
+        "All scheduled review cycles during test are either completed or properly failed with rollback",
+        "No memory leaks or resource exhaustion detected",
+        "Breaking point threshold is documented for capacity planning",
+        "Incident response procedures are validated"
+      ],
+      "testData": "1000+ unique user accounts; Varied review cycle configurations; Mix of simple and complex scheduling scenarios (single team vs. multiple teams)",
+      "toolsRequired": [
+        "Apache JMeter or Gatling for progressive load generation",
+        "APM tool for real-time monitoring",
+        "Database profiler for deadlock detection",
+        "Log aggregation tool - ELK Stack or Splunk",
+        "Infrastructure monitoring - CloudWatch/Azure Monitor"
+      ],
+      "estimatedTime": "120 minutes",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": "RELIABILITY-STRESS"
+    },
+    {
+      "id": "PERF-SPIKE-001",
+      "title": "Validate system handling of sudden traffic spike during review cycle scheduling with auto-scaling response",
+      "category": "performance",
+      "subCategory": "Spike Testing",
+      "priority": "Critical",
+      "description": "Test system's ability to handle sudden, dramatic increase in traffic (10x normal load) when multiple managers schedule review cycles simultaneously (e.g., beginning of quarter). Validate auto-scaling triggers, response time stability, and data consistency during rapid load changes.",
+      "preconditions": [
+        "Auto-scaling policies are configured and enabled (scale up at 70% CPU, scale down at 30% CPU)",
+        "Baseline load of 50 concurrent users is established",
+        "Cloud infrastructure has capacity for horizontal scaling (up to 10 instances)",
+        "Load balancer is configured and health checks are active",
+        "Database connection pooling is optimized for burst traffic",
+        "Caching layer (Redis/Memcached) is operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish baseline load with 50 concurrent users scheduling review cycles for 5 minutes",
+          "expectedResult": "System operates normally with P95 response time < 1.5s; CPU utilization ~40%; 2 application instances running"
+        },
+        {
+          "step": 2,
+          "action": "Inject sudden spike to 500 concurrent users (10x increase) within 30 seconds simulating quarter-start rush",
+          "expectedResult": "Load generator successfully creates spike from 50 to 500 users in 30 seconds"
+        },
+        {
+          "step": 3,
+          "action": "Monitor response times and error rates during first 2 minutes of spike",
+          "expectedResult": "Initial response time spike to 3-4s is acceptable; Error rate remains < 2%; No HTTP 500 errors; Auto-scaling triggers within 60 seconds"
+        },
+        {
+          "step": 4,
+          "action": "Validate auto-scaling response and performance stabilization",
+          "expectedResult": "Additional instances provision within 90 seconds; System scales to 6-8 instances; Response times stabilize to P95 < 2.5s within 3 minutes; Throughput increases to 80+ TPS"
+        },
+        {
+          "step": 5,
+          "action": "Maintain spike load for 10 minutes and monitor system stability",
+          "expectedResult": "Response times remain stable (P95 < 2.5s, P99 < 3.5s); Error rate < 0.5%; CPU per instance < 75%; No database connection exhaustion"
+        },
+        {
+          "step": 6,
+          "action": "Rapidly decrease load back to 50 users within 30 seconds and monitor scale-down behavior",
+          "expectedResult": "System handles rapid decrease gracefully; Auto-scaling initiates scale-down after 5-minute cooldown; Instances reduce to 2-3; No in-flight requests are dropped"
+        },
+        {
+          "step": 7,
+          "action": "Verify data integrity and check for race conditions or duplicate review cycles",
+          "expectedResult": "Zero duplicate review cycles created; All validation rules enforced during spike; No overlapping cycles; 100% data consistency across all scheduled reviews"
+        }
+      ],
+      "postconditions": [
+        "System returns to baseline performance with 2 instances",
+        "All review cycles scheduled during spike are valid and persisted",
+        "No orphaned resources or zombie instances remain",
+        "Auto-scaling metrics and logs are captured for analysis",
+        "Cache hit ratio and effectiveness during spike is documented"
+      ],
+      "testData": "500 Performance Manager accounts; Review cycle data with realistic distribution (60% quarterly, 30% monthly, 10% annual); Notification preferences enabled for all users",
+      "toolsRequired": [
+        "K6 or Gatling for spike load pattern generation",
+        "Cloud provider monitoring (AWS CloudWatch/Azure Monitor/GCP Stackdriver)",
+        "APM tool with distributed tracing capability",
+        "Auto-scaling policy monitoring dashboard",
+        "Database query performance analyzer"
+      ],
+      "estimatedTime": "75 minutes",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": "SCALABILITY-SPIKE"
+    }
+  ],
+  "security": [
+    {
+      "id": "SEC-ELEV-001",
+      "title": "Vertical Privilege Escalation - Non-Manager Role Attempting to Schedule Review Cycles",
+      "category": "security",
+      "subCategory": "STRIDE-Elevation of Privilege",
+      "priority": "Critical",
+      "description": "Verify that users without Performance Manager role cannot schedule review cycles by manipulating API requests or bypassing client-side controls. This tests for broken access control (OWASP A01) and elevation of privilege vulnerabilities.",
+      "preconditions": [
+        "Test user account with non-manager role (e.g., Employee, Viewer) is created",
+        "Valid Performance Manager account exists with review cycle scheduling permissions",
+        "Review cycles management API endpoint is accessible",
+        "Authentication tokens are available for both user types"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Authenticate as non-manager user and capture the authentication token",
+          "expectedResult": "Non-manager user successfully authenticates and receives valid session token"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to access review cycle management page URL directly (e.g., /review-cycles/schedule)",
+          "expectedResult": "System denies access with 403 Forbidden error or redirects to unauthorized page"
+        },
+        {
+          "step": 3,
+          "action": "Using API testing tool (Postman/Burp Suite), send POST request to /api/review-cycles/schedule with non-manager token and valid review cycle data: {\"frequency\": \"quarterly\", \"startDate\": \"2024-01-01\", \"managerId\": \"<non-manager-id>\"}",
+          "expectedResult": "API returns 403 Forbidden with error message indicating insufficient permissions"
+        },
+        {
+          "step": 4,
+          "action": "Modify the request to include a valid manager's ID in the payload while keeping non-manager authentication token",
+          "expectedResult": "API still returns 403 Forbidden, validating server-side role verification"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to manipulate JWT token by changing role claim from 'employee' to 'performance_manager' without proper signature",
+          "expectedResult": "System rejects the tampered token with 401 Unauthorized error"
+        },
+        {
+          "step": 6,
+          "action": "Verify audit logs capture the unauthorized access attempts with user ID, timestamp, and attempted action",
+          "expectedResult": "Security audit log contains entries for all unauthorized access attempts with appropriate severity level"
+        }
+      ],
+      "postconditions": [
+        "No review cycles are created by non-manager user",
+        "All unauthorized attempts are logged in security audit trail",
+        "System integrity remains intact"
+      ],
+      "testData": "Non-manager user credentials: testuser@company.com/TestPass123; Manager credentials: manager@company.com/ManagerPass123; Sample review cycle: {\"frequency\": \"quarterly\", \"startDate\": \"2024-01-01\"}",
+      "toolsRequired": [
+        "Postman or Burp Suite",
+        "JWT decoder tool",
+        "Database access for audit log verification"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9.2,
+      "complianceTag": "OWASP-A01, SOC2-CC6.1"
+    },
+    {
+      "id": "SEC-INJ-001",
+      "title": "SQL Injection in Review Cycle Scheduling Parameters",
+      "category": "security",
+      "subCategory": "OWASP-A03 Injection",
+      "priority": "Critical",
+      "description": "Test for SQL injection vulnerabilities in review cycle scheduling functionality by injecting malicious SQL payloads into frequency, date, and manager ID parameters. This validates input sanitization and parameterized query usage.",
+      "preconditions": [
+        "Valid Performance Manager account is authenticated",
+        "Review cycles database table exists with test data",
+        "API endpoint POST /api/review-cycles/schedule is accessible",
+        "Database monitoring tools are configured to detect malicious queries"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Authenticate as Performance Manager and navigate to review cycle scheduling page",
+          "expectedResult": "User successfully accesses the review cycle management interface"
+        },
+        {
+          "step": 2,
+          "action": "In the frequency field, inject SQL payload: \"quarterly'; DROP TABLE review_cycles; --\" and attempt to save",
+          "expectedResult": "System sanitizes input, treats entire string as literal text, and either rejects with validation error or saves harmlessly without executing SQL"
+        },
+        {
+          "step": 3,
+          "action": "Using API tool, send POST request with SQL injection in startDate parameter: {\"frequency\": \"monthly\", \"startDate\": \"2024-01-01' OR '1'='1\", \"managerId\": \"123\"}",
+          "expectedResult": "API returns 400 Bad Request with input validation error; no SQL query is executed"
+        },
+        {
+          "step": 4,
+          "action": "Inject UNION-based SQL payload in managerId: {\"frequency\": \"quarterly\", \"startDate\": \"2024-01-01\", \"managerId\": \"123 UNION SELECT username, password FROM users--\"}",
+          "expectedResult": "System rejects the request with validation error; no data exfiltration occurs"
+        },
+        {
+          "step": 5,
+          "action": "Test time-based blind SQL injection: {\"frequency\": \"quarterly'; WAITFOR DELAY '00:00:10'--\", \"startDate\": \"2024-01-01\", \"managerId\": \"123\"}",
+          "expectedResult": "Response returns immediately without delay, confirming parameterized queries are used"
+        },
+        {
+          "step": 6,
+          "action": "Verify database logs show no malicious SQL statements were executed and application logs show input validation triggered",
+          "expectedResult": "Database logs contain only legitimate parameterized queries; application logs show validation errors for malicious inputs"
+        }
+      ],
+      "postconditions": [
+        "Database integrity is maintained with no tables dropped or modified",
+        "No sensitive data is exposed in error messages or responses",
+        "All injection attempts are logged for security monitoring"
+      ],
+      "testData": "SQL injection payloads: [\"' OR '1'='1\", \"'; DROP TABLE review_cycles;--\", \"' UNION SELECT * FROM users--\", \"'; WAITFOR DELAY '00:00:10'--\"]",
+      "toolsRequired": [
+        "Burp Suite Professional with SQL injection scanner",
+        "SQLMap",
+        "Database query monitoring tool",
+        "Application log analyzer"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9.6,
+      "complianceTag": "OWASP-A03, PCI-DSS-6.5.1"
+    },
+    {
+      "id": "SEC-AUTHZ-001",
+      "title": "Horizontal Privilege Escalation - Manager Modifying Another Manager's Review Cycles",
+      "category": "security",
+      "subCategory": "STRIDE-Tampering",
+      "priority": "Critical",
+      "description": "Verify that a Performance Manager cannot view, edit, or delete review cycles scheduled by another Performance Manager through direct object reference manipulation. This tests for Insecure Direct Object Reference (IDOR) and broken access control vulnerabilities.",
+      "preconditions": [
+        "Two Performance Manager accounts exist: Manager A (ID: 101) and Manager B (ID: 102)",
+        "Manager A has created review cycle with ID: RC-2024-001",
+        "Manager B has created review cycle with ID: RC-2024-002",
+        "Both managers are authenticated with valid sessions",
+        "API endpoints for GET, PUT, DELETE /api/review-cycles/{id} are available"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Authenticate as Manager B and navigate to review cycles calendar view",
+          "expectedResult": "Manager B sees only their own scheduled review cycles (RC-2024-002)"
+        },
+        {
+          "step": 2,
+          "action": "Using browser developer tools or proxy, capture the GET request for Manager B's review cycle and note the URL pattern",
+          "expectedResult": "Request URL is captured: GET /api/review-cycles/RC-2024-002"
+        },
+        {
+          "step": 3,
+          "action": "Modify the URL to access Manager A's review cycle: GET /api/review-cycles/RC-2024-001 while authenticated as Manager B",
+          "expectedResult": "API returns 403 Forbidden or 404 Not Found, preventing access to another manager's review cycle"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to edit Manager A's review cycle by sending PUT request: PUT /api/review-cycles/RC-2024-001 with modified frequency data while authenticated as Manager B",
+          "expectedResult": "API returns 403 Forbidden with message indicating insufficient permissions; no data is modified"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to delete Manager A's review cycle: DELETE /api/review-cycles/RC-2024-001 while authenticated as Manager B",
+          "expectedResult": "API returns 403 Forbidden; review cycle RC-2024-001 remains intact in database"
+        },
+        {
+          "step": 6,
+          "action": "Verify database that Manager A's review cycle data is unchanged and audit logs show unauthorized access attempts by Manager B",
+          "expectedResult": "Database shows RC-2024-001 unchanged; audit logs contain entries for Manager B's unauthorized access attempts with timestamps"
+        }
+      ],
+      "postconditions": [
+        "Manager A's review cycles remain unmodified and secure",
+        "Manager B cannot access or manipulate other managers' data",
+        "All unauthorized access attempts are logged in security audit trail"
+      ],
+      "testData": "Manager A credentials: managerA@company.com/PassA123, Review Cycle ID: RC-2024-001; Manager B credentials: managerB@company.com/PassB123, Review Cycle ID: RC-2024-002",
+      "toolsRequired": [
+        "Burp Suite or OWASP ZAP",
+        "Browser developer tools",
+        "Database query tool",
+        "API testing tool (Postman)"
+      ],
+      "estimatedTime": "40 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 8.8,
+      "complianceTag": "OWASP-A01, SOC2-CC6.1, HIPAA-164.312(a)(1)"
+    }
+  ],
+  "usability": [
+    {
+      "id": "UX-H01-001",
+      "title": "Verify system provides clear feedback during review cycle scheduling process",
+      "category": "usability",
+      "subCategory": "Nielsen-H01-Visibility of System Status",
+      "priority": "Critical",
+      "description": "Test whether the system provides adequate visual feedback and status updates when a Performance Manager schedules a review cycle, including loading states, save confirmation, and processing indicators to ensure users understand what the system is doing at all times.",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "User has permissions to schedule review cycles",
+        "Review cycle management page is accessible",
+        "At least one team or department is available for scheduling"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the review cycle management page and observe the page loading behavior",
+          "expectedResult": "Loading indicator is displayed during page load, and page loads within 2 seconds with clear indication when ready"
+        },
+        {
+          "step": 2,
+          "action": "Select review cycle frequency (e.g., Quarterly) and fill in required fields",
+          "expectedResult": "Form fields provide visual feedback (highlighting, validation icons) as user interacts with them"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Save' button to schedule the review cycle",
+          "expectedResult": "Button shows loading state (spinner/disabled state) and displays 'Saving...' or similar text during processing"
+        },
+        {
+          "step": 4,
+          "action": "Wait for save operation to complete",
+          "expectedResult": "Success message appears clearly stating 'Review cycle scheduled successfully' with details of the scheduled cycle (frequency, start date, next review date)"
+        },
+        {
+          "step": 5,
+          "action": "Observe the calendar view after successful save",
+          "expectedResult": "Newly scheduled review cycle appears immediately in the calendar view with visual distinction (color coding, icons)"
+        }
+      ],
+      "postconditions": [
+        "Review cycle is saved in the database",
+        "User receives clear confirmation of successful scheduling",
+        "Recommendation: Implement progress indicators for all async operations",
+        "Recommendation: Add breadcrumb trail showing current step in multi-step processes",
+        "Recommendation: Display timestamp of last action performed"
+      ],
+      "testData": "Review cycle: Quarterly, Start date: 2024-01-01, Department: Engineering, Notification lead time: 2 weeks",
+      "toolsRequired": [
+        "Browser developer tools for network monitoring",
+        "Screen recording software"
+      ],
+      "estimatedTime": "20 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 4,
+      "complianceTag": "Nielsen-H01"
+    },
+    {
+      "id": "UX-H05-001",
+      "title": "Validate error prevention mechanisms for overlapping review cycles and invalid scheduling",
+      "category": "usability",
+      "subCategory": "Nielsen-H05-Error Prevention",
+      "priority": "Critical",
+      "description": "Test the system's ability to prevent common scheduling errors before they occur, including overlapping review cycles, invalid date selections, and conflicting schedules. Verify that constraints are enforced proactively through UI design rather than relying solely on error messages after submission.",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "At least one existing review cycle is already scheduled",
+        "Review cycle management page is loaded",
+        "System validation rules are active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to select a start date in the past using the date picker",
+          "expectedResult": "Past dates are disabled/grayed out in the date picker, preventing selection entirely"
+        },
+        {
+          "step": 2,
+          "action": "Select a date range that overlaps with an existing review cycle for the same team",
+          "expectedResult": "System displays inline warning message immediately: 'This period overlaps with existing review cycle (Jan 1 - Mar 31)' with conflicting dates highlighted in calendar view"
+        },
+        {
+          "step": 3,
+          "action": "Try to save the form without filling required fields (frequency, start date)",
+          "expectedResult": "Save button remains disabled until all required fields are completed, with visual indicators (asterisks, field borders) showing required fields"
+        },
+        {
+          "step": 4,
+          "action": "Select an end date that is before the start date",
+          "expectedResult": "End date picker automatically adjusts to show only dates after the selected start date, or displays inline validation message preventing illogical date selection"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to schedule more than 4 concurrent review cycles for a single team",
+          "expectedResult": "System displays warning: 'Maximum 4 concurrent review cycles recommended. This may impact performance evaluation quality.' with option to proceed or cancel"
+        }
+      ],
+      "postconditions": [
+        "No invalid review cycles are created in the system",
+        "User is prevented from making errors through smart UI constraints",
+        "Recommendation: Implement smart defaults (e.g., suggest next available non-overlapping date)",
+        "Recommendation: Add confirmation dialog for scheduling during holiday periods",
+        "Recommendation: Provide visual calendar overlay showing existing review cycles when scheduling new ones"
+      ],
+      "testData": "Existing cycle: Q1 2024 (Jan 1 - Mar 31), New cycle attempt: Feb 1 - Apr 30 (overlapping), Team: Engineering",
+      "toolsRequired": [
+        "Browser developer tools",
+        "Test data with pre-existing review cycles"
+      ],
+      "estimatedTime": "25 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 4,
+      "complianceTag": "Nielsen-H05"
+    },
+    {
+      "id": "UX-H03-001",
+      "title": "Verify user control and freedom when editing or canceling scheduled review cycles",
+      "category": "usability",
+      "subCategory": "Nielsen-H03-User Control and Freedom",
+      "priority": "High",
+      "description": "Test whether Performance Managers have adequate control to undo, edit, or cancel scheduled review cycles without penalty. Verify that users can easily exit unwanted states and that the system provides clear escape routes from any action, including confirmation dialogs and the ability to revert changes.",
+      "preconditions": [
+        "User is logged in as Performance Manager",
+        "At least two review cycles are already scheduled",
+        "User has edit and delete permissions",
+        "Review cycle management page is accessible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click 'Edit' on an existing scheduled review cycle and modify the frequency from Quarterly to Monthly",
+          "expectedResult": "Edit form opens with current values pre-populated, showing 'Cancel' and 'Save Changes' buttons clearly visible"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Cancel' button while editing without saving changes",
+          "expectedResult": "System returns to previous view without saving changes, no confirmation dialog needed for unsaved changes (or optional: 'You have unsaved changes. Discard?' if changes were made)"
+        },
+        {
+          "step": 3,
+          "action": "Edit a review cycle, save changes, then immediately look for an undo option",
+          "expectedResult": "Success message includes 'Undo' link or button allowing immediate reversal of the change within 10 seconds, or clear 'Edit' button to modify again"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Delete' button on a scheduled review cycle",
+          "expectedResult": "Confirmation dialog appears: 'Are you sure you want to delete this review cycle? This action will remove [Quarterly Review - Engineering Team]. You can reschedule anytime.' with 'Cancel' and 'Delete' buttons (Cancel as default/prominent)"
+        },
+        {
+          "step": 5,
+          "action": "Confirm deletion, then check if there's a way to recover the deleted review cycle",
+          "expectedResult": "Success message displays: 'Review cycle deleted. Undo' with undo option available for 10 seconds, or deleted item moves to 'Recently Deleted' section for recovery within 30 days"
+        },
+        {
+          "step": 6,
+          "action": "Press browser back button while on the review cycle scheduling form",
+          "expectedResult": "System either saves draft automatically or prompts 'You have unsaved changes. Leave page?' allowing user to stay or leave"
+        }
+      ],
+      "postconditions": [
+        "User can easily reverse or modify any scheduling action",
+        "No review cycles are accidentally deleted or modified",
+        "Recommendation: Implement 'Recently Deleted' section with 30-day recovery window",
+        "Recommendation: Add 'Duplicate' function to quickly create similar review cycles",
+        "Recommendation: Provide version history showing all changes made to a review cycle",
+        "Recommendation: Make 'Cancel' button visually distinct from destructive actions"
+      ],
+      "testData": "Review cycle 1: Quarterly - Engineering (Jan-Mar), Review cycle 2: Monthly - Sales (Ongoing)",
+      "toolsRequired": [
+        "Browser with back button functionality",
+        "Screen recording for interaction flow documentation"
+      ],
+      "estimatedTime": "30 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 3,
+      "complianceTag": "Nielsen-H03"
+    }
+  ],
+  "reliability": [
+    {
+      "id": "REL-FAIL-001",
+      "title": "Database Connection Failure During Review Cycle Scheduling with Automatic Recovery",
+      "category": "reliability",
+      "subCategory": "Failure Injection Testing",
+      "priority": "Critical",
+      "description": "Validate system resilience when database connection fails during review cycle scheduling operation. Test circuit breaker activation, graceful degradation, transaction rollback, and automatic recovery. Verify that no partial data is committed and user receives appropriate error messaging with retry capability.",
+      "preconditions": [
+        "Performance Manager is authenticated with scheduling permissions",
+        "Review cycle management page is accessible",
+        "Database monitoring tools are configured",
+        "Circuit breaker is enabled for database connections",
+        "Baseline MTTR target is 30 seconds"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to review cycle management page and configure a quarterly review cycle with start date, frequency, and notification settings",
+          "expectedResult": "Review cycle configuration form loads successfully within 2 seconds with all fields populated"
+        },
+        {
+          "step": 2,
+          "action": "Inject database connection failure using chaos engineering tool (e.g., Gremlin, Chaos Monkey) to simulate network partition to database",
+          "expectedResult": "Database connection is severed, simulating real-world failure scenario"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Save Review Cycle Schedule' button to submit the POST /api/review-cycles/schedule request",
+          "expectedResult": "System detects database unavailability within 3 seconds, circuit breaker opens, and user-friendly error message displays: 'Unable to save review cycle. Please try again in a moment.' No partial data is committed to database"
+        },
+        {
+          "step": 4,
+          "action": "Verify transaction rollback by checking database logs and monitoring dashboards for uncommitted transactions",
+          "expectedResult": "All transaction changes are rolled back completely, no orphaned records exist, database integrity is maintained"
+        },
+        {
+          "step": 5,
+          "action": "Restore database connection and click retry button or resubmit the review cycle schedule",
+          "expectedResult": "System detects database availability, circuit breaker transitions to half-open state, request succeeds, review cycle is saved successfully with confirmation message"
+        },
+        {
+          "step": 6,
+          "action": "Measure and record MTTR (Mean Time To Recovery) from failure injection to successful operation",
+          "expectedResult": "MTTR is less than 30 seconds, meeting SLO target. System availability remains above 99.5% during incident"
+        }
+      ],
+      "postconditions": [
+        "Database connection is restored to normal state",
+        "Circuit breaker returns to closed state",
+        "Review cycle data is consistent and complete",
+        "No data corruption or partial records exist",
+        "System logs capture failure and recovery events",
+        "Monitoring alerts are triggered and resolved"
+      ],
+      "testData": "Review Cycle: {name: 'Q1 2024 Performance Review', frequency: 'Quarterly', startDate: '2024-01-01', notificationDays: 7, participants: 50}",
+      "toolsRequired": [
+        "Chaos Engineering tool (Gremlin, Chaos Monkey, or Litmus)",
+        "Database monitoring dashboard",
+        "Application Performance Monitoring (APM) tool",
+        "Transaction log analyzer",
+        "Circuit breaker monitoring console"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9,
+      "complianceTag": "SOC2-CC7.2-Availability"
+    },
+    {
+      "id": "REL-CHAOS-002",
+      "title": "Notification Service Failure During Scheduled Review Cycle Execution with Retry Logic Validation",
+      "category": "reliability",
+      "subCategory": "Chaos Engineering - Dependency Resilience",
+      "priority": "Critical",
+      "description": "Execute chaos experiment to validate system behavior when notification service becomes unavailable during scheduled review cycle execution. Test retry mechanism with exponential backoff, dead letter queue handling, and eventual consistency. Verify that review cycle execution continues despite notification failures and notifications are queued for retry without blocking primary workflow.",
+      "preconditions": [
+        "Review cycle is already scheduled and active in the system",
+        "Notification service is operational with message queue configured",
+        "Retry policy is configured with exponential backoff (initial: 5s, max: 60s, max attempts: 5)",
+        "Dead letter queue is configured for failed notifications",
+        "Steady state hypothesis: 85% of scheduled reviews occur on time regardless of notification service status"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish steady state baseline by verifying that scheduled review cycle triggers successfully and notifications are sent to 50 managers",
+          "expectedResult": "Review cycle executes on schedule, all 50 notification requests are processed successfully within 10 seconds, baseline metrics recorded"
+        },
+        {
+          "step": 2,
+          "action": "Define blast radius: Limit chaos experiment to notification service only, excluding core review cycle scheduling service",
+          "expectedResult": "Chaos experiment scope is isolated to notification microservice, primary scheduling service remains unaffected"
+        },
+        {
+          "step": 3,
+          "action": "Inject notification service failure by shutting down notification API endpoint or introducing 100% error rate for 5 minutes",
+          "expectedResult": "Notification service returns 503 Service Unavailable errors, simulating complete service outage"
+        },
+        {
+          "step": 4,
+          "action": "Trigger scheduled review cycle execution and monitor system behavior during notification service outage",
+          "expectedResult": "Review cycle executes successfully on schedule, notification requests fail gracefully, messages are queued in retry queue with exponential backoff, no exceptions bubble up to user interface, review cycle status shows 'Active' with notification status 'Pending'"
+        },
+        {
+          "step": 5,
+          "action": "Verify retry mechanism attempts with exponential backoff pattern (5s, 10s, 20s, 40s, 60s) and monitor dead letter queue",
+          "expectedResult": "System attempts retries according to configured policy, failed notifications after 5 attempts move to dead letter queue, retry metrics are logged correctly"
+        },
+        {
+          "step": 6,
+          "action": "Restore notification service to operational state and observe recovery behavior",
+          "expectedResult": "Queued notifications are processed successfully within 2 minutes of service restoration, eventual consistency is achieved, 85% SLO for on-time reviews is maintained (review cycles executed on time despite notification delays)"
+        },
+        {
+          "step": 7,
+          "action": "Validate steady state hypothesis: Confirm that review cycle execution rate remains at or above 85% on-time completion",
+          "expectedResult": "Hypothesis validated: 85%+ of scheduled reviews occurred on time, proving system resilience to notification service failures. MTBF for notification service is recorded, system demonstrates graceful degradation"
+        }
+      ],
+      "postconditions": [
+        "Notification service is restored to normal operation",
+        "All queued notifications are successfully delivered",
+        "Dead letter queue is reviewed and processed",
+        "Retry metrics are captured in monitoring system",
+        "Chaos experiment results are documented",
+        "System returns to steady state with 85%+ on-time review completion"
+      ],
+      "testData": "Scheduled Review Cycle: {id: 'RC-2024-Q1', scheduledTime: '2024-01-01T09:00:00Z', managerCount: 50, notificationLeadTime: 7 days}",
+      "toolsRequired": [
+        "Chaos Engineering platform (Gremlin, Chaos Toolkit)",
+        "Message queue monitoring (RabbitMQ/Kafka dashboard)",
+        "Retry policy analyzer",
+        "Dead letter queue inspector",
+        "Service mesh observability tool (Istio, Linkerd)",
+        "Distributed tracing tool (Jaeger, Zipkin)"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 7,
+      "complianceTag": "SOC2-CC7.2-Resilience"
+    },
+    {
+      "id": "REL-HA-003",
+      "title": "API Gateway Failover and Load Balancer Resilience During Peak Review Cycle Scheduling Load",
+      "category": "reliability",
+      "subCategory": "Failover & High Availability Testing",
+      "priority": "Critical",
+      "description": "Validate automatic failover capabilities and zero-downtime deployment when primary API gateway instance fails during peak load of concurrent review cycle scheduling requests. Test load balancer health checks, automatic traffic rerouting, session persistence, and RTO compliance. Verify that in-flight requests are not lost and system maintains 99.9% availability SLO.",
+      "preconditions": [
+        "Multi-instance API gateway deployment with minimum 3 instances behind load balancer",
+        "Load balancer health checks configured with 5-second interval",
+        "Session persistence/sticky sessions are configured",
+        "RTO target is 15 seconds for API gateway failover",
+        "RPO target is zero data loss for in-flight transactions",
+        "Baseline availability SLO is 99.9% (43 minutes downtime per month maximum)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Generate peak load simulation with 200 concurrent Performance Managers scheduling review cycles simultaneously via POST /api/review-cycles/schedule",
+          "expectedResult": "All 3 API gateway instances are handling requests, load is distributed evenly (33% each), response times are under 2 seconds, success rate is 100%"
+        },
+        {
+          "step": 2,
+          "action": "Monitor baseline metrics: request distribution, response times, error rates, and active connections across all gateway instances",
+          "expectedResult": "Baseline metrics recorded: Average response time 1.2s, 0% error rate, 200 active sessions distributed across instances"
+        },
+        {
+          "step": 3,
+          "action": "Abruptly terminate primary API gateway instance (handling 33% of traffic) to simulate catastrophic failure",
+          "expectedResult": "Primary instance stops responding immediately, simulating crash or infrastructure failure"
+        },
+        {
+          "step": 4,
+          "action": "Observe load balancer health check detection and automatic failover behavior",
+          "expectedResult": "Load balancer detects failed instance within 5-10 seconds (2 failed health checks), automatically removes instance from rotation, traffic is redistributed to remaining 2 healthy instances"
+        },
+        {
+          "step": 5,
+          "action": "Monitor in-flight requests that were being processed by failed instance and verify retry/recovery mechanisms",
+          "expectedResult": "In-flight requests are either completed successfully via connection draining or automatically retried by client/API layer, zero requests result in data loss, users may experience brief delay (5-10s) but no failed transactions"
+        },
+        {
+          "step": 6,
+          "action": "Measure RTO by recording time from instance failure to full traffic recovery on remaining instances",
+          "expectedResult": "RTO is 15 seconds or less from failure detection to complete traffic redistribution, meeting SLO target"
+        },
+        {
+          "step": 7,
+          "action": "Verify data integrity by checking that all review cycle schedules submitted during failover are correctly saved without duplicates or data corruption",
+          "expectedResult": "100% of review cycle schedules are saved correctly, no duplicate entries, no partial records, RPO of zero data loss is achieved"
+        },
+        {
+          "step": 8,
+          "action": "Calculate availability impact and verify SLO compliance: (Total time - Downtime) / Total time * 100",
+          "expectedResult": "Availability remains at or above 99.9% for the test period, maximum user-perceived downtime is 15 seconds, SLO is maintained"
+        },
+        {
+          "step": 9,
+          "action": "Restore failed API gateway instance and verify automatic re-integration into load balancer pool",
+          "expectedResult": "Restored instance passes health checks, is automatically added back to rotation, load redistributes evenly across all 3 instances"
+        }
+      ],
+      "postconditions": [
+        "All API gateway instances are operational and healthy",
+        "Load balancer routing is restored to normal distribution",
+        "No data loss or corruption occurred during failover",
+        "All review cycle schedules are verified in database",
+        "Failover metrics are captured and logged",
+        "Availability SLO of 99.9% is maintained",
+        "Incident is documented with RTO and RPO measurements"
+      ],
+      "testData": "Concurrent Requests: 200 managers, Review Cycle Payload: {frequency: 'Monthly', startDate: 'various', duration: '12 months', notificationEnabled: true}",
+      "toolsRequired": [
+        "Load testing tool (JMeter, Gatling, K6)",
+        "Load balancer monitoring console (AWS ELB, NGINX Plus, HAProxy)",
+        "API gateway monitoring dashboard",
+        "Infrastructure orchestration tool (Kubernetes, Docker Swarm)",
+        "Real-time availability calculator",
+        "Distributed tracing for request flow analysis",
+        "Database transaction log analyzer"
+      ],
+      "estimatedTime": "50 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9,
+      "complianceTag": "SOC2-CC7.2-HA"
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true,
+    "performance": true,
+    "security": true,
+    "usability": true,
+    "reliability": true
+  },
+  "userStoryObject": {
+    "id": "ado-14144",
+    "title": "As Performance Manager, I want to schedule review cycles to achieve timely performance evaluations",
+    "description": "<div>CONTEXT &amp; BACKGROUND:\nScheduling review cycles is essential for maintaining performance oversight. This story addresses the need for regular evaluations.\n\nCURRENT STATE:\nCurrently, there are no structured review cycles, leading to missed evaluations.\n\nDESIRED STATE:\nAfter implementation, managers can schedule and manage review cycles effectively.\n\nKEY FUNCTIONALITY:\n• Ability to set review cycle frequency\n• Notifications for upcoming reviews\n• Calendar view of scheduled reviews\n• Edit and delete scheduled reviews\n\nUSER INTERACTION FLOW:\n1. User navigates to the review cycle management page.\n2. User selects frequency for review cycles.\n3. User saves the review cycle schedule.\n4. System confirms the schedule has been saved.\n\nTECHNICAL CONSIDERATIONS:\n• Data source: Review cycles database table\n• Validation rules: Ensure no overlapping review cycles\n• API endpoints: POST /api/review-cycles/schedule\n• Security: Role-based access control for scheduling reviews\n• Performance: Load time under 2 seconds for review cycles page\n\nOUT OF SCOPE:\n• Historical review data\n\nSUCCESS METRICS:\n• 85% of scheduled reviews occur on time. </div><br><div><strong>Persona:</strong> Performance Manager (Performance Manager) </div>",
+    "acceptanceCriteria": "<div><strong>Criteria 1:</strong> Users can schedule review cycles at defined intervals (daily, weekly, monthly). </div><br><div><strong>Criteria 2:</strong> The system sends notifications to users prior to review cycles. </div><br><div><strong>Criteria 3:</strong> Users can view a calendar of upcoming review cycles. </div><br>",
+    "adoWorkItemId": 14144,
+    "state": "New",
+    "assignedTo": "Unassigned",
+    "createdDate": "2026-01-29T09:29:17.75Z",
+    "priority": 2,
+    "storyPoints": 5,
+    "tags": "",
+    "epicId": "epic-13801",
+    "featureId": "feature-13826",
+    "source": "ado",
+    "adoUrl": "https://dev.azure.com/QS001/Venus/_workitems/edit/14144"
+  }
+}
