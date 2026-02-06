@@ -1,0 +1,2324 @@
+{
+  "storyId": "ado-16153",
+  "storyTitle": "As DevOps Engineer, I want to deploy validation features to staging environment for testing",
+  "testCases": [],
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify successful automated deployment of validation features to staging environment via pipeline trigger",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer is authenticated in Azure DevOps with deployment permissions to staging environment",
+        "Validation feature code is committed and merged to the staging branch in the repository",
+        "Staging environment is accessible and in healthy state with no ongoing deployments",
+        "Azure DevOps pipeline is configured with correct staging environment credentials and endpoints",
+        "All required deployment scripts and configuration files are present in the repository"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Azure DevOps Pipelines section and locate the 'Validation Features Deployment' pipeline",
+          "expectedResult": "Pipeline dashboard displays with 'Validation Features Deployment' pipeline visible and accessible"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Run pipeline' button and select 'staging' as target environment from dropdown menu",
+          "expectedResult": "Pipeline configuration modal opens with staging environment pre-selected and 'Run' button enabled"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Run' button to trigger the deployment pipeline",
+          "expectedResult": "Pipeline execution starts, status changes to 'Running', and real-time logs begin streaming in the console view"
+        },
+        {
+          "step": 4,
+          "action": "Monitor the deployment progress through pipeline stages: Build, Test, Deploy, and Verify",
+          "expectedResult": "Each stage completes successfully with green checkmarks, deployment logs show validation components being installed to staging servers"
+        },
+        {
+          "step": 5,
+          "action": "Wait for pipeline completion and verify the final status indicator",
+          "expectedResult": "Pipeline status shows 'Succeeded' in green, completion time is displayed as under 15 minutes, and success notification appears"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to staging environment URL and verify validation features are accessible",
+          "expectedResult": "Staging environment loads successfully, validation features are visible and functional, version number matches deployed build"
+        }
+      ],
+      "postconditions": [
+        "Validation features are successfully deployed and running in staging environment",
+        "Deployment logs are saved in Azure DevOps with detailed status information",
+        "Staging environment health checks pass and system is ready for integration testing",
+        "Deployment completion notification is sent to DevOps team via configured channels"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify deployment logs provide detailed status and error information throughout deployment process",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer has access to Azure DevOps pipeline logs with read permissions",
+        "A deployment pipeline run has been executed (either successful or failed)",
+        "Logging configuration is enabled in pipeline YAML with verbose mode",
+        "Azure DevOps workspace is open in browser with active session"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Azure DevOps Pipelines and select a completed deployment run from the history",
+          "expectedResult": "Pipeline run details page opens showing overall status, duration, and stage breakdown"
+        },
+        {
+          "step": 2,
+          "action": "Click on 'Logs' tab to view detailed deployment logs",
+          "expectedResult": "Comprehensive logs display with timestamps, stage names, task names, and execution details for each step"
+        },
+        {
+          "step": 3,
+          "action": "Expand each deployment stage (Build, Test, Deploy, Verify) and review log entries",
+          "expectedResult": "Each stage shows detailed information including: commands executed, output messages, resource utilization, deployment progress percentages, and component-specific installation logs"
+        },
+        {
+          "step": 4,
+          "action": "Search logs for key deployment milestones: 'Validation components downloaded', 'Database migrations applied', 'Services started', 'Health checks passed'",
+          "expectedResult": "All key milestones are logged with timestamps, success/failure status, and relevant details such as component versions and configuration values"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Download logs' button to export complete log file",
+          "expectedResult": "Log file downloads as .txt or .log format containing all deployment information with proper formatting and timestamps"
+        }
+      ],
+      "postconditions": [
+        "Deployment logs are accessible and contain comprehensive status information",
+        "Log entries include timestamps, stage information, and detailed execution results",
+        "Logs are retained in Azure DevOps for audit and troubleshooting purposes",
+        "Downloaded logs can be shared with team members for analysis"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify automatic rollback triggers when deployment failure occurs during validation feature deployment",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer is authenticated in Azure DevOps with deployment and rollback permissions",
+        "Staging environment has a previous successful deployment version available for rollback",
+        "Rollback mechanism is configured in pipeline YAML with automatic trigger on failure",
+        "Test scenario is prepared to simulate deployment failure (e.g., invalid configuration file)",
+        "Monitoring and alerting systems are active to capture rollback events"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Introduce a deliberate failure condition in deployment configuration (e.g., incorrect database connection string in staging config file)",
+          "expectedResult": "Configuration file is updated with invalid parameter and committed to staging branch"
+        },
+        {
+          "step": 2,
+          "action": "Trigger deployment pipeline by clicking 'Run pipeline' and selecting staging environment",
+          "expectedResult": "Pipeline starts execution and proceeds through Build and Test stages successfully"
+        },
+        {
+          "step": 3,
+          "action": "Monitor the Deploy stage where the failure condition will be encountered",
+          "expectedResult": "Deploy stage fails with error message 'Database connection failed: invalid connection string', stage status shows red 'Failed' indicator"
+        },
+        {
+          "step": 4,
+          "action": "Observe the pipeline automatically triggering the rollback process without manual intervention",
+          "expectedResult": "Rollback stage initiates automatically, logs show 'Deployment failure detected, initiating automatic rollback to previous version', rollback tasks begin executing"
+        },
+        {
+          "step": 5,
+          "action": "Monitor rollback progress through logs showing restoration of previous deployment version",
+          "expectedResult": "Rollback completes successfully, logs show 'Rollback completed: staging environment restored to version [previous-version-number]', staging environment is operational with previous version"
+        },
+        {
+          "step": 6,
+          "action": "Verify staging environment accessibility and confirm previous version is running",
+          "expectedResult": "Staging environment URL loads successfully, validation features show previous version number, all services are healthy and functional"
+        },
+        {
+          "step": 7,
+          "action": "Check Azure DevOps notifications and alerts for rollback notification",
+          "expectedResult": "Alert notification sent to DevOps team with subject 'Deployment Failed - Automatic Rollback Executed' including failure reason and rollback status"
+        }
+      ],
+      "postconditions": [
+        "Staging environment is restored to previous stable version after deployment failure",
+        "Rollback is logged in Azure DevOps with detailed information about failure cause and rollback actions",
+        "DevOps team receives notification about deployment failure and automatic rollback",
+        "Failed deployment artifacts are preserved for troubleshooting and analysis"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify deployment completes within 15 minutes performance requirement for validation features",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer is authenticated in Azure DevOps with pipeline execution permissions",
+        "Staging environment is in optimal state with sufficient resources (CPU, memory, network bandwidth)",
+        "Validation feature code is ready for deployment with all dependencies resolved",
+        "Azure DevOps agents are available and not overloaded with other pipeline runs",
+        "Network connectivity between Azure DevOps and staging environment is stable"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Azure DevOps Pipelines and locate 'Validation Features Deployment' pipeline",
+          "expectedResult": "Pipeline is displayed and ready for execution"
+        },
+        {
+          "step": 2,
+          "action": "Note the current timestamp and click 'Run pipeline' button, select staging environment, and click 'Run'",
+          "expectedResult": "Pipeline execution starts immediately, start timestamp is recorded in pipeline logs as [start-time]"
+        },
+        {
+          "step": 3,
+          "action": "Monitor pipeline execution through all stages: Build (expected 3-4 min), Test (expected 2-3 min), Deploy (expected 6-7 min), Verify (expected 1-2 min)",
+          "expectedResult": "Each stage progresses without delays, real-time duration counter shows cumulative time increasing, no stages show 'waiting' or 'queued' status"
+        },
+        {
+          "step": 4,
+          "action": "Wait for pipeline completion and note the completion timestamp",
+          "expectedResult": "Pipeline completes with 'Succeeded' status, completion timestamp is recorded as [end-time]"
+        },
+        {
+          "step": 5,
+          "action": "Calculate total deployment duration by reviewing pipeline summary showing 'Duration: [X] minutes [Y] seconds'",
+          "expectedResult": "Total deployment duration is displayed as 14 minutes or less, meeting the 15-minute performance requirement"
+        },
+        {
+          "step": 6,
+          "action": "Review individual stage durations in pipeline timeline view",
+          "expectedResult": "Stage breakdown shows: Build (3-4 min), Test (2-3 min), Deploy (6-7 min), Verify (1-2 min), with no stage exceeding expected time ranges"
+        }
+      ],
+      "postconditions": [
+        "Deployment completes successfully within 15-minute performance requirement",
+        "Deployment duration is logged and available for performance tracking and analysis",
+        "Validation features are deployed and operational in staging environment",
+        "Performance metrics are recorded for future optimization and baseline comparison"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify secure credentials management during deployment process with no exposure in logs",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer has access to Azure DevOps pipeline configuration and variable groups",
+        "Staging environment credentials are stored in Azure Key Vault or Azure DevOps secure variables",
+        "Pipeline is configured to use secret variables for sensitive information (database passwords, API keys, connection strings)",
+        "Logging configuration is set to mask secret values in pipeline output",
+        "Security scanning tools are enabled to detect credential exposure"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Azure DevOps Pipeline settings and review Variables section",
+          "expectedResult": "All sensitive variables (database passwords, API keys, service account credentials) are marked with lock icon indicating 'secret' type, values are masked with asterisks"
+        },
+        {
+          "step": 2,
+          "action": "Trigger deployment pipeline to staging environment",
+          "expectedResult": "Pipeline starts execution and proceeds through all stages"
+        },
+        {
+          "step": 3,
+          "action": "Monitor deployment logs in real-time, specifically looking for any credential or secret values",
+          "expectedResult": "All secret values in logs are masked and displayed as '***' or '[secret]', no plain-text passwords, connection strings, or API keys are visible"
+        },
+        {
+          "step": 4,
+          "action": "Search logs for keywords: 'password', 'apikey', 'secret', 'connectionstring', 'token'",
+          "expectedResult": "Search results show only masked values or variable names, no actual secret values are exposed in log output"
+        },
+        {
+          "step": 5,
+          "action": "Download complete log file and perform text search for sensitive patterns (e.g., connection string format, API key patterns)",
+          "expectedResult": "Downloaded logs contain no exposed credentials, all sensitive information is properly masked or omitted"
+        },
+        {
+          "step": 6,
+          "action": "Verify that deployment successfully authenticated to staging environment using secure credentials",
+          "expectedResult": "Deployment completes successfully, logs show 'Authentication successful' messages without revealing credential values, staging services are running with proper configuration"
+        }
+      ],
+      "postconditions": [
+        "Deployment completes successfully using securely managed credentials",
+        "No credentials or secrets are exposed in pipeline logs or output",
+        "Audit trail shows secure credential access from Azure Key Vault or secure variables",
+        "Security compliance requirements are met for credential management"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify integration tests run automatically after successful deployment to staging environment",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "DevOps Engineer has triggered deployment pipeline to staging environment",
+        "Validation features have been successfully deployed to staging",
+        "Integration test suite is configured in pipeline with test scripts and test data",
+        "Staging environment is accessible from test execution agents",
+        "Test reporting tools are configured to capture and display test results"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Monitor deployment pipeline after Deploy stage completes successfully",
+          "expectedResult": "Pipeline automatically proceeds to 'Integration Tests' stage without manual intervention, stage status changes to 'Running'"
+        },
+        {
+          "step": 2,
+          "action": "Observe integration test execution in pipeline logs showing test discovery and execution",
+          "expectedResult": "Logs display 'Discovering integration tests...', 'Found [X] test cases', 'Executing integration tests against staging environment at [staging-url]'"
+        },
+        {
+          "step": 3,
+          "action": "Monitor test execution progress showing individual test results",
+          "expectedResult": "Logs show each test case executing with pass/fail status: 'Test: Validate user authentication - PASSED', 'Test: Validate data submission - PASSED', test progress counter updates (e.g., '5/10 tests completed')"
+        },
+        {
+          "step": 4,
+          "action": "Wait for integration test suite completion and review test summary",
+          "expectedResult": "Integration Tests stage completes with status 'Succeeded', test summary shows 'Total: [X] tests, Passed: [X], Failed: 0, Duration: [Y] seconds'"
+        },
+        {
+          "step": 5,
+          "action": "Click on 'Tests' tab in pipeline run to view detailed test results",
+          "expectedResult": "Test results dashboard displays with all integration tests listed, pass rate shown as 100%, individual test details available including execution time and assertions"
+        },
+        {
+          "step": 6,
+          "action": "Verify test report is generated and accessible for download",
+          "expectedResult": "Test report link is available, clicking it downloads HTML or XML report with comprehensive test results, screenshots, and execution details"
+        }
+      ],
+      "postconditions": [
+        "Integration tests execute automatically after deployment without manual trigger",
+        "Test results are captured and available in Azure DevOps test reporting",
+        "Deployment pipeline completes fully only after integration tests pass",
+        "Test artifacts and reports are stored for audit and analysis purposes"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify deployment fails gracefully when staging environment is unreachable or offline",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer is authenticated in Azure DevOps with deployment permissions",
+        "Staging environment is intentionally made unreachable (network blocked, servers stopped, or firewall rules blocking access)",
+        "Deployment pipeline is configured with connection timeout settings",
+        "Rollback mechanism is enabled and previous deployment version is available"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Ensure staging environment is unreachable by stopping staging servers or blocking network access",
+          "expectedResult": "Staging environment URL returns connection timeout or 'server not found' error when accessed"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to Azure DevOps Pipelines and trigger 'Validation Features Deployment' pipeline for staging environment",
+          "expectedResult": "Pipeline starts execution and proceeds through Build and Test stages successfully"
+        },
+        {
+          "step": 3,
+          "action": "Monitor Deploy stage where connection to staging environment is attempted",
+          "expectedResult": "Deploy stage shows error message 'Failed to connect to staging environment: connection timeout after 60 seconds', stage status changes to 'Failed' with red indicator"
+        },
+        {
+          "step": 4,
+          "action": "Verify pipeline does not hang indefinitely and fails within configured timeout period",
+          "expectedResult": "Pipeline fails within 2-3 minutes of connection attempt, does not remain in 'Running' state indefinitely, clear timeout error is logged"
+        },
+        {
+          "step": 5,
+          "action": "Observe automatic rollback trigger due to deployment failure",
+          "expectedResult": "Rollback stage initiates automatically with message 'Deployment failed: staging environment unreachable, initiating rollback', however rollback may also fail if environment is completely offline"
+        },
+        {
+          "step": 6,
+          "action": "Check pipeline notifications and alerts sent to DevOps team",
+          "expectedResult": "Alert notification sent with subject 'Deployment Failed: Staging Environment Unreachable', email includes error details, timestamp, and recommended actions"
+        }
+      ],
+      "postconditions": [
+        "Deployment fails with clear error message indicating staging environment is unreachable",
+        "Pipeline does not hang or timeout indefinitely, fails within configured timeout period",
+        "DevOps team is notified of deployment failure with actionable error information",
+        "Deployment failure is logged in Azure DevOps with detailed error information for troubleshooting"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify deployment fails when DevOps Engineer lacks required permissions to deploy to staging environment",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Test user account is created in Azure DevOps with limited permissions (read-only or contributor without deployment rights)",
+        "Test user does not have 'Deploy to Staging' permission in Azure DevOps project settings",
+        "Staging environment access control is configured to require specific deployment permissions",
+        "Test user is logged into Azure DevOps with restricted account"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Log into Azure DevOps using test account with insufficient deployment permissions",
+          "expectedResult": "Azure DevOps dashboard loads successfully, user can view pipelines but has restricted access"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to Pipelines section and locate 'Validation Features Deployment' pipeline",
+          "expectedResult": "Pipeline is visible in the list but 'Run pipeline' button may be disabled or grayed out"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to click 'Run pipeline' button to trigger deployment",
+          "expectedResult": "Error message appears: 'Access Denied: You do not have permission to run this pipeline' or 'Insufficient permissions to deploy to staging environment', button click is blocked"
+        },
+        {
+          "step": 4,
+          "action": "If pipeline run is somehow initiated (via API or other means), monitor for permission failure during deployment",
+          "expectedResult": "Pipeline fails at Deploy stage with error 'Authorization failed: user [username] does not have Deploy permission for staging environment', deployment does not proceed"
+        },
+        {
+          "step": 5,
+          "action": "Verify that no partial deployment occurs and staging environment remains unchanged",
+          "expectedResult": "Staging environment shows previous deployment version, no new components are installed, environment state is unchanged"
+        },
+        {
+          "step": 6,
+          "action": "Check audit logs for permission denial event",
+          "expectedResult": "Azure DevOps audit log contains entry: 'Deployment attempt denied for user [username] to staging environment due to insufficient permissions' with timestamp"
+        }
+      ],
+      "postconditions": [
+        "Deployment is blocked due to insufficient permissions",
+        "Staging environment remains in previous stable state with no unauthorized changes",
+        "Permission denial is logged in Azure DevOps audit trail",
+        "User receives clear error message indicating permission issue and required access level"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify deployment fails when deployment scripts contain syntax errors or invalid commands",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer has access to deployment script repository with write permissions",
+        "Deployment scripts are intentionally modified to include syntax errors (e.g., missing semicolon, invalid command, wrong parameter)",
+        "Modified scripts are committed to staging branch",
+        "Pipeline is configured to execute deployment scripts during Deploy stage"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Modify deployment script to include syntax error (e.g., change 'npm install' to 'npm instal' or add invalid PowerShell command)",
+          "expectedResult": "Script file is updated with syntax error and committed to repository"
+        },
+        {
+          "step": 2,
+          "action": "Trigger deployment pipeline by clicking 'Run pipeline' and selecting staging environment",
+          "expectedResult": "Pipeline starts execution and proceeds through Build stage"
+        },
+        {
+          "step": 3,
+          "action": "Monitor Deploy stage where the erroneous script is executed",
+          "expectedResult": "Deploy stage fails with error message showing script execution failure: 'Error executing deployment script: command not found: instal' or 'Syntax error in deploy.ps1 at line 45', stage status shows 'Failed'"
+        },
+        {
+          "step": 4,
+          "action": "Review deployment logs for detailed error information including script name, line number, and error description",
+          "expectedResult": "Logs display detailed error: 'Script: deploy-validation.sh, Line: 23, Error: unexpected token near }', full stack trace is provided for troubleshooting"
+        },
+        {
+          "step": 5,
+          "action": "Verify automatic rollback is triggered due to script execution failure",
+          "expectedResult": "Rollback stage initiates automatically with message 'Deployment script failed, initiating rollback to previous version', staging environment is restored to previous state"
+        },
+        {
+          "step": 6,
+          "action": "Check that staging environment remains operational with previous version after rollback",
+          "expectedResult": "Staging environment URL loads successfully, previous version of validation features is running, no broken or partially deployed components exist"
+        }
+      ],
+      "postconditions": [
+        "Deployment fails with clear error message identifying script syntax error",
+        "Automatic rollback restores staging environment to previous stable version",
+        "Error details including script name, line number, and error description are logged",
+        "DevOps team is notified of deployment failure with script error details for correction"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify deployment fails when staging environment has insufficient resources (disk space, memory, CPU)",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer has access to staging environment infrastructure monitoring",
+        "Staging environment is configured with limited resources or disk space is artificially filled to near capacity (95%+ used)",
+        "Resource monitoring is enabled in deployment pipeline to check environment health",
+        "Deployment requires specific minimum resources (e.g., 2GB free disk space, 1GB available memory)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Verify staging environment has insufficient disk space by checking server storage showing 98% disk usage",
+          "expectedResult": "Staging server monitoring shows disk space at 98% capacity with only 200MB free, below required 2GB minimum"
+        },
+        {
+          "step": 2,
+          "action": "Trigger deployment pipeline to staging environment",
+          "expectedResult": "Pipeline starts execution and proceeds through Build and Test stages"
+        },
+        {
+          "step": 3,
+          "action": "Monitor Deploy stage where pre-deployment health check validates environment resources",
+          "expectedResult": "Deploy stage fails at pre-deployment validation with error 'Insufficient disk space on staging server: 200MB available, 2GB required', deployment is aborted before any changes are made"
+        },
+        {
+          "step": 4,
+          "action": "Review deployment logs for resource constraint details",
+          "expectedResult": "Logs show detailed resource check results: 'Disk Space: 200MB/2GB required - FAILED', 'Memory: 4GB/1GB required - PASSED', 'CPU: Available - PASSED', clear indication of which resource constraint caused failure"
+        },
+        {
+          "step": 5,
+          "action": "Verify that no deployment artifacts are copied to staging environment due to pre-deployment check failure",
+          "expectedResult": "Staging environment remains unchanged, no new files are copied, previous version continues running, disk space usage remains at 98%"
+        },
+        {
+          "step": 6,
+          "action": "Check alert notification sent to DevOps team about resource constraint",
+          "expectedResult": "Alert email sent with subject 'Deployment Failed: Insufficient Resources on Staging Environment', includes resource details and recommendation to free disk space or increase capacity"
+        }
+      ],
+      "postconditions": [
+        "Deployment fails before making any changes due to insufficient resources",
+        "Staging environment remains in previous stable state",
+        "Resource constraint details are logged with specific metrics (available vs required)",
+        "DevOps team is notified with actionable information to resolve resource issue"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify deployment fails when required environment variables or configuration files are missing",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer has access to pipeline configuration and variable groups",
+        "Required environment variables for staging deployment are intentionally removed or not set (e.g., DATABASE_URL, API_ENDPOINT, SERVICE_KEY)",
+        "Deployment scripts are configured to validate presence of required environment variables",
+        "Pipeline is ready to be triggered for staging deployment"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Azure DevOps Pipeline Variables section and delete or comment out required environment variable 'DATABASE_URL'",
+          "expectedResult": "Environment variable 'DATABASE_URL' is removed from pipeline variables, change is saved"
+        },
+        {
+          "step": 2,
+          "action": "Trigger deployment pipeline to staging environment",
+          "expectedResult": "Pipeline starts execution and proceeds through Build stage"
+        },
+        {
+          "step": 3,
+          "action": "Monitor Deploy stage where environment variable validation occurs",
+          "expectedResult": "Deploy stage fails with error message 'Missing required environment variable: DATABASE_URL', validation check prevents deployment from proceeding, stage status shows 'Failed'"
+        },
+        {
+          "step": 4,
+          "action": "Review deployment logs for complete list of missing configuration items",
+          "expectedResult": "Logs display 'Configuration Validation Failed: Missing required variables: [DATABASE_URL], Missing required files: [none]', clear indication of what needs to be provided"
+        },
+        {
+          "step": 5,
+          "action": "Verify that deployment does not proceed with missing configuration and no partial deployment occurs",
+          "expectedResult": "Deployment is completely aborted, no components are installed to staging, previous version continues running without interruption"
+        },
+        {
+          "step": 6,
+          "action": "Attempt to trigger deployment with missing configuration file (e.g., delete staging-config.json from repository)",
+          "expectedResult": "Pipeline fails with error 'Required configuration file not found: staging-config.json', deployment is blocked at validation stage"
+        }
+      ],
+      "postconditions": [
+        "Deployment fails with clear error message listing missing environment variables or configuration files",
+        "No partial deployment occurs, staging environment remains in previous stable state",
+        "Configuration validation errors are logged with specific details about missing items",
+        "DevOps Engineer receives actionable error message to add missing configuration before retrying"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify deployment fails when database migration scripts fail during deployment process",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer is authenticated in Azure DevOps with deployment permissions",
+        "Validation features deployment includes database migration scripts",
+        "Database migration script is intentionally modified to include error (e.g., reference non-existent table, invalid SQL syntax, constraint violation)",
+        "Staging database is accessible and in known state",
+        "Rollback mechanism includes database rollback capability"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Modify database migration script to include SQL error (e.g., 'ALTER TABLE non_existent_table ADD COLUMN new_field VARCHAR(50)')",
+          "expectedResult": "Migration script is updated with invalid SQL and committed to repository"
+        },
+        {
+          "step": 2,
+          "action": "Trigger deployment pipeline to staging environment",
+          "expectedResult": "Pipeline starts execution and proceeds through Build and Test stages successfully"
+        },
+        {
+          "step": 3,
+          "action": "Monitor Deploy stage where database migration scripts are executed",
+          "expectedResult": "Deploy stage fails during database migration with error 'Database migration failed: Table non_existent_table does not exist', SQL error code and details are displayed in logs"
+        },
+        {
+          "step": 4,
+          "action": "Review deployment logs for database migration error details including failed script name and SQL statement",
+          "expectedResult": "Logs show 'Migration script: 003_add_validation_fields.sql, Line: 12, Error: [42S02] Table non_existent_table doesn't exist', full SQL statement that failed is logged"
+        },
+        {
+          "step": 5,
+          "action": "Verify automatic rollback is triggered including database rollback to previous schema version",
+          "expectedResult": "Rollback stage initiates with message 'Database migration failed, rolling back database changes and application deployment', database rollback script executes successfully"
+        },
+        {
+          "step": 6,
+          "action": "Verify staging database schema is restored to previous version after rollback",
+          "expectedResult": "Database schema matches pre-deployment state, no partial migrations are applied, data integrity is maintained, application connects successfully to rolled-back database"
+        },
+        {
+          "step": 7,
+          "action": "Check staging environment functionality with rolled-back database",
+          "expectedResult": "Staging environment loads successfully with previous version, all database queries execute without errors, no data corruption or orphaned records exist"
+        }
+      ],
+      "postconditions": [
+        "Deployment fails when database migration encounters error",
+        "Automatic rollback restores both application code and database schema to previous version",
+        "Database integrity is maintained with no partial migrations or data corruption",
+        "Detailed error information about failed migration is logged for troubleshooting"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Deploy validation features when staging environment has maximum resource utilization",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer is authenticated in Azure DevOps with deployment permissions",
+        "Staging environment is running at 95% CPU and memory utilization",
+        "Validation feature build artifacts are available and ready for deployment",
+        "Previous deployment to staging was successful and environment is in stable state"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Azure DevOps Pipelines and select the validation feature deployment pipeline",
+          "expectedResult": "Pipeline dashboard displays with 'Run pipeline' button visible"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Run pipeline' button and select staging environment from dropdown",
+          "expectedResult": "Pipeline configuration modal opens with staging environment selected"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Run' button to trigger deployment while monitoring resource utilization metrics",
+          "expectedResult": "Pipeline starts execution and deployment begins despite high resource usage"
+        },
+        {
+          "step": 4,
+          "action": "Monitor deployment progress through pipeline logs and staging environment health dashboard",
+          "expectedResult": "Deployment either completes successfully with extended time or triggers resource-based warnings"
+        },
+        {
+          "step": 5,
+          "action": "Verify deployment completion status and check if deployment time exceeded 15-minute threshold",
+          "expectedResult": "Deployment status shows success or failure with detailed resource constraint logs"
+        }
+      ],
+      "postconditions": [
+        "Deployment logs contain detailed resource utilization metrics during deployment",
+        "System either completed deployment or triggered appropriate resource warnings",
+        "Staging environment remains stable without crashes or service interruptions",
+        "Deployment time is logged and compared against 15-minute SLA threshold"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Trigger deployment pipeline with extremely large validation feature artifact size (>5GB)",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer has valid Azure DevOps credentials and deployment permissions",
+        "Validation feature build has generated artifacts exceeding 5GB in size",
+        "Staging environment has sufficient storage capacity for large artifacts",
+        "Network bandwidth between build server and staging is at baseline levels"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Access Azure DevOps Pipelines and locate the validation feature deployment pipeline",
+          "expectedResult": "Pipeline interface loads with deployment options visible"
+        },
+        {
+          "step": 2,
+          "action": "Initiate pipeline run for staging environment with the large artifact build",
+          "expectedResult": "Pipeline begins artifact download phase with progress indicator showing file size"
+        },
+        {
+          "step": 3,
+          "action": "Monitor artifact transfer time and deployment progress through pipeline logs",
+          "expectedResult": "Artifact transfer completes without timeout errors, progress updates show transfer rate"
+        },
+        {
+          "step": 4,
+          "action": "Observe total deployment time from trigger to completion",
+          "expectedResult": "Deployment completes within 15-minute window or provides clear timeout notification"
+        },
+        {
+          "step": 5,
+          "action": "Verify all validation feature components are deployed correctly despite large artifact size",
+          "expectedResult": "All components are deployed successfully with integrity checks passing"
+        }
+      ],
+      "postconditions": [
+        "Large artifact is successfully transferred and deployed to staging environment",
+        "Deployment logs show artifact size, transfer time, and total deployment duration",
+        "Staging environment storage metrics reflect the new artifact deployment",
+        "No partial deployments or corrupted files exist in staging environment"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Deploy validation features when staging environment has zero available disk space",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer is logged into Azure DevOps with appropriate permissions",
+        "Staging environment disk space is at 100% capacity (0 bytes available)",
+        "Validation feature artifacts require 2GB of disk space for deployment",
+        "Monitoring alerts are configured for disk space thresholds"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Azure DevOps Pipelines and select validation feature deployment pipeline",
+          "expectedResult": "Pipeline dashboard displays with current staging environment status"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Run pipeline' and select staging environment as deployment target",
+          "expectedResult": "Pipeline configuration screen opens with staging selected"
+        },
+        {
+          "step": 3,
+          "action": "Execute pipeline run and monitor pre-deployment health checks",
+          "expectedResult": "Pipeline detects insufficient disk space and displays error message 'Insufficient disk space on staging environment'"
+        },
+        {
+          "step": 4,
+          "action": "Verify that automatic rollback mechanism is triggered due to deployment failure",
+          "expectedResult": "Rollback process initiates automatically with status message 'Deployment failed - initiating rollback'"
+        },
+        {
+          "step": 5,
+          "action": "Check deployment logs for detailed error information about disk space failure",
+          "expectedResult": "Logs contain specific error: 'Deployment failed: 0 bytes available, 2GB required' with timestamp"
+        }
+      ],
+      "postconditions": [
+        "Deployment is marked as failed in Azure DevOps pipeline history",
+        "Automatic rollback completed successfully, staging environment reverted to previous state",
+        "Detailed error logs are available showing disk space constraint as failure reason",
+        "Alert notifications sent to DevOps team about disk space issue"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Trigger multiple simultaneous deployment pipelines to staging environment",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "DevOps Engineer has authenticated access to Azure DevOps",
+        "Multiple validation feature builds are ready for deployment",
+        "Staging environment is in healthy state with no active deployments",
+        "Pipeline concurrency settings are at default configuration"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Open Azure DevOps Pipelines in multiple browser tabs",
+          "expectedResult": "Multiple pipeline dashboard instances load successfully"
+        },
+        {
+          "step": 2,
+          "action": "In first tab, trigger validation feature deployment pipeline for staging environment",
+          "expectedResult": "First pipeline starts execution with status 'Running'"
+        },
+        {
+          "step": 3,
+          "action": "Immediately switch to second tab and trigger another deployment pipeline to same staging environment",
+          "expectedResult": "Second pipeline either queues with status 'Waiting' or shows error 'Deployment already in progress'"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to trigger third deployment pipeline from third tab to staging",
+          "expectedResult": "System prevents concurrent deployments with message 'Staging environment locked by active deployment'"
+        },
+        {
+          "step": 5,
+          "action": "Monitor first deployment completion and observe if queued deployments start automatically",
+          "expectedResult": "First deployment completes, queued deployment starts automatically or requires manual trigger"
+        }
+      ],
+      "postconditions": [
+        "Only one deployment executes at a time on staging environment",
+        "Pipeline queue management prevents deployment conflicts and race conditions",
+        "All deployment attempts are logged with queue position and execution order",
+        "Staging environment integrity is maintained without corruption from concurrent deployments"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Deploy validation features with special characters and Unicode in configuration files",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "DevOps Engineer is authenticated in Azure DevOps with deployment rights",
+        "Validation feature configuration files contain special characters (é, ñ, 中文, emoji 🚀)",
+        "Staging environment supports UTF-8 encoding",
+        "Build artifacts include configuration files with international character sets"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Azure DevOps Pipelines and select validation feature deployment pipeline",
+          "expectedResult": "Pipeline interface loads with deployment options available"
+        },
+        {
+          "step": 2,
+          "action": "Trigger deployment pipeline for staging environment with Unicode configuration files",
+          "expectedResult": "Pipeline starts and begins deploying artifacts with special character configurations"
+        },
+        {
+          "step": 3,
+          "action": "Monitor deployment logs for any character encoding errors or warnings",
+          "expectedResult": "Deployment proceeds without encoding errors, logs display special characters correctly"
+        },
+        {
+          "step": 4,
+          "action": "After deployment completes, verify configuration files on staging environment preserve special characters",
+          "expectedResult": "Configuration files contain exact special characters: é, ñ, 中文, 🚀 without corruption"
+        },
+        {
+          "step": 5,
+          "action": "Run integration tests to verify validation features work correctly with Unicode configurations",
+          "expectedResult": "Integration tests pass, validation features process special characters correctly"
+        }
+      ],
+      "postconditions": [
+        "All configuration files deployed with special characters intact and readable",
+        "Validation features operate correctly with international character configurations",
+        "Deployment logs show proper UTF-8 encoding throughout deployment process",
+        "No character encoding errors or data corruption occurred during deployment"
+      ]
+    },
+    {
+      "id": "TC-EDGE-006",
+      "title": "Deploy validation features when Azure DevOps service experiences intermittent network connectivity",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer is logged into Azure DevOps with valid credentials",
+        "Network connection between Azure DevOps and staging environment is unstable (packet loss 20-30%)",
+        "Validation feature artifacts are ready for deployment",
+        "Retry mechanisms are configured in deployment pipeline"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Access Azure DevOps Pipelines and initiate validation feature deployment to staging",
+          "expectedResult": "Pipeline starts execution despite intermittent connectivity"
+        },
+        {
+          "step": 2,
+          "action": "Monitor deployment progress as network connectivity fluctuates during artifact transfer",
+          "expectedResult": "Pipeline shows retry attempts with messages like 'Connection lost - retrying (attempt 1 of 3)'"
+        },
+        {
+          "step": 3,
+          "action": "Observe deployment behavior during network interruptions lasting 30-60 seconds",
+          "expectedResult": "Pipeline pauses during connectivity loss and resumes automatically when connection restored"
+        },
+        {
+          "step": 4,
+          "action": "Check if deployment completes successfully or triggers rollback after maximum retry attempts",
+          "expectedResult": "Deployment either succeeds with extended time or fails with 'Network connectivity failure - rollback initiated'"
+        },
+        {
+          "step": 5,
+          "action": "Review deployment logs for detailed network error information and retry attempts",
+          "expectedResult": "Logs contain timestamps of network failures, retry attempts, and final deployment status"
+        }
+      ],
+      "postconditions": [
+        "Deployment either completed successfully with retry attempts logged or failed with automatic rollback",
+        "Staging environment remains in consistent state without partial deployments",
+        "Detailed network error logs available showing connectivity issues and retry behavior",
+        "No corrupted files or incomplete deployments exist on staging environment"
+      ]
+    },
+    {
+      "id": "TC-EDGE-007",
+      "title": "Deploy validation features at exactly 14 minutes 59 seconds to test 15-minute SLA boundary",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "DevOps Engineer has access to Azure DevOps with deployment permissions",
+        "Validation feature deployment is configured to take approximately 14 minutes 30 seconds",
+        "Staging environment is in healthy state with normal resource availability",
+        "Deployment timeout threshold is set to exactly 15 minutes (900 seconds)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Azure DevOps Pipelines and select validation feature deployment pipeline",
+          "expectedResult": "Pipeline dashboard loads with deployment options visible"
+        },
+        {
+          "step": 2,
+          "action": "Trigger deployment pipeline to staging environment and start precise timer",
+          "expectedResult": "Pipeline execution begins with timestamp logged as deployment start time"
+        },
+        {
+          "step": 3,
+          "action": "Monitor deployment progress continuously, tracking elapsed time against 15-minute threshold",
+          "expectedResult": "Pipeline shows progress through stages with elapsed time displayed"
+        },
+        {
+          "step": 4,
+          "action": "Observe deployment completion status as it approaches 14 minutes 59 seconds mark",
+          "expectedResult": "Deployment completes at 14:59 with success status, just under 15-minute SLA"
+        },
+        {
+          "step": 5,
+          "action": "Verify deployment logs show exact completion time and confirm SLA compliance",
+          "expectedResult": "Logs display 'Deployment completed in 14m 59s - SLA met' with precise timestamp"
+        }
+      ],
+      "postconditions": [
+        "Deployment completed successfully within 15-minute SLA requirement",
+        "Exact deployment duration logged showing boundary case compliance",
+        "All validation features deployed correctly despite time pressure",
+        "Performance metrics captured for deployment duration analysis"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Navigate Azure DevOps deployment pipeline interface using keyboard only",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer is logged into Azure DevOps portal",
+        "Screen reader is disabled to test pure keyboard navigation",
+        "Browser is set to default accessibility settings",
+        "Validation feature deployment pipeline is available in pipelines list"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key repeatedly to navigate through Azure DevOps main navigation menu",
+          "expectedResult": "Focus indicator visibly moves through menu items with clear blue outline (minimum 3px width)"
+        },
+        {
+          "step": 2,
+          "action": "Press Tab until 'Pipelines' menu item receives focus, then press Enter key",
+          "expectedResult": "Pipelines page loads and focus moves to first interactive element on page"
+        },
+        {
+          "step": 3,
+          "action": "Use Tab key to navigate to validation feature deployment pipeline in list, press Enter to open",
+          "expectedResult": "Pipeline details page opens with focus on first actionable element"
+        },
+        {
+          "step": 4,
+          "action": "Press Tab to navigate to 'Run pipeline' button and press Enter key",
+          "expectedResult": "Pipeline configuration modal opens with focus automatically set to first input field"
+        },
+        {
+          "step": 5,
+          "action": "Use Tab to navigate through environment dropdown, select staging with Arrow keys, press Enter",
+          "expectedResult": "Staging environment selected, focus moves to next form element"
+        },
+        {
+          "step": 6,
+          "action": "Press Tab to reach 'Run' button and press Enter to trigger deployment",
+          "expectedResult": "Deployment starts and focus moves to deployment progress section"
+        },
+        {
+          "step": 7,
+          "action": "Press Escape key to test modal dismissal behavior",
+          "expectedResult": "If modal is open, it closes and focus returns to element that triggered modal"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements were accessible via keyboard navigation without mouse",
+        "Focus indicators were visible throughout entire navigation flow",
+        "No keyboard traps encountered during navigation",
+        "Logical tab order maintained throughout deployment pipeline interface"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Verify deployment pipeline interface with NVDA screen reader for proper announcements",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer is logged into Azure DevOps with deployment permissions",
+        "NVDA screen reader version 2023.1 or later is installed and running",
+        "Browser is Firefox or Chrome with screen reader support enabled",
+        "Validation feature deployment pipeline is ready for testing"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Azure DevOps Pipelines page and listen to NVDA page title announcement",
+          "expectedResult": "NVDA announces 'Pipelines - Azure DevOps' with page landmark 'main region'"
+        },
+        {
+          "step": 2,
+          "action": "Use NVDA browse mode to navigate to validation feature pipeline and listen to announcement",
+          "expectedResult": "NVDA announces 'Validation Feature Deployment Pipeline, link' with descriptive context"
+        },
+        {
+          "step": 3,
+          "action": "Activate pipeline link and listen for page load announcement and focus change",
+          "expectedResult": "NVDA announces 'Pipeline details loaded' and reads focused element description"
+        },
+        {
+          "step": 4,
+          "action": "Navigate to 'Run pipeline' button and listen to NVDA button announcement",
+          "expectedResult": "NVDA announces 'Run pipeline, button' with any associated keyboard shortcut"
+        },
+        {
+          "step": 5,
+          "action": "Activate button and listen to modal dialog announcement",
+          "expectedResult": "NVDA announces 'Run pipeline dialog' with role 'dialog' and first focusable element"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to environment dropdown and listen to combobox announcement",
+          "expectedResult": "NVDA announces 'Environment, combobox, collapsed' with current selection or placeholder"
+        },
+        {
+          "step": 7,
+          "action": "Trigger deployment and listen to status update announcements",
+          "expectedResult": "NVDA announces 'Deployment started' via ARIA live region with polite priority"
+        },
+        {
+          "step": 8,
+          "action": "Monitor deployment progress and listen for completion announcement",
+          "expectedResult": "NVDA announces 'Deployment completed successfully' or failure message via live region"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements had proper ARIA labels and roles announced by NVDA",
+        "Status updates were announced via ARIA live regions without requiring focus",
+        "Modal dialogs were properly announced with role and context",
+        "No unlabeled buttons or form fields encountered during screen reader testing"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify color contrast ratios meet WCAG 2.1 AA standards for deployment pipeline interface",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer has access to Azure DevOps deployment pipeline interface",
+        "Color contrast analyzer tool is installed (e.g., WAVE, axe DevTools)",
+        "Browser is set to default color scheme without custom themes",
+        "Deployment pipeline page is fully loaded with all UI elements visible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Open browser DevTools and run axe accessibility scanner on Pipelines page",
+          "expectedResult": "Scanner completes and displays color contrast analysis results"
+        },
+        {
+          "step": 2,
+          "action": "Check contrast ratio for 'Run pipeline' button text against button background color",
+          "expectedResult": "Contrast ratio is minimum 4.5:1 for normal text or 3:1 for large text (18pt+)"
+        },
+        {
+          "step": 3,
+          "action": "Verify contrast ratio for deployment status indicators (success green, failure red, warning yellow)",
+          "expectedResult": "All status colors have minimum 3:1 contrast against background and include non-color indicators (icons)"
+        },
+        {
+          "step": 4,
+          "action": "Check contrast for deployment log text against log background in both light and dark modes",
+          "expectedResult": "Log text contrast meets 4.5:1 ratio in both color modes"
+        },
+        {
+          "step": 5,
+          "action": "Verify focus indicators have sufficient contrast (minimum 3:1) against adjacent colors",
+          "expectedResult": "Focus outline visible with 3:1 contrast ratio against both element and background"
+        },
+        {
+          "step": 6,
+          "action": "Test disabled button states for sufficient contrast to indicate disabled status",
+          "expectedResult": "Disabled buttons have visual distinction beyond color (opacity, pattern) and meet contrast minimums"
+        }
+      ],
+      "postconditions": [
+        "All text elements meet WCAG 2.1 AA contrast ratio requirements (4.5:1 for normal, 3:1 for large)",
+        "Status indicators use both color and non-color methods (icons, text) to convey information",
+        "Focus indicators are visible with sufficient contrast in all interface states",
+        "No color-only information conveyed without alternative indicators"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Test deployment pipeline interface at 200% browser zoom for text scaling compliance",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "DevOps Engineer is logged into Azure DevOps portal",
+        "Browser zoom is set to default 100% level",
+        "Deployment pipeline interface is loaded and visible",
+        "Screen resolution is set to 1920x1080 pixels"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Ctrl and + keys repeatedly to increase browser zoom to 200%",
+          "expectedResult": "Page content scales proportionally, all text increases to 200% of original size"
+        },
+        {
+          "step": 2,
+          "action": "Verify 'Run pipeline' button remains fully visible and clickable without horizontal scrolling",
+          "expectedResult": "Button is visible, text is not truncated, and button remains functional"
+        },
+        {
+          "step": 3,
+          "action": "Check deployment pipeline list for text truncation or overlapping elements at 200% zoom",
+          "expectedResult": "Pipeline names are readable, no text overlap, vertical scrolling available if needed"
+        },
+        {
+          "step": 4,
+          "action": "Open pipeline configuration modal and verify all form fields and labels are readable at 200% zoom",
+          "expectedResult": "Modal content reflows appropriately, all labels visible, no content cut off"
+        },
+        {
+          "step": 5,
+          "action": "Trigger deployment and verify deployment logs are readable at 200% zoom level",
+          "expectedResult": "Log text scales properly, horizontal scrolling available for long lines, no text overlap"
+        },
+        {
+          "step": 6,
+          "action": "Test navigation menu and verify all menu items remain accessible at 200% zoom",
+          "expectedResult": "Menu items are fully visible and clickable, no items hidden or inaccessible"
+        }
+      ],
+      "postconditions": [
+        "All interface elements remain functional and accessible at 200% zoom level",
+        "Text content is readable without horizontal scrolling for main content areas",
+        "No loss of functionality or information at increased zoom levels",
+        "Layout reflows appropriately to accommodate larger text sizes"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify ARIA live regions announce deployment status updates without requiring focus",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer is logged into Azure DevOps with screen reader enabled",
+        "JAWS or NVDA screen reader is running in virtual cursor mode",
+        "Validation feature deployment pipeline is ready to execute",
+        "Focus is on a different area of the page from deployment status section"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to deployment pipeline page and move focus to 'Run pipeline' button",
+          "expectedResult": "Focus is on 'Run pipeline' button, screen reader announces button label"
+        },
+        {
+          "step": 2,
+          "action": "Activate 'Run pipeline' button and keep focus on the button without moving",
+          "expectedResult": "Deployment starts, focus remains on button"
+        },
+        {
+          "step": 3,
+          "action": "Listen for screen reader announcement of deployment start without moving focus",
+          "expectedResult": "Screen reader announces 'Deployment started' via ARIA live region with aria-live='polite'"
+        },
+        {
+          "step": 4,
+          "action": "Continue listening for progress updates while focus remains on original button",
+          "expectedResult": "Screen reader announces progress updates: 'Deploying artifacts', 'Running health checks' via live region"
+        },
+        {
+          "step": 5,
+          "action": "Listen for deployment completion announcement without changing focus",
+          "expectedResult": "Screen reader announces 'Deployment completed successfully in 12 minutes' via ARIA live region"
+        },
+        {
+          "step": 6,
+          "action": "Test failure scenario: trigger deployment that will fail and listen for error announcement",
+          "expectedResult": "Screen reader announces 'Deployment failed: [error message]' with aria-live='assertive' for critical errors"
+        }
+      ],
+      "postconditions": [
+        "All deployment status changes announced via ARIA live regions without requiring focus movement",
+        "Critical errors use aria-live='assertive' for immediate announcement",
+        "Progress updates use aria-live='polite' to avoid interrupting user actions",
+        "Status announcements are clear, concise, and provide actionable information"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "Test focus management and focus trap prevention in deployment configuration modal",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "DevOps Engineer is logged into Azure DevOps portal",
+        "Keyboard-only navigation mode is active (no mouse usage)",
+        "Deployment pipeline page is loaded and visible",
+        "No modals or dialogs are currently open"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use Tab key to navigate to 'Run pipeline' button and press Enter",
+          "expectedResult": "Pipeline configuration modal opens and focus automatically moves to first interactive element (environment dropdown)"
+        },
+        {
+          "step": 2,
+          "action": "Press Tab key repeatedly to cycle through all modal elements",
+          "expectedResult": "Focus moves through: environment dropdown, parameters fields, 'Run' button, 'Cancel' button in logical order"
+        },
+        {
+          "step": 3,
+          "action": "Continue pressing Tab after reaching last element ('Cancel' button)",
+          "expectedResult": "Focus cycles back to first element (environment dropdown), creating proper focus trap within modal"
+        },
+        {
+          "step": 4,
+          "action": "Press Shift+Tab from first element to test reverse tab order",
+          "expectedResult": "Focus moves backward to last element ('Cancel' button), maintaining focus trap"
+        },
+        {
+          "step": 5,
+          "action": "Press Escape key while focus is inside modal",
+          "expectedResult": "Modal closes and focus returns to 'Run pipeline' button that originally opened the modal"
+        },
+        {
+          "step": 6,
+          "action": "Reopen modal, click 'Cancel' button using Enter key",
+          "expectedResult": "Modal closes and focus returns to 'Run pipeline' button"
+        },
+        {
+          "step": 7,
+          "action": "Reopen modal, complete form, and activate 'Run' button with Enter key",
+          "expectedResult": "Modal closes, deployment starts, focus moves to deployment status section with announcement"
+        }
+      ],
+      "postconditions": [
+        "Focus properly trapped within modal during interaction, preventing access to background content",
+        "Focus returns to triggering element when modal closes via any method (Escape, Cancel, Submit)",
+        "Tab order within modal is logical and follows visual layout",
+        "No keyboard traps that prevent users from exiting modal"
+      ]
+    }
+  ],
+  "performance": [
+    {
+      "id": "PERF-LOAD-001",
+      "title": "Concurrent Deployment Pipeline Execution Under Normal Load",
+      "category": "performance",
+      "subCategory": "Load Testing",
+      "priority": "Critical",
+      "description": "Validate deployment pipeline performance when multiple DevOps engineers trigger concurrent deployments to staging environment under normal operational load. Measure response times, throughput, and resource utilization to ensure the system meets the 15-minute deployment SLA.",
+      "preconditions": [
+        "Azure DevOps pipeline is configured and operational",
+        "Staging environment is available and healthy",
+        "Validation features are ready for deployment",
+        "Monitoring tools (Azure Monitor, Application Insights) are configured",
+        "Baseline metrics established for single deployment"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure load testing tool to simulate 5 concurrent deployment pipeline triggers",
+          "expectedResult": "Load test configuration is validated and ready"
+        },
+        {
+          "step": 2,
+          "action": "Execute concurrent deployment pipelines for 30 minutes with 5 parallel executions",
+          "expectedResult": "All pipelines initiate successfully without queue overflow"
+        },
+        {
+          "step": 3,
+          "action": "Monitor and record deployment completion times for each pipeline execution",
+          "expectedResult": "P95 deployment time is under 15 minutes, P99 is under 18 minutes"
+        },
+        {
+          "step": 4,
+          "action": "Measure Azure DevOps agent pool utilization and queue wait times",
+          "expectedResult": "Agent pool utilization stays below 80%, queue wait time under 2 minutes"
+        },
+        {
+          "step": 5,
+          "action": "Verify deployment success rate and capture error rates",
+          "expectedResult": "100% deployment success rate, 0% error rate"
+        },
+        {
+          "step": 6,
+          "action": "Monitor staging environment resource utilization (CPU, Memory, Disk I/O)",
+          "expectedResult": "CPU < 70%, Memory < 75%, no disk I/O bottlenecks"
+        }
+      ],
+      "postconditions": [
+        "All deployments completed successfully",
+        "Staging environment remains stable and operational",
+        "Performance metrics logged and analyzed",
+        "No resource leaks detected"
+      ],
+      "testData": "5 identical validation feature packages, Azure DevOps pipeline YAML configurations, test credentials",
+      "toolsRequired": [
+        "Azure DevOps",
+        "Azure Monitor",
+        "Application Insights",
+        "JMeter or Azure Load Testing",
+        "PowerShell/Azure CLI"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "High",
+      "complianceTag": "SOC2-CC7.2"
+    },
+    {
+      "id": "PERF-STRESS-001",
+      "title": "Deployment Pipeline Breaking Point and Rollback Performance",
+      "category": "performance",
+      "subCategory": "Stress Testing",
+      "priority": "High",
+      "description": "Identify the breaking point of the deployment pipeline by progressively increasing concurrent deployment requests beyond normal capacity. Validate graceful degradation, automatic rollback trigger performance, and system recovery capabilities when deployment failures occur under stress conditions.",
+      "preconditions": [
+        "Azure DevOps pipeline with rollback mechanism configured",
+        "Staging environment baseline established",
+        "Failure injection capability configured",
+        "Alert thresholds configured for pipeline failures",
+        "Rollback scripts tested and validated"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Start with 5 concurrent deployments and incrementally increase by 3 every 10 minutes until system degradation",
+          "expectedResult": "System handles increasing load with measurable performance degradation patterns"
+        },
+        {
+          "step": 2,
+          "action": "Monitor pipeline queue depth, agent availability, and deployment failure rates",
+          "expectedResult": "Breaking point identified when error rate exceeds 5% or queue depth exceeds 20"
+        },
+        {
+          "step": 3,
+          "action": "Inject deployment failure at peak load to trigger automatic rollback",
+          "expectedResult": "Rollback mechanism triggers within 30 seconds of failure detection"
+        },
+        {
+          "step": 4,
+          "action": "Measure rollback execution time and success rate under stress",
+          "expectedResult": "Rollback completes within 5 minutes with 100% success rate"
+        },
+        {
+          "step": 5,
+          "action": "Verify system recovery after load is reduced to normal levels",
+          "expectedResult": "System returns to normal performance within 10 minutes, all queued deployments complete successfully"
+        },
+        {
+          "step": 6,
+          "action": "Validate no data corruption or partial deployments remain in staging",
+          "expectedResult": "Staging environment integrity verified, no orphaned resources"
+        }
+      ],
+      "postconditions": [
+        "Breaking point documented with specific concurrent deployment threshold",
+        "Rollback mechanism validated under stress",
+        "System recovery confirmed",
+        "Recommendations for capacity planning documented"
+      ],
+      "testData": "Variable deployment packages (10-20), failure injection configurations, rollback test scenarios",
+      "toolsRequired": [
+        "Azure DevOps",
+        "Azure Chaos Studio",
+        "Azure Monitor",
+        "Load testing tool (JMeter/Azure Load Testing)",
+        "PowerShell scripts for failure injection"
+      ],
+      "estimatedTime": "90 minutes",
+      "automationFeasibility": "Medium",
+      "complianceTag": "SOC2-CC7.2"
+    },
+    {
+      "id": "PERF-SOAK-001",
+      "title": "Extended Duration Deployment Pipeline Stability and Resource Leak Detection",
+      "category": "performance",
+      "subCategory": "Endurance Testing",
+      "priority": "High",
+      "description": "Execute continuous deployment cycles over an extended 8-hour period to detect memory leaks, resource exhaustion, connection pool depletion, and performance degradation in the Azure DevOps pipeline and staging environment. Validate long-running stability of automated deployment processes.",
+      "preconditions": [
+        "Azure DevOps pipeline operational with monitoring enabled",
+        "Staging environment with resource monitoring configured",
+        "Baseline resource utilization metrics captured",
+        "8-hour test window scheduled during off-peak hours",
+        "Automated deployment trigger mechanism configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure automated deployment trigger to execute 3 concurrent deployments every 30 minutes for 8 hours",
+          "expectedResult": "Automation configured to execute 48 total deployment cycles"
+        },
+        {
+          "step": 2,
+          "action": "Start endurance test and monitor initial baseline metrics (CPU, Memory, connections, disk space)",
+          "expectedResult": "Test initiates successfully with baseline metrics recorded"
+        },
+        {
+          "step": 3,
+          "action": "Monitor memory utilization trends on Azure DevOps agents and staging environment every hour",
+          "expectedResult": "Memory utilization remains stable with no upward trend indicating leaks (variance < 5% per hour)"
+        },
+        {
+          "step": 4,
+          "action": "Track deployment completion times throughout the 8-hour period",
+          "expectedResult": "Deployment times remain consistent (P95 variance < 10% from baseline), no progressive degradation"
+        },
+        {
+          "step": 5,
+          "action": "Monitor connection pool utilization, file handles, and temporary storage consumption",
+          "expectedResult": "No resource exhaustion detected, connection pools properly released, temp storage cleaned"
+        },
+        {
+          "step": 6,
+          "action": "Verify deployment success rate and error patterns over time",
+          "expectedResult": "100% success rate maintained throughout test duration, no time-based error patterns"
+        },
+        {
+          "step": 7,
+          "action": "Analyze logs for warnings, exceptions, or performance anomalies",
+          "expectedResult": "No critical errors, memory warnings, or timeout exceptions logged"
+        }
+      ],
+      "postconditions": [
+        "All 48 deployment cycles completed successfully",
+        "Resource utilization returns to baseline after test completion",
+        "No memory leaks or resource exhaustion detected",
+        "Performance metrics documented for capacity planning"
+      ],
+      "testData": "Validation feature packages for 48 deployments, automated trigger scripts, monitoring dashboards",
+      "toolsRequired": [
+        "Azure DevOps",
+        "Azure Monitor",
+        "Application Insights",
+        "Log Analytics",
+        "PowerShell automation scripts",
+        "Memory profiling tools"
+      ],
+      "estimatedTime": "8 hours active test + 1 hour analysis",
+      "automationFeasibility": "High",
+      "complianceTag": "SOC2-CC7.2"
+    },
+    {
+      "id": "PERF-SPIKE-001",
+      "title": "Sudden Deployment Surge Handling and Auto-Scaling Validation",
+      "category": "performance",
+      "subCategory": "Spike Testing",
+      "priority": "Critical",
+      "description": "Validate deployment pipeline behavior during sudden traffic spikes simulating emergency hotfix scenarios where multiple teams simultaneously trigger deployments. Test auto-scaling capabilities of Azure DevOps agent pools and staging environment response to rapid load increases and decreases.",
+      "preconditions": [
+        "Azure DevOps agent pool auto-scaling configured",
+        "Staging environment with auto-scaling enabled",
+        "Baseline performance metrics established",
+        "Monitoring and alerting configured",
+        "Sufficient Azure resource quotas available"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish baseline with 2 concurrent deployments running for 5 minutes",
+          "expectedResult": "Baseline metrics captured: deployment time ~12 minutes, agent utilization ~30%"
+        },
+        {
+          "step": 2,
+          "action": "Trigger sudden spike of 15 concurrent deployment requests within 1 minute",
+          "expectedResult": "All 15 deployment requests queued successfully without rejection"
+        },
+        {
+          "step": 3,
+          "action": "Monitor Azure DevOps agent pool auto-scaling response time",
+          "expectedResult": "Additional agents provisioned within 3-5 minutes, scaling from baseline to handle increased load"
+        },
+        {
+          "step": 4,
+          "action": "Measure deployment completion times during spike period",
+          "expectedResult": "P95 deployment time under 20 minutes during spike, no timeouts or failures"
+        },
+        {
+          "step": 5,
+          "action": "Monitor staging environment auto-scaling and resource allocation",
+          "expectedResult": "Staging environment scales appropriately, maintains stability with CPU < 80%, Memory < 85%"
+        },
+        {
+          "step": 6,
+          "action": "Abruptly reduce load to 2 concurrent deployments after 20 minutes",
+          "expectedResult": "System handles rapid load decrease gracefully, no errors during scale-down"
+        },
+        {
+          "step": 7,
+          "action": "Verify agent pool and staging environment scale-down behavior",
+          "expectedResult": "Resources scale down to baseline within 10-15 minutes, cost optimization achieved"
+        },
+        {
+          "step": 8,
+          "action": "Validate all deployments completed successfully with proper rollback capability maintained",
+          "expectedResult": "100% deployment success rate, rollback mechanism remains functional throughout spike"
+        }
+      ],
+      "postconditions": [
+        "All deployments completed successfully",
+        "Auto-scaling behavior validated for both scale-up and scale-down",
+        "System returns to baseline performance and resource utilization",
+        "No failed deployments or resource exhaustion",
+        "Scaling metrics documented for capacity planning"
+      ],
+      "testData": "15 validation feature packages, spike test automation scripts, auto-scaling configuration parameters",
+      "toolsRequired": [
+        "Azure DevOps",
+        "Azure Monitor",
+        "Azure Load Testing",
+        "Application Insights",
+        "PowerShell/Azure CLI for spike simulation",
+        "Cost monitoring tools"
+      ],
+      "estimatedTime": "75 minutes",
+      "automationFeasibility": "High",
+      "complianceTag": "SOC2-CC7.2"
+    }
+  ],
+  "security": [
+    {
+      "id": "SEC-SPOOF-001",
+      "title": "Validate Pipeline Authentication and Credential Spoofing Prevention",
+      "category": "security",
+      "subCategory": "STRIDE-Spoofing",
+      "priority": "Critical",
+      "description": "Verify that the Azure DevOps deployment pipeline properly authenticates users and prevents unauthorized actors from spoofing credentials to trigger deployments or access sensitive deployment configurations. This test validates that only authorized DevOps engineers can initiate deployments and that service principals/managed identities are properly secured.",
+      "preconditions": [
+        "Azure DevOps pipeline is configured for staging deployment",
+        "Test user accounts with varying permission levels are available",
+        "Service principal credentials are configured in Azure Key Vault",
+        "Audit logging is enabled for pipeline executions"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to trigger deployment pipeline using an unauthorized user account (non-DevOps role)",
+          "expectedResult": "Pipeline execution is denied with 403 Forbidden error and authentication failure is logged"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to access pipeline variables and secrets using API calls with expired or invalid authentication tokens",
+          "expectedResult": "Access is denied, tokens are rejected, and security event is logged in Azure Monitor"
+        },
+        {
+          "step": 3,
+          "action": "Try to impersonate a valid DevOps engineer by manipulating JWT tokens or session cookies",
+          "expectedResult": "Token validation fails, session is terminated, and security alert is triggered"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to use stolen service principal credentials from outside allowed IP ranges or without proper certificate-based authentication",
+          "expectedResult": "Connection is blocked by conditional access policies and security team is notified"
+        },
+        {
+          "step": 5,
+          "action": "Verify that all authentication attempts (successful and failed) are logged with timestamp, user identity, and source IP",
+          "expectedResult": "Complete audit trail is available in Azure DevOps audit logs and Log Analytics workspace"
+        }
+      ],
+      "postconditions": [
+        "All unauthorized access attempts are blocked and logged",
+        "No credentials are exposed in logs or error messages",
+        "Security monitoring alerts are generated for suspicious activities"
+      ],
+      "testData": "Invalid user credentials, expired tokens, manipulated JWT tokens, unauthorized service principal IDs",
+      "toolsRequired": [
+        "Azure DevOps CLI",
+        "Postman/curl for API testing",
+        "JWT decoder tools",
+        "Azure Monitor/Log Analytics"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9.2,
+      "complianceTag": "OWASP-A07, STRIDE-Spoofing, SOC2-CC6.1"
+    },
+    {
+      "id": "SEC-TAMP-002",
+      "title": "Deployment Artifact Integrity and Tampering Detection",
+      "category": "security",
+      "subCategory": "STRIDE-Tampering",
+      "priority": "Critical",
+      "description": "Validate that deployment artifacts, scripts, and configuration files cannot be tampered with during the CI/CD pipeline execution. Verify integrity checks, code signing, and immutable artifact storage to prevent malicious code injection or unauthorized modifications to validation features being deployed to staging.",
+      "preconditions": [
+        "Deployment pipeline is configured with artifact repositories",
+        "Code signing certificates are properly configured",
+        "Checksum/hash validation is enabled in pipeline",
+        "Artifact versioning and immutability controls are in place"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to modify deployment scripts in the artifact repository after build completion but before deployment",
+          "expectedResult": "Artifact immutability prevents modification and pipeline fails with integrity check error"
+        },
+        {
+          "step": 2,
+          "action": "Inject malicious code into deployment package and attempt to deploy without proper code signing",
+          "expectedResult": "Pipeline validates digital signatures, detects unsigned/invalid signature, and blocks deployment"
+        },
+        {
+          "step": 3,
+          "action": "Perform man-in-the-middle attack to intercept and modify artifacts during transfer from repository to staging environment",
+          "expectedResult": "TLS encryption prevents interception, checksum validation detects any modifications, deployment is aborted"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to modify environment variables or configuration files in Azure DevOps library during active deployment",
+          "expectedResult": "Configuration changes are blocked during deployment, or trigger automatic rollback with alert notification"
+        },
+        {
+          "step": 5,
+          "action": "Verify that deployment logs and audit trails cannot be modified or deleted post-deployment",
+          "expectedResult": "Logs are stored in immutable storage with write-once-read-many (WORM) protection enabled"
+        }
+      ],
+      "postconditions": [
+        "All artifacts maintain cryptographic integrity",
+        "Tampering attempts are detected and logged",
+        "Deployment is rolled back if integrity violations are detected"
+      ],
+      "testData": "Modified deployment scripts, unsigned binaries, altered configuration files, manipulated checksums",
+      "toolsRequired": [
+        "Azure Artifacts",
+        "Code signing tools",
+        "Hash verification utilities (SHA-256)",
+        "Network proxy tools (Burp Suite, OWASP ZAP)"
+      ],
+      "estimatedTime": "50 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 8.8,
+      "complianceTag": "OWASP-A08, STRIDE-Tampering, SOC2-CC7.2"
+    },
+    {
+      "id": "SEC-INFO-003",
+      "title": "Sensitive Information Disclosure in Deployment Pipeline",
+      "category": "security",
+      "subCategory": "STRIDE-Information Disclosure",
+      "priority": "Critical",
+      "description": "Verify that sensitive information such as credentials, API keys, connection strings, and secrets are not exposed through pipeline logs, error messages, environment variables, or deployment artifacts. Validate proper secrets management using Azure Key Vault and ensure no sensitive data leakage during deployment process.",
+      "preconditions": [
+        "Azure Key Vault is configured for secrets management",
+        "Pipeline logging is enabled",
+        "Secrets are configured as secure variables in Azure DevOps",
+        "Test credentials and API keys are available for validation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Review pipeline execution logs and verify that secrets, passwords, and API keys are masked or redacted",
+          "expectedResult": "All sensitive values appear as '***' or are completely hidden in logs, no plaintext credentials visible"
+        },
+        {
+          "step": 2,
+          "action": "Trigger a deployment failure and examine error messages and stack traces for exposed connection strings or credentials",
+          "expectedResult": "Error messages contain no sensitive information, only generic error codes and sanitized details"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to access Azure Key Vault secrets directly through pipeline API or unauthorized service principal",
+          "expectedResult": "Access is denied based on RBAC policies, only authorized pipeline identity can retrieve secrets"
+        },
+        {
+          "step": 4,
+          "action": "Inspect deployed artifacts and configuration files in staging environment for hardcoded credentials or exposed secrets",
+          "expectedResult": "No hardcoded credentials found, all sensitive values are retrieved from Key Vault at runtime"
+        },
+        {
+          "step": 5,
+          "action": "Verify that pipeline variables containing secrets are encrypted at rest and in transit, and not accessible via API queries",
+          "expectedResult": "Secure variables are encrypted, API responses return masked values, encryption in transit uses TLS 1.2+"
+        }
+      ],
+      "postconditions": [
+        "No sensitive information is exposed in any logs or outputs",
+        "All secrets remain securely stored in Azure Key Vault",
+        "Access to sensitive data is properly audited"
+      ],
+      "testData": "Sample API keys, database connection strings, service principal credentials, OAuth tokens",
+      "toolsRequired": [
+        "Azure DevOps REST API",
+        "Azure Key Vault",
+        "Log analysis tools",
+        "Secret scanning tools (GitGuardian, TruffleHog)"
+      ],
+      "estimatedTime": "40 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9,
+      "complianceTag": "OWASP-A02, STRIDE-Information Disclosure, PCI-DSS-3.4, SOC2-CC6.7"
+    },
+    {
+      "id": "SEC-ELEV-004",
+      "title": "Privilege Escalation and Unauthorized Access to Production Resources",
+      "category": "security",
+      "subCategory": "STRIDE-Elevation of Privilege",
+      "priority": "Critical",
+      "description": "Validate that the staging deployment pipeline cannot be exploited to gain unauthorized access to production environments or escalate privileges beyond intended scope. Verify proper RBAC implementation, network segmentation, and that deployment permissions are strictly limited to staging resources only.",
+      "preconditions": [
+        "RBAC roles are configured in Azure with least privilege principle",
+        "Network security groups separate staging and production environments",
+        "Service principals have scoped permissions to staging resources only",
+        "Production environment access requires separate authentication"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to modify pipeline configuration to target production environment instead of staging using standard DevOps engineer credentials",
+          "expectedResult": "Pipeline configuration changes are blocked or require additional approval from security team"
+        },
+        {
+          "step": 2,
+          "action": "Try to escalate service principal permissions during pipeline execution to access production resources or subscription-level operations",
+          "expectedResult": "Permission escalation is denied, Azure RBAC prevents privilege elevation, security alert is generated"
+        },
+        {
+          "step": 3,
+          "action": "Inject malicious deployment script that attempts to access production databases or storage accounts from staging environment",
+          "expectedResult": "Network security groups block cross-environment access, connection attempts fail and are logged"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to use staging deployment pipeline to create new Azure resources or modify IAM policies",
+          "expectedResult": "Service principal lacks permissions for resource creation/IAM changes, operations are denied"
+        },
+        {
+          "step": 5,
+          "action": "Verify that rollback operations cannot be exploited to deploy unauthorized code or access restricted resources",
+          "expectedResult": "Rollback only restores to previous verified state, cannot be manipulated for privilege escalation"
+        }
+      ],
+      "postconditions": [
+        "All privilege escalation attempts are blocked and logged",
+        "Production environment remains isolated and inaccessible",
+        "Service principal permissions remain scoped to staging only"
+      ],
+      "testData": "Production resource identifiers, elevated permission requests, malicious deployment scripts",
+      "toolsRequired": [
+        "Azure CLI",
+        "Azure RBAC analyzer",
+        "Network scanning tools",
+        "Azure Policy compliance checker"
+      ],
+      "estimatedTime": "55 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 9.4,
+      "complianceTag": "OWASP-A01, STRIDE-Elevation of Privilege, SOC2-CC6.3, PCI-DSS-7.1"
+    }
+  ],
+  "usability": [
+    {
+      "id": "UX-H01-001",
+      "title": "Verify Real-Time Deployment Progress Visibility and Status Updates",
+      "category": "usability",
+      "subCategory": "Nielsen-H01-Visibility of System Status",
+      "priority": "Critical",
+      "description": "Validate that the deployment pipeline provides continuous, real-time feedback about deployment progress, current stage, and completion status to prevent DevOps engineers from uncertainty about system state during the 15-minute deployment window.",
+      "preconditions": [
+        "DevOps engineer is authenticated in Azure DevOps",
+        "Validation features are ready for deployment",
+        "Staging environment is accessible",
+        "Deployment pipeline is configured and operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Trigger the deployment pipeline for validation features to staging environment",
+          "expectedResult": "System immediately displays confirmation that deployment has been initiated with timestamp and build number"
+        },
+        {
+          "step": 2,
+          "action": "Observe the deployment interface during the deployment process",
+          "expectedResult": "Progress indicator shows current stage (e.g., 'Building artifacts', 'Deploying to staging', 'Running health checks') with percentage completion or time elapsed"
+        },
+        {
+          "step": 3,
+          "action": "Monitor status updates throughout the deployment lifecycle",
+          "expectedResult": "System provides real-time updates for each deployment step with clear status indicators (in-progress, completed, failed) and estimated time remaining"
+        },
+        {
+          "step": 4,
+          "action": "Wait for deployment completion or failure",
+          "expectedResult": "Final status is clearly displayed with success/failure message, total deployment time, and summary of deployed components"
+        },
+        {
+          "step": 5,
+          "action": "Check if deployment history is accessible",
+          "expectedResult": "Previous deployment statuses are visible with timestamps, allowing comparison of current deployment progress"
+        }
+      ],
+      "postconditions": [
+        "Deployment status is clearly communicated at all times",
+        "RECOMMENDATION: Implement progress bar with stage-by-stage breakdown showing 'Artifact Build (2 min)', 'Deployment (8 min)', 'Validation (3 min)', 'Health Check (2 min)'",
+        "RECOMMENDATION: Add visual indicators (icons/colors) for each stage: blue for in-progress, green for success, red for failure",
+        "RECOMMENDATION: Include real-time logs panel that auto-scrolls with deployment activities",
+        "RECOMMENDATION: Send browser/email notifications when deployment completes or fails"
+      ],
+      "testData": "Sample validation feature package v1.2.3, staging environment endpoint: staging.validation.example.com",
+      "toolsRequired": [
+        "Azure DevOps Portal",
+        "Browser Developer Tools for monitoring UI updates",
+        "Screen recording tool for documentation"
+      ],
+      "estimatedTime": "25 minutes",
+      "automationFeasibility": "Medium"
+    },
+    {
+      "id": "UX-H03-002",
+      "title": "Validate Deployment Cancellation and Rollback Control Mechanisms",
+      "category": "usability",
+      "subCategory": "Nielsen-H03-User Control and Freedom",
+      "priority": "Critical",
+      "description": "Ensure DevOps engineers can cancel an in-progress deployment or manually trigger rollback without complex procedures, providing emergency exit from unwanted system states during deployment operations.",
+      "preconditions": [
+        "DevOps engineer has appropriate permissions for deployment control",
+        "Deployment pipeline is actively running",
+        "Previous successful deployment exists for rollback reference",
+        "Staging environment is in deployment state"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Initiate a deployment to staging environment",
+          "expectedResult": "Deployment starts and 'Cancel Deployment' button/option is clearly visible and accessible"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Cancel Deployment' during the deployment process (within first 5 minutes)",
+          "expectedResult": "System displays confirmation dialog: 'Are you sure you want to cancel this deployment? Current progress will be lost.' with 'Confirm' and 'Go Back' options"
+        },
+        {
+          "step": 3,
+          "action": "Confirm cancellation",
+          "expectedResult": "Deployment stops immediately, system displays 'Deployment cancelled by [username] at [timestamp]', and staging environment remains in previous stable state"
+        },
+        {
+          "step": 4,
+          "action": "Complete a deployment that results in failure or issues",
+          "expectedResult": "System automatically displays 'Rollback' option prominently with clear explanation of what will be rolled back"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Rollback to Previous Version' button",
+          "expectedResult": "Rollback process initiates with confirmation showing previous version details (version number, deployment date, deployed by) and estimated rollback time"
+        },
+        {
+          "step": 6,
+          "action": "Monitor rollback execution",
+          "expectedResult": "Rollback completes successfully, system confirms 'Rolled back to version [X.X.X]', and staging environment is restored to previous working state"
+        }
+      ],
+      "postconditions": [
+        "DevOps engineer can exit unwanted deployment states easily",
+        "RECOMMENDATION: Place 'Cancel' button in consistent, visible location (top-right) throughout deployment process",
+        "RECOMMENDATION: Implement 'Undo Last Deployment' quick action in deployment history for one-click rollback",
+        "RECOMMENDATION: Show clear rollback target information including: version number, deployment timestamp, health status, and who deployed it",
+        "RECOMMENDATION: Provide keyboard shortcut (Ctrl+Shift+C) for emergency deployment cancellation",
+        "RECOMMENDATION: Add 'Pause Deployment' option for temporary holds without full cancellation"
+      ],
+      "testData": "Validation feature v1.2.3 (current), v1.2.2 (previous stable), staging environment state snapshots",
+      "toolsRequired": [
+        "Azure DevOps Portal",
+        "Staging environment monitoring dashboard",
+        "Version control system access"
+      ],
+      "estimatedTime": "35 minutes",
+      "automationFeasibility": "Low"
+    },
+    {
+      "id": "UX-H05-003",
+      "title": "Assess Error Prevention for Invalid Deployment Configurations",
+      "category": "usability",
+      "subCategory": "Nielsen-H05-Error Prevention",
+      "priority": "High",
+      "description": "Verify that the deployment pipeline prevents common configuration errors before deployment execution through validation checks, constraints, and helpful warnings to avoid failed deployments and wasted time.",
+      "preconditions": [
+        "DevOps engineer is preparing to trigger deployment",
+        "Deployment pipeline configuration interface is accessible",
+        "Various invalid configuration scenarios are prepared for testing",
+        "Staging environment credentials and endpoints are configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to trigger deployment without selecting target environment",
+          "expectedResult": "System prevents deployment submission and highlights 'Target Environment' field with message: 'Please select a target environment before deploying'"
+        },
+        {
+          "step": 2,
+          "action": "Try to deploy with missing or expired credentials for staging environment",
+          "expectedResult": "Pre-deployment validation detects credential issue and displays warning: 'Staging credentials are invalid or expired. Please update credentials before proceeding.' with link to credential management"
+        },
+        {
+          "step": 3,
+          "action": "Configure deployment with validation features that have dependency conflicts",
+          "expectedResult": "System performs dependency check and shows error: 'Dependency conflict detected: Feature X requires Library Y v2.0+, but staging has v1.8. Resolve conflicts before deployment.' with resolution suggestions"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to deploy when staging environment is already running another deployment",
+          "expectedResult": "System prevents concurrent deployment with message: 'Staging environment is currently deploying [Feature Name] by [User]. Estimated completion: 8 minutes. Queue this deployment or wait?'"
+        },
+        {
+          "step": 5,
+          "action": "Try to deploy without required approval for staging environment",
+          "expectedResult": "System blocks deployment and displays: 'Staging deployment requires approval from [Role/Person]. Request approval or save as draft?'"
+        },
+        {
+          "step": 6,
+          "action": "Review deployment summary before final submission",
+          "expectedResult": "System displays comprehensive pre-deployment checklist with all validations passed (green checkmarks) and warnings for review before 'Deploy' button becomes enabled"
+        }
+      ],
+      "postconditions": [
+        "Common deployment errors are prevented before execution",
+        "RECOMMENDATION: Implement real-time validation as configuration fields are filled, not just at submission",
+        "RECOMMENDATION: Add 'Pre-flight Check' button that runs all validations without triggering deployment",
+        "RECOMMENDATION: Create deployment templates for common scenarios to reduce configuration errors",
+        "RECOMMENDATION: Show environment health status (CPU, memory, disk space) before allowing deployment",
+        "RECOMMENDATION: Implement smart defaults based on previous successful deployments to same environment",
+        "RECOMMENDATION: Add confirmation step showing deployment impact: 'This will deploy 5 components, modify 3 configurations, and restart 2 services'"
+      ],
+      "testData": "Invalid credentials, conflicting dependency versions, concurrent deployment scenarios, missing approval workflows",
+      "toolsRequired": [
+        "Azure DevOps Portal",
+        "Test credentials (valid and invalid)",
+        "Staging environment configuration access",
+        "Dependency management tools"
+      ],
+      "estimatedTime": "40 minutes",
+      "automationFeasibility": "Medium"
+    },
+    {
+      "id": "UX-H09-004",
+      "title": "Evaluate Error Message Clarity and Recovery Guidance for Deployment Failures",
+      "category": "usability",
+      "subCategory": "Nielsen-H09-Help Users Recognize and Recover from Errors",
+      "priority": "High",
+      "description": "Validate that deployment failure error messages are expressed in plain language, precisely indicate the problem, and constructively suggest recovery solutions to help DevOps engineers quickly resolve issues and retry deployments.",
+      "preconditions": [
+        "Access to deployment pipeline with ability to simulate failures",
+        "Various failure scenarios are prepared (network issues, permission errors, resource constraints)",
+        "Staging environment is accessible for testing",
+        "Documentation and troubleshooting guides are available"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Trigger deployment that fails due to network connectivity issue to staging environment",
+          "expectedResult": "Error message displays: 'Deployment Failed: Unable to connect to staging environment at staging.validation.example.com. Possible causes: Network timeout, firewall blocking connection, or staging server is down.' with 'Check Network Status' and 'Retry Deployment' buttons"
+        },
+        {
+          "step": 2,
+          "action": "Review error message details and suggested actions",
+          "expectedResult": "Error includes: specific failure point (e.g., 'Failed at step 3 of 8: Connecting to staging server'), timestamp, error code for reference, and actionable next steps with links to relevant documentation"
+        },
+        {
+          "step": 3,
+          "action": "Simulate deployment failure due to insufficient permissions",
+          "expectedResult": "Error message states: 'Deployment Failed: Insufficient permissions to deploy to staging environment. Your account lacks 'Deploy-Staging' role. Contact [Admin Name/Team] to request access or use service account [account-name].' with 'Request Access' button"
+        },
+        {
+          "step": 4,
+          "action": "Trigger deployment that fails due to resource constraints (disk space)",
+          "expectedResult": "Error displays: 'Deployment Failed: Staging server has insufficient disk space. Required: 2.5 GB, Available: 1.2 GB. Free up space or contact infrastructure team.' with link to 'View Staging Resource Usage' dashboard"
+        },
+        {
+          "step": 5,
+          "action": "Cause deployment failure during validation phase",
+          "expectedResult": "Error message shows: 'Deployment Failed: Validation tests failed (3 of 15 tests). Deployment automatically rolled back to previous version. View failed test details below.' with expandable section showing specific test failures and logs"
+        },
+        {
+          "step": 6,
+          "action": "Check if error messages avoid technical jargon and provide context",
+          "expectedResult": "All error messages use plain language, avoid cryptic codes without explanation, and provide context about impact (e.g., 'Staging environment remains on previous version v1.2.2 and is still operational')"
+        },
+        {
+          "step": 7,
+          "action": "Verify availability of recovery actions from error screen",
+          "expectedResult": "Error screen provides clear action buttons: 'Retry Deployment', 'View Detailed Logs', 'Rollback Manually', 'Contact Support', and 'Save Error Report'"
+        }
+      ],
+      "postconditions": [
+        "DevOps engineers can understand and recover from deployment errors efficiently",
+        "RECOMMENDATION: Use error message template: '[What happened] + [Why it happened] + [What to do next]' for consistency",
+        "RECOMMENDATION: Avoid technical error codes as primary message; show user-friendly text first with option to 'View Technical Details'",
+        "RECOMMENDATION: Include 'Similar Issues' section showing how other users resolved comparable errors",
+        "RECOMMENDATION: Add 'Auto-fix' button for common, resolvable issues (e.g., 'Clear cache and retry')",
+        "RECOMMENDATION: Provide estimated resolution time for suggested actions (e.g., 'Freeing disk space typically takes 10-15 minutes')",
+        "RECOMMENDATION: Implement error severity indicators: Critical (blocks all deployments), High (blocks this deployment), Medium (warning but can proceed)"
+      ],
+      "testData": "Simulated failure scenarios: network timeout, permission denied, disk space full, failed validation tests, missing dependencies",
+      "toolsRequired": [
+        "Azure DevOps Portal",
+        "Network simulation tools for connectivity failures",
+        "Staging environment with configurable resource limits",
+        "Error log analysis tools"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "Low"
+    }
+  ],
+  "reliability": [
+    {
+      "id": "REL-FAIL-001",
+      "title": "Deployment Pipeline Resilience Under Azure DevOps Service Degradation",
+      "category": "reliability",
+      "subCategory": "Failure Injection Testing",
+      "priority": "Critical",
+      "description": "Validate deployment pipeline behavior when Azure DevOps experiences service degradation or temporary unavailability during deployment execution. Test circuit breaker activation, retry mechanisms, and graceful degradation to ensure deployment either completes successfully or fails safely with proper rollback.",
+      "preconditions": [
+        "Staging environment is operational and accessible",
+        "Azure DevOps pipeline is configured with retry and timeout policies",
+        "Monitoring and alerting systems are active",
+        "Baseline deployment time is established (target: <15 minutes)",
+        "Chaos engineering tool (e.g., Azure Chaos Studio) is configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish steady state: Execute normal deployment to staging and record success metrics (deployment time, success rate, resource utilization)",
+          "expectedResult": "Deployment completes successfully in <15 minutes with all validation features operational"
+        },
+        {
+          "step": 2,
+          "action": "Define hypothesis: System will retry failed API calls to Azure DevOps and complete deployment within 20 minutes or trigger rollback within 5 minutes if unrecoverable",
+          "expectedResult": "Hypothesis documented with measurable success criteria"
+        },
+        {
+          "step": 3,
+          "action": "Inject failure: Simulate Azure DevOps API latency (5-10 second delays) and intermittent 503 errors (30% failure rate) during deployment trigger phase",
+          "expectedResult": "Chaos experiment activated with controlled blast radius limited to staging environment"
+        },
+        {
+          "step": 4,
+          "action": "Trigger deployment pipeline and monitor retry behavior, circuit breaker state transitions, and deployment progress",
+          "expectedResult": "Pipeline retries failed API calls with exponential backoff (2s, 4s, 8s intervals), circuit breaker remains closed or transitions to half-open state"
+        },
+        {
+          "step": 5,
+          "action": "Verify deployment outcome: Check if deployment completes successfully or triggers automatic rollback",
+          "expectedResult": "Either deployment completes within 20 minutes with all features validated OR automatic rollback executes within 5 minutes restoring previous stable state"
+        },
+        {
+          "step": 6,
+          "action": "Validate recovery metrics: Measure MTTR (Mean Time To Recovery) and verify no data corruption or partial deployments exist",
+          "expectedResult": "MTTR ≤ 5 minutes, staging environment returns to stable state, no orphaned resources or configuration drift detected"
+        }
+      ],
+      "postconditions": [
+        "Staging environment is in known stable state (either new deployment or rolled back)",
+        "All monitoring alerts are cleared",
+        "Chaos experiment is terminated",
+        "Deployment logs captured for analysis"
+      ],
+      "testData": "Azure DevOps API endpoints, deployment manifest files, validation feature artifacts, chaos experiment configuration (latency: 5-10s, error rate: 30%)",
+      "toolsRequired": [
+        "Azure Chaos Studio",
+        "Azure DevOps Pipelines",
+        "Application Insights",
+        "Azure Monitor",
+        "Postman/curl for API validation"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9,
+      "complianceTag": "SLO-Availability-99.5%"
+    },
+    {
+      "id": "REL-DATA-002",
+      "title": "Deployment Rollback Validation and Data Integrity Under Mid-Deployment Failure",
+      "category": "reliability",
+      "subCategory": "Data Integrity & Recovery",
+      "priority": "Critical",
+      "description": "Test automatic rollback mechanism when deployment fails mid-execution due to resource exhaustion or configuration errors. Validate that rollback completes within RTO (5 minutes), maintains data integrity, and restores staging environment to last known good state with zero data loss (RPO = 0).",
+      "preconditions": [
+        "Staging environment has previous stable deployment version",
+        "Rollback scripts are configured and tested",
+        "Database backup exists for current staging state",
+        "Deployment monitoring dashboards are operational",
+        "Resource limits are defined (CPU: 80%, Memory: 85%, Disk: 90%)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish baseline: Document current staging environment state including database schema version, configuration files, and deployed artifact versions",
+          "expectedResult": "Complete inventory of staging environment captured with checksums and version tags"
+        },
+        {
+          "step": 2,
+          "action": "Inject failure condition: Simulate disk space exhaustion (fill disk to 98% capacity) during deployment artifact extraction phase",
+          "expectedResult": "Disk space reaches critical threshold triggering deployment failure detection"
+        },
+        {
+          "step": 3,
+          "action": "Trigger deployment pipeline with validation features and monitor for failure detection",
+          "expectedResult": "Deployment fails during artifact extraction with error logged: 'Insufficient disk space' within 3 minutes of start"
+        },
+        {
+          "step": 4,
+          "action": "Verify automatic rollback initiation: Monitor rollback trigger and execution progress",
+          "expectedResult": "Rollback automatically initiates within 30 seconds of failure detection, rollback script executes with progress logged"
+        },
+        {
+          "step": 5,
+          "action": "Validate rollback completion: Check that previous deployment version is restored including all configuration files, database state, and service endpoints",
+          "expectedResult": "Rollback completes within 5 minutes (RTO compliance), all services return to operational state matching pre-deployment baseline"
+        },
+        {
+          "step": 6,
+          "action": "Verify data integrity: Compare database checksums, configuration file hashes, and run integration tests against rolled-back environment",
+          "expectedResult": "Zero data loss confirmed (RPO = 0), all checksums match baseline, integration tests pass with 100% success rate"
+        },
+        {
+          "step": 7,
+          "action": "Measure recovery metrics: Calculate actual MTTR and verify availability SLO impact",
+          "expectedResult": "MTTR ≤ 5 minutes, staging availability remains >99.5% for the measurement period"
+        }
+      ],
+      "postconditions": [
+        "Staging environment fully restored to pre-deployment state",
+        "Disk space cleaned up and returned to normal levels (<70%)",
+        "Rollback success logged and alerts sent to DevOps team",
+        "Post-mortem data collected for analysis"
+      ],
+      "testData": "Previous deployment artifacts, database backup files, configuration baselines, disk fill scripts, checksum validation tools",
+      "toolsRequired": [
+        "Azure DevOps Pipelines",
+        "Azure Monitor",
+        "Database comparison tools (e.g., SQL Data Compare)",
+        "Disk space simulation scripts",
+        "Checksum utilities (md5sum, sha256sum)"
+      ],
+      "estimatedTime": "40 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 10,
+      "complianceTag": "RTO-5min-RPO-0min"
+    },
+    {
+      "id": "REL-DEP-003",
+      "title": "Deployment Resilience Under Staging Database Connection Failure",
+      "category": "reliability",
+      "subCategory": "Dependency Resilience",
+      "priority": "High",
+      "description": "Validate deployment pipeline behavior when staging database becomes unavailable during deployment health check phase. Test connection retry logic, circuit breaker patterns, and graceful degradation to ensure deployment fails safely without leaving environment in inconsistent state.",
+      "preconditions": [
+        "Staging database is operational with connection pooling configured",
+        "Database connection retry policy is defined (max 3 retries, 5s timeout)",
+        "Circuit breaker thresholds configured (5 failures in 30s window)",
+        "Health check endpoints are implemented for all validation features",
+        "Network chaos tools are available (e.g., Toxiproxy, Azure Chaos Studio)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish steady state: Execute successful deployment and verify all validation features can connect to staging database with <500ms latency",
+          "expectedResult": "Deployment completes successfully, all database connections established, health checks return 200 OK"
+        },
+        {
+          "step": 2,
+          "action": "Define chaos hypothesis: When database becomes unavailable, circuit breaker will open after 5 failed connection attempts and deployment will rollback within 5 minutes",
+          "expectedResult": "Hypothesis documented with measurable circuit breaker state transitions"
+        },
+        {
+          "step": 3,
+          "action": "Inject network partition: Block all traffic between staging application servers and database using network chaos tool during post-deployment health check phase",
+          "expectedResult": "Network partition active, database connection attempts timeout after 5 seconds"
+        },
+        {
+          "step": 4,
+          "action": "Trigger deployment and monitor connection retry attempts and circuit breaker state",
+          "expectedResult": "Deployment proceeds to health check phase, connection retries occur 3 times with 5s timeouts, circuit breaker opens after 5 consecutive failures (within 30s)"
+        },
+        {
+          "step": 5,
+          "action": "Verify deployment failure handling: Check that deployment is marked as failed and rollback is triggered",
+          "expectedResult": "Deployment fails with error 'Database health check failed - circuit breaker open', automatic rollback initiates within 30 seconds"
+        },
+        {
+          "step": 6,
+          "action": "Remove network partition and validate environment recovery: Verify circuit breaker transitions to half-open then closed state",
+          "expectedResult": "Network connectivity restored, circuit breaker attempts test request, transitions to half-open then closed state within 60 seconds, staging environment operational"
+        },
+        {
+          "step": 7,
+          "action": "Measure resilience metrics: Calculate MTTR and verify no database connection leaks or orphaned transactions",
+          "expectedResult": "MTTR ≤ 6 minutes, connection pool returns to normal state, no orphaned transactions or locks detected"
+        }
+      ],
+      "postconditions": [
+        "Network partition removed and connectivity restored",
+        "Circuit breaker in closed state",
+        "Staging environment rolled back to stable state",
+        "All database connections properly closed",
+        "Monitoring alerts cleared"
+      ],
+      "testData": "Database connection strings, network partition rules, circuit breaker configuration (threshold: 5 failures/30s), health check endpoints",
+      "toolsRequired": [
+        "Azure Chaos Studio or Toxiproxy",
+        "Azure DevOps Pipelines",
+        "Database monitoring tools",
+        "Application Insights",
+        "Network traffic analyzer (Wireshark/tcpdump)"
+      ],
+      "estimatedTime": "35 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 8,
+      "complianceTag": "MTTR-6min-CircuitBreaker"
+    },
+    {
+      "id": "REL-CHAOS-004",
+      "title": "Deployment Pipeline Stress Test Under Concurrent Resource Contention",
+      "category": "reliability",
+      "subCategory": "Chaos Engineering Experiments",
+      "priority": "High",
+      "description": "Execute chaos experiment simulating high resource contention (CPU 90%, Memory 85%) on staging environment during deployment to validate pipeline behavior under stress. Test deployment time degradation, resource allocation priorities, and system stability to ensure deployment completes or fails gracefully within acceptable SLO boundaries.",
+      "preconditions": [
+        "Staging environment baseline resource utilization documented (CPU: <40%, Memory: <60%)",
+        "Resource limits and quotas configured in Azure",
+        "Deployment SLO defined: completion time <15 minutes under normal load, <25 minutes under stress",
+        "Stress testing tools configured (e.g., stress-ng, Azure Load Testing)",
+        "Auto-scaling policies documented and temporarily disabled for test"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish steady state baseline: Execute 3 consecutive deployments under normal load and record average completion time, resource utilization, and success rate",
+          "expectedResult": "Average deployment time: 10-12 minutes, CPU: 35-45%, Memory: 55-65%, Success rate: 100%"
+        },
+        {
+          "step": 2,
+          "action": "Define chaos hypothesis: Under 90% CPU and 85% memory load, deployment will complete within 25 minutes OR fail gracefully with rollback within 30 minutes total",
+          "expectedResult": "Hypothesis documented with blast radius limited to staging environment only"
+        },
+        {
+          "step": 3,
+          "action": "Inject resource contention: Start CPU stress (90% utilization) and memory pressure (85% utilization) on all staging application servers",
+          "expectedResult": "Resource utilization reaches target levels within 2 minutes, system remains responsive but degraded"
+        },
+        {
+          "step": 4,
+          "action": "Trigger deployment pipeline and monitor deployment progress, resource allocation, and system responsiveness",
+          "expectedResult": "Deployment initiates successfully, progress is slower than baseline, resource monitoring shows contention for CPU/memory"
+        },
+        {
+          "step": 5,
+          "action": "Monitor deployment phases: artifact download, extraction, configuration, service restart, health checks",
+          "expectedResult": "Each phase completes but with 50-100% longer duration than baseline, no phase timeouts or crashes occur"
+        },
+        {
+          "step": 6,
+          "action": "Verify deployment outcome and measure completion time or rollback time",
+          "expectedResult": "Deployment completes within 25 minutes with all validation features operational OR rollback completes within 30 minutes if deployment exceeds timeout"
+        },
+        {
+          "step": 7,
+          "action": "Remove resource stress and validate system recovery: measure time to return to steady state",
+          "expectedResult": "Resource utilization returns to baseline (<50% CPU, <70% Memory) within 5 minutes, MTTR ≤ 5 minutes, system stability confirmed"
+        }
+      ],
+      "postconditions": [
+        "Resource stress removed from all staging servers",
+        "Staging environment in stable operational state",
+        "Resource utilization returned to normal baseline levels",
+        "Deployment outcome logged (success or rollback)",
+        "Performance metrics captured for SLO analysis"
+      ],
+      "testData": "Stress test configuration (CPU: 90%, Memory: 85%), deployment artifacts, resource monitoring baselines, SLO thresholds (15min normal, 25min stress)",
+      "toolsRequired": [
+        "stress-ng or Azure Load Testing",
+        "Azure Monitor",
+        "Azure DevOps Pipelines",
+        "Application Insights",
+        "Resource monitoring dashboards"
+      ],
+      "estimatedTime": "50 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 7,
+      "complianceTag": "SLO-DeploymentTime-25min-Stress"
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true,
+    "performance": true,
+    "security": true,
+    "usability": true,
+    "reliability": true
+  },
+  "userStoryObject": {
+    "id": "ado-16153",
+    "title": "As DevOps Engineer, I want to deploy validation features to staging environment for testing",
+    "description": "<div><strong>CONTEXT &amp; BACKGROUND:</strong><br><br>Validation features need deployment in a controlled environment for integration testing.<br><br><strong>CURRENT STATE:</strong><br><br>Manual deployment causes delays and inconsistencies.<br><br><strong>DESIRED STATE:</strong><br><br>Automated deployment pipeline ensures consistent and timely releases to staging.<br><br><strong>KEY FUNCTIONALITY:</strong><br><br><ul><li>Create deployment scripts for validation components </li><li>Automate deployment to staging environment </li><li>Monitor deployment success and rollback on failure </li> </ul><br><br><strong>USER INTERACTION FLOW:</strong><br><br><ol><li>Trigger deployment pipeline </li><li>System deploys validation features to staging </li><li>Verify deployment success </li><li>Run integration tests </li> </ol><br><br><strong>TECHNICAL CONSIDERATIONS:</strong><br><br><ul><li>Tools: Azure DevOps pipelines </li><li>Security: Secure credentials management </li> </ul><br><br><strong>OUT OF SCOPE:</strong><br><br><ul><li>Production deployment </li> </ul><br><br><strong>SUCCESS METRICS:</strong><br><br><ul><li>Deployment completes without errors 100% of attempts </li> </ul><ul><li>Rollback triggers on deployment failure </li><li>Deployment time under </li> </ul>15 minutes </div><br><div><strong>Persona:</strong> DevOps Engineer (DevOps Engineer) </div>",
+    "acceptanceCriteria": "<div><strong>Criteria 1:</strong> Deployment pipeline automates validation feature deployment to staging </div><br><div><strong>Criteria 2:</strong> Any deployment failure triggers automatic rollback </div><br><div><strong>Criteria 3:</strong> Deployment logs provide detailed status and error information </div><br><div><strong>Criteria 4:</strong> Deployment completes within 15 minutes </div><br>",
+    "adoWorkItemId": 16153,
+    "state": "New",
+    "assignedTo": "Unassigned",
+    "createdDate": "2026-02-03T06:13:11.197Z",
+    "priority": 2,
+    "storyPoints": 3,
+    "tags": "",
+    "epicId": "epic-14589",
+    "featureId": "feature-14642",
+    "source": "ado",
+    "adoUrl": "https://dev.azure.com/QS001/Uranus/_workitems/edit/16153"
+  }
+}
