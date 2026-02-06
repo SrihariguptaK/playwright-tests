@@ -1,0 +1,1325 @@
+{
+  "storyId": "ado-14184",
+  "storyTitle": "As Administrator, I want to perform role modification to achieve updated user access management",
+  "testCases": [],
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify administrator can successfully modify existing role permissions",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Administrator is logged in with valid admin credentials",
+        "Administrator is on the role management section page",
+        "At least one existing role 'Content Editor' exists in the system with read and write permissions",
+        "Database connection is active and roles table is accessible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the role management section by clicking 'Role Management' in the admin navigation menu",
+          "expectedResult": "Role management page loads displaying list of existing roles including 'Content Editor' role"
+        },
+        {
+          "step": 2,
+          "action": "Click on 'Content Editor' role from the roles list to select it for modification",
+          "expectedResult": "Role modification form opens displaying current permissions: read, write"
+        },
+        {
+          "step": 3,
+          "action": "Add 'delete' permission by checking the 'Delete' checkbox in the permissions section",
+          "expectedResult": "Delete checkbox is checked and highlighted, form shows unsaved changes indicator"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save Changes' button at the bottom of the modification form",
+          "expectedResult": "System validates changes, displays loading spinner for up to 2 seconds"
+        },
+        {
+          "step": 5,
+          "action": "Observe the confirmation message and updated role details",
+          "expectedResult": "Green success banner appears at top with message 'Role modified successfully', 'Content Editor' role now shows read, write, and delete permissions"
+        }
+      ],
+      "postconditions": [
+        "Content Editor role is updated in the roles table with new delete permission",
+        "Role modification activity is logged in audit trail with timestamp, admin user ID, and changes made",
+        "Administrator remains on role management page with updated role list displayed",
+        "Users assigned to Content Editor role now have delete permission effective immediately"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify role modification logs activity for compliance audit purposes",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Administrator is logged in as 'admin@company.com' with admin privileges",
+        "Role 'Project Manager' exists with permissions: read, write, approve",
+        "Audit logging system is enabled and functional",
+        "Administrator is on the role management section"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select 'Project Manager' role from the roles list by clicking on it",
+          "expectedResult": "Role modification form displays with current permissions visible"
+        },
+        {
+          "step": 2,
+          "action": "Remove 'approve' permission by unchecking the 'Approve' checkbox",
+          "expectedResult": "Approve checkbox is unchecked, form indicates pending changes"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Save Changes' button to submit the modification",
+          "expectedResult": "System processes the change and displays 'Role modified successfully' confirmation message"
+        },
+        {
+          "step": 4,
+          "action": "Navigate to 'Audit Logs' section by clicking 'Audit Logs' in admin menu",
+          "expectedResult": "Audit logs page loads showing recent system activities"
+        },
+        {
+          "step": 5,
+          "action": "Filter logs by 'Role Modification' activity type and search for 'Project Manager' role",
+          "expectedResult": "Log entry displays showing: timestamp, admin user 'admin@company.com', action 'Role Modified', role name 'Project Manager', changes 'Removed: approve permission'"
+        }
+      ],
+      "postconditions": [
+        "Role modification is permanently logged in audit trail database table",
+        "Log entry contains complete details: user ID, timestamp, role ID, before/after permission states",
+        "Audit log is accessible for compliance reporting and review",
+        "Project Manager role reflects updated permissions without approve capability"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify system prevents role modifications with conflicting permissions",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Administrator is authenticated and on role management page",
+        "Role 'Data Viewer' exists with 'read-only' permission flag set to true",
+        "System has validation rules configured to prevent read-only roles from having write/delete permissions",
+        "Conflicting permission validation is enabled in system configuration"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on 'Data Viewer' role from the roles list to open modification form",
+          "expectedResult": "Role modification form opens showing 'read-only' flag enabled and only read permission checked"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to check 'Write' permission checkbox while 'read-only' flag is still enabled",
+          "expectedResult": "System immediately displays inline validation error: 'Cannot assign write permission to read-only role'"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Save Changes' button without resolving the conflict",
+          "expectedResult": "Form submission is blocked, red error banner appears: 'Conflicting permissions detected. Please resolve errors before saving.', Save button remains disabled"
+        },
+        {
+          "step": 4,
+          "action": "Uncheck the 'Write' permission checkbox to resolve the conflict",
+          "expectedResult": "Validation error clears, error message disappears, Save button becomes enabled"
+        }
+      ],
+      "postconditions": [
+        "Data Viewer role remains unchanged in database with only read permission",
+        "No conflicting permissions are saved to the system",
+        "Validation error is logged for security monitoring",
+        "Administrator remains on role modification form ready to make valid changes"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify role modification completes within 2 seconds performance requirement",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "Administrator is logged in and on role management section",
+        "Role 'Sales Representative' exists with 5 permissions assigned",
+        "System is under normal load conditions (not peak traffic)",
+        "Network latency is within normal parameters (<100ms)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Note the current timestamp and select 'Sales Representative' role to modify",
+          "expectedResult": "Role modification form loads displaying current 5 permissions"
+        },
+        {
+          "step": 2,
+          "action": "Add 2 new permissions by checking 'Export Data' and 'Generate Reports' checkboxes",
+          "expectedResult": "Both checkboxes are checked, form shows 7 total permissions selected"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Save Changes' button and start timer to measure response time",
+          "expectedResult": "Loading indicator appears, system begins processing the modification"
+        },
+        {
+          "step": 4,
+          "action": "Observe the time elapsed until confirmation message appears",
+          "expectedResult": "Success message 'Role modified successfully' displays within 2 seconds, timer shows elapsed time ≤ 2000ms"
+        }
+      ],
+      "postconditions": [
+        "Sales Representative role is updated with 7 permissions in database",
+        "Performance metric is logged showing modification completed within SLA",
+        "System remains responsive and ready for next operation",
+        "No performance degradation observed in role management interface"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify administrator can modify multiple permissions simultaneously for a single role",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "Administrator is authenticated with admin role privileges",
+        "Role 'Customer Support' exists with permissions: read, create, update",
+        "Administrator is on the role management page",
+        "All permission options are available: read, create, update, delete, export, approve, manage users"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select 'Customer Support' role by clicking on it in the roles list",
+          "expectedResult": "Role modification form opens showing current permissions: read (checked), create (checked), update (checked)"
+        },
+        {
+          "step": 2,
+          "action": "Add 'delete' permission by checking the Delete checkbox and add 'export' permission by checking the Export checkbox",
+          "expectedResult": "Both Delete and Export checkboxes are now checked, form shows 5 total permissions selected"
+        },
+        {
+          "step": 3,
+          "action": "Remove 'create' permission by unchecking the Create checkbox",
+          "expectedResult": "Create checkbox is unchecked, form now shows 4 permissions selected: read, update, delete, export"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save Changes' button to submit all modifications at once",
+          "expectedResult": "System validates all changes together, displays loading indicator"
+        },
+        {
+          "step": 5,
+          "action": "Verify the confirmation message and updated role permissions",
+          "expectedResult": "Green success banner displays 'Role modified successfully', Customer Support role now shows exactly 4 permissions: read, update, delete, export"
+        }
+      ],
+      "postconditions": [
+        "Customer Support role is updated in database with new permission set: read, update, delete, export",
+        "Single audit log entry captures all permission changes in one transaction",
+        "All users with Customer Support role immediately receive updated permissions",
+        "Role list refreshes showing updated permission count for Customer Support role"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify role modification form displays current permissions accurately before modification",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "Administrator is logged in and has access to role management",
+        "Role 'Marketing Manager' exists with specific permissions: read, write, approve, export",
+        "Database contains accurate permission data for Marketing Manager role",
+        "Administrator is on the role management section page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Locate 'Marketing Manager' role in the roles list and click on it to open modification form",
+          "expectedResult": "Role modification form opens with role name 'Marketing Manager' displayed in header"
+        },
+        {
+          "step": 2,
+          "action": "Review all permission checkboxes in the permissions section of the form",
+          "expectedResult": "Exactly 4 checkboxes are checked: Read, Write, Approve, Export. All other permission checkboxes (Delete, Manage Users, etc.) are unchecked"
+        },
+        {
+          "step": 3,
+          "action": "Verify the permission summary count displayed on the form",
+          "expectedResult": "Form displays '4 permissions assigned' or similar count indicator matching the checked permissions"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Cancel' button without making any changes",
+          "expectedResult": "Form closes and returns to role management list without saving, Marketing Manager role remains unchanged"
+        }
+      ],
+      "postconditions": [
+        "No changes are saved to Marketing Manager role in database",
+        "Role permissions remain exactly as before: read, write, approve, export",
+        "Administrator is returned to role management page",
+        "No audit log entry is created for cancelled modification"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify system rejects role modification attempt by non-admin user without proper authentication",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with 'Standard User' role without admin privileges",
+        "Role 'Content Editor' exists in the system",
+        "API endpoint PUT /api/roles/{id} requires admin authentication",
+        "User attempts to access role management section"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to navigate to role management section by entering URL '/admin/role-management' directly in browser",
+          "expectedResult": "System blocks access and displays 'Access Denied' page with message 'You do not have permission to access this resource'"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to directly call API endpoint PUT /api/roles/123 with modified permissions using browser developer tools or API client",
+          "expectedResult": "API returns HTTP 403 Forbidden status code with error response: 'Insufficient privileges. Admin authentication required.'"
+        },
+        {
+          "step": 3,
+          "action": "Check if any role modifications were applied in the database",
+          "expectedResult": "No changes are saved to roles table, Content Editor role permissions remain unchanged"
+        }
+      ],
+      "postconditions": [
+        "No role modifications are saved to database",
+        "Security violation attempt is logged in security audit trail with user ID and timestamp",
+        "User remains on access denied page or is redirected to dashboard",
+        "System security integrity is maintained"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify system handles role modification with empty or null permission values",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Administrator is logged in and on role management page",
+        "Role 'Test Role' exists with at least 2 permissions assigned",
+        "Role modification form is accessible",
+        "System validation is active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select 'Test Role' from roles list to open modification form",
+          "expectedResult": "Role modification form opens showing current permissions checked"
+        },
+        {
+          "step": 2,
+          "action": "Uncheck all permission checkboxes so no permissions are selected",
+          "expectedResult": "All checkboxes are unchecked, form shows 0 permissions selected"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Save Changes' button to attempt saving role with no permissions",
+          "expectedResult": "System displays validation error: 'At least one permission must be assigned to a role', red error banner appears at top of form"
+        },
+        {
+          "step": 4,
+          "action": "Verify Save button behavior and form submission",
+          "expectedResult": "Form submission is blocked, role is not updated, Save button may be disabled or form prevents submission"
+        }
+      ],
+      "postconditions": [
+        "Test Role permissions remain unchanged in database",
+        "No audit log entry is created for failed modification attempt",
+        "Administrator remains on role modification form with validation error displayed",
+        "System prevents creation of invalid role state with zero permissions"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify system handles role modification when database connection is lost during save operation",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Administrator is logged in and on role modification form",
+        "Role 'Operations Manager' is selected for modification",
+        "Database connection can be simulated to fail during transaction",
+        "Administrator has made valid permission changes"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Modify 'Operations Manager' role by adding 'delete' permission",
+          "expectedResult": "Delete permission checkbox is checked, form shows pending changes"
+        },
+        {
+          "step": 2,
+          "action": "Simulate database connection failure and click 'Save Changes' button",
+          "expectedResult": "System attempts to save but encounters database connection error"
+        },
+        {
+          "step": 3,
+          "action": "Observe error handling and user feedback",
+          "expectedResult": "Red error banner displays: 'Unable to save changes. Database connection error. Please try again.' or similar technical error message"
+        },
+        {
+          "step": 4,
+          "action": "Verify role state in database after error",
+          "expectedResult": "Operations Manager role permissions remain unchanged, no partial updates are applied"
+        }
+      ],
+      "postconditions": [
+        "No changes are committed to roles table due to transaction rollback",
+        "Database error is logged in system error logs with timestamp and error details",
+        "Administrator remains on modification form with error message displayed",
+        "Form retains the attempted changes so administrator can retry after connection is restored"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify system rejects role modification with SQL injection attempt in role name or permissions",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Administrator is logged in with admin privileges",
+        "Role modification form is accessible",
+        "System has SQL injection protection enabled",
+        "Input validation and parameterized queries are implemented"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select any existing role and open modification form",
+          "expectedResult": "Role modification form opens with current role details"
+        },
+        {
+          "step": 2,
+          "action": "If role name is editable, attempt to modify role name to include SQL injection: 'Admin'; DROP TABLE roles; --",
+          "expectedResult": "System sanitizes input, displays validation error: 'Invalid characters in role name' or strips malicious characters"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to submit form with malicious input by clicking Save Changes",
+          "expectedResult": "Form submission is blocked with error message, or input is sanitized before processing"
+        },
+        {
+          "step": 4,
+          "action": "Verify database integrity by checking if roles table still exists and contains data",
+          "expectedResult": "Roles table is intact, no SQL injection was executed, all existing roles remain in database"
+        }
+      ],
+      "postconditions": [
+        "No SQL injection attack is successful",
+        "Database schema and data remain completely intact",
+        "Security incident is logged with attempted malicious input details",
+        "Role modification is rejected and no changes are saved"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify system handles role modification when session expires during modification process",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "Administrator is logged in and on role modification form",
+        "Role 'HR Manager' is selected for modification",
+        "Session timeout is set to expire during test",
+        "Administrator has made changes to permissions"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Open role modification form for 'HR Manager' role and add 'approve' permission",
+          "expectedResult": "Approve permission checkbox is checked, form shows unsaved changes"
+        },
+        {
+          "step": 2,
+          "action": "Wait for session to expire or manually expire session token (simulate timeout after 30 minutes of inactivity)",
+          "expectedResult": "Session expires in background, user is not immediately notified"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Save Changes' button to attempt saving modifications with expired session",
+          "expectedResult": "System detects expired session and displays error: 'Your session has expired. Please log in again.' or redirects to login page"
+        },
+        {
+          "step": 4,
+          "action": "Verify that no changes were saved to the role",
+          "expectedResult": "HR Manager role permissions remain unchanged in database, no modifications are applied"
+        }
+      ],
+      "postconditions": [
+        "No role modifications are saved due to expired session",
+        "User is redirected to login page or shown session expired message",
+        "Attempted changes are lost and not persisted",
+        "Session expiration is logged in authentication logs"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify system rejects role modification when attempting to assign permissions that exceed maximum allowed limit",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "Administrator is logged in and on role management page",
+        "System has a maximum permission limit configured (e.g., 15 permissions per role)",
+        "Role 'Super User' exists with 14 permissions already assigned",
+        "At least 3 additional permission options are available to select"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Select 'Super User' role to open modification form",
+          "expectedResult": "Role modification form displays showing 14 permissions currently checked"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to add 2 more permissions by checking 'Manage Billing' and 'System Configuration' checkboxes",
+          "expectedResult": "Both checkboxes are checked, form now shows 16 permissions selected (exceeding limit of 15)"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Save Changes' button to attempt saving role with excessive permissions",
+          "expectedResult": "System displays validation error: 'Maximum permission limit exceeded. A role can have maximum 15 permissions.' Error banner appears in red"
+        },
+        {
+          "step": 4,
+          "action": "Verify that Save button is disabled or form submission is blocked",
+          "expectedResult": "Form cannot be submitted, Save button is disabled or grayed out, role remains unchanged"
+        }
+      ],
+      "postconditions": [
+        "Super User role retains original 14 permissions in database",
+        "No changes are saved due to validation failure",
+        "Administrator remains on modification form with error message displayed",
+        "Validation error is logged for monitoring purposes"
+      ]
+    },
+    {
+      "id": "TC-NEGA-007",
+      "title": "Verify system handles concurrent role modification attempts by multiple administrators",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "Two administrators 'Admin1' and 'Admin2' are logged in simultaneously",
+        "Both administrators have access to role management section",
+        "Role 'Finance Manager' exists with permissions: read, write, approve",
+        "Both administrators open the same role for modification at the same time"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Admin1 selects 'Finance Manager' role and opens modification form, adds 'delete' permission",
+          "expectedResult": "Admin1's form shows Finance Manager with read, write, approve, delete permissions selected"
+        },
+        {
+          "step": 2,
+          "action": "Admin2 simultaneously selects 'Finance Manager' role and opens modification form, removes 'approve' permission",
+          "expectedResult": "Admin2's form shows Finance Manager with read, write permissions selected (approve unchecked)"
+        },
+        {
+          "step": 3,
+          "action": "Admin1 clicks 'Save Changes' first and successfully saves modifications",
+          "expectedResult": "Admin1 sees success message, Finance Manager role is updated to: read, write, approve, delete"
+        },
+        {
+          "step": 4,
+          "action": "Admin2 clicks 'Save Changes' immediately after Admin1",
+          "expectedResult": "System detects conflict and displays error: 'This role has been modified by another user. Please refresh and try again.' or implements optimistic locking to prevent overwrite"
+        },
+        {
+          "step": 5,
+          "action": "Verify final state of Finance Manager role in database",
+          "expectedResult": "Finance Manager role shows Admin1's changes: read, write, approve, delete. Admin2's changes are not applied to prevent data loss."
+        }
+      ],
+      "postconditions": [
+        "Only Admin1's modifications are saved in database",
+        "Admin2's conflicting changes are rejected to prevent overwrite",
+        "Both modification attempts are logged in audit trail with conflict notation",
+        "Admin2 must refresh form to see current state before making new changes"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Modify role with maximum allowed permissions (boundary test)",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "Administrator is logged in with full admin privileges",
+        "Role management page is accessible at /admin/roles",
+        "Test role 'MaxPermRole' exists with 50 permissions assigned",
+        "System allows maximum of 100 permissions per role",
+        "Database has 100 total available permissions configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to role management section and click on 'MaxPermRole' to open edit form",
+          "expectedResult": "Role modification form opens showing current 50 permissions selected"
+        },
+        {
+          "step": 2,
+          "action": "Select all remaining 50 available permissions to reach the maximum limit of 100 permissions",
+          "expectedResult": "All 100 permissions are now selected, permission selector shows '100/100 selected'"
+        },
+        {
+          "step": 3,
+          "action": "Enter modification reason 'Testing maximum permission boundary' in the notes field",
+          "expectedResult": "Notes field accepts the input without character limit warnings"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save Changes' button to submit the role modification",
+          "expectedResult": "System processes the request, displays loading indicator for up to 2 seconds"
+        },
+        {
+          "step": 5,
+          "action": "Verify the confirmation message and check role details",
+          "expectedResult": "Green success banner displays 'Role MaxPermRole successfully updated with 100 permissions', role details page shows all 100 permissions listed"
+        }
+      ],
+      "postconditions": [
+        "Role 'MaxPermRole' is saved in database with exactly 100 permissions",
+        "Audit log contains entry with timestamp, admin username, role ID, and 'ROLE_MODIFIED' action",
+        "Administrator remains on role details page with updated information displayed",
+        "No system performance degradation occurs with maximum permissions assigned"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Modify role name with special characters and Unicode",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Administrator is authenticated with role modification permissions",
+        "Test role 'BasicRole' exists with 5 standard permissions",
+        "Role management interface is loaded at /admin/roles",
+        "System supports UTF-8 character encoding"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on 'BasicRole' in the roles list to open modification form",
+          "expectedResult": "Role edit form displays with current role name 'BasicRole' in the name field"
+        },
+        {
+          "step": 2,
+          "action": "Change role name to 'Admin-Role_2024 (Tëst) 管理者 🔒' including hyphens, underscores, parentheses, accented characters, Chinese characters, and emoji",
+          "expectedResult": "Name field accepts all special characters and Unicode without validation errors"
+        },
+        {
+          "step": 3,
+          "action": "Add one additional permission 'user.view' to the existing permissions",
+          "expectedResult": "Permission is added successfully, counter shows '6 permissions selected'"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save Changes' button to submit the modification",
+          "expectedResult": "System validates and processes the request within 2 seconds"
+        },
+        {
+          "step": 5,
+          "action": "Verify role appears correctly in the roles list and detail view",
+          "expectedResult": "Role name 'Admin-Role_2024 (Tëst) 管理者 🔒' displays correctly without character corruption, all special characters and emoji render properly"
+        }
+      ],
+      "postconditions": [
+        "Role is saved with Unicode name exactly as entered including emoji",
+        "Role name displays correctly across all UI components without encoding issues",
+        "Audit log records the modification with proper character encoding",
+        "Search and filter functions work correctly with the special character role name"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Simultaneous role modification by multiple administrators",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "Two administrators 'Admin1' and 'Admin2' are logged in from different browser sessions",
+        "Both administrators have role modification permissions",
+        "Test role 'ConcurrentTestRole' exists with permissions: user.read, user.write",
+        "Role management page is open in both browser sessions showing the same role",
+        "System implements optimistic or pessimistic locking mechanism"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Admin1 opens 'ConcurrentTestRole' for editing and adds permission 'user.delete'",
+          "expectedResult": "Admin1's edit form shows 3 permissions selected including the newly added user.delete"
+        },
+        {
+          "step": 2,
+          "action": "Before Admin1 saves, Admin2 opens the same 'ConcurrentTestRole' and adds permission 'user.admin'",
+          "expectedResult": "Admin2's edit form shows 3 permissions selected including the newly added user.admin"
+        },
+        {
+          "step": 3,
+          "action": "Admin1 clicks 'Save Changes' button first",
+          "expectedResult": "Admin1 sees success message 'Role ConcurrentTestRole successfully updated', role now has permissions: user.read, user.write, user.delete"
+        },
+        {
+          "step": 4,
+          "action": "Admin2 clicks 'Save Changes' button 2 seconds after Admin1",
+          "expectedResult": "System detects conflict and displays warning message 'This role was modified by another administrator. Please review the current permissions before saving.' with option to reload or force save"
+        },
+        {
+          "step": 5,
+          "action": "Admin2 clicks 'Reload Current Version' button to see latest changes",
+          "expectedResult": "Form refreshes showing current permissions: user.read, user.write, user.delete (Admin1's changes)"
+        },
+        {
+          "step": 6,
+          "action": "Admin2 adds 'user.admin' permission again and clicks 'Save Changes'",
+          "expectedResult": "Success message displays, role now has all 4 permissions: user.read, user.write, user.delete, user.admin"
+        }
+      ],
+      "postconditions": [
+        "Role 'ConcurrentTestRole' contains all permissions from both administrators without data loss",
+        "Audit log shows two separate modification entries with timestamps and admin usernames",
+        "No database deadlocks or race conditions occurred",
+        "Both administrators can view the final role state with all 4 permissions"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Modify role with extremely long description field (character limit boundary)",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Administrator is logged in and on role management page",
+        "Test role 'DescriptionTestRole' exists with a short description",
+        "Role description field has a maximum character limit of 1000 characters",
+        "Browser is set to display character count for text areas"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on 'DescriptionTestRole' to open the modification form",
+          "expectedResult": "Edit form opens with current description visible and character counter showing current count"
+        },
+        {
+          "step": 2,
+          "action": "Clear existing description and paste exactly 1000 characters of text into the description field",
+          "expectedResult": "Text area accepts all 1000 characters, counter displays '1000/1000 characters', no validation error appears"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to type one additional character to exceed the limit",
+          "expectedResult": "System prevents input beyond 1000 characters, counter remains at '1000/1000', visual indicator (red border or warning text) shows limit reached"
+        },
+        {
+          "step": 4,
+          "action": "Remove 50 characters and add permission 'report.generate' to the role",
+          "expectedResult": "Character counter updates to '950/1000', permission is added successfully"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Save Changes' button to submit the modification",
+          "expectedResult": "System saves successfully within 2 seconds, confirmation message 'Role DescriptionTestRole successfully updated' appears"
+        },
+        {
+          "step": 6,
+          "action": "Reopen the role to verify description was saved correctly",
+          "expectedResult": "Description field shows exactly 950 characters as entered, no text truncation occurred"
+        }
+      ],
+      "postconditions": [
+        "Role description is saved in database with exactly 950 characters",
+        "Description displays correctly in role details view without truncation",
+        "Audit log records the modification including description change",
+        "No database field overflow or truncation errors occurred"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Modify role during high system load with multiple concurrent operations",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "Administrator is logged in with role modification permissions",
+        "System is under simulated high load with 50+ concurrent user sessions",
+        "Test role 'LoadTestRole' exists with 10 permissions",
+        "Performance monitoring tools are active to measure response time",
+        "Database connection pool has 20 active connections out of 25 maximum"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to role management and click on 'LoadTestRole' to open edit form",
+          "expectedResult": "Form loads within acceptable time (under 3 seconds despite high load), displays current 10 permissions"
+        },
+        {
+          "step": 2,
+          "action": "Add 5 new permissions: 'audit.read', 'audit.write', 'system.config', 'backup.create', 'backup.restore'",
+          "expectedResult": "Permissions are selected successfully, counter shows '15 permissions selected'"
+        },
+        {
+          "step": 3,
+          "action": "Update role description to 'Modified during high load test - performance validation'",
+          "expectedResult": "Description field accepts the input without lag or UI freezing"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save Changes' button and monitor response time",
+          "expectedResult": "System processes the request and completes within 2 seconds as per performance requirement, loading indicator displays during processing"
+        },
+        {
+          "step": 5,
+          "action": "Verify success message and check audit log entry",
+          "expectedResult": "Success message 'Role LoadTestRole successfully updated' appears, audit log shows modification entry with correct timestamp and admin details"
+        }
+      ],
+      "postconditions": [
+        "Role modification completed successfully within 2-second performance SLA despite high load",
+        "All 15 permissions are correctly saved in the database",
+        "System remains stable with no connection pool exhaustion or timeouts",
+        "Audit log entry is created with accurate timestamp and modification details",
+        "Other concurrent operations were not negatively impacted"
+      ]
+    },
+    {
+      "id": "TC-EDGE-006",
+      "title": "Modify role by removing all permissions then adding them back",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Administrator is logged in with full role management permissions",
+        "Test role 'EmptyPermRole' exists with 8 permissions assigned",
+        "Role is not currently assigned to any active users",
+        "System allows roles to exist with zero permissions temporarily during modification"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Open 'EmptyPermRole' in the role modification form",
+          "expectedResult": "Edit form displays showing 8 currently assigned permissions"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Deselect All' button or manually uncheck all 8 permissions",
+          "expectedResult": "All permissions are unchecked, counter shows '0 permissions selected', warning message appears: 'Role will have no permissions. Users with this role will have no access.'"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Save Changes' with zero permissions selected",
+          "expectedResult": "System displays confirmation dialog: 'Are you sure you want to save this role with no permissions? This may affect user access.' with 'Confirm' and 'Cancel' buttons"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Confirm' button to proceed with saving",
+          "expectedResult": "Role is saved with zero permissions, success message 'Role EmptyPermRole updated successfully' appears, audit log records the change"
+        },
+        {
+          "step": 5,
+          "action": "Immediately reopen 'EmptyPermRole' and add back 5 different permissions: 'user.read', 'role.read', 'audit.read', 'report.read', 'dashboard.view'",
+          "expectedResult": "Permissions are selected successfully, counter shows '5 permissions selected'"
+        },
+        {
+          "step": 6,
+          "action": "Click 'Save Changes' to save the newly added permissions",
+          "expectedResult": "Success message appears, role now has 5 permissions, modification completes within 2 seconds"
+        }
+      ],
+      "postconditions": [
+        "Role 'EmptyPermRole' exists in database with exactly 5 permissions",
+        "Audit log contains two entries: one for removing all permissions, one for adding 5 new permissions",
+        "No orphaned permission records exist in the database",
+        "Role can be assigned to users and functions correctly with the new permission set"
+      ]
+    },
+    {
+      "id": "TC-EDGE-007",
+      "title": "Modify role with session timeout occurring during modification process",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "Administrator is logged in with session timeout set to 15 minutes",
+        "Administrator has been idle for 14 minutes and 30 seconds",
+        "Test role 'TimeoutTestRole' is open in edit mode with unsaved changes",
+        "Role has 3 permissions currently, administrator has added 2 more permissions (unsaved)",
+        "System implements session timeout with warning mechanism"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "With role edit form open and unsaved changes present, wait for session timeout to occur (30 seconds)",
+          "expectedResult": "Session timeout warning modal appears: 'Your session is about to expire in 30 seconds. Would you like to extend your session?' with 'Extend Session' and 'Logout' buttons"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Extend Session' button in the warning modal",
+          "expectedResult": "Session is extended, modal closes, user remains on role edit form with all unsaved changes preserved (5 permissions still selected)"
+        },
+        {
+          "step": 3,
+          "action": "Add one more permission 'system.monitor' to make total of 6 permissions",
+          "expectedResult": "Permission is added successfully, counter shows '6 permissions selected'"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save Changes' button to submit the role modification",
+          "expectedResult": "System validates the active session, processes the request successfully, displays 'Role TimeoutTestRole successfully updated' message"
+        },
+        {
+          "step": 5,
+          "action": "Verify role details and audit log entry",
+          "expectedResult": "Role now has 6 permissions saved correctly, audit log shows single modification entry with current timestamp and session extension event logged separately"
+        }
+      ],
+      "postconditions": [
+        "Role 'TimeoutTestRole' is saved with all 6 permissions in database",
+        "Administrator session remains active with extended timeout",
+        "No data loss occurred during session timeout warning",
+        "Audit log contains both session extension event and role modification event",
+        "Administrator remains authenticated and on role details page"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Complete keyboard navigation through role modification workflow",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Administrator is logged in and on role management page at /admin/roles",
+        "Test role 'KeyboardNavRole' exists with 5 permissions",
+        "Mouse is disconnected or not used for this test",
+        "Screen is set to 100% zoom level",
+        "Browser supports standard keyboard navigation (Tab, Shift+Tab, Enter, Escape, Arrow keys)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key repeatedly from page header to navigate through roles list until 'KeyboardNavRole' receives focus",
+          "expectedResult": "Focus indicator (visible outline or highlight) moves through each interactive element, 'KeyboardNavRole' row is highlighted with clear focus indicator (minimum 2px border, high contrast color)"
+        },
+        {
+          "step": 2,
+          "action": "Press Enter key to open the role modification form",
+          "expectedResult": "Role edit form opens, focus automatically moves to the first form field (role name input), focus indicator is clearly visible"
+        },
+        {
+          "step": 3,
+          "action": "Press Tab key to move focus to the permissions section, then use Arrow Down key to navigate through permission checkboxes",
+          "expectedResult": "Focus moves to first permission checkbox, Arrow Down/Up keys navigate between permissions, each focused checkbox has visible focus indicator, Space bar toggles checkbox selection"
+        },
+        {
+          "step": 4,
+          "action": "Press Space bar to select/deselect 2 permissions, then press Tab to move to description field",
+          "expectedResult": "Checkboxes toggle correctly with Space bar, focus moves to description textarea with visible focus indicator, permission counter updates to reflect changes"
+        },
+        {
+          "step": 5,
+          "action": "Type 'Modified via keyboard navigation test' in description field, then press Tab to reach 'Save Changes' button",
+          "expectedResult": "Text is entered successfully, Tab key moves focus to 'Save Changes' button with clear focus indicator, button shows focused state (outline or background change)"
+        },
+        {
+          "step": 6,
+          "action": "Press Enter key to submit the form",
+          "expectedResult": "Form submits successfully, success message appears and receives focus for screen reader announcement, focus management returns to logical location (role details or roles list)"
+        },
+        {
+          "step": 7,
+          "action": "Press Tab key to navigate through success message and subsequent elements",
+          "expectedResult": "Focus moves logically through all interactive elements, no keyboard traps exist, user can navigate back to roles list using Tab and Shift+Tab"
+        }
+      ],
+      "postconditions": [
+        "All role modifications were completed successfully using only keyboard",
+        "No keyboard traps were encountered during the entire workflow",
+        "Focus indicators were visible at all times meeting WCAG 2.1 Level AA requirements",
+        "Focus order followed logical reading order (left-to-right, top-to-bottom)",
+        "All interactive elements were reachable and operable via keyboard"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Screen reader compatibility and ARIA announcements for role modification",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Administrator is logged in with screen reader enabled (NVDA, JAWS, or VoiceOver)",
+        "Screen reader is configured to announce all ARIA live regions and labels",
+        "Test role 'ScreenReaderRole' exists with 4 permissions",
+        "Role management page is loaded and screen reader is active",
+        "Audio output is enabled to hear screen reader announcements"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to role management page and listen for page title and landmark announcements",
+          "expectedResult": "Screen reader announces 'Role Management, main region' or similar, page heading 'Role Management' is announced with proper heading level (H1), navigation landmarks are properly identified"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to 'ScreenReaderRole' in the roles list using screen reader navigation commands",
+          "expectedResult": "Screen reader announces 'ScreenReaderRole, button' or 'ScreenReaderRole, link', role description is announced if present, current permissions count is announced '4 permissions assigned'"
+        },
+        {
+          "step": 3,
+          "action": "Activate the role to open modification form and listen for form announcements",
+          "expectedResult": "Screen reader announces 'Edit Role form, dialog' or 'Edit Role, region', form fields are announced with proper labels: 'Role Name, edit text, ScreenReaderRole', 'Permissions, group', 'Description, edit text'"
+        },
+        {
+          "step": 4,
+          "action": "Navigate to permissions section and listen for checkbox announcements",
+          "expectedResult": "Each permission checkbox is announced with label and state: 'user.read, checkbox, checked' or 'user.write, checkbox, not checked', group label 'Permissions' is announced, total count '4 of 20 permissions selected' is announced"
+        },
+        {
+          "step": 5,
+          "action": "Toggle 2 permission checkboxes and listen for state change announcements",
+          "expectedResult": "Screen reader announces state changes: 'user.delete, checked' when checked, 'user.admin, not checked' when unchecked, ARIA live region announces 'Permissions updated, 5 selected' or similar dynamic update"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to Save Changes button and activate it, listen for success message announcement",
+          "expectedResult": "Button is announced as 'Save Changes, button', after activation, ARIA live region announces 'Success: Role ScreenReaderRole successfully updated' with assertive politeness level"
+        },
+        {
+          "step": 7,
+          "action": "Verify error scenario by attempting to create conflicting permission and listen for error announcement",
+          "expectedResult": "Error message is announced immediately via ARIA live region: 'Error: Conflicting permissions detected. Please review your selections.' with assertive politeness, error is associated with relevant form field"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements had proper ARIA labels and roles announced",
+        "Dynamic content updates were announced via ARIA live regions",
+        "Form validation errors were announced and associated with fields",
+        "Success and error messages were announced with appropriate urgency (assertive)",
+        "Screen reader user could complete entire workflow with full context and feedback"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Focus management and focus trap prevention in role modification modal",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Administrator is logged in and on role management page",
+        "Test role 'FocusTestRole' exists and can be opened for editing",
+        "Role modification opens in a modal dialog overlay",
+        "Keyboard navigation is the primary input method for this test",
+        "Background content is visible but should be inert when modal is open"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click or press Enter on 'FocusTestRole' to open the modification modal dialog",
+          "expectedResult": "Modal opens with overlay, focus automatically moves to first focusable element in modal (role name field or close button), background content is visually dimmed and marked as inert (aria-hidden='true')"
+        },
+        {
+          "step": 2,
+          "action": "Press Tab key repeatedly to cycle through all focusable elements within the modal",
+          "expectedResult": "Focus moves through: role name field, permissions checkboxes, description field, Save Changes button, Cancel button, Close (X) button, focus stays within modal boundaries"
+        },
+        {
+          "step": 3,
+          "action": "Continue pressing Tab after reaching the last focusable element (Close button)",
+          "expectedResult": "Focus wraps back to the first focusable element (role name field), creating a focus loop within the modal, focus never escapes to background content"
+        },
+        {
+          "step": 4,
+          "action": "Press Shift+Tab from the first focusable element to test reverse focus trap",
+          "expectedResult": "Focus moves backward to the last focusable element (Close button), reverse tabbing also maintains focus within modal, no focus escape to background"
+        },
+        {
+          "step": 5,
+          "action": "Press Escape key to close the modal",
+          "expectedResult": "Modal closes immediately, focus returns to the trigger element ('FocusTestRole' button/link in the roles list), background content becomes interactive again (aria-hidden removed)"
+        },
+        {
+          "step": 6,
+          "action": "Reopen modal, make changes to permissions, then click Cancel button",
+          "expectedResult": "Modal closes, unsaved changes are discarded (with confirmation if needed), focus returns to 'FocusTestRole' trigger element in roles list"
+        },
+        {
+          "step": 7,
+          "action": "Reopen modal, make changes, click Save Changes, and verify focus after success",
+          "expectedResult": "Modal closes after successful save, focus moves to success message or back to updated role in the list, focus is never lost or sent to top of page"
+        }
+      ],
+      "postconditions": [
+        "Focus was properly trapped within modal during editing (no focus escape)",
+        "Focus returned to logical location after modal closed (trigger element or success message)",
+        "Escape key successfully closed modal and restored focus",
+        "Background content was properly inert while modal was open",
+        "No keyboard traps prevented user from closing modal or navigating",
+        "Focus indicators remained visible throughout entire interaction"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Color contrast and visual accessibility for role modification interface",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Administrator is logged in and on role management page",
+        "Color contrast analyzer tool is available (browser extension or external tool)",
+        "Test role 'ContrastTestRole' is visible in the roles list",
+        "Page is viewed at 100% zoom in standard lighting conditions",
+        "Browser is set to default colors (no high contrast mode initially)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use color contrast analyzer to measure contrast ratio of role name text against background in roles list",
+          "expectedResult": "Contrast ratio is at least 4.5:1 for normal text (or 3:1 for large text 18pt+) meeting WCAG 2.1 Level AA, role names are clearly readable"
+        },
+        {
+          "step": 2,
+          "action": "Open 'ContrastTestRole' for editing and measure contrast ratios of form labels and input fields",
+          "expectedResult": "Form labels have minimum 4.5:1 contrast ratio against background, input field borders have minimum 3:1 contrast ratio, placeholder text has minimum 4.5:1 contrast"
+        },
+        {
+          "step": 3,
+          "action": "Measure contrast ratio of focus indicators on interactive elements (buttons, checkboxes, inputs)",
+          "expectedResult": "Focus indicators have minimum 3:1 contrast ratio against adjacent colors, focus outline is at least 2px thick, focus is visible on all interactive elements"
+        },
+        {
+          "step": 4,
+          "action": "Check permission checkboxes and verify checked/unchecked states are distinguishable without color alone",
+          "expectedResult": "Checked checkboxes use checkmark icon or other visual indicator beyond color, unchecked boxes have clear empty state, states are distinguishable in grayscale mode"
+        },
+        {
+          "step": 5,
+          "action": "Trigger a validation error and measure contrast ratio of error message text and error indicators",
+          "expectedResult": "Error messages have minimum 4.5:1 contrast ratio, error state is indicated by icon or text in addition to red color, error borders/backgrounds have sufficient contrast"
+        },
+        {
+          "step": 6,
+          "action": "Successfully save role and measure contrast ratio of success message",
+          "expectedResult": "Success message has minimum 4.5:1 contrast ratio, success state uses icon or text in addition to green color, message is readable against background"
+        },
+        {
+          "step": 7,
+          "action": "Enable Windows High Contrast Mode or browser high contrast extension and verify interface remains usable",
+          "expectedResult": "All text remains visible and readable, interactive elements are distinguishable, focus indicators are visible, no information is conveyed by color alone"
+        }
+      ],
+      "postconditions": [
+        "All text meets WCAG 2.1 Level AA contrast requirements (4.5:1 for normal text)",
+        "Interactive elements have sufficient contrast (3:1 minimum for UI components)",
+        "Focus indicators are visible with adequate contrast (3:1 minimum)",
+        "Information is not conveyed by color alone (icons, text, patterns used)",
+        "Interface remains fully functional in high contrast mode",
+        "Users with low vision or color blindness can use the interface effectively"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Text scaling and zoom accessibility for role modification at 200% zoom",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "Administrator is logged in and on role management page at 100% zoom",
+        "Test role 'ZoomTestRole' exists with 6 permissions",
+        "Browser supports zoom functionality (Ctrl/Cmd + Plus/Minus)",
+        "Screen resolution is set to 1920x1080 or standard desktop resolution",
+        "No browser extensions that interfere with zoom are active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Increase browser zoom to 200% using Ctrl/Cmd and Plus key or browser zoom controls",
+          "expectedResult": "Page scales to 200%, all content remains visible, no horizontal scrolling is required for main content, text is readable and not truncated"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to 'ZoomTestRole' in the roles list and verify list layout at 200% zoom",
+          "expectedResult": "Roles list remains usable, role names are fully visible, action buttons (Edit, View) are accessible and not overlapping, vertical scrolling works smoothly"
+        },
+        {
+          "step": 3,
+          "action": "Click on 'ZoomTestRole' to open the modification form at 200% zoom",
+          "expectedResult": "Modal or form opens properly scaled, all form fields are visible and accessible, no content is cut off or hidden, form remains within viewport or scrollable area"
+        },
+        {
+          "step": 4,
+          "action": "Navigate through form fields (role name, permissions, description) at 200% zoom",
+          "expectedResult": "All form labels are fully visible and readable, input fields are appropriately sized, checkboxes and labels are not overlapping, description textarea is usable with adequate size"
+        },
+        {
+          "step": 5,
+          "action": "Scroll through permissions list at 200% zoom and select/deselect 3 permissions",
+          "expectedResult": "Permissions list is scrollable if needed, checkboxes remain aligned with labels, no text truncation occurs, permission counter updates and is visible"
+        },
+        {
+          "step": 6,
+          "action": "Locate and click 'Save Changes' button at 200% zoom",
+          "expectedResult": "Button is fully visible and accessible, button text is not truncated, button is large enough to click easily (minimum 44x44px touch target), hover and focus states work correctly"
+        },
+        {
+          "step": 7,
+          "action": "Verify success message display at 200% zoom",
+          "expectedResult": "Success message appears and is fully readable, message is not cut off or hidden, close button (if present) is accessible, message auto-dismisses or can be manually closed"
+        },
+        {
+          "step": 8,
+          "action": "Test at 150% and 250% zoom levels to verify scalability range",
+          "expectedResult": "Interface remains functional and usable at 150%, 200%, and 250% zoom, content reflows appropriately, no critical functionality is lost at any zoom level"
+        }
+      ],
+      "postconditions": [
+        "All content is accessible and readable at 200% zoom per WCAG 2.1 Level AA",
+        "No horizontal scrolling is required for main content at 200% zoom",
+        "All interactive elements remain accessible and operable when zoomed",
+        "Text does not overlap or become truncated at increased zoom levels",
+        "Layout adapts responsively to zoom changes without breaking",
+        "Users with low vision can effectively use the interface at high zoom levels"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "ARIA live regions and dynamic content announcements for real-time updates",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Administrator is logged in with screen reader active (NVDA, JAWS, or VoiceOver)",
+        "Test role 'LiveRegionRole' is open in modification form",
+        "Screen reader is configured to announce ARIA live regions",
+        "Form includes dynamic validation and real-time feedback",
+        "Permission counter updates dynamically as selections change"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "With screen reader active, select a permission checkbox and listen for dynamic announcement",
+          "expectedResult": "ARIA live region announces 'Permission user.delete added, 5 permissions selected' or similar, announcement occurs within 1-2 seconds of action, announcement is clear and contextual"
+        },
+        {
+          "step": 2,
+          "action": "Deselect the same permission checkbox and listen for update announcement",
+          "expectedResult": "ARIA live region announces 'Permission user.delete removed, 4 permissions selected', counter update is announced automatically without requiring navigation"
+        },
+        {
+          "step": 3,
+          "action": "Enter invalid data in role name field (e.g., special characters if not allowed) and tab out to trigger validation",
+          "expectedResult": "ARIA live region with aria-live='assertive' announces error immediately: 'Error: Role name contains invalid characters', error is announced without requiring user to navigate to error message"
+        },
+        {
+          "step": 4,
+          "action": "Correct the validation error and listen for confirmation announcement",
+          "expectedResult": "ARIA live region announces 'Role name is valid' or error message is cleared and announced as resolved, positive feedback is provided for successful correction"
+        },
+        {
+          "step": 5,
+          "action": "Select multiple permissions rapidly (3-4 in quick succession) and verify announcements",
+          "expectedResult": "ARIA live region with aria-live='polite' batches announcements appropriately, final state is announced: '7 permissions selected', intermediate states may be skipped to avoid announcement overload"
+        },
+        {
+          "step": 6,
+          "action": "Click 'Save Changes' and listen for processing and success announcements",
+          "expectedResult": "ARIA live region announces 'Saving role changes...' during processing, then 'Success: Role LiveRegionRole successfully updated' after completion, both announcements are clear and timely"
+        },
+        {
+          "step": 7,
+          "action": "Trigger a server error (simulate network failure) and verify error announcement",
+          "expectedResult": "ARIA live region with aria-live='assertive' announces error immediately: 'Error: Unable to save role. Please check your connection and try again.', error provides actionable guidance"
+        }
+      ],
+      "postconditions": [
+        "All dynamic content changes were announced via ARIA live regions",
+        "Announcements used appropriate politeness levels (assertive for errors, polite for updates)",
+        "Screen reader users received real-time feedback without manual navigation",
+        "Announcement timing was appropriate (not too fast or delayed)",
+        "Multiple rapid changes were handled gracefully without announcement spam",
+        "Error and success messages provided clear, actionable information"
+      ]
+    },
+    {
+      "id": "TC-ACCE-007",
+      "title": "Mobile accessibility and touch target sizing for role modification on tablet devices",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "Administrator is logged in on tablet device (iPad or Android tablet) or mobile viewport (768px width)",
+        "Test role 'MobileAccessRole' exists with 5 permissions",
+        "Touch input is the primary interaction method",
+        "Device is in portrait orientation initially",
+        "Screen reader (VoiceOver or TalkBack) is available but not required for all steps"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to role management page on tablet and verify touch target sizes in roles list",
+          "expectedResult": "All interactive elements (role names, edit buttons) are minimum 44x44px touch targets per WCAG 2.1 Level AAA (or 48x48px per mobile best practices), adequate spacing between touch targets (minimum 8px)"
+        },
+        {
+          "step": 2,
+          "action": "Tap on 'MobileAccessRole' to open modification form",
+          "expectedResult": "Form opens in mobile-optimized layout, tap target was easy to activate without accidental adjacent taps, form fields are appropriately sized for touch input"
+        },
+        {
+          "step": 3,
+          "action": "Tap on role name input field and verify keyboard and input behavior",
+          "expectedResult": "Virtual keyboard appears, input field is large enough for comfortable typing (minimum 44px height), field label remains visible when keyboard is open, zoom is not triggered on focus (font-size 16px or larger)"
+        },
+        {
+          "step": 4,
+          "action": "Scroll through permissions list and tap checkboxes to select/deselect permissions",
+          "expectedResult": "Checkboxes are minimum 44x44px touch targets, checkbox labels are also tappable to toggle state, scrolling is smooth without accidental checkbox activation, adequate spacing prevents mis-taps"
+        },
+        {
+          "step": 5,
+          "action": "Tap on description textarea and enter multi-line text using virtual keyboard",
+          "expectedResult": "Textarea expands appropriately for content, virtual keyboard does not obscure textarea, text entry is smooth without lag, textarea is minimum 44px height"
+        },
+        {
+          "step": 6,
+          "action": "Rotate device to landscape orientation and verify form remains usable",
+          "expectedResult": "Form adapts to landscape layout, all fields remain accessible, touch targets maintain minimum size, no content is cut off or inaccessible"
+        },
+        {
+          "step": 7,
+          "action": "Tap 'Save Changes' button and verify button size and feedback",
+          "expectedResult": "Button is minimum 44x44px, button provides visual feedback on tap (color change or ripple effect), success message appears and is readable on mobile viewport"
+        },
+        {
+          "step": 8,
+          "action": "Enable screen reader (VoiceOver/TalkBack) and verify mobile screen reader gestures work correctly",
+          "expectedResult": "Swipe gestures navigate between elements correctly, double-tap activates elements, all elements have proper labels announced, rotor/reading controls work as expected"
+        }
+      ],
+      "postconditions": [
+        "All touch targets meet minimum size requirements (44x44px or larger)",
+        "Form is fully functional on mobile/tablet devices in both orientations",
+        "Virtual keyboard interaction does not break layout or hide content",
+        "Adequate spacing prevents accidental taps on adjacent elements",
+        "Mobile screen readers can navigate and operate the interface effectively",
+        "Users with motor impairments can successfully use touch interface"
+      ]
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true,
+    "performance": false,
+    "security": false,
+    "usability": false,
+    "reliability": false
+  },
+  "userStoryObject": {
+    "id": "ado-14184",
+    "title": "As Administrator, I want to perform role modification to achieve updated user access management",
+    "description": "<div>CONTEXT &amp; BACKGROUND:\nAs organizational needs change, roles must be updated to reflect new permissions and responsibilities.\n\nCURRENT STATE:\nExisting roles may not align with current job functions, leading to potential access issues.\n\nDESIRED STATE:\nWith role modification capabilities, administrators can ensure that roles are always up-to-date.\n\nKEY FUNCTIONALITY:\n• Modify existing roles to update permissions.\n• Validate changes to ensure no conflicts arise.\n• Log all modifications for compliance.\n\nUSER INTERACTION FLOW:\n1. Administrator navigates to the role management section.\n2. Administrator selects an existing role to modify.\n3. Administrator updates role permissions as needed.\n4. Administrator submits the modification form.\n5. System validates the changes and updates the role.\n6. Confirmation message is displayed.\n\nTECHNICAL CONSIDERATIONS:\n• Data source: Roles table in the database.\n• Validation rules: Ensure no conflicting permissions are assigned.\n• API endpoints: PUT /api/roles/{id} for role modification.\n• Security: Role modification actions require admin authentication.\n• Performance: Role modification should complete within 2 seconds.\n\nOUT OF SCOPE:\n• Role deletion functionality.\n\nSUCCESS METRICS:\n• 95% of roles modified without errors within the first month. </div><br><div><strong>Persona:</strong> Administrator (Administrator) </div>",
+    "acceptanceCriteria": "<div><strong>Criteria 1:</strong> System allows administrators to modify existing roles and update permissions. </div><br><div><strong>Criteria 2:</strong> System displays a confirmation message upon successful role modification. </div><br><div><strong>Criteria 3:</strong> System logs the role modification activity for audit purposes. </div><br><div><strong>Criteria 4:</strong> System prevents modifications that would result in conflicting permissions. </div><br>",
+    "adoWorkItemId": 14184,
+    "state": "New",
+    "assignedTo": "Unassigned",
+    "createdDate": "2026-01-29T09:29:30.493Z",
+    "priority": 1,
+    "storyPoints": 5,
+    "tags": "",
+    "epicId": "epic-13803",
+    "featureId": "feature-13830",
+    "source": "ado",
+    "adoUrl": "https://dev.azure.com/QS001/Venus/_workitems/edit/14184"
+  }
+}
