@@ -1,87 +1,107 @@
 Feature: Schedule Change Notification Security
   As a system administrator
-  I want to ensure notification system security and data protection
-  So that users' sensitive information remains protected from unauthorized access and malicious attacks
+  I want to ensure the notification system is secure against unauthorized access and malicious attacks
+  So that users' sensitive schedule information remains protected and notifications are delivered safely
 
-  Background:
-    Given the notification system is operational
-    And the schedule database is accessible
-
-  @security @authorization @idor @priority-critical
-  Scenario: Prevent unauthorized access to other users' notification history via IDOR
-    Given user account "UserA" exists with valid session
-    And user account "UserB" exists with valid session
-    And "UserA" has received notifications with known notification IDs
-    And API endpoint "/api/notifications" is accessible
-    When "UserB" authenticates and obtains valid session token
-    And "UserB" intercepts API request to "/api/notifications" and identifies "UserA" notification ID
-    And "UserB" sends GET request to "/api/notifications/{UserA_notification_id}" using their session
+  @security @priority-critical @idor @negative
+  Scenario: Prevent unauthorized access to other users' notifications through IDOR vulnerability
+    Given user account "User A" exists in the system
+    And user account "User B" exists in the system
+    And both users have active schedules with recent changes
+    And both users are authenticated
+    And notification IDs are observable in API requests
+    When "User A" logs in to the system
+    And "User A" triggers a schedule change to generate a notification
+    Then "User A" should receive notification with unique notification ID
+    When user captures the API request to "/api/notifications/send" endpoint
+    Then API request structure should be documented showing notification ID parameter
+    When "User B" logs in to the system
+    And "User B" triggers a schedule change to generate a notification
+    Then "User B" should receive notification with different notification ID
+    When "User B" attempts to access "User A" notification by manipulating notification ID parameter
     Then system should return "403" status code
-    And error message "Forbidden" should be displayed
-    And "UserB" should not see "UserA" notification content
-    When "UserB" attempts to modify "user_id" parameter to "UserA" ID in request
-    Then system should validate session ownership
-    And system should reject request with "403" status code
-    When "UserB" attempts sequential notification ID enumeration with increments
-    Then system should consistently deny access to notifications not belonging to "UserB"
-    And security logs should record all unauthorized access attempts
-    And "UserB" should only access their own notifications
+    And unauthorized access should be prevented
+    When user attempts sequential notification ID enumeration
+    Then all unauthorized access attempts should be blocked with proper error codes
+    And security events should be logged in audit trail
+    When user verifies notification content in email and in-app alerts
+    Then notification should contain only authenticated user's own schedule information
+    And no data leakage from other users should be present
+    And all unauthorized access attempts should be logged in security audit trail
+    And no sensitive information from other users should be exposed
+    And user sessions should remain valid and unaffected
 
-  @security @xss @injection @priority-critical
-  Scenario Outline: Prevent Cross-Site Scripting in notification content display
-    Given user account with schedule modification privileges exists
-    And test user account to receive notifications exists
-    When user creates schedule change with payload "<xss_payload>" in "<field_name>"
-    And notification generation is triggered for the schedule change
-    Then in-app notification should display payload as plain text
-    And script tags should be HTML-encoded as "&lt;script&gt;"
-    And no JavaScript execution should occur
-    When email notification HTML source is checked
-    Then email content should show encoded HTML entities
-    And script should not execute when email is opened
-    And Content-Security-Policy headers should be present in notification display pages
-    And CSP headers should restrict inline script execution
-    And user session cookies should remain secure
-    And all notification content should be properly sanitized
+  @security @priority-critical @authentication @negative
+  Scenario: Enforce proper authentication on notification API endpoint and prevent unauthorized access
+    Given notification API endpoint "/api/notifications/send" is accessible
+    And valid user account exists with active schedule
+    And authentication mechanism is implemented
+    And test environment allows API testing tools
+    When user attempts to access "/api/notifications/send" endpoint without authentication credentials
+    Then system should return "401" status code
+    And access to the endpoint should be denied
+    When user attempts to access the endpoint with expired authentication token
+    Then system should return "401" status code
+    And error message should indicate token expiration
+    When user attempts to access the endpoint with malformed authentication token
+    Then system should return "401" status code
+    And invalid token attempt should be logged as security event
+    When user attempts to replay valid authentication token from previous session after logout
+    Then system should reject the token
+    And system should return "401" status code
+    And token invalidation on logout should be confirmed
+    When user attempts authentication bypass by manipulating request headers
+    Then all bypass attempts should fail with "401" status code
+    When user verifies notification viewing endpoints require authentication
+    Then only authenticated users should view their own notifications
+    And cross-user access should be prevented
+    And all unauthorized access attempts should be logged with timestamps and source IPs
+    And no notifications should be sent or accessed without valid authentication
+    And system security posture should remain intact
+
+  @security @priority-critical @xss @injection @negative
+  Scenario Outline: Protect notification system against XSS injection attacks in schedule content
+    Given user account with permission to create schedule entries exists
+    And notification system is active and configured for email and in-app alerts
+    And test environment allows schedule modification
+    And user has access to view rendered notifications in both formats
+    When user creates schedule entry with "<payload>" in "<field>" field
+    Then system should accept the input and store the schedule entry
+    When user modifies the schedule entry to trigger a notification
+    And user observes the email notification content
+    Then email notification should display sanitized content
+    And script tags should be encoded or stripped
+    And script should not execute
+    When user views the in-app notification
+    Then in-app notification should render safe content without executing JavaScript
+    And no alert popup should appear
+    And notification should be properly sanitized in the UI
+    When user verifies notification API responses include security headers
+    Then "Content-Type" header should be "application/json"
+    And "X-Content-Type-Options" header should be "nosniff"
+    And "X-XSS-Protection" header should be present
+    And all security headers should prevent MIME-type sniffing
+    And no malicious scripts should be executed in any notification context
+    And schedule data should remain intact with sanitized content
+    And security logs should capture input validation events
 
     Examples:
-      | xss_payload                                      | field_name           |
-      | <script>alert(document.cookie)</script>Meeting   | schedule title       |
-      | <img src=x onerror=alert(1)>                     | schedule description |
-      | <svg/onload=alert(1)>                            | schedule description |
-      | javascript:alert(1)                              | schedule description |
-      | <iframe src="javascript:alert(1)">               | schedule title       |
+      | field       | payload                                      |
+      | title       | <script>alert("XSS")</script>Meeting Title   |
+      | description | <img src=x onerror=alert("XSS")>             |
+      | description | <svg/onload=alert("XSS")>                    |
+      | title       | <body onload=alert("XSS")>                   |
+      | description | <iframe src="javascript:alert('XSS')">       |
 
-  @security @information-disclosure @priority-high
-  Scenario: Prevent information disclosure via notification API response leakage
-    Given multiple user accounts with different schedules exist
-    And API endpoint "/api/notifications/send" is accessible
-    And test accounts with valid and invalid authentication tokens exist
-    And network traffic interception tool is configured
-    When API request is sent to "/api/notifications/send" with invalid notification ID
-    Then generic error message "Resource not found" should be returned
-    And system details should not be revealed in error message
-    And valid ID patterns should not be exposed
-    When API response headers are analyzed for sensitive information
-    Then response headers should contain minimal information
-    And "X-Powered-By" header should not be present
-    And server version should not be exposed
-    And internal IP addresses should not be disclosed
-    When notification list is requested with pagination parameter "limit" set to "999999"
-    Then system should enforce maximum pagination limits
-    And only authorized user notifications should be returned
-    And rate limiting should be applied
-    When "/api/notifications/send" is accessed with missing authentication token
-    Then "401" status code should be returned
-    And generic "Unauthorized" error should be displayed
-    And endpoint existence should not be revealed
-    And user account validity should not be disclosed
-    When response times are measured for valid versus invalid user IDs
-    Then response times should be consistent regardless of user ID validity
-    And user enumeration should be prevented
-    When notification payload is inspected for PII of other participants
-    Then notifications should contain only information relevant to authenticated user
-    And other participants PII should not be exposed
-    And no sensitive system information should be disclosed
-    And error messages should remain generic and non-revealing
-    And API responses should contain only authorized data
+  @security @priority-critical @xss @stored @negative
+  Scenario: Verify protection against stored XSS attacks across multiple users
+    Given user account "User A" with permission to create schedule entries exists
+    And user account "User B" exists in the system
+    And notification system is active and configured
+    When "User A" creates schedule entry with "<script>alert('XSS')</script>Malicious Meeting" in "title" field
+    And "User A" modifies the schedule entry to trigger a notification
+    And "User B" logs in to the system
+    And "User B" views the notification
+    Then "User B" should receive sanitized notification
+    And no script execution should occur
+    And stored XSS protection should be confirmed

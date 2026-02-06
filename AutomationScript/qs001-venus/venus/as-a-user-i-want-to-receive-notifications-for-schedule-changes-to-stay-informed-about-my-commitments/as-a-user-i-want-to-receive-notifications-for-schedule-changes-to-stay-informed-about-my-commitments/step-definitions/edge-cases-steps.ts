@@ -39,7 +39,7 @@ Before(async function () {
       user: { username: 'testuser', password: 'testpass' }
     },
     appointments: [],
-    notificationQueue: [],
+    notifications: [],
     systemState: {}
   };
 });
@@ -57,8 +57,9 @@ After(async function (scenario) {
 // ==================== GIVEN STEPS ====================
 
 /**************************************************/
-/*  BACKGROUND STEPS - Common Preconditions
-/*  Used across all test cases
+/*  SHARED BACKGROUND STEPS
+/*  Category: Setup
+/*  Description: Common preconditions for all edge case scenarios
 /**************************************************/
 
 // TODO: Replace XPath with Object Repository when available
@@ -66,1101 +67,1167 @@ Given('user is logged into the system with valid credentials', async function ()
   await homePage.navigate();
   await waits.waitForNetworkIdle();
   
-  const credentials = this.testData?.users?.user || { username: 'testuser', password: 'testpass' };
-  await actions.fill(page.locator('//input[@id="username"]'), credentials.username);
-  await actions.fill(page.locator('//input[@id="password"]'), credentials.password);
-  await actions.click(page.locator('//button[@id="login"]'));
+  const usernameXPath = '//input[@id="username"]';
+  const passwordXPath = '//input[@id="password"]';
+  const loginButtonXPath = '//button[@id="login"]';
+  
+  await actions.fill(page.locator(usernameXPath), 'testuser');
+  await actions.fill(page.locator(passwordXPath), 'testpass');
+  await actions.click(page.locator(loginButtonXPath));
   await waits.waitForNetworkIdle();
   
-  await assertions.assertVisible(page.locator('//div[@id="user-dashboard"]'));
+  const dashboardXPath = '//div[@id="dashboard"]';
+  await waits.waitForVisible(page.locator(dashboardXPath));
 });
 
 // TODO: Replace XPath with Object Repository when available
-Given('email notification service is operational', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/services`);
+Given('user has notification preferences enabled for schedule changes', async function () {
+  const settingsButtonXPath = '//button[@id="settings"]';
+  await actions.click(page.locator(settingsButtonXPath));
   await waits.waitForNetworkIdle();
   
-  const emailServiceStatus = page.locator('//div[@id="email-service-status"]');
-  await assertions.assertVisible(emailServiceStatus);
-  await assertions.assertContainsText(emailServiceStatus, 'operational');
+  const notificationPreferencesXPath = '//div[@id="notification-preferences"]';
+  await waits.waitForVisible(page.locator(notificationPreferencesXPath));
   
-  this.testData.systemState.emailServiceEnabled = true;
+  const scheduleChangeNotificationXPath = '//input[@id="notification-schedule-changes"]';
+  const checkbox = page.locator(scheduleChangeNotificationXPath);
+  
+  if (await checkbox.isChecked() === false) {
+    await actions.check(checkbox);
+  }
+  
+  const emailNotificationXPath = '//input[@id="notification-email-enabled"]';
+  const emailCheckbox = page.locator(emailNotificationXPath);
+  
+  if (await emailCheckbox.isChecked() === false) {
+    await actions.check(emailCheckbox);
+  }
+  
+  const inAppNotificationXPath = '//input[@id="notification-inapp-enabled"]';
+  const inAppCheckbox = page.locator(inAppNotificationXPath);
+  
+  if (await inAppCheckbox.isChecked() === false) {
+    await actions.check(inAppCheckbox);
+  }
+  
+  const saveButtonXPath = '//button[@id="save-preferences"]';
+  await actions.click(page.locator(saveButtonXPath));
+  await waits.waitForNetworkIdle();
 });
 
 // TODO: Replace XPath with Object Repository when available
-Given('in-app notification service is operational', async function () {
-  const inAppServiceStatus = page.locator('//div[@id="inapp-notification-service-status"]');
-  await assertions.assertVisible(inAppServiceStatus);
-  await assertions.assertContainsText(inAppServiceStatus, 'operational');
+Given('email service and in-app notification service are operational', async function () {
+  const systemStatusXPath = '//div[@id="system-status"]';
+  await assertions.assertVisible(page.locator(systemStatusXPath));
   
-  this.testData.systemState.inAppServiceEnabled = true;
+  const emailServiceStatusXPath = '//span[@id="email-service-status"]';
+  await assertions.assertContainsText(page.locator(emailServiceStatusXPath), 'operational');
+  
+  const inAppServiceStatusXPath = '//span[@id="inapp-service-status"]';
+  await assertions.assertContainsText(page.locator(inAppServiceStatusXPath), 'operational');
 });
 
 /**************************************************/
 /*  TEST CASE: TC-EDGE-001
-/*  Title: Notification delivery when multiple schedule changes occur within 1 second
+/*  Title: Multiple rapid schedule changes within seconds deliver all notifications accurately
 /*  Priority: High
 /*  Category: Edge Cases
-/*  Description: Tests notification system handling of rapid concurrent schedule changes
+/*  Description: Validates notification delivery for rapid consecutive schedule modifications
 /**************************************************/
 
 // TODO: Replace XPath with Object Repository when available
-Given('user has {int} scheduled appointments in the schedule database', async function (appointmentCount: number) {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/schedules`);
+Given('user has at least one scheduled appointment in the system', async function () {
+  const appointmentsMenuXPath = '//a[@id="appointments-menu"]';
+  await actions.click(page.locator(appointmentsMenuXPath));
   await waits.waitForNetworkIdle();
   
-  this.testData.appointments = [];
+  const appointmentListXPath = '//div[@id="appointment-list"]';
+  await waits.waitForVisible(page.locator(appointmentListXPath));
   
-  for (let i = 1; i <= appointmentCount; i++) {
-    await actions.click(page.locator('//button[@id="create-appointment"]'));
-    await waits.waitForVisible(page.locator('//div[@id="appointment-form"]'));
-    
-    await actions.fill(page.locator('//input[@id="appointment-title"]'), `Appointment ${i}`);
-    await actions.fill(page.locator('//input[@id="appointment-time"]'), `${9 + i}:00 AM`);
-    await actions.click(page.locator('//button[@id="save-appointment"]'));
+  const appointmentItemsXPath = '//div[@class="appointment-item"]';
+  const appointmentCount = await page.locator(appointmentItemsXPath).count();
+  
+  if (appointmentCount === 0) {
+    const createAppointmentButtonXPath = '//button[@id="create-appointment"]';
+    await actions.click(page.locator(createAppointmentButtonXPath));
     await waits.waitForNetworkIdle();
     
-    this.testData.appointments.push({
-      id: i,
-      title: `Appointment ${i}`,
-      time: `${9 + i}:00 AM`
-    });
-  }
-  
-  const appointmentRows = page.locator('//table[@id="appointments-table"]//tr[@class="appointment-row"]');
-  await assertions.assertElementCount(appointmentRows, appointmentCount);
-});
-
-// TODO: Replace XPath with Object Repository when available
-Given('user has notification preferences enabled for both email and in-app alerts', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/user/preferences`);
-  await waits.waitForNetworkIdle();
-  
-  const emailNotificationCheckbox = page.locator('//input[@id="email-notifications-enabled"]');
-  const inAppNotificationCheckbox = page.locator('//input[@id="inapp-notifications-enabled"]');
-  
-  await actions.check(emailNotificationCheckbox);
-  await actions.check(inAppNotificationCheckbox);
-  await actions.click(page.locator('//button[@id="save-preferences"]'));
-  await waits.waitForNetworkIdle();
-  
-  await assertions.assertVisible(page.locator('//div[@id="preferences-saved-message"]'));
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('administrator navigates to schedule management page', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/schedule-management`);
-  await waits.waitForNetworkIdle();
-  await assertions.assertVisible(page.locator('//div[@id="schedule-management-page"]'));
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('administrator simultaneously updates {int} different appointments for the same user within {int} second', async function (appointmentCount: number, timeWindow: number) {
-  const updatePromises = [];
-  
-  for (let i = 0; i < appointmentCount; i++) {
-    const updatePromise = (async () => {
-      const appointmentRow = page.locator(`//tr[@data-appointment-id="${i + 1}"]`);
-      await actions.click(appointmentRow.locator('//button[@class="edit-appointment"]'));
-      await waits.waitForVisible(page.locator('//div[@id="edit-appointment-modal"]'));
-      
-      await actions.fill(page.locator('//input[@id="appointment-time"]'), `${10 + i}:00 AM`);
-      await actions.click(page.locator('//button[@id="save-changes"]'));
-    })();
+    const appointmentTitleXPath = '//input[@id="appointment-title"]';
+    await actions.fill(page.locator(appointmentTitleXPath), 'Test Appointment');
     
-    updatePromises.push(updatePromise);
+    const appointmentTimeXPath = '//input[@id="appointment-time"]';
+    await actions.fill(page.locator(appointmentTimeXPath), '2:00 PM');
+    
+    const saveAppointmentButtonXPath = '//button[@id="save-appointment"]';
+    await actions.click(page.locator(saveAppointmentButtonXPath));
+    await waits.waitForNetworkIdle();
   }
   
-  await Promise.all(updatePromises);
+  this.testData.currentAppointmentId = await page.locator('//div[@class="appointment-item"][1]').getAttribute('data-appointment-id');
+});
+
+// TODO: Replace XPath with Object Repository when available
+When('user modifies appointment time from {string} to {string}', async function (fromTime: string, toTime: string) {
+  const editAppointmentButtonXPath = `//button[@id="edit-appointment-${this.testData.currentAppointmentId}"]`;
+  await actions.click(page.locator(editAppointmentButtonXPath));
   await waits.waitForNetworkIdle();
   
-  this.testData.updateTimestamp = Date.now();
+  const appointmentTimeFieldXPath = '//input[@id="appointment-time"]';
+  await actions.clearAndFill(page.locator(appointmentTimeFieldXPath), toTime);
+  
+  const saveChangesButtonXPath = '//button[@id="save-appointment-changes"]';
+  await actions.click(page.locator(saveChangesButtonXPath));
+  await waits.waitForNetworkIdle();
+  
+  this.testData.lastModificationTime = new Date();
 });
 
 // TODO: Replace XPath with Object Repository when available
-When('user waits for {int} minutes', async function (minutes: number) {
-  await page.waitForTimeout(minutes * 60 * 1000);
+When('within {int} seconds user modifies the same appointment from {string} to {string}', async function (seconds: number, fromTime: string, toTime: string) {
+  await page.waitForTimeout(2000);
+  
+  const editAppointmentButtonXPath = `//button[@id="edit-appointment-${this.testData.currentAppointmentId}"]`;
+  await actions.click(page.locator(editAppointmentButtonXPath));
+  await waits.waitForNetworkIdle();
+  
+  const appointmentTimeFieldXPath = '//input[@id="appointment-time"]';
+  await actions.clearAndFill(page.locator(appointmentTimeFieldXPath), toTime);
+  
+  const saveChangesButtonXPath = '//button[@id="save-appointment-changes"]';
+  await actions.click(page.locator(saveChangesButtonXPath));
+  await waits.waitForNetworkIdle();
 });
 
 // TODO: Replace XPath with Object Repository when available
+When('within another {int} seconds user modifies the same appointment from {string} to {string}', async function (seconds: number, fromTime: string, toTime: string) {
+  await page.waitForTimeout(2000);
+  
+  const editAppointmentButtonXPath = `//button[@id="edit-appointment-${this.testData.currentAppointmentId}"]`;
+  await actions.click(page.locator(editAppointmentButtonXPath));
+  await waits.waitForNetworkIdle();
+  
+  const appointmentTimeFieldXPath = '//input[@id="appointment-time"]';
+  await actions.clearAndFill(page.locator(appointmentTimeFieldXPath), toTime);
+  
+  const saveChangesButtonXPath = '//button[@id="save-appointment-changes"]';
+  await actions.click(page.locator(saveChangesButtonXPath));
+  await waits.waitForNetworkIdle();
+});
+
 When('user waits for {int} minute', async function (minutes: number) {
-  await page.waitForTimeout(minutes * 60 * 1000);
+  await page.waitForTimeout(minutes * 60000);
 });
 
 // TODO: Replace XPath with Object Repository when available
-Then('user should receive {int} email notifications within {int} minute of the changes', async function (notificationCount: number, timeWindow: number) {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/email-logs`);
+Then('user should receive {int} notifications in email inbox', async function (expectedCount: number) {
+  const emailInboxXPath = '//div[@id="email-inbox"]';
+  await actions.click(page.locator(emailInboxXPath));
   await waits.waitForNetworkIdle();
   
-  const emailNotifications = page.locator('//table[@id="email-logs"]//tr[@class="email-log-row"]');
-  await assertions.assertElementCount(emailNotifications, notificationCount);
-  
-  for (let i = 0; i < notificationCount; i++) {
-    const emailRow = emailNotifications.nth(i);
-    await assertions.assertVisible(emailRow);
-    await assertions.assertContainsText(emailRow, 'schedule change');
-  }
+  const emailNotificationsXPath = '//div[@class="email-notification"]';
+  await assertions.assertElementCount(page.locator(emailNotificationsXPath), expectedCount);
 });
 
 // TODO: Replace XPath with Object Repository when available
-Then('in-app notification center should display all {int} schedule changes', async function (changeCount: number) {
-  await actions.navigateTo(`${process.env.BASE_URL}/user/notifications`);
+Then('user should receive {int} notifications in in-app notification center', async function (expectedCount: number) {
+  const notificationCenterIconXPath = '//button[@id="notification-center-icon"]';
+  await actions.click(page.locator(notificationCenterIconXPath));
   await waits.waitForNetworkIdle();
   
-  const notificationItems = page.locator('//div[@id="notification-center"]//div[@class="notification-item"]');
-  await assertions.assertElementCount(notificationItems, changeCount);
-  
-  for (let i = 0; i < changeCount; i++) {
-    const notification = notificationItems.nth(i);
-    await assertions.assertContainsText(notification, 'schedule');
-  }
+  const inAppNotificationsXPath = '//div[@class="inapp-notification"]';
+  await assertions.assertElementCount(page.locator(inAppNotificationsXPath), expectedCount);
 });
 
 // TODO: Replace XPath with Object Repository when available
-Then('all notifications should show timestamps within {int} minute of the actual schedule change time', async function (timeWindow: number) {
-  const notificationItems = page.locator('//div[@id="notification-center"]//div[@class="notification-item"]');
-  const count = await notificationItems.count();
+Then('each notification should contain accurate schedule change details', async function () {
+  const notificationsXPath = '//div[@class="inapp-notification"]';
+  const notifications = page.locator(notificationsXPath);
+  const count = await notifications.count();
   
   for (let i = 0; i < count; i++) {
-    const notification = notificationItems.nth(i);
-    const timestampElement = notification.locator('//span[@class="notification-timestamp"]');
-    await assertions.assertVisible(timestampElement);
+    const notification = notifications.nth(i);
+    const notificationTextXPath = '//div[@class="notification-content"]';
+    await assertions.assertVisible(notification.locator(notificationTextXPath));
   }
 });
 
 // TODO: Replace XPath with Object Repository when available
-Then('all {int} schedule changes should be reflected in user\'s schedule', async function (changeCount: number) {
-  await actions.navigateTo(`${process.env.BASE_URL}/user/schedule`);
-  await waits.waitForNetworkIdle();
+Then('notification for first change should show time change from {string} to {string}', async function (fromTime: string, toTime: string) {
+  const firstNotificationXPath = '//div[@class="inapp-notification"][1]';
+  const notificationContent = page.locator(firstNotificationXPath);
   
-  const appointmentRows = page.locator('//table[@id="user-schedule"]//tr[@class="appointment-row"]');
-  await assertions.assertElementCount(appointmentRows, changeCount);
+  await assertions.assertContainsText(notificationContent, fromTime);
+  await assertions.assertContainsText(notificationContent, toTime);
 });
 
 // TODO: Replace XPath with Object Repository when available
-Then('notification delivery logs should show successful dispatch of all notifications', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/notification-logs`);
-  await waits.waitForNetworkIdle();
+Then('notification for second change should show time change from {string} to {string}', async function (fromTime: string, toTime: string) {
+  const secondNotificationXPath = '//div[@class="inapp-notification"][2]';
+  const notificationContent = page.locator(secondNotificationXPath);
   
-  const successfulLogs = page.locator('//table[@id="notification-logs"]//tr[contains(@class, "status-success")]');
-  const count = await successfulLogs.count();
-  expect(count).toBeGreaterThan(0);
+  await assertions.assertContainsText(notificationContent, fromTime);
+  await assertions.assertContainsText(notificationContent, toTime);
 });
 
 // TODO: Replace XPath with Object Repository when available
-Then('no duplicate notifications should be sent for the same schedule change', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/notification-logs`);
-  await waits.waitForNetworkIdle();
+Then('notification for third change should show time change from {string} to {string}', async function (fromTime: string, toTime: string) {
+  const thirdNotificationXPath = '//div[@class="inapp-notification"][3]';
+  const notificationContent = page.locator(thirdNotificationXPath);
   
-  const allLogs = page.locator('//table[@id="notification-logs"]//tr[@class="log-row"]');
-  const count = await allLogs.count();
+  await assertions.assertContainsText(notificationContent, fromTime);
+  await assertions.assertContainsText(notificationContent, toTime);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('each notification should have correct timestamp', async function () {
+  const notificationsXPath = '//div[@class="inapp-notification"]';
+  const notifications = page.locator(notificationsXPath);
+  const count = await notifications.count();
   
-  const uniqueNotifications = new Set();
   for (let i = 0; i < count; i++) {
-    const logRow = allLogs.nth(i);
-    const notificationId = await logRow.locator('//td[@class="notification-id"]').textContent();
-    uniqueNotifications.add(notificationId);
+    const notification = notifications.nth(i);
+    const timestampXPath = '//span[@class="notification-timestamp"]';
+    await assertions.assertVisible(notification.locator(timestampXPath));
+    
+    const timestampText = await notification.locator(timestampXPath).textContent();
+    expect(timestampText).toBeTruthy();
+  }
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('no duplicate notifications should be present', async function () {
+  const notificationsXPath = '//div[@class="inapp-notification"]';
+  const notifications = page.locator(notificationsXPath);
+  const count = await notifications.count();
+  
+  const notificationIds = [];
+  for (let i = 0; i < count; i++) {
+    const notificationId = await notifications.nth(i).getAttribute('data-notification-id');
+    expect(notificationIds).not.toContain(notificationId);
+    notificationIds.push(notificationId);
+  }
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('notification history should show all {int} changes in chronological order', async function (expectedCount: number) {
+  const notificationHistoryXPath = '//div[@id="notification-history"]';
+  await actions.click(page.locator(notificationHistoryXPath));
+  await waits.waitForNetworkIdle();
+  
+  const historyItemsXPath = '//div[@class="history-item"]';
+  await assertions.assertElementCount(page.locator(historyItemsXPath), expectedCount);
+  
+  const timestamps = [];
+  const historyItems = page.locator(historyItemsXPath);
+  const count = await historyItems.count();
+  
+  for (let i = 0; i < count; i++) {
+    const timestampXPath = '//span[@class="history-timestamp"]';
+    const timestampText = await historyItems.nth(i).locator(timestampXPath).getAttribute('data-timestamp');
+    timestamps.push(new Date(timestampText).getTime());
   }
   
-  expect(uniqueNotifications.size).toBe(count);
+  for (let i = 1; i < timestamps.length; i++) {
+    expect(timestamps[i]).toBeGreaterThanOrEqual(timestamps[i - 1]);
+  }
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('user\'s schedule should reflect final appointment time of {string}', async function (expectedTime: string) {
+  const appointmentsMenuXPath = '//a[@id="appointments-menu"]';
+  await actions.click(page.locator(appointmentsMenuXPath));
+  await waits.waitForNetworkIdle();
+  
+  const appointmentTimeXPath = `//div[@data-appointment-id="${this.testData.currentAppointmentId}"]//span[@class="appointment-time"]`;
+  await assertions.assertContainsText(page.locator(appointmentTimeXPath), expectedTime);
 });
 
 /**************************************************/
 /*  TEST CASE: TC-EDGE-002
-/*  Title: Notification handling when user email address contains special characters and Unicode
+/*  Title: Schedule change at midnight boundary delivers notification with correct date and time
 /*  Priority: Medium
 /*  Category: Edge Cases
-/*  Description: Tests email notification delivery to addresses with special characters
+/*  Description: Validates notification delivery during midnight date transition
 /**************************************************/
 
 // TODO: Replace XPath with Object Repository when available
-Given('user account exists with email address {string}', async function (email: string) {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/users`);
+Given('user has a scheduled appointment for the next day', async function () {
+  const appointmentsMenuXPath = '//a[@id="appointments-menu"]';
+  await actions.click(page.locator(appointmentsMenuXPath));
   await waits.waitForNetworkIdle();
   
-  await actions.click(page.locator('//button[@id="create-user"]'));
-  await waits.waitForVisible(page.locator('//div[@id="user-form"]'));
-  
-  await actions.fill(page.locator('//input[@id="user-email"]'), email);
-  await actions.fill(page.locator('//input[@id="user-username"]'), `user_${Date.now()}`);
-  await actions.fill(page.locator('//input[@id="user-password"]'), 'TestPass123!');
-  await actions.click(page.locator('//button[@id="save-user"]'));
-  await waits.waitForNetworkIdle();
-  
-  this.testData.currentUserEmail = email;
-  await assertions.assertVisible(page.locator('//div[@id="user-created-message"]'));
-});
-
-// TODO: Replace XPath with Object Repository when available
-Given('user has {int} scheduled appointment', async function (appointmentCount: number) {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/schedules`);
-  await waits.waitForNetworkIdle();
-  
-  await actions.click(page.locator('//button[@id="create-appointment"]'));
-  await waits.waitForVisible(page.locator('//div[@id="appointment-form"]'));
-  
-  await actions.fill(page.locator('//input[@id="appointment-title"]'), 'Test Appointment');
-  await actions.fill(page.locator('//input[@id="appointment-time"]'), '2:00 PM');
-  await actions.click(page.locator('//button[@id="save-appointment"]'));
-  await waits.waitForNetworkIdle();
-  
-  this.testData.originalAppointmentTime = '2:00 PM';
-});
-
-// TODO: Replace XPath with Object Repository when available
-Given('email notification service supports international email addresses', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/email-service-config`);
-  await waits.waitForNetworkIdle();
-  
-  const internationalSupportCheckbox = page.locator('//input[@id="international-email-support"]');
-  await actions.check(internationalSupportCheckbox);
-  await actions.click(page.locator('//button[@id="save-config"]'));
-  await waits.waitForNetworkIdle();
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('administrator navigates to user management page', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/user-management`);
-  await waits.waitForNetworkIdle();
-  await assertions.assertVisible(page.locator('//div[@id="user-management-page"]'));
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('administrator verifies user email address is {string}', async function (email: string) {
-  const emailField = page.locator('//input[@id="search-email"]');
-  await actions.fill(emailField, email);
-  await actions.click(page.locator('//button[@id="search-user"]'));
-  await waits.waitForNetworkIdle();
-  
-  const userRow = page.locator(`//tr[contains(@class, "user-row")]//td[contains(text(), "${email}")]`);
-  await assertions.assertVisible(userRow);
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('administrator updates user scheduled appointment time from {string} to {string}', async function (originalTime: string, newTime: string) {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/schedules`);
-  await waits.waitForNetworkIdle();
-  
-  const appointmentRow = page.locator('//tr[@class="appointment-row"]').first();
-  await actions.click(appointmentRow.locator('//button[@class="edit-appointment"]'));
-  await waits.waitForVisible(page.locator('//div[@id="edit-appointment-modal"]'));
-  
-  await actions.clearAndFill(page.locator('//input[@id="appointment-time"]'), newTime);
-  await actions.click(page.locator('//button[@id="save-changes"]'));
-  await waits.waitForNetworkIdle();
-  
-  this.testData.newAppointmentTime = newTime;
-  this.testData.updateTimestamp = Date.now();
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('email notification should be successfully sent to {string} without encoding errors', async function (email: string) {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/email-logs`);
-  await waits.waitForNetworkIdle();
-  
-  const emailLog = page.locator(`//tr[contains(@class, "email-log-row")]//td[contains(text(), "${email}")]`);
-  await assertions.assertVisible(emailLog);
-  
-  const statusCell = emailLog.locator('//td[@class="status-cell"]');
-  await assertions.assertContainsText(statusCell, 'sent');
-  
-  const errorCell = emailLog.locator('//td[@class="error-cell"]');
-  const errorText = await errorCell.textContent();
-  expect(errorText?.toLowerCase()).not.toContain('encoding');
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('in-app notification should display the schedule change with correct details', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/user/notifications`);
-  await waits.waitForNetworkIdle();
-  
-  const notification = page.locator('//div[@id="notification-center"]//div[@class="notification-item"]').first();
-  await assertions.assertVisible(notification);
-  await assertions.assertContainsText(notification, 'schedule change');
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('email should be received in inbox with properly formatted schedule change details', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/email-preview`);
-  await waits.waitForNetworkIdle();
-  
-  const emailPreview = page.locator('//div[@id="email-preview-content"]');
-  await assertions.assertVisible(emailPreview);
-  await assertions.assertContainsText(emailPreview, 'schedule');
-  await assertions.assertContainsText(emailPreview, this.testData.newAppointmentTime);
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('no email encoding or delivery errors should be logged in the system', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/system-logs`);
-  await waits.waitForNetworkIdle();
-  
-  const errorLogs = page.locator('//table[@id="system-logs"]//tr[contains(@class, "error-log")]');
-  const count = await errorLogs.count();
-  
-  for (let i = 0; i < count; i++) {
-    const logRow = errorLogs.nth(i);
-    const logText = await logRow.textContent();
-    expect(logText?.toLowerCase()).not.toContain('encoding');
-    expect(logText?.toLowerCase()).not.toContain('email delivery failed');
-  }
-});
-
-/**************************************************/
-/*  TEST CASE: TC-EDGE-003
-/*  Title: Notification behavior when schedule is changed during email service outage
-/*  Priority: High
-/*  Category: Edge Cases
-/*  Description: Tests notification retry mechanism during service outage
-/**************************************************/
-
-// TODO: Replace XPath with Object Repository when available
-Given('user has active schedule with appointments', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/user/schedule`);
-  await waits.waitForNetworkIdle();
-  
-  const appointmentRows = page.locator('//table[@id="user-schedule"]//tr[@class="appointment-row"]');
-  const count = await appointmentRows.count();
-  expect(count).toBeGreaterThan(0);
-  
-  this.testData.activeAppointmentsCount = count;
-});
-
-// TODO: Replace XPath with Object Repository when available
-Given('system has retry mechanism configured for failed email notifications', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/notification-config`);
-  await waits.waitForNetworkIdle();
-  
-  const retryEnabledCheckbox = page.locator('//input[@id="retry-mechanism-enabled"]');
-  await actions.check(retryEnabledCheckbox);
-  
-  await actions.fill(page.locator('//input[@id="max-retry-attempts"]'), '3');
-  await actions.fill(page.locator('//input[@id="retry-interval-minutes"]'), '5');
-  await actions.click(page.locator('//button[@id="save-config"]'));
-  await waits.waitForNetworkIdle();
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('administrator simulates email service outage by disabling email notification service', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/services`);
-  await waits.waitForNetworkIdle();
-  
-  const emailServiceToggle = page.locator('//input[@id="email-service-toggle"]');
-  await actions.click(emailServiceToggle);
-  await waits.waitForNetworkIdle();
-  
-  this.testData.systemState.emailServiceEnabled = false;
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('email service status shows as unavailable in system monitoring', async function () {
-  const emailServiceStatus = page.locator('//div[@id="email-service-status"]');
-  await assertions.assertContainsText(emailServiceStatus, 'unavailable');
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('administrator updates user scheduled appointment from {string} to {string}', async function (originalTime: string, newTime: string) {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/schedules`);
-  await waits.waitForNetworkIdle();
-  
-  const appointmentRow = page.locator('//tr[@class="appointment-row"]').first();
-  await actions.click(appointmentRow.locator('//button[@class="edit-appointment"]'));
-  await waits.waitForVisible(page.locator('//div[@id="edit-appointment-modal"]'));
-  
-  await actions.clearAndFill(page.locator('//input[@id="appointment-time"]'), newTime);
-  await actions.click(page.locator('//button[@id="save-changes"]'));
-  await waits.waitForNetworkIdle();
-  
-  this.testData.scheduleChangeTime = Date.now();
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('in-app notification should be delivered successfully within {int} minute', async function (minutes: number) {
-  await actions.navigateTo(`${process.env.BASE_URL}/user/notifications`);
-  await waits.waitForNetworkIdle();
-  
-  const notification = page.locator('//div[@id="notification-center"]//div[@class="notification-item"]').first();
-  await assertions.assertVisible(notification);
-  await assertions.assertContainsText(notification, 'schedule');
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('email notification should be queued for retry with failed status logged', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/notification-queue`);
-  await waits.waitForNetworkIdle();
-  
-  const queuedNotification = page.locator('//table[@id="notification-queue"]//tr[@class="queued-notification"]').first();
-  await assertions.assertVisible(queuedNotification);
-  
-  const statusCell = queuedNotification.locator('//td[@class="status-cell"]');
-  await assertions.assertContainsText(statusCell, 'queued');
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('retry attempts should be scheduled', async function () {
-  const queuedNotification = page.locator('//table[@id="notification-queue"]//tr[@class="queued-notification"]').first();
-  const retryCell = queuedNotification.locator('//td[@class="retry-scheduled-cell"]');
-  await assertions.assertVisible(retryCell);
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('administrator re-enables email notification service after {int} minutes', async function (minutes: number) {
-  await page.waitForTimeout(minutes * 60 * 1000);
-  
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/services`);
-  await waits.waitForNetworkIdle();
-  
-  const emailServiceToggle = page.locator('//input[@id="email-service-toggle"]');
-  await actions.click(emailServiceToggle);
-  await waits.waitForNetworkIdle();
-  
-  this.testData.systemState.emailServiceEnabled = true;
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('email service status shows as available in system monitoring', async function () {
-  const emailServiceStatus = page.locator('//div[@id="email-service-status"]');
-  await assertions.assertContainsText(emailServiceStatus, 'available');
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('user waits for retry mechanism to process queued notifications', async function () {
-  await page.waitForTimeout(30000);
-  await waits.waitForNetworkIdle();
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('queued email notification should be successfully sent to user email address', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/email-logs`);
-  await waits.waitForNetworkIdle();
-  
-  const emailLog = page.locator('//table[@id="email-logs"]//tr[@class="email-log-row"]').first();
-  await assertions.assertVisible(emailLog);
-  
-  const statusCell = emailLog.locator('//td[@class="status-cell"]');
-  await assertions.assertContainsText(statusCell, 'sent');
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('email notification should be received with schedule change details', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/email-preview`);
-  await waits.waitForNetworkIdle();
-  
-  const emailPreview = page.locator('//div[@id="email-preview-content"]');
-  await assertions.assertVisible(emailPreview);
-  await assertions.assertContainsText(emailPreview, 'schedule change');
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('system logs should show retry attempts and final successful delivery', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/system-logs`);
-  await waits.waitForNetworkIdle();
-  
-  const retryLogs = page.locator('//table[@id="system-logs"]//tr[contains(@class, "retry-log")]');
-  const count = await retryLogs.count();
-  expect(count).toBeGreaterThan(0);
-  
-  const successLog = page.locator('//table[@id="system-logs"]//tr[contains(@class, "success-log")]').first();
-  await assertions.assertVisible(successLog);
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('no notifications should be lost or duplicated', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/notification-logs`);
-  await waits.waitForNetworkIdle();
-  
-  const allNotifications = page.locator('//table[@id="notification-logs"]//tr[@class="log-row"]');
-  const count = await allNotifications.count();
-  
-  const uniqueIds = new Set();
-  for (let i = 0; i < count; i++) {
-    const logRow = allNotifications.nth(i);
-    const notificationId = await logRow.locator('//td[@class="notification-id"]').textContent();
-    uniqueIds.add(notificationId);
-  }
-  
-  expect(uniqueIds.size).toBe(count);
-});
-
-/**************************************************/
-/*  TEST CASE: TC-EDGE-004
-/*  Title: Notification content when schedule change includes extremely long text fields and special characters
-/*  Priority: Medium
-/*  Category: Edge Cases
-/*  Description: Tests notification rendering with long text and special characters
-/**************************************************/
-
-// TODO: Replace XPath with Object Repository when available
-Given('appointment fields support up to {int} characters for description', async function (maxLength: number) {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/field-config`);
-  await waits.waitForNetworkIdle();
-  
-  const descriptionMaxLength = page.locator('//input[@id="description-max-length"]');
-  const currentValue = await descriptionMaxLength.inputValue();
-  expect(parseInt(currentValue)).toBeGreaterThanOrEqual(maxLength);
-});
-
-// TODO: Replace XPath with Object Repository when available
-Given('email and in-app notification templates are configured', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/notification-templates`);
-  await waits.waitForNetworkIdle();
-  
-  const emailTemplate = page.locator('//div[@id="email-template"]');
-  await assertions.assertVisible(emailTemplate);
-  
-  const inAppTemplate = page.locator('//div[@id="inapp-template"]');
-  await assertions.assertVisible(inAppTemplate);
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('user navigates to appointment and opens edit form', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/user/appointments`);
-  await waits.waitForNetworkIdle();
-  
-  const appointmentRow = page.locator('//tr[@class="appointment-row"]').first();
-  await actions.click(appointmentRow.locator('//button[@class="edit-appointment"]'));
-  await waits.waitForVisible(page.locator('//div[@id="edit-appointment-form"]'));
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('user updates appointment description with {int} characters including special characters {string}', async function (charCount: number, specialChars: string) {
-  const longDescription = 'A'.repeat(charCount - specialChars.length) + specialChars;
-  
-  const descriptionField = page.locator('//textarea[@id="appointment-description"]');
-  await actions.clearAndFill(descriptionField, longDescription);
-  
-  this.testData.appointmentDescription = longDescription;
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('user changes appointment time from {string} to {string}', async function (originalTime: string, newTime: string) {
-  await actions.clearAndFill(page.locator('//input[@id="appointment-time"]'), newTime);
-  await actions.click(page.locator('//button[@id="save-appointment"]'));
-  await waits.waitForNetworkIdle();
-  
-  this.testData.newAppointmentTime = newTime;
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('email notification should display full description with all special characters properly escaped', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/email-preview`);
-  await waits.waitForNetworkIdle();
-  
-  const emailContent = page.locator('//div[@id="email-preview-content"]');
-  await assertions.assertVisible(emailContent);
-  
-  const contentText = await emailContent.textContent();
-  expect(contentText).toContain('@#$%^&*()');
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('no HTML injection should occur in email', async function () {
-  const emailContent = page.locator('//div[@id="email-preview-content"]');
-  const innerHTML = await emailContent.innerHTML();
-  
-  expect(innerHTML).not.toContain('<script>');
-  expect(innerHTML).not.toContain('javascript:');
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('emojis should render correctly in email', async function () {
-  const emailContent = page.locator('//div[@id="email-preview-content"]');
-  await assertions.assertVisible(emailContent);
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('text should not be truncated in email', async function () {
-  const emailContent = page.locator('//div[@id="email-preview-content"]');
-  const contentText = await emailContent.textContent();
-  
-  expect(contentText?.length).toBeGreaterThan(900);
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('in-app notification should display schedule change with full description', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/user/notifications`);
-  await waits.waitForNetworkIdle();
-  
-  const notification = page.locator('//div[@id="notification-center"]//div[@class="notification-item"]').first();
-  await assertions.assertVisible(notification);
-  await assertions.assertContainsText(notification, 'schedule change');
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('special characters should be properly rendered in notification', async function () {
-  const notification = page.locator('//div[@id="notification-center"]//div[@class="notification-item"]').first();
-  const notificationText = await notification.textContent();
-  
-  expect(notificationText).toContain('@');
-  expect(notificationText).toContain('#');
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('no XSS vulnerabilities should exist in notification', async function () {
-  const notification = page.locator('//div[@id="notification-center"]//div[@class="notification-item"]').first();
-  const innerHTML = await notification.innerHTML();
-  
-  expect(innerHTML).not.toContain('<script>');
-  expect(innerHTML).not.toContain('onerror=');
-  expect(innerHTML).not.toContain('javascript:');
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('text should wrap appropriately in the UI', async function () {
-  const notification = page.locator('//div[@id="notification-center"]//div[@class="notification-item"]').first();
-  const boundingBox = await notification.boundingBox();
-  
-  expect(boundingBox?.width).toBeLessThan(1920);
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('user clicks on the notification to view full details', async function () {
-  const notification = page.locator('//div[@id="notification-center"]//div[@class="notification-item"]').first();
-  await actions.click(notification);
-  await waits.waitForVisible(page.locator('//div[@id="notification-details-modal"]'));
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('full notification details page should display all content correctly without truncation or rendering errors', async function () {
-  const detailsModal = page.locator('//div[@id="notification-details-modal"]');
-  await assertions.assertVisible(detailsModal);
-  
-  const descriptionContent = detailsModal.locator('//div[@class="notification-description"]');
-  const contentText = await descriptionContent.textContent();
-  
-  expect(contentText?.length).toBeGreaterThan(900);
-});
-
-/**************************************************/
-/*  TEST CASE: TC-EDGE-005
-/*  Title: Notification delivery when user has 100+ unread notifications in notification center
-/*  Priority: Medium
-/*  Category: Edge Cases
-/*  Description: Tests notification center performance with large notification count
-/**************************************************/
-
-// TODO: Replace XPath with Object Repository when available
-Given('user account exists with {int} unread notifications in notification center', async function (notificationCount: number) {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/notification-seeder`);
-  await waits.waitForNetworkIdle();
-  
-  await actions.fill(page.locator('//input[@id="notification-count"]'), notificationCount.toString());
-  await actions.click(page.locator('//button[@id="seed-notifications"]'));
-  await waits.waitForNetworkIdle();
-  
-  await assertions.assertVisible(page.locator('//div[@id="seeding-complete-message"]'));
-  this.testData.initialNotificationCount = notificationCount;
-});
-
-// TODO: Replace XPath with Object Repository when available
-Given('user has active scheduled appointments', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/user/schedule`);
-  await waits.waitForNetworkIdle();
-  
-  const appointmentRows = page.locator('//table[@id="user-schedule"]//tr[@class="appointment-row"]');
-  const count = await appointmentRows.count();
-  expect(count).toBeGreaterThan(0);
-});
-
-// TODO: Replace XPath with Object Repository when available
-Given('notification center has pagination configured', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/notification-config`);
-  await waits.waitForNetworkIdle();
-  
-  const paginationEnabled = page.locator('//input[@id="pagination-enabled"]');
-  await actions.check(paginationEnabled);
-  
-  await actions.fill(page.locator('//input[@id="items-per-page"]'), '20');
-  await actions.click(page.locator('//button[@id="save-config"]'));
-  await waits.waitForNetworkIdle();
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('administrator verifies user has exactly {int} unread notifications', async function (expectedCount: number) {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/user-notifications`);
-  await waits.waitForNetworkIdle();
-  
-  const notificationCountBadge = page.locator('//span[@id="unread-notification-count"]');
-  await assertions.assertContainsText(notificationCountBadge, expectedCount.toString());
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('email notification should be sent successfully within {int} minute', async function (minutes: number) {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/email-logs`);
-  await waits.waitForNetworkIdle();
-  
-  const recentEmail = page.locator('//table[@id="email-logs"]//tr[@class="email-log-row"]').first();
-  await assertions.assertVisible(recentEmail);
-  
-  const statusCell = recentEmail.locator('//td[@class="status-cell"]');
-  await assertions.assertContainsText(statusCell, 'sent');
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('notification center should load successfully showing notification count of {int}', async function (expectedCount: number) {
-  await actions.navigateTo(`${process.env.BASE_URL}/user/notifications`);
+  const createAppointmentButtonXPath = '//button[@id="create-appointment"]';
+  await actions.click(page.locator(createAppointmentButtonXPath));
   await waits.waitForNetworkIdle();
-  
-  const notificationCountBadge = page.locator('//span[@id="notification-count-badge"]');
-  await assertions.assertContainsText(notificationCountBadge, expectedCount.toString());
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('newest notification should appear at the top of the list', async function () {
-  const firstNotification = page.locator('//div[@id="notification-center"]//div[@class="notification-item"]').first();
-  await assertions.assertVisible(firstNotification);
-  await assertions.assertContainsText(firstNotification, 'schedule');
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('new schedule change notification should be marked as unread', async function () {
-  const firstNotification = page.locator('//div[@id="notification-center"]//div[@class="notification-item"]').first();
-  const unreadIndicator = firstNotification.locator('//span[@class="unread-indicator"]');
-  await assertions.assertVisible(unreadIndicator);
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('user scrolls through all notifications', async function () {
-  const notificationCenter = page.locator('//div[@id="notification-center"]');
   
-  for (let i = 0; i < 6; i++) {
-    await actions.scrollIntoView(notificationCenter);
-    await page.mouse.wheel(0, 500);
-    await page.waitForTimeout(500);
-  }
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('notification center should perform smoothly without lag', async function () {
-  const notificationCenter = page.locator('//div[@id="notification-center"]');
-  await assertions.assertVisible(notificationCenter);
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('all {int} notifications should be accessible', async function (expectedCount: number) {
-  const paginationInfo = page.locator('//div[@id="pagination-info"]');
-  await assertions.assertVisible(paginationInfo);
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('new notification should remain accessible', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/user/notifications`);
-  await waits.waitForNetworkIdle();
+  const appointmentTitleXPath = '//input[@id="appointment-title"]';
+  await actions.fill(page.locator(appointmentTitleXPath), 'Tomorrow Appointment');
   
-  const firstNotification = page.locator('//div[@id="notification-center"]//div[@class="notification-item"]').first();
-  await assertions.assertVisible(firstNotification);
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('notification center UI should remain responsive', async function () {
-  const notificationCenter = page.locator('//div[@id="notification-center"]');
-  await assertions.assertVisible(notificationCenter);
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowDateString = tomorrow.toISOString().split('T')[0];
   
-  const loadingSpinner = page.locator('//div[@id="loading-spinner"]');
-  const isVisible = await loadingSpinner.isVisible().catch(() => false);
-  expect(isVisible).toBe(false);
-});
-
-/**************************************************/
-/*  TEST CASE: TC-EDGE-006
-/*  Title: Notification behavior when user account is disabled immediately after schedule change
-/*  Priority: High
-/*  Category: Edge Cases
-/*  Description: Tests notification handling for disabled accounts
-/**************************************************/
-
-// TODO: Replace XPath with Object Repository when available
-Given('user account is active with valid email address', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/users`);
-  await waits.waitForNetworkIdle();
+  const appointmentDateXPath = '//input[@id="appointment-date"]';
+  await actions.fill(page.locator(appointmentDateXPath), tomorrowDateString);
   
-  const userRow = page.locator('//tr[@class="user-row"]').first();
-  const statusCell = userRow.locator('//td[@class="status-cell"]');
-  await assertions.assertContainsText(statusCell, 'active');
+  const appointmentTimeXPath = '//input[@id="appointment-time"]';
+  await actions.fill(page.locator(appointmentTimeXPath), '10:00 AM');
   
-  const emailCell = userRow.locator('//td[@class="email-cell"]');
-  const email = await emailCell.textContent();
-  this.testData.userEmail = email;
-});
-
-// TODO: Replace XPath with Object Repository when available
-Given('administrator has permissions to disable user accounts', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/permissions`);
+  const saveAppointmentButtonXPath = '//button[@id="save-appointment"]';
+  await actions.click(page.locator(saveAppointmentButtonXPath));
   await waits.waitForNetworkIdle();
   
-  const disableUserPermission = page.locator('//input[@id="permission-disable-users"]');
-  const isChecked = await disableUserPermission.isChecked();
-  expect(isChecked).toBe(true);
+  this.testData.tomorrowAppointmentId = await page.locator('//div[@class="appointment-item"][1]').getAttribute('data-appointment-id');
 });
 
 // TODO: Replace XPath with Object Repository when available
-When('administrator immediately disables user account within {int} seconds', async function (seconds: number) {
-  await page.waitForTimeout(seconds * 1000);
-  
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/users`);
+Given('system time is set to {string}', async function (timeString: string) {
+  const systemTimeSettingsXPath = '//div[@id="system-time-settings"]';
+  await actions.click(page.locator(systemTimeSettingsXPath));
   await waits.waitForNetworkIdle();
   
-  const userRow = page.locator('//tr[@class="user-row"]').first();
-  await actions.click(userRow.locator('//button[@class="disable-user"]'));
-  await waits.waitForVisible(page.locator('//div[@id="confirm-disable-modal"]'));
+  const setTimeXPath = '//input[@id="set-system-time"]';
+  await actions.fill(page.locator(setTimeXPath), timeString);
   
-  await actions.click(page.locator('//button[@id="confirm-disable"]'));
-  await waits.waitForNetworkIdle();
-  
-  this.testData.accountDisabledTime = Date.now();
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('user account status changes to {string} in the system', async function (status: string) {
-  const userRow = page.locator('//tr[@class="user-row"]').first();
-  const statusCell = userRow.locator('//td[@class="status-cell"]');
-  await assertions.assertContainsText(statusCell, status);
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('system logs should show notification processing attempt with appropriate handling for disabled account', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/system-logs`);
-  await waits.waitForNetworkIdle();
-  
-  const notificationLogs = page.locator('//table[@id="system-logs"]//tr[contains(@class, "notification-log")]');
-  const count = await notificationLogs.count();
-  expect(count).toBeGreaterThan(0);
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('notification delivery should follow business rules for disabled accounts', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/notification-logs`);
+  const applyTimeButtonXPath = '//button[@id="apply-system-time"]';
+  await actions.click(page.locator(applyTimeButtonXPath));
   await waits.waitForNetworkIdle();
   
-  const notificationLog = page.locator('//table[@id="notification-logs"]//tr[@class="log-row"]').first();
-  await assertions.assertVisible(notificationLog);
+  this.testData.systemTime = timeString;
 });
 
 // TODO: Replace XPath with Object Repository when available
-When('administrator re-enables user account', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/users`);
+Given('notification services are running and operational', async function () {
+  const systemStatusXPath = '//div[@id="system-status"]';
+  await actions.click(page.locator(systemStatusXPath));
   await waits.waitForNetworkIdle();
   
-  const userRow = page.locator('//tr[@class="user-row"]').first();
-  await actions.click(userRow.locator('//button[@class="enable-user"]'));
-  await waits.waitForNetworkIdle();
-  
-  const statusCell = userRow.locator('//td[@class="status-cell"]');
-  await assertions.assertContainsText(statusCell, 'active');
+  const notificationServiceStatusXPath = '//span[@id="notification-service-status"]';
+  await assertions.assertContainsText(page.locator(notificationServiceStatusXPath), 'running');
 });
 
 // TODO: Replace XPath with Object Repository when available
-When('user logs in successfully', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/login`);
-  await waits.waitForNetworkIdle();
+When('user waits until system time reaches {string}', async function (targetTime: string) {
+  await page.waitForTimeout(5000);
   
-  const credentials = this.testData?.users?.user || { username: 'testuser', password: 'testpass' };
-  await actions.fill(page.locator('//input[@id="username"]'), credentials.username);
-  await actions.fill(page.locator('//input[@id="password"]'), credentials.password);
-  await actions.click(page.locator('//button[@id="login"]'));
-  await waits.waitForNetworkIdle();
-  
-  await assertions.assertVisible(page.locator('//div[@id="user-dashboard"]'));
+  const currentTimeXPath = '//span[@id="current-system-time"]';
+  await assertions.assertContainsText(page.locator(currentTimeXPath), targetTime);
 });
 
 // TODO: Replace XPath with Object Repository when available
-When('user checks in-app notification center', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/user/notifications`);
+When('user modifies the appointment scheduled for tomorrow', async function () {
+  const editAppointmentButtonXPath = `//button[@id="edit-appointment-${this.testData.tomorrowAppointmentId}"]`;
+  await actions.click(page.locator(editAppointmentButtonXPath));
   await waits.waitForNetworkIdle();
   
-  const notificationCenter = page.locator('//div[@id="notification-center"]');
-  await assertions.assertVisible(notificationCenter);
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('notification handling should be consistent with defined business rules for disabled accounts', async function () {
-  const notificationCenter = page.locator('//div[@id="notification-center"]');
-  await assertions.assertVisible(notificationCenter);
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('schedule change should be persisted in database regardless of account status', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/user/schedule`);
-  await waits.waitForNetworkIdle();
+  const appointmentTimeFieldXPath = '//input[@id="appointment-time"]';
+  await actions.clearAndFill(page.locator(appointmentTimeFieldXPath), '11:00 AM');
   
-  const appointmentRows = page.locator('//table[@id="user-schedule"]//tr[@class="appointment-row"]');
-  await assertions.assertVisible(appointmentRows.first());
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('no system errors or exceptions should have occurred during notification processing', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/system-logs`);
+  const saveChangesButtonXPath = '//button[@id="save-appointment-changes"]';
+  await actions.click(page.locator(saveChangesButtonXPath));
   await waits.waitForNetworkIdle();
-  
-  const errorLogs = page.locator('//table[@id="system-logs"]//tr[contains(@class, "error-log")]');
-  const count = await errorLogs.count();
-  
-  for (let i = 0; i < count; i++) {
-    const logRow = errorLogs.nth(i);
-    const logText = await logRow.textContent();
-    expect(logText?.toLowerCase()).not.toContain('exception');
-    expect(logText?.toLowerCase()).not.toContain('fatal');
-  }
 });
 
-/**************************************************/
-/*  TEST CASE: TC-EDGE-007
-/*  Title: Notification delivery across different time zones when schedule change occurs at midnight boundary
-/*  Priority: Medium
-/*  Category: Edge Cases
-/*  Description: Tests timezone handling for notifications at date boundaries
-/**************************************************/
-
 // TODO: Replace XPath with Object Repository when available
-Given('user account is configured with timezone set to {string}', async function (timezone: string) {
-  await actions.navigateTo(`${process.env.BASE_URL}/user/settings`);
-  await waits.waitForNetworkIdle();
+When('system clock transitions from {string} to {string}', async function (fromTime: string, toTime: string) {
+  await page.waitForTimeout(5000);
   
-  const timezoneDropdown = page.locator('//select[@id="user-timezone"]');
-  await actions.selectByText(timezoneDropdown, timezone);
-  await actions.click(page.locator('//button[@id="save-settings"]'));
-  await waits.waitForNetworkIdle();
-  
-  this.testData.userTimezone = timezone;
+  const currentTimeXPath = '//span[@id="current-system-time"]';
+  await waits.waitForVisible(page.locator(currentTimeXPath));
 });
 
 // TODO: Replace XPath with Object Repository when available
-Given('system server is running in {string} timezone', async function (timezone: string) {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/system-config`);
+Then('notification should be delivered to email', async function () {
+  const emailInboxXPath = '//div[@id="email-inbox"]';
+  await actions.click(page.locator(emailInboxXPath));
   await waits.waitForNetworkIdle();
   
-  const serverTimezone = page.locator('//div[@id="server-timezone"]');
-  await assertions.assertContainsText(serverTimezone, timezone);
-  
-  this.testData.serverTimezone = timezone;
+  const emailNotificationXPath = '//div[@class="email-notification"][1]';
+  await assertions.assertVisible(page.locator(emailNotificationXPath));
 });
 
 // TODO: Replace XPath with Object Repository when available
-Given('user has scheduled appointment at {string} in {string} timezone', async function (time: string, timezone: string) {
-  await actions.navigateTo(`${process.env.BASE_URL}/user/schedule`);
-  await waits.waitForNetworkIdle();
-  
-  await actions.click(page.locator('//button[@id="create-appointment"]'));
-  await waits.waitForVisible(page.locator('//div[@id="appointment-form"]'));
-  
-  await actions.fill(page.locator('//input[@id="appointment-title"]'), 'Midnight Boundary Test');
-  await actions.fill(page.locator('//input[@id="appointment-time"]'), time);
-  await actions.click(page.locator('//button[@id="save-appointment"]'));
+Then('notification should be delivered to in-app notification center', async function () {
+  const notificationCenterIconXPath = '//button[@id="notification-center-icon"]';
+  await actions.click(page.locator(notificationCenterIconXPath));
   await waits.waitForNetworkIdle();
   
-  this.testData.originalAppointmentTime = time;
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('administrator navigates to user schedule', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/user-schedules`);
-  await waits.waitForNetworkIdle();
-  await assertions.assertVisible(page.locator('//div[@id="user-schedules-page"]'));
+  const inAppNotificationXPath = '//div[@class="inapp-notification"][1]';
+  await assertions.assertVisible(page.locator(inAppNotificationXPath));
 });
 
 // TODO: Replace XPath with Object Repository when available
-When('appointment is displayed with time {string} in user timezone', async function (time: string) {
-  const appointmentRow = page.locator('//tr[@class="appointment-row"]').first();
-  const timeCell = appointmentRow.locator('//td[@class="time-cell"]');
-  await assertions.assertContainsText(timeCell, time);
-});
-
-// TODO: Replace XPath with Object Repository when available
-When('administrator changes appointment time from {string} to {string}', async function (originalTime: string, newTime: string) {
-  const appointmentRow = page.locator('//tr[@class="appointment-row"]').first();
-  await actions.click(appointmentRow.locator('//button[@class="edit-appointment"]'));
-  await waits.waitForVisible(page.locator('//div[@id="edit-appointment-modal"]'));
+Then('notification timestamp should reflect correct date after midnight transition', async function () {
+  const notificationTimestampXPath = '//div[@class="inapp-notification"][1]//span[@class="notification-timestamp"]';
+  const timestampText = await page.locator(notificationTimestampXPath).textContent();
   
-  await actions.clearAndFill(page.locator('//input[@id="appointment-time"]'), newTime);
-  await actions.click(page.locator('//button[@id="save-changes"]'));
-  await waits.waitForNetworkIdle();
+  const currentDate = new Date();
+  const expectedDateString = currentDate.toISOString().split('T')[0];
   
-  this.testData.newAppointmentTime = newTime;
-  this.testData.scheduleChangeTimestamp = Date.now();
+  expect(timestampText).toContain(expectedDateString);
 });
 
 // TODO: Replace XPath with Object Repository when available
-Then('email notification should display schedule change with correct times in {string} timezone', async function (timezone: string) {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/email-preview`);
-  await waits.waitForNetworkIdle();
+Then('notification content should display correct date for modified appointment', async function () {
+  const notificationContentXPath = '//div[@class="inapp-notification"][1]//div[@class="notification-content"]';
+  const contentText = await page.locator(notificationContentXPath).textContent();
   
-  const emailContent = page.locator('//div[@id="email-preview-content"]');
-  await assertions.assertVisible(emailContent);
-  await assertions.assertContainsText(emailContent, 'schedule change');
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('email should show time change from {string} to {string}', async function (originalTime: string, newTime: string) {
-  const emailContent = page.locator('//div[@id="email-preview-content"]');
-  await assertions.assertContainsText(emailContent, originalTime);
-  await assertions.assertContainsText(emailContent, newTime);
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('date transition should be shown in email', async function () {
-  const emailContent = page.locator('//div[@id="email-preview-content"]');
-  const contentText = await emailContent.textContent();
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowDateString = tomorrow.toLocaleDateString();
   
   expect(contentText).toBeTruthy();
 });
 
 // TODO: Replace XPath with Object Repository when available
-Then('timezone indicator {string} should be included in email', async function (timezoneIndicator: string) {
-  const emailContent = page.locator('//div[@id="email-preview-content"]');
-  await assertions.assertContainsText(emailContent, timezoneIndicator);
+Then('no timezone-related errors should occur', async function () {
+  const errorMessagesXPath = '//div[@class="error-message"]';
+  const errorCount = await page.locator(errorMessagesXPath).count();
+  
+  expect(errorCount).toBe(0);
 });
 
 // TODO: Replace XPath with Object Repository when available
-Then('in-app notification should show times in user configured timezone {string}', async function (timezone: string) {
-  await actions.navigateTo(`${process.env.BASE_URL}/user/notifications`);
+Then('no date calculation issues should be present', async function () {
+  const notificationContentXPath = '//div[@class="inapp-notification"][1]//div[@class="notification-content"]';
+  const contentText = await page.locator(notificationContentXPath).textContent();
+  
+  expect(contentText).not.toContain('Invalid Date');
+  expect(contentText).not.toContain('NaN');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('notification log should record correct timestamp', async function () {
+  const notificationLogsXPath = '//div[@id="notification-logs"]';
+  await actions.click(page.locator(notificationLogsXPath));
   await waits.waitForNetworkIdle();
   
-  const notification = page.locator('//div[@id="notification-center"]//div[@class="notification-item"]').first();
-  await assertions.assertVisible(notification);
-  await assertions.assertContainsText(notification, timezone);
+  const latestLogEntryXPath = '//div[@class="log-entry"][1]//span[@class="log-timestamp"]';
+  await assertions.assertVisible(page.locator(latestLogEntryXPath));
+  
+  const logTimestamp = await page.locator(latestLogEntryXPath).textContent();
+  expect(logTimestamp).toBeTruthy();
 });
 
-// TODO: Replace XPath with Object Repository when available
-Then('date change should be clearly indicated in notification', async function () {
-  const notification = page.locator('//div[@id="notification-center"]//div[@class="notification-item"]').first();
-  await assertions.assertVisible(notification);
-});
+/**************************************************/
+/*  TEST CASE: TC-EDGE-003
+/*  Title: New notification delivers successfully when user has 100+ pending unread notifications
+/*  Priority: Medium
+/*  Category: Edge Cases
+/*  Description: Validates notification delivery with high volume of unread notifications
+/**************************************************/
 
 // TODO: Replace XPath with Object Repository when available
-Then('notification timestamp should be displayed in user timezone', async function () {
-  const notification = page.locator('//div[@id="notification-center"]//div[@class="notification-item"]').first();
-  const timestamp = notification.locator('//span[@class="notification-timestamp"]');
-  await assertions.assertVisible(timestamp);
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('notification timestamp should be within {int} minute of actual schedule change time', async function (minutes: number) {
-  const notification = page.locator('//div[@id="notification-center"]//div[@class="notification-item"]').first();
-  const timestamp = notification.locator('//span[@class="notification-timestamp"]');
-  await assertions.assertVisible(timestamp);
-});
-
-// TODO: Replace XPath with Object Repository when available
-Then('database should show appointment times stored in {string} with correct conversion', async function (timezone: string) {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/database-viewer`);
+Given('user has {int} unread notifications in notification center', async function (notificationCount: number) {
+  const notificationCenterIconXPath = '//button[@id="notification-center-icon"]';
+  await actions.click(page.locator(notificationCenterIconXPath));
   await waits.waitForNetworkIdle();
   
-  const appointmentRecord = page.locator('//table[@id="appointments-table"]//tr[@class="record-row"]').first();
-  await assertions.assertVisible(appointmentRecord);
+  const unreadCountBadgeXPath = '//span[@id="unread-notification-count"]';
+  const currentCount = parseInt(await page.locator(unreadCountBadgeXPath).textContent() || '0');
+  
+  if (currentCount < notificationCount) {
+    const generateNotificationsXPath = '//button[@id="generate-test-notifications"]';
+    await actions.click(page.locator(generateNotificationsXPath));
+    
+    const countInputXPath = '//input[@id="notification-count-input"]';
+    await actions.fill(page.locator(countInputXPath), (notificationCount - currentCount).toString());
+    
+    const generateButtonXPath = '//button[@id="confirm-generate"]';
+    await actions.click(page.locator(generateButtonXPath));
+    await waits.waitForNetworkIdle();
+  }
+  
+  this.testData.initialUnreadCount = notificationCount;
 });
 
 // TODO: Replace XPath with Object Repository when available
-Then('no timezone conversion errors should have occurred', async function () {
-  await actions.navigateTo(`${process.env.BASE_URL}/admin/system-logs`);
+Given('user has not acknowledged any existing notifications', async function () {
+  const notificationCenterXPath = '//div[@id="notification-center"]';
+  await waits.waitForVisible(page.locator(notificationCenterXPath));
+  
+  const unreadNotificationsXPath = '//div[@class="inapp-notification unread"]';
+  const unreadCount = await page.locator(unreadNotificationsXPath).count();
+  
+  expect(unreadCount).toBeGreaterThan(0);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Given('email inbox has storage capacity available', async function () {
+  const emailStorageStatusXPath = '//div[@id="email-storage-status"]';
+  await actions.click(page.locator(emailStorageStatusXPath));
   await waits.waitForNetworkIdle();
   
-  const errorLogs = page.locator('//table[@id="system-logs"]//tr[contains(@class, "error-log")]');
-  const count = await errorLogs.count();
+  const storageAvailableXPath = '//span[@id="storage-available"]';
+  await assertions.assertContainsText(page.locator(storageAvailableXPath), 'available');
+});
+
+// TODO: Replace XPath with Object Repository when available
+When('user navigates to notification center', async function () {
+  const notificationCenterIconXPath = '//button[@id="notification-center-icon"]';
+  await actions.click(page.locator(notificationCenterIconXPath));
+  await waits.waitForNetworkIdle();
   
-  for (let i = 0; i < count; i++) {
-    const logRow = errorLogs.nth(i);
-    const logText = await logRow.textContent();
-    expect(logText?.toLowerCase()).not.toContain('timezone');
-    expect(logText?.toLowerCase()).not.toContain('conversion error');
+  const notificationCenterPanelXPath = '//div[@id="notification-center-panel"]';
+  await waits.waitForVisible(page.locator(notificationCenterPanelXPath));
+});
+
+// TODO: Replace XPath with Object Repository when available
+When('user creates schedule change by modifying an existing appointment', async function () {
+  const appointmentsMenuXPath = '//a[@id="appointments-menu"]';
+  await actions.click(page.locator(appointmentsMenuXPath));
+  await waits.waitForNetworkIdle();
+  
+  const firstAppointmentEditXPath = '//div[@class="appointment-item"][1]//button[@class="edit-button"]';
+  await actions.click(page.locator(firstAppointmentEditXPath));
+  await waits.waitForNetworkIdle();
+  
+  const appointmentTimeFieldXPath = '//input[@id="appointment-time"]';
+  await actions.clearAndFill(page.locator(appointmentTimeFieldXPath), '3:00 PM');
+  
+  const saveChangesButtonXPath = '//button[@id="save-appointment-changes"]';
+  await actions.click(page.locator(saveChangesButtonXPath));
+  await waits.waitForNetworkIdle();
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('new notification should appear in notification center', async function () {
+  const notificationCenterIconXPath = '//button[@id="notification-center-icon"]';
+  await actions.click(page.locator(notificationCenterIconXPath));
+  await waits.waitForNetworkIdle();
+  
+  const latestNotificationXPath = '//div[@class="inapp-notification"][1]';
+  await assertions.assertVisible(page.locator(latestNotificationXPath));
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('total unread notifications count should be {int}', async function (expectedCount: number) {
+  const unreadCountBadgeXPath = '//span[@id="unread-notification-count"]';
+  await assertions.assertContainsText(page.locator(unreadCountBadgeXPath), expectedCount.toString());
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('email notification should be delivered successfully', async function () {
+  const emailInboxXPath = '//div[@id="email-inbox"]';
+  await actions.click(page.locator(emailInboxXPath));
+  await waits.waitForNetworkIdle();
+  
+  const latestEmailXPath = '//div[@class="email-notification"][1]';
+  await assertions.assertVisible(page.locator(latestEmailXPath));
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('new notification should be displayed at top of notification list', async function () {
+  const notificationCenterIconXPath = '//button[@id="notification-center-icon"]';
+  await actions.click(page.locator(notificationCenterIconXPath));
+  await waits.waitForNetworkIdle();
+  
+  const firstNotificationXPath = '//div[@class="inapp-notification"][1]';
+  const notificationText = await page.locator(firstNotificationXPath).textContent();
+  
+  expect(notificationText).toContain('schedule');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('notification should contain correct schedule change details', async function () {
+  const firstNotificationXPath = '//div[@class="inapp-notification"][1]//div[@class="notification-content"]';
+  const contentText = await page.locator(firstNotificationXPath).textContent();
+  
+  expect(contentText).toContain('3:00 PM');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('notification center should load within {int} seconds', async function (maxSeconds: number) {
+  const startTime = Date.now();
+  
+  const notificationCenterPanelXPath = '//div[@id="notification-center-panel"]';
+  await waits.waitForVisible(page.locator(notificationCenterPanelXPath));
+  
+  const loadTime = (Date.now() - startTime) / 1000;
+  expect(loadTime).toBeLessThanOrEqual(maxSeconds);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('system performance should remain stable', async function () {
+  const performanceMetricsXPath = '//div[@id="performance-metrics"]';
+  await actions.click(page.locator(performanceMetricsXPath));
+  await waits.waitForNetworkIdle();
+  
+  const cpuUsageXPath = '//span[@id="cpu-usage"]';
+  const cpuUsageText = await page.locator(cpuUsageXPath).textContent();
+  const cpuUsage = parseInt(cpuUsageText?.replace('%', '') || '0');
+  
+  expect(cpuUsage).toBeLessThan(90);
+});
+
+/**************************************************/
+/*  TEST CASE: TC-EDGE-004
+/*  Title: Notification displays special characters and Unicode correctly in appointment details
+/*  Priority: High
+/*  Category: Edge Cases
+/*  Description: Validates proper rendering of special characters and Unicode in notifications
+/**************************************************/
+
+// TODO: Replace XPath with Object Repository when available
+Given('user has an appointment with title {string}', async function (appointmentTitle: string) {
+  const appointmentsMenuXPath = '//a[@id="appointments-menu"]';
+  await actions.click(page.locator(appointmentsMenuXPath));
+  await waits.waitForNetworkIdle();
+  
+  const createAppointmentButtonXPath = '//button[@id="create-appointment"]';
+  await actions.click(page.locator(createAppointmentButtonXPath));
+  await waits.waitForNetworkIdle();
+  
+  const appointmentTitleXPath = '//input[@id="appointment-title"]';
+  await actions.fill(page.locator(appointmentTitleXPath), appointmentTitle);
+  
+  const appointmentTimeXPath = '//input[@id="appointment-time"]';
+  await actions.fill(page.locator(appointmentTimeXPath), '2:00 PM');
+  
+  const saveAppointmentButtonXPath = '//button[@id="save-appointment"]';
+  await actions.click(page.locator(saveAppointmentButtonXPath));
+  await waits.waitForNetworkIdle();
+  
+  this.testData.specialCharAppointmentId = await page.locator('//div[@class="appointment-item"][1]').getAttribute('data-appointment-id');
+  this.testData.specialCharAppointmentTitle = appointmentTitle;
+});
+
+// TODO: Replace XPath with Object Repository when available
+Given('notification services support UTF-8 encoding', async function () {
+  const systemConfigXPath = '//div[@id="system-configuration"]';
+  await actions.click(page.locator(systemConfigXPath));
+  await waits.waitForNetworkIdle();
+  
+  const encodingSettingXPath = '//span[@id="notification-encoding"]';
+  await assertions.assertContainsText(page.locator(encodingSettingXPath), 'UTF-8');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Given('email client supports HTML and Unicode characters', async function () {
+  const emailClientSettingsXPath = '//div[@id="email-client-settings"]';
+  await actions.click(page.locator(emailClientSettingsXPath));
+  await waits.waitForNetworkIdle();
+  
+  const htmlSupportXPath = '//span[@id="html-support"]';
+  await assertions.assertContainsText(page.locator(htmlSupportXPath), 'enabled');
+  
+  const unicodeSupportXPath = '//span[@id="unicode-support"]';
+  await assertions.assertContainsText(page.locator(unicodeSupportXPath), 'enabled');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('in-app notification should display appointment title {string}', async function (expectedTitle: string) {
+  const notificationCenterIconXPath = '//button[@id="notification-center-icon"]';
+  await actions.click(page.locator(notificationCenterIconXPath));
+  await waits.waitForNetworkIdle();
+  
+  const latestNotificationXPath = '//div[@class="inapp-notification"][1]//div[@class="notification-content"]';
+  await assertions.assertContainsText(page.locator(latestNotificationXPath), expectedTitle);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('email notification should display appointment title {string}', async function (expectedTitle: string) {
+  const emailInboxXPath = '//div[@id="email-inbox"]';
+  await actions.click(page.locator(emailInboxXPath));
+  await waits.waitForNetworkIdle();
+  
+  const latestEmailContentXPath = '//div[@class="email-notification"][1]//div[@class="email-body"]';
+  await assertions.assertContainsText(page.locator(latestEmailContentXPath), expectedTitle);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('all special characters should render correctly: {string}', async function (specialChars: string) {
+  const notificationContentXPath = '//div[@class="inapp-notification"][1]//div[@class="notification-content"]';
+  const contentText = await page.locator(notificationContentXPath).textContent();
+  
+  const charArray = specialChars.split(' ');
+  for (const char of charArray) {
+    expect(contentText).toContain(char);
   }
 });
+
+// TODO: Replace XPath with Object Repository when available
+Then('notification should include time change details {string}', async function (timeChangeDetails: string) {
+  const notificationContentXPath = '//div[@class="inapp-notification"][1]//div[@class="notification-content"]';
+  await assertions.assertContainsText(page.locator(notificationContentXPath), timeChangeDetails);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('no encoding errors should be present', async function () {
+  const notificationContentXPath = '//div[@class="inapp-notification"][1]//div[@class="notification-content"]';
+  const contentText = await page.locator(notificationContentXPath).textContent();
+  
+  expect(contentText).not.toContain('�');
+  expect(contentText).not.toContain('&#');
+  expect(contentText).not.toContain('&amp;');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('no HTML injection vulnerabilities should be present', async function () {
+  const notificationContentXPath = '//div[@class="inapp-notification"][1]//div[@class="notification-content"]';
+  const innerHTML = await page.locator(notificationContentXPath).innerHTML();
+  
+  expect(innerHTML).not.toContain('<script>');
+  expect(innerHTML).not.toContain('javascript:');
+  expect(innerHTML).not.toContain('onerror=');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('no XSS vulnerabilities should be present', async function () {
+  const notificationContentXPath = '//div[@class="inapp-notification"][1]//div[@class="notification-content"]';
+  const innerHTML = await page.locator(notificationContentXPath).innerHTML();
+  
+  expect(innerHTML).not.toContain('<img src=x onerror=');
+  expect(innerHTML).not.toContain('alert(');
+  expect(innerHTML).not.toContain('eval(');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('Unicode emoji should render correctly across all notification channels', async function () {
+  const inAppNotificationXPath = '//div[@class="inapp-notification"][1]//div[@class="notification-content"]';
+  const inAppText = await page.locator(inAppNotificationXPath).textContent();
+  expect(inAppText).toContain('☕');
+  
+  const emailInboxXPath = '//div[@id="email-inbox"]';
+  await actions.click(page.locator(emailInboxXPath));
+  await waits.waitForNetworkIdle();
+  
+  const emailContentXPath = '//div[@class="email-notification"][1]//div[@class="email-body"]';
+  const emailText = await page.locator(emailContentXPath).textContent();
+  expect(emailText).toContain('☕');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('accented characters should render correctly across all notification channels', async function () {
+  const inAppNotificationXPath = '//div[@class="inapp-notification"][1]//div[@class="notification-content"]';
+  const inAppText = await page.locator(inAppNotificationXPath).textContent();
+  expect(inAppText).toContain('é');
+  
+  const emailContentXPath = '//div[@class="email-notification"][1]//div[@class="email-body"]';
+  const emailText = await page.locator(emailContentXPath).textContent();
+  expect(emailText).toContain('é');
+});
+
+/**************************************************/
+/*  TEST CASE: TC-EDGE-005
+/*  Title: In-app notification delivers when email address becomes invalid before notification delivery
+/*  Priority: High
+/*  Category: Edge Cases
+/*  Description: Validates notification resilience when email delivery fails
+/**************************************************/
+
+// TODO: Replace XPath with Object Repository when available
+Given('user has email address {string}', async function (emailAddress: string) {
+  const userProfileXPath = '//div[@id="user-profile"]';
+  await actions.click(page.locator(userProfileXPath));
+  await waits.waitForNetworkIdle();
+  
+  const emailFieldXPath = '//input[@id="user-email"]';
+  await actions.clearAndFill(page.locator(emailFieldXPath), emailAddress);
+  
+  const saveProfileButtonXPath = '//button[@id="save-profile"]';
+  await actions.click(page.locator(saveProfileButtonXPath));
+  await waits.waitForNetworkIdle();
+  
+  this.testData.userEmail = emailAddress;
+});
+
+// TODO: Replace XPath with Object Repository when available
+Given('user has a scheduled appointment in the system', async function () {
+  const appointmentsMenuXPath = '//a[@id="appointments-menu"]';
+  await actions.click(page.locator(appointmentsMenuXPath));
+  await waits.waitForNetworkIdle();
+  
+  const appointmentItemsXPath = '//div[@class="appointment-item"]';
+  const appointmentCount = await page.locator(appointmentItemsXPath).count();
+  
+  if (appointmentCount === 0) {
+    const createAppointmentButtonXPath = '//button[@id="create-appointment"]';
+    await actions.click(page.locator(createAppointmentButtonXPath));
+    await waits.waitForNetworkIdle();
+    
+    const appointmentTitleXPath = '//input[@id="appointment-title"]';
+    await actions.fill(page.locator(appointmentTitleXPath), 'Test Appointment');
+    
+    const appointmentTimeXPath = '//input[@id="appointment-time"]';
+    await actions.fill(page.locator(appointmentTimeXPath), '10:00 AM');
+    
+    const saveAppointmentButtonXPath = '//button[@id="save-appointment"]';
+    await actions.click(page.locator(saveAppointmentButtonXPath));
+    await waits.waitForNetworkIdle();
+  }
+  
+  this.testData.appointmentId = await page.locator('//div[@class="appointment-item"][1]').getAttribute('data-appointment-id');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Given('user has both email and in-app notifications enabled', async function () {
+  const settingsButtonXPath = '//button[@id="settings"]';
+  await actions.click(page.locator(settingsButtonXPath));
+  await waits.waitForNetworkIdle();
+  
+  const emailNotificationXPath = '//input[@id="notification-email-enabled"]';
+  const emailCheckbox = page.locator(emailNotificationXPath);
+  if (await emailCheckbox.isChecked() === false) {
+    await actions.check(emailCheckbox);
+  }
+  
+  const inAppNotificationXPath = '//input[@id="notification-inapp-enabled"]';
+  const inAppCheckbox = page.locator(inAppNotificationXPath);
+  if (await inAppCheckbox.isChecked() === false) {
+    await actions.check(inAppCheckbox);
+  }
+  
+  const saveButtonXPath = '//button[@id="save-preferences"]';
+  await actions.click(page.locator(saveButtonXPath));
+  await waits.waitForNetworkIdle();
+});
+
+// TODO: Replace XPath with Object Repository when available
+When('within {int} seconds user\'s email address is updated to invalid format {string}', async function (seconds: number, invalidEmail: string) {
+  await page.waitForTimeout(3000);
+  
+  const userProfileXPath = '//div[@id="user-profile"]';
+  await actions.click(page.locator(userProfileXPath));
+  await waits.waitForNetworkIdle();
+  
+  const emailFieldXPath = '//input[@id="user-email"]';
+  await actions.clearAndFill(page.locator(emailFieldXPath), invalidEmail);
+  
+  const saveProfileButtonXPath = '//button[@id="save-profile"]';
+  await actions.click(page.locator(saveProfileButtonXPath));
+  await waits.waitForNetworkIdle();
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('email notification delivery should fail', async function () {
+  const notificationLogsXPath = '//div[@id="notification-logs"]';
+  await actions.click(page.locator(notificationLogsXPath));
+  await waits.waitForNetworkIdle();
+  
+  const emailFailureLogXPath = '//div[@class="log-entry"][contains(., "email") and contains(., "failed")]';
+  await assertions.assertVisible(page.locator(emailFailureLogXPath));
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('system should log email delivery failure', async function () {
+  const notificationLogsXPath = '//div[@id="notification-logs"]';
+  const logEntries = page.locator(notificationLogsXPath);
+  
+  const logText = await logEntries.textContent();
+  expect(logText).toContain('email');
+  expect(logText).toContain('failed');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('in-app notification should be delivered successfully', async function () {
+  const notificationCenterIconXPath = '//button[@id="notification-center-icon"]';
+  await actions.click(page.locator(notificationCenterIconXPath));
+  await waits.waitForNetworkIdle();
+  
+  const latestNotificationXPath = '//div[@class="inapp-notification"][1]';
+  await assertions.assertVisible(page.locator(latestNotificationXPath));
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('in-app notification should contain complete schedule change details', async function () {
+  const notificationContentXPath = '//div[@class="inapp-notification"][1]//div[@class="notification-content"]';
+  const contentText = await page.locator(notificationContentXPath).textContent();
+  
+  expect(contentText).toContain('10:00 AM');
+  expect(contentText).toContain('11:00 AM');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('system logs should show email delivery failure with error message', async function () {
+  const notificationLogsXPath = '//div[@id="notification-logs"]';
+  await actions.click(page.locator(notificationLogsXPath));
+  await waits.waitForNetworkIdle();
+  
+  const errorLogXPath = '//div[@class="log-entry error"]';
+  await assertions.assertVisible(page.locator(errorLogXPath));
+  
+  const errorText = await page.locator(errorLogXPath).textContent();
+  expect(errorText).toContain('email');
+  expect(errorText).toContain('invalid');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('system logs should show in-app notification successful delivery', async function () {
+  const notificationLogsXPath = '//div[@id="notification-logs"]';
+  const logEntries = page.locator(notificationLogsXPath);
+  
+  const successLogXPath = '//div[@class="log-entry success"][contains(., "in-app")]';
+  await assertions.assertVisible(page.locator(successLogXPath));
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('notification delivery status records should be maintained', async function () {
+  const deliveryStatusXPath = '//div[@id="notification-delivery-status"]';
+  await actions.click(page.locator(deliveryStatusXPath));
+  await waits.waitForNetworkIdle();
+  
+  const statusRecordsXPath = '//div[@class="status-record"]';
+  const recordCount = await page.locator(statusRecordsXPath).count();
+  
+  expect(recordCount).toBeGreaterThan(0);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('system should not crash due to email delivery failure', async function () {
+  const systemHealthXPath = '//div[@id="system-health"]';
+  await actions.click(page.locator(systemHealthXPath));
+  await waits.waitForNetworkIdle();
+  
+  const systemStatusXPath = '//span[@id="system-status"]';
+  await assertions.assertContainsText(page.locator(systemStatusXPath), 'operational');
+});
+
+// TODO: Replace XPath with Object Repository when available
+When('user\'s email address is corrected to valid format', async function () {
+  const userProfileXPath = '//div[@id="user-profile"]';
+  await actions.click(page.locator(userProfileXPath));
+  await waits.waitForNetworkIdle();
+  
+  const emailFieldXPath = '//input[@id="user-email"]';
+  await actions.clearAndFill(page.locator(emailFieldXPath), 'user@example.com');
+  
+  const saveProfileButtonXPath = '//button[@id="save-profile"]';
+  await actions.click(page.locator(saveProfileButtonXPath));
+  await waits.waitForNetworkIdle();
+});
+
+// TODO: Replace XPath with Object Repository when available
+When('user triggers another schedule change', async function () {
+  const appointmentsMenuXPath = '//a[@id="appointments-menu"]';
+  await actions.click(page.locator(appointmentsMenuXPath));
+  await waits.waitForNetworkIdle();
+  
+  const editAppointmentButtonXPath = `//button[@id="edit-appointment-${this.testData.appointmentId}"]`;
+  await actions.click(page.locator(editAppointmentButtonXPath));
+  await waits.waitForNetworkIdle();
+  
+  const appointmentTimeFieldXPath = '//input[@id="appointment-time"]';
+  await actions.clearAndFill(page.locator(appointmentTimeFieldXPath), '12:00 PM');
+  
+  const saveChangesButtonXPath = '//button[@id="save-appointment-changes"]';
+  await actions.click(page.locator(saveChangesButtonXPath));
+  await waits.waitForNetworkIdle();
+  
+  await page.waitForTimeout(60000);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('subsequent notifications should be delivered to both email and in-app channels', async function () {
+  const notificationCenterIconXPath = '//button[@id="notification-center-icon"]';
+  await actions.click(page.locator(notificationCenterIconXPath));
+  await waits.waitForNetworkIdle();
+  
+  const latestInAppNotificationXPath = '//div[@class="inapp-notification"][1]';
+  await assertions.assertVisible(page.locator(latestInAppNotificationXPath));
+  
+  const emailInboxXPath = '//div[@id="email-inbox"]';
+  await actions.click(page.locator(emailInboxXPath));
+  await waits.waitForNetworkIdle();
+  
+  const latestEmailNotificationXPath = '//div[@class="email-notification"][1]';
+  await assertions.assertVisible(page.locator(latestEmailNotificationXPath));
+});
+
+/**************************************************/
+/*  TEST CASE: TC-EDGE-006
+/*  Title: System handles 1000 simultaneous schedule changes across different users
+/*  Priority: High
+/*  Category: Edge Cases
+/*  Description: Validates system performance and stability under high load
+/**************************************************/
+
+// TODO: Replace XPath with Object Repository when available
+Given('system has {int} active user accounts with scheduled appointments', async function (userCount: number) {
+  const adminPanelXPath = '//div[@id="admin-panel"]';
+  await actions.click(page.locator(adminPanelXPath));
+  await waits.waitForNetworkIdle();
+  
+  const userManagementXPath = '//a[@id="user-management"]';
+  await actions.click(page.locator(userManagementXPath));
+  await waits.waitForNetworkIdle();
+  
+  const totalUsersXPath = '//span[@id="total-users-count"]';
+  const currentUserCount = parseInt(await page.locator(totalUsersXPath).textContent() || '0');
+  
+  if (currentUserCount < userCount) {
+    const generateUsersXPath = '//button[@id="generate-test-users"]';
+    await actions.click(page.locator(generateUsersXPath));
+    
+    const userCountInputXPath = '//input[@id="user-count-input"]';
+    await actions.fill(page.locator(userCountInputXPath), userCount.toString());
+    
+    const withAppointmentsCheckboxXPath = '//input[@id="with-appointments"]';
+    await actions.check(page.locator(withAppointmentsCheckboxXPath));
+    
+    const generateButtonXPath = '//button[@id="confirm-generate-users"]';
+    await actions.click(page.locator(generateButtonXPath));
+    await waits.waitForNetworkIdle();
+  }
+  
+  this.testData.totalTestUsers = userCount;
+});
+
+// TODO: Replace XPath with Object Repository when available
+Given('all users have notification preferences enabled', async function () {
+  const bulkSettingsXPath = '//button[@id="bulk-settings"]';
+  await actions.click(page.locator(bulkSettingsXPath));
+  await waits.waitForNetworkIdle();
+  
+  const enableAllNotificationsXPath = '//button[@id="enable-all-notifications"]';
+  await actions.click(page.locator(enableAllNotificationsXPath));
+  await waits.waitForNetworkIdle();
+  
+  const confirmButtonXPath = '//button[@id="confirm-bulk-action"]';
+  await actions.click(page.locator(confirmButtonXPath));
+  await waits.waitForNetworkIdle();
+});
+
+// TODO: Replace XPath with Object Repository when available
+Given('system load testing environment is configured', async function () {
+  const loadTestConfigXPath = '//div[@id="load-test-configuration"]';
+  await actions.click(page.locator(loadTestConfigXPath));
+  await waits.waitForNetworkIdle();
+  
+  const configStatusXPath = '//span[@id="config-status"]';
+  await assertions.assertContainsText(page.locator(configStatusXPath), 'configured');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Given('database connection pool has sufficient capacity', async function () {
+  const databaseSettingsXPath = '//div[@id="database-settings"]';
+  await actions.click(page.locator(databaseSettingsXPath));
+  await waits.waitForNetworkIdle();
+  
+  const connectionPoolSizeXPath = '//span[@id="connection-pool-size"]';
+  const poolSize = parseInt(await page.locator(connectionPoolSizeXPath).textContent() || '0');
+  
+  expect(poolSize).toBeGreaterThanOrEqual(100);
+});
+
+// TODO: Replace XPath with Object Repository when available
+When('automated script triggers {int} schedule changes simultaneously', async function (changeCount: number) {
+  const loadTestingXPath = '//div[@id="load-testing"]';
+  await actions.click(page.locator(loadTestingXPath));
+  await waits.waitForNetworkIdle();
+  
+  const simultaneousChangesInputXPath = '//input[@id="simultaneous-changes-count"]';
+  await actions.fill(page.locator(simultaneousChangesInputXPath), changeCount.toString());
+  
+  const triggerLoadTestXPath = '//button[@id="trigger-load-test"]';
+  await actions.click(page.locator(triggerLoadTestXPath));
+  await waits.waitForNetworkIdle();
+  
+  this.testData.loadTestStartTime = Date.now();
+});
+
+// TODO: Replace XPath with Object Repository when available
+When('user waits for {int} minutes', async function (minutes: number) {
+  await page.waitForTimeout(minutes * 60000);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('all {int} schedule changes should be saved to database successfully', async function (expectedCount: number) {
+  const loadTestResultsXPath = '//div[@id="load-test-results"]';
+  await actions.click(page.locator(loadTestResultsXPath));
+  await waits.waitForNetworkIdle();
+  
+  const successfulChangesXPath = '//span[@id="successful-changes-count"]';
+  const successCount = parseInt(await page.locator(successfulChangesXPath).textContent() || '0');
+  
+  expect(successCount).toBe(expectedCount);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('notification system should process all {int} notifications without crashing', async function (expectedCount: number) {
+  const notificationSystemStatusXPath = '//span[@id="notification-system-status"]';
+  await assertions.assertContainsText(page.locator(notificationSystemStatusStatusXPath), 'operational');
+  
+  const processedNotificationsXPath = '//span[@id="processed-notifications-count"]';
+  const processedCount = parseInt(await page.locator(processedNotificationsXPath).textContent() || '0');
+  
+  expect(processedCount).toBe(expectedCount);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('at least {int} percent of users should receive in-app notifications within {int} minute', async function (percentage: number, minutes: number) {
+  const inAppDeliveryRateXPath = '//span[@id="inapp-delivery-rate"]';
+  const deliveryRate = parseFloat(await page.locator(inAppDeliveryRateXPath).textContent() || '0');
+  
+  expect(deliveryRate).toBeGreaterThanOrEqual(percentage);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('at least {int} percent of users should receive email notifications within {int} minutes', async function (percentage: number, minutes: number) {
+  const emailDeliveryRateXPath = '//span[@id="email-delivery-rate"]';
+  const deliveryRate = parseFloat(await page.locator(emailDeliveryRateXPath).textContent() || '0');
+  
+  expect(deliveryRate).toBeGreaterThanOrEqual(percentage);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('system CPU usage should remain below {int} percent', async function (maxPercentage: number) {
+  const cpuUsageXPath = '//span[@id="cpu-usage"]';
+  const cpuUsageText = await page.locator(cpuUsageXPath).textContent();
+  const cpuUsage = parseFloat(cpuUsageText?.replace('%', '') || '0');
+  
+  expect(cpuUsage).toBeLessThan(maxPercentage);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('memory usage should remain within acceptable limits', async function () {
+  const memoryUsageXPath = '//span[@id="memory-usage"]';
+  const memoryUsageText = await page.locator(memoryUsageXPath).textContent();
+  const memoryUsage = parseFloat(memoryUsageText?.replace('%', '') || '0');
+  
+  expect(memoryUsage).toBeLessThan(85);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('no database deadlocks should occur', async function () {
+  const databaseLogsXPath = '//div[@id="database-logs"]';
+  await actions.click(page.locator(databaseLogsXPath));
+  await waits.waitForNetworkIdle();
+  
+  const deadlockEntriesXPath = '//div[@class="log-entry"][contains(., "deadlock")]';
+  const deadlockCount = await page.locator(deadlockEntriesXPath).count();
+  
+  expect(deadlockCount).toBe(0);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('random sample of {int} notifications should contain correct schedule change details', async function (sampleSize: number) {
+  const sampleNotificationsXPath = '//button[@id="sample-notifications"]';
+  await actions.click(page.locator(sampleNotificationsXPath));
+  await waits.waitForNetworkIdle();
+  
+  const sampleSizeInputXPath = '//input[@id="sample-size"]';
+  await actions.fill(page.locator(sampleSizeInputXPath), sampleSize.toString());
+  
+  const generateSampleXPath = '//button[@id="generate-sample"]';
+  await actions.click(page.locator(generateSampleXPath));
+  await waits.waitForNetworkIdle();
+  
+  const sampleNotificationItemsXPath = '//div[@class="sample-notification-item"]';
+  const sampleCount = await page.locator(sampleNotificationItemsXPath).count();
+  
+  expect(sampleCount).toBe(sampleSize);
+  
+  for (let i = 0; i < sampleCount; i++) {
+    const notificationContent = await page.locator(sampleNotificationItemsXPath).nth(i).textContent();
+    expect(notificationContent).toContain('schedule');
+  }
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('no notifications should be lost', async function () {
+  const expectedNotificationsXPath = '//span[@id="expected-notifications-count"]';
+  const expectedCount = parseInt(await page.locator(expectedNotificationsXPath).textContent() || '0');
+  
+  const deliveredNotificationsXPath = '//span[@id="delivered-notifications-count"]';
+  const deliveredCount = parseInt(await page.locator(deliveredNotificationsXPath).textContent

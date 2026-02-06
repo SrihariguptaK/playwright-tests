@@ -1,171 +1,181 @@
 Feature: Schedule Change Notifications
   As a User
   I want to receive notifications for schedule changes
-  So that I stay informed about my commitments and can adjust my plans accordingly
+  So that I can stay informed about my commitments and adjust my plans accordingly
 
   Background:
-    Given user is logged into the system with valid credentials
+    Given user is registered and logged into the system with valid credentials
     And notification service is running and operational
+    And user has notification preferences enabled for schedule changes
 
   @functional @regression @priority-high @smoke
-  Scenario: User receives both email and in-app notifications when schedule is updated
-    Given user has at least one scheduled appointment in the system
-    And user's email address is verified and configured in profile settings
-    And notification preferences are enabled for both email and in-app alerts
-    And user has an appointment scheduled for tomorrow at "2:00 PM"
-    When user navigates to "Schedule" page
-    And user selects the existing appointment
+  Scenario: User receives email and in-app notification when schedule is updated
+    Given user has an appointment scheduled for tomorrow at "2:00 PM"
+    And user's email address is verified and active in the system
+    When user navigates to "Schedule Management" page
+    And user selects the existing appointment scheduled for tomorrow
     And user clicks "Edit Appointment" button
     And user changes the appointment time from "2:00 PM" to "3:30 PM"
     And user clicks "Save Changes" button
-    Then success message "Appointment updated successfully" should be displayed
-    And user waits for "1" minute
-    And notification bell icon should display badge count "1"
+    Then success message "Schedule updated successfully" should be displayed
+    And appointment should show new time "3:30 PM"
+    And user waits for 60 seconds
+    And red notification badge should appear on bell icon with count 1
     When user clicks notification bell icon
-    Then notification panel should be visible
-    And notification message "Your appointment has been rescheduled from 2:00 PM to 3:30 PM" should be displayed
-    And notification should include timestamp
-    And email should be received within "1" minute
-    And email subject should be "Schedule Change Alert"
+    Then notification should display "Your appointment on [date] has been changed from 2:00 PM to 3:30 PM"
+    When user opens registered email inbox
+    Then email notification should be received with subject "Schedule Change Alert"
     And email should contain original time "2:00 PM"
     And email should contain new time "3:30 PM"
-    And email should contain appointment date
-    And email should contain appointment description
+    And email should contain appointment date and description
+    And notification record should be created in database with delivery status "sent"
 
   @functional @regression @priority-high
-  Scenario: Notification includes complete details of schedule change including date, time, and description
-    Given user has a scheduled appointment titled "Team Meeting" on "January 15, 2025" at "10:00 AM"
-    And notification service is configured and running
-    And user has notification permissions enabled
-    When user navigates to "Schedule Management" page
-    And user locates the "Team Meeting" appointment scheduled for "January 15, 2025" at "10:00 AM"
-    And user clicks "Edit" button next to the appointment
-    And user modifies the date to "January 16, 2025"
-    And user modifies the time to "11:30 AM"
-    And user clicks "Save" button
-    Then appointment updates successfully
-    And confirmation message should be displayed
-    When user clicks notification bell icon within "1" minute
-    Then notification panel should be visible
-    And notification should display red unread indicator
-    And notification content should contain "Schedule Change Alert: Team Meeting has been rescheduled"
-    And notification should contain original date "January 15, 2025"
-    And notification should contain original time "10:00 AM"
-    And notification should contain new date "January 16, 2025"
-    And notification should contain new time "11:30 AM"
-    And notification should contain description "Team Meeting"
-    When user opens the email notification in inbox
-    Then email should contain formatted section "Original Schedule"
-    And email should contain formatted section "New Schedule"
-    And email should contain formatted section "Appointment Title"
-    And email should contain formatted section "Change Timestamp"
-
-  @functional @regression @priority-high
-  Scenario: User can acknowledge receipt of notification and notification status updates accordingly
-    Given user has received at least one unread schedule change notification
-    And notification appears in notification panel with "unread" status
-    And notification bell icon shows unread count badge
+  Scenario: Notification includes all required schedule change details
+    Given user is authenticated and has an active session
+    And user has appointment scheduled for next Monday at "10:00 AM" with "Dr. Smith" in "Room 101"
+    And notification system is configured to include full change details
+    When administrator accesses the schedule management system
+    And administrator locates user's appointment for next Monday
+    And administrator changes appointment time to "11:30 AM"
+    And administrator changes provider to "Dr. Johnson"
+    And administrator changes location to "Room 205"
+    And administrator clicks "Update Schedule" button
+    Then confirmation dialog should display "Confirm schedule changes? User will be notified."
+    When administrator clicks "Confirm" button
+    Then system should display "Schedule updated and notification sent" message
+    And appointment should reflect all new values
     When user clicks notification bell icon
-    Then notification panel should be visible
-    And most recent notification should be displayed at the top
-    And notification should be marked as "unread" in bold text
-    When user clicks "Acknowledge" button next to the notification
-    Then "Acknowledge" button should change to "Acknowledged" with checkmark icon
-    And notification text should change from bold to regular weight
-    And notification badge count should decrease by "1"
-    When user closes the notification panel
-    And user clicks notification bell icon again
-    Then previously acknowledged notification should be visible
-    And notification should show "Acknowledged" status
-    And notification should display acknowledgment timestamp
+    Then notification should display title "Schedule Change Alert"
+    And notification should include original date and time "Next Monday 10:00 AM"
+    And notification should include new date and time "Next Monday 11:30 AM"
+    And notification should include original provider "Dr. Smith"
+    And notification should include new provider "Dr. Johnson"
+    And notification should include original location "Room 101"
+    And notification should include new location "Room 205"
+    When user checks email notification
+    Then email should contain identical information as in-app notification
+    And email should display "What Changed" section with all modified fields
+    And email should show before and after values for each changed field
+
+  @functional @regression @priority-high
+  Scenario: User can acknowledge receipt of schedule change notification
+    Given user has received unacknowledged schedule change notification
+    And notification appears in notification center with unread status
+    And user has permission to acknowledge notifications
+    When user clicks notification bell icon in top-right corner
+    Then notification dropdown panel should open
+    And unacknowledged notification should appear with blue highlight
+    And "Acknowledge" button should be visible
+    When user reads notification showing schedule change from "2:00 PM" to "4:00 PM"
+    Then full notification content should be displayed with timestamp
+    And change details should be visible
+    When user clicks "Acknowledge" button
+    Then button should change to "Acknowledged" with checkmark icon
+    And blue highlight should be removed
+    And notification should move to "Read" section
+    And success message "Notification acknowledged" should be displayed
+    When user closes notification panel and reopens it
+    Then acknowledged notification should appear in "Read Notifications" section
+    And notification should display with gray text
+    And notification should show "Acknowledged on [timestamp]" label
+    And notification badge count should decrease by 1
     When user navigates to "Notification History" page
-    Then notification should be displayed with status "Acknowledged"
+    Then notification should display with status "Acknowledged"
     And acknowledgment timestamp should be visible
-    And original notification details should be visible
+    And user who acknowledged should be displayed
 
   @functional @regression @priority-high @performance
-  Scenario: Notifications are sent within 1 minute when multiple schedule changes occur simultaneously
-    Given user has administrator privileges
-    And user has "5" scheduled appointments for the upcoming week
-    And all appointments are confirmed and active
-    And system time is synchronized and accurate
-    And notification service has sufficient capacity for bulk notifications
-    When user navigates to "Bulk Schedule Management" page
-    And user selects all "5" appointments using checkboxes
-    Then all "5" appointments should be highlighted
-    And "Bulk Actions" menu should be enabled
-    When user clicks "Bulk Actions" dropdown
-    And user selects "Reschedule All" option
-    And user sets new date to be "2" days later than current dates
-    Then bulk reschedule dialog should be visible
-    And dialog should show all "5" appointments with new proposed dates
-    When user records current system time
-    And user clicks "Confirm Bulk Reschedule" button
-    Then success message "5 appointments rescheduled successfully. Notifications are being sent." should be displayed
-    When user clicks notification bell icon within "1" minute
-    Then notification badge should show "5"
-    And notification panel should display "5" separate notifications
-    And all notifications should be timestamped within "1" minute of confirmation
-    When user checks email inbox within "1" minute
-    Then "5" separate email notifications should be received
-    And all emails should have send timestamps within "1" minute of confirmation
-    And each notification should contain accurate before and after schedule information
-    And each notification should show original date and time
-    And each notification should show new date "2" days later
+  Scenario: Notifications are sent within 1 minute of schedule change detection
+    Given user has active account with verified email address
+    And user has scheduled appointment in the system
+    And system clock is synchronized and accurate
+    And notification service performance monitoring is enabled
+    When user records current system time as "10:15:30 AM"
+    And user updates appointment from "9:00 AM" to "10:00 AM"
+    And user clicks "Save Changes" button
+    Then system should display "Schedule updated successfully" message
+    And change should be saved with timestamp "10:15:32 AM"
+    When user monitors notification bell icon for 60 seconds
+    Then notification badge should appear within 60 seconds
+    And notification timestamp should indicate generation within 1 minute
+    When user checks email inbox
+    Then email should be received with timestamp between "10:15:32 AM" and "10:16:32 AM"
+    When user accesses notification service logs
+    Then logs should show schedule change detected at "10:15:32 AM"
+    And logs should show notification generated at "10:15:35 AM"
+    And logs should show email queued at "10:15:36 AM"
+    And logs should show in-app notification delivered at "10:15:37 AM"
+    And all timestamps should be within 1 minute of schedule change
 
   @functional @regression @priority-medium
-  Scenario: User can view past notifications in notification history with complete details
-    Given user has received at least "10" schedule change notifications over the past "30" days
-    And some notifications are acknowledged
-    And some notifications are unread
-    And user has access to Notification History feature
-    When user clicks on user profile icon
+  Scenario: User can view past schedule change notifications in notification history
+    Given user has received 5 schedule change notifications over past 30 days
+    And notification history feature is enabled for user account
+    And user has permission to access notification history page
+    When user clicks user profile icon in top-right corner
     And user selects "Notification History" from dropdown menu
-    Then "Notification History" page should be visible
-    And notification list should display at least "10" notifications
-    And notifications should be sorted by date with most recent first
-    And list should show column "Date/Time"
-    And list should show column "Notification Type"
-    And list should show column "Status"
-    And list should show column "Details"
-    When user clicks on the oldest notification in the list
-    Then notification should expand showing complete information
-    And notification should display original schedule
-    And notification should display new schedule
-    And notification should display appointment title
-    And notification should display timestamp of change
-    And notification should display acknowledgment status
-    When user selects "Unread Only" from filter dropdown
-    Then list should refresh to show only unread notifications
-    And all acknowledged notifications should be hidden
-    When user clears the filter
-    And user selects date range for past "7" days using date range picker
-    Then list should display only notifications from past "7" days
-    And count indicator should show number of results
+    Then "Notification History" page should load
+    And page should display list with columns "Date, Time, Type, Details, Status, Actions"
+    And list should show all schedule change notifications sorted by most recent first
+    And page should display at least 5 notifications
+    And each notification should show notification date and time
+    And each notification should show type "Schedule Change"
+    And each notification should show brief description of change
+    And each notification should show status as "Acknowledged" or "Unacknowledged"
+    And each notification should show "View Details" link
+    When user clicks "View Details" link on most recent notification
+    Then modal should open showing complete notification details
+    And modal should display original schedule
+    And modal should display new schedule
+    And modal should display all changed fields
+    And modal should display timestamp of change
+    And modal should display who made the change
+    And modal should display acknowledgment status
+    When user applies date filter for "Last 7 Days"
+    And user clicks "Apply Filter" button
+    Then list should refresh to show only notifications from past 7 days
+    And older notifications should be hidden
+    And filter indicator should show "Last 7 Days" is active
+    When user clicks "Export" button
+    Then CSV file should download with filename "notification_history_[date].csv"
+    And file should contain all filtered notifications with complete details
 
-  @functional @regression @priority-high @negative
-  Scenario: Notification is sent when schedule is cancelled
-    Given user has a confirmed appointment scheduled for "Client Presentation" on "January 20, 2025" at "3:00 PM"
-    And notification preferences are enabled
-    And user has permission to cancel appointments
-    When user navigates to "Schedule" page
-    And user locates the "Client Presentation" appointment on "January 20, 2025" at "3:00 PM"
-    Then appointment should be displayed with status "Confirmed"
-    And all appointment details should be visible
-    When user clicks "Cancel Appointment" button
-    Then confirmation dialog should be visible
-    And dialog should display message "Are you sure you want to cancel this appointment? This action cannot be undone."
-    When user clicks "Yes, Cancel Appointment" button in confirmation dialog
-    Then dialog should close
-    And success message "Appointment cancelled successfully. Notification sent." should be displayed
-    And appointment should be removed from schedule or marked as "Cancelled"
-    When user clicks notification bell icon within "1" minute
-    Then notification panel should be visible
-    And notification message "Schedule Change Alert: Client Presentation scheduled for January 20, 2025 at 3:00 PM has been cancelled." should be displayed
-    When user checks email inbox
-    Then email should be received with subject "Appointment Cancelled"
-    And email should contain appointment title "Client Presentation"
-    And email should contain original date "January 20, 2025"
-    And email should contain original time "3:00 PM"
-    And email should contain cancellation timestamp
-    And email should contain cancellation reason field
+  @functional @regression @priority-high @validation
+  Scenario: Notification is sent only for confirmed schedule changes not draft changes
+    Given user is logged in as administrator with schedule modification rights
+    And user has confirmed appointment scheduled for next Wednesday at "1:00 PM"
+    And system supports draft mode for schedule changes
+    And notification service is configured to send only for confirmed changes
+    When user navigates to "Schedule Management" page
+    And user selects appointment scheduled for next Wednesday
+    Then appointment details page should display status "Confirmed"
+    And appointment should show time "1:00 PM"
+    When user clicks "Edit Appointment" button
+    And user changes time to "2:00 PM"
+    And user clicks "Save as Draft" button
+    Then system should display message "Changes saved as draft"
+    And appointment should show status "Draft Changes Pending"
+    And original time "1:00 PM" should still display with draft indicator
+    When user waits for 2 minutes
+    And user checks in-app notifications
+    And user checks email inbox
+    Then no notification should be sent to user
+    And notification bell icon should show no new notifications
+    And email inbox should have no schedule change notification
+    When user returns to draft appointment
+    And user clicks "Review Draft Changes" button
+    And user clicks "Confirm Changes" button
+    Then confirmation dialog should display "Confirm schedule change? User will be notified."
+    When user clicks "Confirm" button in dialog
+    Then system should display "Schedule updated and notification sent"
+    And appointment status should change to "Confirmed"
+    And time should show "2:00 PM"
+    When user waits for 1 minute
+    And user checks in-app notifications
+    And user checks email inbox
+    Then user should receive in-app notification about schedule change
+    And user should receive email notification about schedule change
+    And notification should include change from "1:00 PM" to "2:00 PM"
+    And notification should include confirmed change details
+    And notification log should show single notification sent only after confirmation

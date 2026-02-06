@@ -4,155 +4,157 @@ Feature: Schedule Change Notifications
   So that I can stay informed about my commitments and adjust my plans accordingly
 
   Background:
-    Given user account is active and authenticated
-    And notification service is operational
+    Given user account is active with valid email address
+    And user has at least one scheduled appointment in the system
+    And user is logged into the application
 
-  @undefined @usability @priority-critical @smoke
+  @usability @priority-critical @smoke @functional
   Scenario: Real-time notification delivery with complete schedule change details
-    Given user has at least one scheduled appointment in the system
-    And notification preferences are enabled for both email and in-app alerts
+    Given notification preferences are enabled for schedule changes
     And user has an appointment scheduled at "2:00 PM"
-    When user modifies the appointment time from "2:00 PM" to "3:30 PM"
-    Then system should immediately display a processing indicator
+    When user modifies the appointment time from "2:00 PM" to "3:00 PM"
+    Then system should display visual indicator showing change is being processed
     And in-app notification should appear within 1 minute
-    And in-app notification should display appointment name
-    And in-app notification should show old time "2:00 PM" and new time "3:30 PM"
-    And in-app notification should display timestamp of when notification was sent
-    And in-app notification should display visual indicator distinguishing it from other notification types
-    And email notification should be received within 1 minute
-    And email subject line should clearly indicate schedule change
-    And email body should contain old time "2:00 PM" and new time "3:30 PM"
-    And email should display timestamp of change
+    And notification badge counter should be visible
+    And notification timestamp should be displayed
+    And notification should show "Original: 2:00 PM → New: 3:00 PM"
+    When user clicks on the in-app notification
+    Then notification should expand showing full details
+    And appointment name should be displayed
+    And old schedule details should be displayed
+    And new schedule details should be displayed
+    And reason for change should be displayed if available
+    And delivery status indicators should be shown for email channel
+    And delivery status indicators should be shown for in-app channel
+    When user checks email inbox
+    Then email notification should be received within 1 minute
+    And email timestamp should match in-app notification timestamp
+    And email subject line should indicate schedule change
+    And email content should show before and after comparison
     When user navigates to notification history section
-    Then schedule change notification should be visible in history
-    And notification should display delivery status "Sent via Email"
-    And notification should display delivery status "Delivered In-App"
-    And notification should display timestamp
-    And system should show loading indicators during any processing delays
+    Then all notifications should be listed chronologically
+    And read or unread status should be displayed for each notification
+    And notification timestamps should be visible
+    And user should be able to filter by "schedule changes" type
 
-  @undefined @usability @priority-high @functional
-  Scenario: User control over notification preferences by channel
-    Given user is logged into the system
-    And both email and in-app notification channels are enabled
+  @usability @priority-high @functional
+  Scenario: User manages notification preferences with reversible actions
+    Given notification settings page is accessible from main navigation
+    And user has received at least 2 schedule change notifications
+    And default notification settings are enabled for email
+    And default notification settings are enabled for in-app alerts
     When user navigates to notification settings page
-    Then settings page should display option to enable or disable email notifications
-    And settings page should display option to enable or disable in-app notifications
-    And "Save" button should be visible
-    And "Cancel" button should be visible
-    When user disables email notifications
-    And user keeps in-app notifications enabled
+    Then settings page should display toggle for "email notifications"
+    And settings page should display toggle for "in-app alerts"
+    And current state should be clearly visible as "ON" or "OFF"
+    When user disables "email notifications" toggle
+    And user keeps "in-app alerts" toggle enabled
     And user clicks "Save" button
-    And user triggers a schedule change
+    Then "Settings saved successfully" message should be displayed
+    And undo option should be available for 10 seconds
+    And updated preference state should be shown immediately
+    When user triggers a new schedule change
     Then in-app notification should be received
-    And email notification should not be sent
-    And settings should be respected without requiring logout
-
-  @undefined @usability @priority-high @functional
-  Scenario: Undo dismissed notification within time window
-    Given user is logged into the system
-    And user has 3 unread notifications
-    When user dismisses a schedule change notification
-    Then "Undo" button should be visible for 10 seconds
-    When user clicks "Undo" button within the time window
-    Then notification should be restored to its previous state
-    And notification read status should be preserved
-    And "Notification restored" message should be displayed
-
-  @undefined @usability @priority-high @functional
-  Scenario: Toggle notification read and unread status
-    Given user is logged into the system
-    And user has at least one notification
-    When user marks a notification as read
-    And user attempts to mark it as unread again
-    Then context menu should allow toggling between read and unread states
+    But email notification should not be sent
+    When user views the in-app notification
+    Then "Dismiss" option should be available
+    And "Snooze" option should be available with "15 min" choice
+    And "Snooze" option should be available with "1 hour" choice
+    And "Snooze" option should be available with "custom" choice
+    And "Mark as Read" option should be available
+    When user navigates to notification history
+    And user selects a read notification
+    Then context menu should allow toggling read or unread status
     And visual indicator should update immediately
+    When user returns to notification settings
+    And user clicks "Restore defaults" button
+    Then confirmation dialog should display "Are you sure you want to restore default settings?"
+    When user confirms restore defaults action
+    Then all notification channels should reset to default state
 
-  @undefined @usability @priority-high @functional
-  Scenario: Access recently dismissed notifications
-    Given user is logged into the system
-    And user has dismissed notifications within 30 days
-    When user navigates to "Recently Deleted" section
-    Then dismissed notifications should be visible
-    And option to restore should be available for each notification
+  @usability @priority-high @functional
+  Scenario: Notification provides complete context without requiring navigation
+    Given user has multiple appointments scheduled across different dates
+    And user has an appointment with title, date, time, location, attendees and description
+    And appointment is scheduled 3 days in the future
+    When schedule change occurs for the appointment
+    Then notification should be generated
+    And notification should be delivered via email channel
+    And notification should be delivered via in-app channel
+    When user views the in-app notification without clicking through
+    Then appointment title should be displayed
+    And before and after date comparison should be shown
+    And before and after time comparison should be shown
+    And location should be displayed
+    And list of attendees should be displayed
+    And reason for change should be displayed
+    And "View Full Details" button should be available
+    And "Accept Change" button should be available
+    And "Decline" button should be available
+    And changed information should be highlighted in different color
+    And conflicts should be flagged if any exist
+    And initiator of change should be displayed
+    When user opens email notification
+    Then email should contain identical information as in-app notification
+    And email should display formatted before and after table
+    And email should include calendar attachment in ".ics" format
+    And email should provide direct link to appointment in system
+    When user navigates to notification history
+    And user selects a notification from 1 week ago
+    Then notification should retain all original details
+    And current status should be shown as "accepted" or "declined"
+    And link to current appointment state should be provided
+    And change history should be accessible
 
-  @undefined @usability @priority-high @recognition
-  Scenario: Complete context visibility for schedule time change notification
-    Given user has multiple appointments scheduled
-    And user receives a notification about schedule time change
-    When user views the notification in notification panel without clicking through
-    Then notification should display appointment title
-    And notification should display original date and time with strikethrough
-    And notification should display new date and time highlighted
-    And notification should display location if applicable
-    And notification should display organizer names
-    And notification should display participant names
-    And notification should display reason for change if provided
+  @usability @priority-high @functional @edge
+  Scenario: Recurring appointment change notification displays scope and impact
+    Given user has a recurring appointment scheduled
+    When schedule change occurs for the recurring appointment
+    Then notification should indicate "This is a recurring appointment"
+    And scope of change should be clearly stated as "this instance only" or "all future instances"
+    And visual calendar preview should show affected dates
+    And user should be able to understand impact without additional navigation
 
-  @undefined @usability @priority-high @recognition
-  Scenario: Clear cancelled appointment notification details
-    Given user has multiple appointments scheduled
-    When user receives a notification about cancelled appointment
-    Then notification should clearly show "CANCELLED" status
-    And notification should display original appointment date
-    And notification should display original appointment time
-    And notification should display original appointment title
+  @usability @priority-high @negative
+  Scenario: Notification preferences persist across user sessions
+    Given user has customized notification preferences
+    And user has disabled "email notifications"
+    When user logs out of the application
+    And user logs back into the application
+    And user navigates to notification settings page
+    Then "email notifications" toggle should remain disabled
+    And all customized preferences should be preserved
 
-  @undefined @usability @priority-high @recognition
-  Scenario: Historical notifications retain full context
-    Given user has notifications from 2 weeks ago
-    When user opens notification history
-    And user scans through past notifications
-    Then each historical notification should display old values
-    And each historical notification should display new values
-    And each historical notification should display appointment details
-    And notifications should be grouped by "Today"
-    And notifications should be grouped by "Yesterday"
-    And notifications should be grouped by "Last Week"
-
-  @undefined @usability @priority-high @recognition
-  Scenario: Expanded notification view with complete details and actions
-    Given user has at least one notification
-    When user clicks on a notification to view full details
-    Then expanded view should display complete appointment card
-    And expanded view should display full description
-    And expanded view should display participants
-    And expanded view should display location
-    And expanded view should display attachments
-    And "View Calendar" button should be visible
-    And "Acknowledge" button should be visible
-    And "Dismiss" button should be visible
-
-  @undefined @usability @priority-high @recognition
-  Scenario: Multiple changes to same appointment shown with timeline
-    Given user has an appointment that changed multiple times
-    When user receives notification for the appointment
-    Then notification should display change history timeline
-    And timeline should show progression "2:00 PM → 3:00 PM → 3:30 PM"
-    And notification should not create separate confusing notifications
-
-  @undefined @usability @priority-high @edge
-  Scenario Outline: Notification preferences respected for different channel combinations
-    Given user is logged into the system
-    And email notifications are "<email_status>"
-    And in-app notifications are "<inapp_status>"
-    When user triggers a schedule change
-    Then email notification should be "<email_received>"
-    And in-app notification should be "<inapp_received>"
+  @usability @priority-medium @functional
+  Scenario Outline: Notification delivery respects user channel preferences
+    Given user has configured notification preferences
+    And "<channel>" is set to "<status>"
+    When schedule change occurs for user appointment
+    Then notification delivery should match expected behavior for "<channel>" with "<status>"
 
     Examples:
-      | email_status | inapp_status | email_received | inapp_received |
-      | enabled      | enabled      | received       | received       |
-      | enabled      | disabled     | received       | not received   |
-      | disabled     | enabled      | not received   | received       |
-      | disabled     | disabled     | not received   | not received   |
+      | channel              | status   |
+      | email notifications  | enabled  |
+      | email notifications  | disabled |
+      | in-app alerts        | enabled  |
+      | in-app alerts        | disabled |
 
-  @undefined @usability @priority-medium @negative
-  Scenario: Notification delivery status visible when email fails
-    Given user has at least one scheduled appointment in the system
-    And notification preferences are enabled for both email and in-app alerts
-    And email service is temporarily unavailable
-    When user modifies an appointment time
-    Then in-app notification should be received within 1 minute
+  @usability @priority-medium @functional
+  Scenario: User performs quick actions directly from notification
+    Given user receives schedule change notification
+    And notification displays quick action buttons
+    When user clicks "Accept Change" button from notification
+    Then change should be accepted without navigating to appointment details
+    And confirmation message should be displayed
+    And notification status should update to "Change Accepted"
+
+  @usability @priority-medium @functional
+  Scenario: Notification history allows filtering and status management
+    Given user has received multiple notifications of different types
     When user navigates to notification history section
-    Then notification should display delivery status "Delivered In-App"
-    And notification should display delivery status "Email Failed"
+    And user applies filter for "schedule changes" type
+    Then only schedule change notifications should be displayed
+    When user selects multiple notifications
+    Then bulk actions should be available
+    And user should be able to mark selected notifications as read
+    And user should be able to delete selected notifications

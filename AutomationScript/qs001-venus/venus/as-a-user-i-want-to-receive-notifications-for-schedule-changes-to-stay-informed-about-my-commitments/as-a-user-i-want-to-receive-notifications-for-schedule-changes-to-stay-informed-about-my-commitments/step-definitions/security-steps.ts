@@ -34,14 +34,20 @@ Before(async function () {
   homePage = new HomePage(page, context);
   
   this.testData = {
-    users: {},
-    sessions: {},
-    notifications: {},
-    apiResponses: {},
-    securityLogs: [],
-    responseHeaders: {},
-    responseTimes: {},
-    interceptedRequests: {}
+    users: {
+      'User A': { username: 'userA', password: 'testpass123', email: 'usera@test.com' },
+      'User B': { username: 'userB', password: 'testpass456', email: 'userb@test.com' },
+      admin: { username: 'admin', password: 'admin123', email: 'admin@test.com' }
+    },
+    apiEndpoints: {
+      notifications: '/api/notifications/send',
+      notificationView: '/api/notifications/view'
+    },
+    capturedData: {
+      notificationIds: {},
+      apiRequests: [],
+      securityLogs: []
+    }
   };
 });
 
@@ -55,771 +61,790 @@ After(async function (scenario) {
   await browser.close();
 });
 
-// ==================== GIVEN STEPS ====================
-
-/**************************************************/
-/*  SHARED BACKGROUND STEPS
-/*  Category: Security
-/*  Description: Common setup for security tests
-/**************************************************/
-
-Given('the notification system is operational', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  const response = await page.request.get('/api/notifications/health');
-  expect(response.status()).toBe(200);
-  this.testData.systemStatus = 'operational';
-});
-
-Given('the schedule database is accessible', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  const response = await page.request.get('/api/schedules/health');
-  expect(response.status()).toBe(200);
-  this.testData.databaseStatus = 'accessible';
-});
-
 /**************************************************/
 /*  TEST CASE: TC-SEC-001
-/*  Title: Prevent unauthorized access to other users' notification history via IDOR
+/*  Title: Prevent unauthorized access to other users' notifications through IDOR vulnerability
 /*  Priority: Critical
-/*  Category: Security - Authorization - IDOR
+/*  Category: Security - IDOR
 /**************************************************/
 
-Given('user account {string} exists with valid session', async function (username: string) {
+// ==================== GIVEN STEPS ====================
+
+Given('user account {string} exists in the system', async function (userName: string) {
+  const userCredentials = this.testData?.users?.[userName] || { username: userName.toLowerCase().replace(/\s+/g, ''), password: 'testpass123' };
+  this.testData.users[userName] = userCredentials;
+  
   // TODO: Replace XPath with Object Repository when available
-  await actions.navigateTo('/login');
+  await actions.navigateTo(process.env.BASE_URL || 'http://localhost:3000');
   await waits.waitForNetworkIdle();
   
-  await actions.fill(page.locator('//input[@id="username"]'), username);
-  await actions.fill(page.locator('//input[@id="password"]'), 'SecurePass123!');
-  await actions.click(page.locator('//button[@id="login"]'));
+  await actions.fill(page.locator('//input[@id="username"]'), userCredentials.username);
+  await actions.fill(page.locator('//input[@id="password"]'), userCredentials.password);
+  await actions.click(page.locator('//button[@id="register"]'));
   await waits.waitForNetworkIdle();
-  
-  const sessionToken = await page.evaluate(() => localStorage.getItem('sessionToken'));
-  this.testData.users[username] = {
-    username: username,
-    sessionToken: sessionToken,
-    authenticated: true
-  };
 });
 
-Given('{string} has received notifications with known notification IDs', async function (username: string) {
-  const sessionToken = this.testData.users[username].sessionToken;
-  
-  const response = await page.request.get('/api/notifications', {
-    headers: {
-      'Authorization': `Bearer ${sessionToken}`
-    }
-  });
-  
-  const notifications = await response.json();
-  this.testData.notifications[username] = notifications.data || [];
-  this.testData.users[username].notificationIds = this.testData.notifications[username].map((n: any) => n.id);
-});
-
-Given('API endpoint {string} is accessible', async function (endpoint: string) {
-  const response = await page.request.get(endpoint);
-  expect(response.status()).toBeLessThan(500);
-  this.testData.apiEndpoints = this.testData.apiEndpoints || {};
-  this.testData.apiEndpoints[endpoint] = 'accessible';
-});
-
-When('{string} authenticates and obtains valid session token', async function (username: string) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.navigateTo('/login');
-  await waits.waitForNetworkIdle();
-  
-  await actions.fill(page.locator('//input[@id="username"]'), username);
-  await actions.fill(page.locator('//input[@id="password"]'), 'SecurePass123!');
-  await actions.click(page.locator('//button[@id="login"]'));
-  await waits.waitForNetworkIdle();
-  
-  const sessionToken = await page.evaluate(() => localStorage.getItem('sessionToken'));
-  this.testData.users[username] = this.testData.users[username] || {};
-  this.testData.users[username].sessionToken = sessionToken;
-  this.testData.users[username].authenticated = true;
-});
-
-When('{string} intercepts API request to {string} and identifies {string} notification ID', async function (attackerUser: string, endpoint: string, victimUser: string) {
-  const victimNotificationIds = this.testData.users[victimUser].notificationIds;
-  this.testData.interceptedRequests[attackerUser] = {
-    endpoint: endpoint,
-    targetNotificationId: victimNotificationIds[0],
-    victimUser: victimUser
-  };
-});
-
-When('{string} sends GET request to {string} using their session', async function (username: string, endpointTemplate: string) {
-  const sessionToken = this.testData.users[username].sessionToken;
-  const targetNotificationId = this.testData.interceptedRequests[username].targetNotificationId;
-  const endpoint = endpointTemplate.replace('{UserA_notification_id}', targetNotificationId);
-  
-  const response = await page.request.get(endpoint, {
-    headers: {
-      'Authorization': `Bearer ${sessionToken}`
-    }
-  });
-  
-  this.testData.apiResponses[username] = {
-    status: response.status(),
-    body: await response.text(),
-    headers: response.headers()
-  };
-});
-
-Then('system should return {string} status code', async function (expectedStatusCode: string) {
-  const lastResponse = Object.values(this.testData.apiResponses).pop() as any;
-  expect(lastResponse.status).toBe(parseInt(expectedStatusCode));
-});
-
-Then('error message {string} should be displayed', async function (expectedMessage: string) {
-  const lastResponse = Object.values(this.testData.apiResponses).pop() as any;
-  expect(lastResponse.body).toContain(expectedMessage);
-});
-
-Then('{string} should not see {string} notification content', async function (attackerUser: string, victimUser: string) {
-  const response = this.testData.apiResponses[attackerUser];
-  const victimNotifications = this.testData.notifications[victimUser];
-  
-  if (victimNotifications && victimNotifications.length > 0) {
-    const victimContent = victimNotifications[0].content || victimNotifications[0].message;
-    expect(response.body).not.toContain(victimContent);
+Given('both users have active schedules with recent changes', async function () {
+  for (const userName of ['User A', 'User B']) {
+    const userCredentials = this.testData?.users?.[userName];
+    
+    // TODO: Replace XPath with Object Repository when available
+    await actions.fill(page.locator('//input[@id="username"]'), userCredentials.username);
+    await actions.fill(page.locator('//input[@id="password"]'), userCredentials.password);
+    await actions.click(page.locator('//button[@id="login"]'));
+    await waits.waitForNetworkIdle();
+    
+    await actions.click(page.locator('//button[@id="create-schedule"]'));
+    await actions.fill(page.locator('//input[@id="schedule-title"]'), `${userName} Schedule`);
+    await actions.fill(page.locator('//textarea[@id="schedule-description"]'), `Active schedule for ${userName}`);
+    await actions.click(page.locator('//button[@id="save-schedule"]'));
+    await waits.waitForNetworkIdle();
+    
+    await actions.click(page.locator('//button[@id="logout"]'));
+    await waits.waitForNetworkIdle();
   }
 });
 
-When('{string} attempts to modify {string} parameter to {string} ID in request', async function (attackerUser: string, parameterName: string, victimUser: string) {
-  const sessionToken = this.testData.users[attackerUser].sessionToken;
-  const victimUserId = this.testData.users[victimUser].userId || 'user-victim-id';
+Given('both users are authenticated', async function () {
+  this.testData.authenticatedUsers = ['User A', 'User B'];
+});
+
+Given('notification IDs are observable in API requests', async function () {
+  await page.route('**/api/notifications/**', async (route) => {
+    const request = route.request();
+    this.testData.capturedData.apiRequests.push({
+      url: request.url(),
+      method: request.method(),
+      headers: request.headers(),
+      postData: request.postData()
+    });
+    await route.continue();
+  });
+});
+
+Given('notification API endpoint {string} is accessible', async function (endpoint: string) {
+  this.testData.apiEndpoint = endpoint;
+  const response = await page.request.get(`${process.env.BASE_URL}${endpoint}`, { failOnStatusCode: false });
+  this.testData.endpointAccessible = response.status() !== 404;
+});
+
+Given('valid user account exists with active schedule', async function () {
+  const userCredentials = this.testData?.users?.admin;
   
-  const response = await page.request.get(`/api/notifications?${parameterName}=${victimUserId}`, {
+  // TODO: Replace XPath with Object Repository when available
+  await actions.navigateTo(process.env.BASE_URL || 'http://localhost:3000');
+  await waits.waitForNetworkIdle();
+  
+  await actions.fill(page.locator('//input[@id="username"]'), userCredentials.username);
+  await actions.fill(page.locator('//input[@id="password"]'), userCredentials.password);
+  await actions.click(page.locator('//button[@id="login"]'));
+  await waits.waitForNetworkIdle();
+  
+  await actions.click(page.locator('//button[@id="create-schedule"]'));
+  await actions.fill(page.locator('//input[@id="schedule-title"]'), 'Active Schedule');
+  await actions.click(page.locator('//button[@id="save-schedule"]'));
+  await waits.waitForNetworkIdle();
+  
+  await actions.click(page.locator('//button[@id="logout"]'));
+  await waits.waitForNetworkIdle();
+});
+
+Given('authentication mechanism is implemented', async function () {
+  this.testData.authenticationEnabled = true;
+});
+
+Given('test environment allows API testing tools', async function () {
+  this.testData.apiTestingEnabled = true;
+});
+
+Given('user account with permission to create schedule entries exists', async function () {
+  const userCredentials = { username: 'scheduleuser', password: 'testpass123', email: 'scheduleuser@test.com' };
+  this.testData.users['scheduleuser'] = userCredentials;
+  
+  // TODO: Replace XPath with Object Repository when available
+  await actions.navigateTo(process.env.BASE_URL || 'http://localhost:3000');
+  await waits.waitForNetworkIdle();
+  
+  await actions.fill(page.locator('//input[@id="username"]'), userCredentials.username);
+  await actions.fill(page.locator('//input[@id="password"]'), userCredentials.password);
+  await actions.click(page.locator('//button[@id="register"]'));
+  await waits.waitForNetworkIdle();
+});
+
+Given('notification system is active and configured for email and in-app alerts', async function () {
+  this.testData.notificationSystemActive = true;
+  this.testData.notificationChannels = ['email', 'in-app'];
+});
+
+Given('test environment allows schedule modification', async function () {
+  this.testData.scheduleModificationEnabled = true;
+});
+
+Given('user has access to view rendered notifications in both formats', async function () {
+  this.testData.notificationViewAccess = ['email', 'in-app'];
+});
+
+Given('notification system is active and configured', async function () {
+  this.testData.notificationSystemActive = true;
+});
+
+/**************************************************/
+/*  TEST CASE: TC-SEC-002
+/*  Title: Enforce proper authentication on notification API endpoint
+/*  Priority: Critical
+/*  Category: Security - Authentication
+/**************************************************/
+
+/**************************************************/
+/*  TEST CASE: TC-SEC-003
+/*  Title: Protect notification system against XSS injection attacks
+/*  Priority: Critical
+/*  Category: Security - XSS
+/**************************************************/
+
+// ==================== WHEN STEPS ====================
+
+When('{string} logs in to the system', async function (userName: string) {
+  const userCredentials = this.testData?.users?.[userName];
+  
+  // TODO: Replace XPath with Object Repository when available
+  await actions.navigateTo(process.env.BASE_URL || 'http://localhost:3000');
+  await waits.waitForNetworkIdle();
+  
+  await actions.fill(page.locator('//input[@id="username"]'), userCredentials.username);
+  await actions.fill(page.locator('//input[@id="password"]'), userCredentials.password);
+  await actions.click(page.locator('//button[@id="login"]'));
+  await waits.waitForNetworkIdle();
+  
+  this.testData.currentUser = userName;
+});
+
+When('{string} triggers a schedule change to generate a notification', async function (userName: string) {
+  // TODO: Replace XPath with Object Repository when available
+  await actions.click(page.locator('//button[@id="my-schedules"]'));
+  await waits.waitForNetworkIdle();
+  
+  const scheduleLocator = page.locator(`//div[contains(text(),'${userName} Schedule')]`);
+  await actions.click(scheduleLocator);
+  await waits.waitForNetworkIdle();
+  
+  await actions.click(page.locator('//button[@id="edit-schedule"]'));
+  await actions.fill(page.locator('//input[@id="schedule-title"]'), `${userName} Schedule - Updated`);
+  await actions.click(page.locator('//button[@id="save-schedule"]'));
+  await waits.waitForNetworkIdle();
+});
+
+When('user captures the API request to {string} endpoint', async function (endpoint: string) {
+  const capturedRequests = this.testData.capturedData.apiRequests.filter((req: any) => req.url.includes(endpoint));
+  this.testData.capturedEndpointRequests = capturedRequests;
+});
+
+When('{string} attempts to access {string} notification by manipulating notification ID parameter', async function (currentUser: string, targetUser: string) {
+  const targetNotificationId = this.testData.capturedData.notificationIds[targetUser];
+  
+  const response = await page.request.get(`${process.env.BASE_URL}/api/notifications/${targetNotificationId}`, {
+    failOnStatusCode: false,
     headers: {
-      'Authorization': `Bearer ${sessionToken}`
+      'Authorization': `Bearer ${this.testData.authToken}`
     }
   });
   
-  this.testData.apiResponses[`${attackerUser}_parameter_manipulation`] = {
+  this.testData.unauthorizedAccessResponse = {
     status: response.status(),
-    body: await response.text(),
-    headers: response.headers()
+    body: await response.text()
   };
 });
 
-Then('system should validate session ownership', async function () {
-  const lastResponse = Object.values(this.testData.apiResponses).pop() as any;
-  expect(lastResponse.status).toBeGreaterThanOrEqual(400);
-  expect(lastResponse.status).toBeLessThan(500);
-});
-
-Then('system should reject request with {string} status code', async function (expectedStatusCode: string) {
-  const lastResponse = Object.values(this.testData.apiResponses).pop() as any;
-  expect(lastResponse.status).toBe(parseInt(expectedStatusCode));
-});
-
-When('{string} attempts sequential notification ID enumeration with increments', async function (attackerUser: string) {
-  const sessionToken = this.testData.users[attackerUser].sessionToken;
+When('user attempts sequential notification ID enumeration', async function () {
   const enumerationResults = [];
   
   for (let i = 1; i <= 10; i++) {
-    const response = await page.request.get(`/api/notifications/${i}`, {
+    const response = await page.request.get(`${process.env.BASE_URL}/api/notifications/${i}`, {
+      failOnStatusCode: false,
       headers: {
-        'Authorization': `Bearer ${sessionToken}`
+        'Authorization': `Bearer ${this.testData.authToken}`
       }
     });
     
     enumerationResults.push({
       notificationId: i,
-      status: response.status(),
-      body: await response.text()
+      status: response.status()
     });
   }
   
-  this.testData.enumerationResults = this.testData.enumerationResults || {};
-  this.testData.enumerationResults[attackerUser] = enumerationResults;
+  this.testData.enumerationResults = enumerationResults;
 });
 
-Then('system should consistently deny access to notifications not belonging to {string}', async function (username: string) {
-  const enumerationResults = this.testData.enumerationResults[username];
-  const userNotificationIds = this.testData.users[username].notificationIds || [];
-  
-  enumerationResults.forEach((result: any) => {
-    if (!userNotificationIds.includes(result.notificationId)) {
-      expect(result.status).toBeGreaterThanOrEqual(403);
-    }
-  });
-});
-
-Then('security logs should record all unauthorized access attempts', async function () {
-  const response = await page.request.get('/api/admin/security-logs', {
-    headers: {
-      'Authorization': `Bearer ${this.testData.adminToken || 'admin-token'}`
-    }
-  });
-  
-  const logs = await response.json();
-  this.testData.securityLogs = logs.data || [];
-  expect(this.testData.securityLogs.length).toBeGreaterThan(0);
-});
-
-Then('{string} should only access their own notifications', async function (username: string) {
-  const sessionToken = this.testData.users[username].sessionToken;
-  
-  const response = await page.request.get('/api/notifications', {
-    headers: {
-      'Authorization': `Bearer ${sessionToken}`
-    }
-  });
-  
-  const notifications = await response.json();
-  const userNotifications = notifications.data || [];
-  
-  userNotifications.forEach((notification: any) => {
-    expect(notification.userId).toBe(username);
-  });
-});
-
-/**************************************************/
-/*  TEST CASE: TC-SEC-002
-/*  Title: Prevent Cross-Site Scripting in notification content display
-/*  Priority: Critical
-/*  Category: Security - XSS - Injection
-/**************************************************/
-
-Given('user account with schedule modification privileges exists', async function () {
+When('user verifies notification content in email and in-app alerts', async function () {
   // TODO: Replace XPath with Object Repository when available
-  await actions.navigateTo('/login');
+  await actions.click(page.locator('//button[@id="notifications"]'));
   await waits.waitForNetworkIdle();
   
-  await actions.fill(page.locator('//input[@id="username"]'), 'schedule_admin');
-  await actions.fill(page.locator('//input[@id="password"]'), 'AdminPass123!');
-  await actions.click(page.locator('//button[@id="login"]'));
-  await waits.waitForNetworkIdle();
+  const notificationContent = await page.locator('//div[@id="notification-content"]').textContent();
+  this.testData.inAppNotificationContent = notificationContent;
   
-  const sessionToken = await page.evaluate(() => localStorage.getItem('sessionToken'));
-  this.testData.scheduleAdmin = {
-    username: 'schedule_admin',
-    sessionToken: sessionToken,
-    privileges: ['schedule_modify']
+  const emailNotificationLocator = page.locator('//div[@id="email-preview"]');
+  if (await emailNotificationLocator.count() > 0) {
+    this.testData.emailNotificationContent = await emailNotificationLocator.textContent();
+  }
+});
+
+When('user attempts to access {string} endpoint without authentication credentials', async function (endpoint: string) {
+  const response = await page.request.post(`${process.env.BASE_URL}${endpoint}`, {
+    failOnStatusCode: false,
+    data: {
+      userId: 'testuser',
+      message: 'Test notification'
+    }
+  });
+  
+  this.testData.unauthenticatedResponse = {
+    status: response.status(),
+    body: await response.text()
   };
 });
 
-Given('test user account to receive notifications exists', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.navigateTo('/login');
-  await waits.waitForNetworkIdle();
+When('user attempts to access the endpoint with expired authentication token', async function () {
+  const expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjJ9.expired';
   
-  await actions.fill(page.locator('//input[@id="username"]'), 'test_recipient');
-  await actions.fill(page.locator('//input[@id="password"]'), 'TestPass123!');
-  await actions.click(page.locator('//button[@id="login"]'));
-  await waits.waitForNetworkIdle();
+  const response = await page.request.post(`${process.env.BASE_URL}${this.testData.apiEndpoint}`, {
+    failOnStatusCode: false,
+    headers: {
+      'Authorization': `Bearer ${expiredToken}`
+    },
+    data: {
+      userId: 'testuser',
+      message: 'Test notification'
+    }
+  });
   
-  const sessionToken = await page.evaluate(() => localStorage.getItem('sessionToken'));
-  this.testData.testRecipient = {
-    username: 'test_recipient',
-    sessionToken: sessionToken
+  this.testData.expiredTokenResponse = {
+    status: response.status(),
+    body: await response.text()
   };
 });
 
-When('user creates schedule change with payload {string} in {string}', async function (xssPayload: string, fieldName: string) {
-  const sessionToken = this.testData.scheduleAdmin.sessionToken;
+When('user attempts to access the endpoint with malformed authentication token', async function () {
+  const malformedToken = 'malformed.token.value';
+  
+  const response = await page.request.post(`${process.env.BASE_URL}${this.testData.apiEndpoint}`, {
+    failOnStatusCode: false,
+    headers: {
+      'Authorization': `Bearer ${malformedToken}`
+    },
+    data: {
+      userId: 'testuser',
+      message: 'Test notification'
+    }
+  });
+  
+  this.testData.malformedTokenResponse = {
+    status: response.status(),
+    body: await response.text()
+  };
+});
+
+When('user attempts to replay valid authentication token from previous session after logout', async function () {
+  const previousToken = this.testData.authToken;
   
   // TODO: Replace XPath with Object Repository when available
-  await actions.navigateTo('/schedules/create');
+  await actions.click(page.locator('//button[@id="logout"]'));
   await waits.waitForNetworkIdle();
   
-  const fieldXPath = `//input[@id='${fieldName.toLowerCase().replace(/\s+/g, '-')}']`;
-  const textareaXPath = `//textarea[@id='${fieldName.toLowerCase().replace(/\s+/g, '-')}']`;
+  const response = await page.request.post(`${process.env.BASE_URL}${this.testData.apiEndpoint}`, {
+    failOnStatusCode: false,
+    headers: {
+      'Authorization': `Bearer ${previousToken}`
+    },
+    data: {
+      userId: 'testuser',
+      message: 'Test notification'
+    }
+  });
   
-  const inputFields = page.locator(fieldXPath);
-  const textareaFields = page.locator(textareaXPath);
+  this.testData.replayTokenResponse = {
+    status: response.status(),
+    body: await response.text()
+  };
+});
+
+When('user attempts authentication bypass by manipulating request headers', async function () {
+  const bypassAttempts = [];
   
-  if (await inputFields.count() > 0) {
-    await actions.fill(inputFields, xssPayload);
-  } else if (await textareaFields.count() > 0) {
-    await actions.fill(textareaFields, xssPayload);
+  const bypassHeaders = [
+    { 'X-Forwarded-For': '127.0.0.1' },
+    { 'X-Original-URL': '/admin' },
+    { 'X-Rewrite-URL': '/admin' },
+    { 'X-Custom-IP-Authorization': '127.0.0.1' },
+    { 'Authorization': 'Bearer null' }
+  ];
+  
+  for (const headers of bypassHeaders) {
+    const response = await page.request.post(`${process.env.BASE_URL}${this.testData.apiEndpoint}`, {
+      failOnStatusCode: false,
+      headers: headers,
+      data: {
+        userId: 'testuser',
+        message: 'Test notification'
+      }
+    });
+    
+    bypassAttempts.push({
+      headers: headers,
+      status: response.status()
+    });
   }
   
-  this.testData.xssPayload = xssPayload;
-  this.testData.xssFieldName = fieldName;
+  this.testData.bypassAttempts = bypassAttempts;
 });
 
-When('notification generation is triggered for the schedule change', async function () {
+When('user verifies notification viewing endpoints require authentication', async function () {
+  const response = await page.request.get(`${process.env.BASE_URL}/api/notifications/view`, {
+    failOnStatusCode: false
+  });
+  
+  this.testData.notificationViewAuthCheck = {
+    status: response.status()
+  };
+});
+
+When('user creates schedule entry with {string} in {string} field', async function (payload: string, fieldName: string) {
+  // TODO: Replace XPath with Object Repository when available
+  const userCredentials = this.testData?.users?.scheduleuser;
+  
+  await actions.navigateTo(process.env.BASE_URL || 'http://localhost:3000');
+  await waits.waitForNetworkIdle();
+  
+  await actions.fill(page.locator('//input[@id="username"]'), userCredentials.username);
+  await actions.fill(page.locator('//input[@id="password"]'), userCredentials.password);
+  await actions.click(page.locator('//button[@id="login"]'));
+  await waits.waitForNetworkIdle();
+  
+  await actions.click(page.locator('//button[@id="create-schedule"]'));
+  await waits.waitForNetworkIdle();
+  
+  const fieldXPath = `//input[@id='schedule-${fieldName.toLowerCase()}'] | //textarea[@id='schedule-${fieldName.toLowerCase()}']`;
+  await actions.fill(page.locator(fieldXPath), payload);
+  
+  this.testData.xssPayload = payload;
+  this.testData.xssField = fieldName;
+});
+
+When('user modifies the schedule entry to trigger a notification', async function () {
   // TODO: Replace XPath with Object Repository when available
   await actions.click(page.locator('//button[@id="save-schedule"]'));
   await waits.waitForNetworkIdle();
   
-  await page.waitForTimeout(2000);
-  
-  this.testData.notificationTriggered = true;
-});
-
-Then('in-app notification should display payload as plain text', async function () {
-  const sessionToken = this.testData.testRecipient.sessionToken;
-  
-  // TODO: Replace XPath with Object Repository when available
-  await actions.navigateTo('/notifications');
-  await waits.waitForNetworkIdle();
-  
-  const notificationContent = await page.locator('//div[@id="notification-content"]').textContent();
-  expect(notificationContent).toContain(this.testData.xssPayload);
-  
-  const scriptExecuted = await page.evaluate(() => {
-    return (window as any).xssExecuted === true;
-  });
-  expect(scriptExecuted).toBeFalsy();
-});
-
-Then('script tags should be HTML-encoded as {string}', async function (encodedString: string) {
-  const notificationHtml = await page.locator('//div[@id="notification-content"]').innerHTML();
-  
-  if (this.testData.xssPayload.includes('<script>')) {
-    expect(notificationHtml).toContain(encodedString);
-  }
-});
-
-Then('no JavaScript execution should occur', async function () {
-  const alertFired = await page.evaluate(() => {
-    return (window as any).alertFired === true;
-  });
-  expect(alertFired).toBeFalsy();
-  
-  const cookies = await page.evaluate(() => document.cookie);
-  const cookieLeaked = await page.evaluate(() => {
-    return (window as any).leakedCookie !== undefined;
-  });
-  expect(cookieLeaked).toBeFalsy();
-});
-
-When('email notification HTML source is checked', async function () {
-  const response = await page.request.get('/api/notifications/email/latest', {
-    headers: {
-      'Authorization': `Bearer ${this.testData.testRecipient.sessionToken}`
-    }
-  });
-  
-  const emailData = await response.json();
-  this.testData.emailHtmlSource = emailData.htmlContent || '';
-});
-
-Then('email content should show encoded HTML entities', async function () {
-  const emailHtml = this.testData.emailHtmlSource;
-  
-  if (this.testData.xssPayload.includes('<script>')) {
-    expect(emailHtml).toContain('&lt;script&gt;');
-    expect(emailHtml).not.toMatch(/<script[^>]*>/);
-  }
-  
-  if (this.testData.xssPayload.includes('<img')) {
-    expect(emailHtml).toContain('&lt;img');
-  }
-});
-
-Then('script should not execute when email is opened', async function () {
-  const emailHtml = this.testData.emailHtmlSource;
-  
-  const newPage = await context.newPage();
-  await newPage.setContent(emailHtml);
-  
-  const scriptExecuted = await newPage.evaluate(() => {
-    return (window as any).xssExecuted === true || (window as any).alertFired === true;
-  });
-  
-  expect(scriptExecuted).toBeFalsy();
-  await newPage.close();
-});
-
-Then('Content-Security-Policy headers should be present in notification display pages', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  const response = await page.goto('/notifications');
-  const headers = response?.headers();
-  
-  this.testData.cspHeaders = headers?.['content-security-policy'] || headers?.['Content-Security-Policy'];
-  expect(this.testData.cspHeaders).toBeDefined();
-});
-
-Then('CSP headers should restrict inline script execution', async function () {
-  const cspHeader = this.testData.cspHeaders;
-  expect(cspHeader).toBeDefined();
-  expect(cspHeader).toMatch(/script-src/);
-  expect(cspHeader).not.toContain("'unsafe-inline'");
-});
-
-Then('user session cookies should remain secure', async function () {
-  const cookies = await context.cookies();
-  const sessionCookie = cookies.find(c => c.name === 'sessionToken' || c.name === 'session');
-  
-  if (sessionCookie) {
-    expect(sessionCookie.httpOnly).toBeTruthy();
-    expect(sessionCookie.secure).toBeTruthy();
-  }
-});
-
-Then('all notification content should be properly sanitized', async function () {
-  const notificationHtml = await page.locator('//div[@id="notification-content"]').innerHTML();
-  
-  expect(notificationHtml).not.toMatch(/<script[^>]*>/);
-  expect(notificationHtml).not.toMatch(/onerror=/);
-  expect(notificationHtml).not.toMatch(/onload=/);
-  expect(notificationHtml).not.toMatch(/javascript:/);
-});
-
-/**************************************************/
-/*  TEST CASE: TC-SEC-003
-/*  Title: Prevent information disclosure via notification API response leakage
-/*  Priority: High
-/*  Category: Security - Information Disclosure
-/**************************************************/
-
-Given('multiple user accounts with different schedules exist', async function () {
-  const users = ['user1', 'user2', 'user3'];
-  
-  for (const username of users) {
-    // TODO: Replace XPath with Object Repository when available
-    await actions.navigateTo('/register');
-    await waits.waitForNetworkIdle();
-    
-    await actions.fill(page.locator('//input[@id="username"]'), username);
-    await actions.fill(page.locator('//input[@id="email"]'), `${username}@test.com`);
-    await actions.fill(page.locator('//input[@id="password"]'), 'SecurePass123!');
-    await actions.click(page.locator('//button[@id="register"]'));
-    await waits.waitForNetworkIdle();
-  }
-  
-  this.testData.multipleUsers = users;
-});
-
-Given('test accounts with valid and invalid authentication tokens exist', async function () {
-  this.testData.authTokens = {
-    valid: 'valid-token-12345',
-    invalid: 'invalid-token-99999',
-    expired: 'expired-token-00000',
-    malformed: 'malformed@#$%token'
-  };
-});
-
-Given('network traffic interception tool is configured', async function () {
-  this.testData.interceptedTraffic = [];
-  
-  page.on('response', (response) => {
-    this.testData.interceptedTraffic.push({
-      url: response.url(),
-      status: response.status(),
-      headers: response.headers()
-    });
-  });
-});
-
-When('API request is sent to {string} with invalid notification ID', async function (endpoint: string) {
-  const invalidNotificationId = '99999999';
-  
-  const response = await page.request.post(endpoint, {
-    data: {
-      notificationId: invalidNotificationId
-    },
-    headers: {
-      'Authorization': `Bearer ${this.testData.authTokens.valid}`
-    }
-  });
-  
-  this.testData.apiResponses.invalidId = {
-    status: response.status(),
-    body: await response.text(),
-    headers: response.headers()
-  };
-});
-
-Then('generic error message {string} should be returned', async function (expectedMessage: string) {
-  const response = this.testData.apiResponses.invalidId;
-  expect(response.body).toContain(expectedMessage);
-});
-
-Then('system details should not be revealed in error message', async function () {
-  const response = this.testData.apiResponses.invalidId;
-  
-  expect(response.body).not.toMatch(/stack trace/i);
-  expect(response.body).not.toMatch(/database/i);
-  expect(response.body).not.toMatch(/SQL/i);
-  expect(response.body).not.toMatch(/Exception/i);
-  expect(response.body).not.toMatch(/Error at line/i);
-});
-
-Then('valid ID patterns should not be exposed', async function () {
-  const response = this.testData.apiResponses.invalidId;
-  
-  expect(response.body).not.toMatch(/valid IDs are/i);
-  expect(response.body).not.toMatch(/ID must be between/i);
-  expect(response.body).not.toMatch(/\d{1,10}/);
-});
-
-When('API response headers are analyzed for sensitive information', async function () {
-  const response = await page.request.get('/api/notifications', {
-    headers: {
-      'Authorization': `Bearer ${this.testData.authTokens.valid}`
-    }
-  });
-  
-  this.testData.responseHeaders.analyzed = response.headers();
-});
-
-Then('response headers should contain minimal information', async function () {
-  const headers = this.testData.responseHeaders.analyzed;
-  expect(headers).toBeDefined();
-});
-
-Then('{string} header should not be present', async function (headerName: string) {
-  const headers = this.testData.responseHeaders.analyzed;
-  const headerKey = headerName.toLowerCase();
-  expect(headers[headerKey]).toBeUndefined();
-});
-
-Then('server version should not be exposed', async function () {
-  const headers = this.testData.responseHeaders.analyzed;
-  
-  expect(headers['server']).not.toMatch(/\d+\.\d+/);
-  expect(headers['x-aspnet-version']).toBeUndefined();
-  expect(headers['x-aspnetmvc-version']).toBeUndefined();
-});
-
-Then('internal IP addresses should not be disclosed', async function () {
-  const headers = this.testData.responseHeaders.analyzed;
-  const allHeaderValues = Object.values(headers).join(' ');
-  
-  expect(allHeaderValues).not.toMatch(/\b10\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/);
-  expect(allHeaderValues).not.toMatch(/\b192\.168\.\d{1,3}\.\d{1,3}\b/);
-  expect(allHeaderValues).not.toMatch(/\b172\.(1[6-9]|2[0-9]|3[0-1])\.\d{1,3}\.\d{1,3}\b/);
-});
-
-When('notification list is requested with pagination parameter {string} set to {string}', async function (parameterName: string, parameterValue: string) {
-  const response = await page.request.get(`/api/notifications?${parameterName}=${parameterValue}`, {
-    headers: {
-      'Authorization': `Bearer ${this.testData.authTokens.valid}`
-    }
-  });
-  
-  this.testData.apiResponses.pagination = {
-    status: response.status(),
-    body: await response.json(),
-    headers: response.headers()
-  };
-});
-
-Then('system should enforce maximum pagination limits', async function () {
-  const response = this.testData.apiResponses.pagination;
-  const notifications = response.body.data || [];
-  
-  expect(notifications.length).toBeLessThanOrEqual(100);
-});
-
-Then('only authorized user notifications should be returned', async function () {
-  const response = this.testData.apiResponses.pagination;
-  const notifications = response.body.data || [];
-  
-  notifications.forEach((notification: any) => {
-    expect(notification.userId).toBeDefined();
-  });
-});
-
-Then('rate limiting should be applied', async function () {
-  const requests = [];
-  
-  for (let i = 0; i < 50; i++) {
-    const response = await page.request.get('/api/notifications', {
-      headers: {
-        'Authorization': `Bearer ${this.testData.authTokens.valid}`
-      }
-    });
-    requests.push(response.status());
-  }
-  
-  const rateLimited = requests.some(status => status === 429);
-  expect(rateLimited).toBeTruthy();
-});
-
-When('{string} is accessed with missing authentication token', async function (endpoint: string) {
-  const response = await page.request.post(endpoint, {
-    data: {
-      notificationId: '12345'
-    }
-  });
-  
-  this.testData.apiResponses.noAuth = {
-    status: response.status(),
-    body: await response.text(),
-    headers: response.headers()
-  };
-});
-
-Then('{string} status code should be returned', async function (expectedStatusCode: string) {
-  const response = this.testData.apiResponses.noAuth;
-  expect(response.status).toBe(parseInt(expectedStatusCode));
-});
-
-Then('generic {string} error should be displayed', async function (errorMessage: string) {
-  const response = this.testData.apiResponses.noAuth;
-  expect(response.body).toContain(errorMessage);
-});
-
-Then('endpoint existence should not be revealed', async function () {
-  const response = this.testData.apiResponses.noAuth;
-  
-  expect(response.body).not.toContain('endpoint not found');
-  expect(response.body).not.toContain('route does not exist');
-});
-
-Then('user account validity should not be disclosed', async function () {
-  const response = this.testData.apiResponses.noAuth;
-  
-  expect(response.body).not.toContain('user does not exist');
-  expect(response.body).not.toContain('invalid user');
-  expect(response.body).not.toContain('user not found');
-});
-
-When('response times are measured for valid versus invalid user IDs', async function () {
-  const validUserId = 'user1';
-  const invalidUserId = 'nonexistent999';
-  
-  const startValid = Date.now();
-  await page.request.get(`/api/notifications?userId=${validUserId}`, {
-    headers: {
-      'Authorization': `Bearer ${this.testData.authTokens.valid}`
-    }
-  });
-  const validTime = Date.now() - startValid;
-  
-  const startInvalid = Date.now();
-  await page.request.get(`/api/notifications?userId=${invalidUserId}`, {
-    headers: {
-      'Authorization': `Bearer ${this.testData.authTokens.valid}`
-    }
-  });
-  const invalidTime = Date.now() - startInvalid;
-  
-  this.testData.responseTimes = {
-    valid: validTime,
-    invalid: invalidTime
-  };
-});
-
-Then('response times should be consistent regardless of user ID validity', async function () {
-  const validTime = this.testData.responseTimes.valid;
-  const invalidTime = this.testData.responseTimes.invalid;
-  
-  const timeDifference = Math.abs(validTime - invalidTime);
-  expect(timeDifference).toBeLessThan(500);
-});
-
-Then('user enumeration should be prevented', async function () {
-  const validTime = this.testData.responseTimes.valid;
-  const invalidTime = this.testData.responseTimes.invalid;
-  
-  const ratio = validTime / invalidTime;
-  expect(ratio).toBeGreaterThan(0.5);
-  expect(ratio).toBeLessThan(2.0);
-});
-
-When('notification payload is inspected for PII of other participants', async function () {
-  const response = await page.request.get('/api/notifications', {
-    headers: {
-      'Authorization': `Bearer ${this.testData.authTokens.valid}`
-    }
-  });
-  
-  const notifications = await response.json();
-  this.testData.notificationPayloads = notifications.data || [];
-});
-
-Then('notifications should contain only information relevant to authenticated user', async function () {
-  const notifications = this.testData.notificationPayloads;
-  
-  notifications.forEach((notification: any) => {
-    expect(notification.recipientId).toBeDefined();
-  });
-});
-
-Then('other participants PII should not be exposed', async function () {
-  const notifications = this.testData.notificationPayloads;
-  
-  notifications.forEach((notification: any) => {
-    const content = JSON.stringify(notification);
-    expect(content).not.toMatch(/ssn/i);
-    expect(content).not.toMatch(/social security/i);
-    expect(content).not.toMatch(/credit card/i);
-    expect(content).not.toMatch(/\b\d{3}-\d{2}-\d{4}\b/);
-  });
-});
-
-Then('no sensitive system information should be disclosed', async function () {
-  const notifications = this.testData.notificationPayloads;
-  
-  notifications.forEach((notification: any) => {
-    const content = JSON.stringify(notification);
-    expect(content).not.toMatch(/database/i);
-    expect(content).not.toMatch(/connection string/i);
-    expect(content).not.toMatch(/api key/i);
-    expect(content).not.toMatch(/secret/i);
-  });
-});
-
-Then('error messages should remain generic and non-revealing', async function () {
-  const allResponses = Object.values(this.testData.apiResponses);
-  
-  allResponses.forEach((response: any) => {
-    if (response.status >= 400) {
-      expect(response.body).not.toMatch(/stack trace/i);
-      expect(response.body).not.toMatch(/file path/i);
-      expect(response.body).not.toMatch(/C:\\/);
-      expect(response.body).not.toMatch(/\/var\//);
-    }
-  });
-});
-
-Then('API responses should contain only authorized data', async function () {
-  const notifications = this.testData.notificationPayloads;
-  
-  notifications.forEach((notification: any) => {
-    expect(notification.recipientId).toBeDefined();
-    expect(notification.content).toBeDefined();
-  });
-});
-
-// ==================== WHEN STEPS ====================
-
-When('I click on the {string} button', async function (buttonText: string) {
-  // TODO: Replace XPath with Object Repository when available
-  const buttonIdXPath = `//button[@id='${buttonText.toLowerCase().replace(/\s+/g, '-')}']`;
-  const buttons = page.locator(buttonIdXPath);
-  
-  if (await buttons.count() > 0) {
-    await actions.click(buttons);
-  } else {
-    await actions.click(page.locator(`//button[contains(text(),'${buttonText}')]`));
-  }
+  await actions.click(page.locator('//button[@id="edit-schedule"]'));
+  await actions.fill(page.locator('//input[@id="schedule-title"]'), 'Updated Schedule');
+  await actions.click(page.locator('//button[@id="save-schedule"]'));
   await waits.waitForNetworkIdle();
 });
 
-When('I enter {string} in the {string} field', async function (value: string, fieldName: string) {
+When('user observes the email notification content', async function () {
   // TODO: Replace XPath with Object Repository when available
-  const fieldXPath = `//input[@id='${fieldName.toLowerCase().replace(/\s+/g, '-')}']`;
-  await actions.fill(page.locator(fieldXPath), value);
+  await actions.click(page.locator('//button[@id="email-notifications"]'));
+  await waits.waitForNetworkIdle();
+  
+  const emailContent = await page.locator('//div[@id="email-notification-preview"]').innerHTML();
+  this.testData.emailNotificationHtml = emailContent;
 });
 
-When('I select {string} from the {string} dropdown', async function (optionText: string, dropdownName: string) {
+When('user views the in-app notification', async function () {
   // TODO: Replace XPath with Object Repository when available
-  const dropdownXPath = `//select[@id='${dropdownName.toLowerCase().replace(/\s+/g, '-')}']`;
-  await actions.selectByText(page.locator(dropdownXPath), optionText);
+  await actions.click(page.locator('//button[@id="notifications"]'));
+  await waits.waitForNetworkIdle();
+  
+  const inAppContent = await page.locator('//div[@id="notification-content"]').innerHTML();
+  this.testData.inAppNotificationHtml = inAppContent;
+});
+
+When('user verifies notification API responses include security headers', async function () {
+  const response = await page.request.get(`${process.env.BASE_URL}/api/notifications/list`, {
+    failOnStatusCode: false,
+    headers: {
+      'Authorization': `Bearer ${this.testData.authToken}`
+    }
+  });
+  
+  this.testData.securityHeaders = {
+    contentType: response.headers()['content-type'],
+    xContentTypeOptions: response.headers()['x-content-type-options'],
+    xXssProtection: response.headers()['x-xss-protection'],
+    allHeaders: response.headers()
+  };
+});
+
+When('{string} views the notification', async function (userName: string) {
+  const userCredentials = this.testData?.users?.[userName];
+  
+  // TODO: Replace XPath with Object Repository when available
+  await actions.navigateTo(process.env.BASE_URL || 'http://localhost:3000');
+  await waits.waitForNetworkIdle();
+  
+  await actions.fill(page.locator('//input[@id="username"]'), userCredentials.username);
+  await actions.fill(page.locator('//input[@id="password"]'), userCredentials.password);
+  await actions.click(page.locator('//button[@id="login"]'));
+  await waits.waitForNetworkIdle();
+  
+  await actions.click(page.locator('//button[@id="notifications"]'));
+  await waits.waitForNetworkIdle();
+  
+  const notificationContent = await page.locator('//div[@id="notification-content"]').innerHTML();
+  this.testData.viewedNotificationContent = notificationContent;
 });
 
 // ==================== THEN STEPS ====================
 
-Then('I should see {string}', async function (text: string) {
-  await assertions.assertContainsText(page.locator(`//*[contains(text(),'${text}')]`), text);
+Then('{string} should receive notification with unique notification ID', async function (userName: string) {
+  // TODO: Replace XPath with Object Repository when available
+  await actions.click(page.locator('//button[@id="notifications"]'));
+  await waits.waitForNetworkIdle();
+  
+  const notificationIdElement = page.locator('//div[@data-notification-id]');
+  await assertions.assertVisible(notificationIdElement);
+  
+  const notificationId = await notificationIdElement.getAttribute('data-notification-id');
+  this.testData.capturedData.notificationIds[userName] = notificationId;
+  
+  expect(notificationId).toBeTruthy();
+  expect(notificationId).not.toBe('');
 });
 
-Then('the {string} element should be visible', async function (elementName: string) {
-  // TODO: Replace XPath with Object Repository when available
-  const elementXPath = `//div[@id='${elementName.toLowerCase().replace(/\s+/g, '-')}']`;
-  await assertions.assertVisible(page.locator(elementXPath));
+Then('API request structure should be documented showing notification ID parameter', async function () {
+  const capturedRequests = this.testData.capturedEndpointRequests;
+  expect(capturedRequests.length).toBeGreaterThan(0);
+  
+  const notificationRequest = capturedRequests[0];
+  expect(notificationRequest.url).toContain('/api/notifications');
 });
 
-Then('I should see a success message', async function () {
+Then('{string} should receive notification with different notification ID', async function (userName: string) {
   // TODO: Replace XPath with Object Repository when available
-  await assertions.assertVisible(page.locator('//div[@id="success-message"]'));
+  await actions.click(page.locator('//button[@id="notifications"]'));
+  await waits.waitForNetworkIdle();
+  
+  const notificationIdElement = page.locator('//div[@data-notification-id]');
+  await assertions.assertVisible(notificationIdElement);
+  
+  const notificationId = await notificationIdElement.getAttribute('data-notification-id');
+  this.testData.capturedData.notificationIds[userName] = notificationId;
+  
+  const previousUserNotificationId = this.testData.capturedData.notificationIds['User A'];
+  expect(notificationId).not.toBe(previousUserNotificationId);
+});
+
+Then('system should return {string} status code', async function (expectedStatusCode: string) {
+  const actualStatusCode = this.testData.unauthorizedAccessResponse?.status || 
+                          this.testData.unauthenticatedResponse?.status ||
+                          this.testData.expiredTokenResponse?.status ||
+                          this.testData.malformedTokenResponse?.status ||
+                          this.testData.replayTokenResponse?.status;
+  
+  expect(actualStatusCode).toBe(parseInt(expectedStatusCode));
+});
+
+Then('unauthorized access should be prevented', async function () {
+  const statusCode = this.testData.unauthorizedAccessResponse?.status;
+  expect(statusCode).toBe(403);
+});
+
+Then('all unauthorized access attempts should be blocked with proper error codes', async function () {
+  const enumerationResults = this.testData.enumerationResults;
+  
+  for (const result of enumerationResults) {
+    expect([401, 403, 404]).toContain(result.status);
+  }
+});
+
+Then('security events should be logged in audit trail', async function () {
+  // TODO: Replace XPath with Object Repository when available
+  await actions.navigateTo(`${process.env.BASE_URL}/admin/security-logs`);
+  await waits.waitForNetworkIdle();
+  
+  const securityLogEntries = page.locator('//div[@class="security-log-entry"]');
+  const logCount = await securityLogEntries.count();
+  
+  expect(logCount).toBeGreaterThan(0);
+});
+
+Then('notification should contain only authenticated user\'s own schedule information', async function () {
+  const notificationContent = this.testData.inAppNotificationContent;
+  const currentUser = this.testData.currentUser;
+  
+  expect(notificationContent).toContain(currentUser);
+});
+
+Then('no data leakage from other users should be present', async function () {
+  const notificationContent = this.testData.inAppNotificationContent;
+  const currentUser = this.testData.currentUser;
+  const otherUsers = Object.keys(this.testData.users).filter(user => user !== currentUser);
+  
+  for (const otherUser of otherUsers) {
+    expect(notificationContent).not.toContain(otherUser);
+  }
+});
+
+Then('all unauthorized access attempts should be logged in security audit trail', async function () {
+  // TODO: Replace XPath with Object Repository when available
+  await actions.navigateTo(`${process.env.BASE_URL}/admin/audit-trail`);
+  await waits.waitForNetworkIdle();
+  
+  const auditLogEntries = page.locator('//div[@class="audit-log-entry"]');
+  const logCount = await auditLogEntries.count();
+  
+  expect(logCount).toBeGreaterThan(0);
+  
+  const unauthorizedAccessLogs = page.locator('//div[contains(@class, "audit-log-entry") and contains(text(), "Unauthorized")]');
+  const unauthorizedLogCount = await unauthorizedAccessLogs.count();
+  
+  expect(unauthorizedLogCount).toBeGreaterThan(0);
+});
+
+Then('no sensitive information from other users should be exposed', async function () {
+  const notificationContent = this.testData.inAppNotificationContent || this.testData.emailNotificationContent;
+  const currentUser = this.testData.currentUser;
+  const otherUsers = Object.keys(this.testData.users).filter(user => user !== currentUser);
+  
+  for (const otherUser of otherUsers) {
+    const otherUserData = this.testData.users[otherUser];
+    expect(notificationContent).not.toContain(otherUserData.email);
+    expect(notificationContent).not.toContain(otherUserData.username);
+  }
+});
+
+Then('user sessions should remain valid and unaffected', async function () {
+  // TODO: Replace XPath with Object Repository when available
+  const userProfileButton = page.locator('//button[@id="user-profile"]');
+  await assertions.assertVisible(userProfileButton);
+  
+  await actions.click(userProfileButton);
+  await waits.waitForNetworkIdle();
+  
+  const sessionStatus = page.locator('//div[@id="session-status"]');
+  await assertions.assertContainsText(sessionStatus, 'Active');
+});
+
+Then('access to the endpoint should be denied', async function () {
+  const statusCode = this.testData.unauthenticatedResponse?.status;
+  expect(statusCode).toBe(401);
+});
+
+Then('error message should indicate token expiration', async function () {
+  const responseBody = this.testData.expiredTokenResponse?.body;
+  expect(responseBody).toMatch(/expired|invalid|token/i);
+});
+
+Then('invalid token attempt should be logged as security event', async function () {
+  // TODO: Replace XPath with Object Repository when available
+  await actions.navigateTo(`${process.env.BASE_URL}/admin/security-logs`);
+  await waits.waitForNetworkIdle();
+  
+  const invalidTokenLogs = page.locator('//div[contains(@class, "security-log-entry") and contains(text(), "Invalid token")]');
+  const logCount = await invalidTokenLogs.count();
+  
+  expect(logCount).toBeGreaterThan(0);
+});
+
+Then('system should reject the token', async function () {
+  const statusCode = this.testData.replayTokenResponse?.status;
+  expect(statusCode).toBe(401);
+});
+
+Then('token invalidation on logout should be confirmed', async function () {
+  const statusCode = this.testData.replayTokenResponse?.status;
+  expect(statusCode).toBe(401);
+  
+  const responseBody = this.testData.replayTokenResponse?.body;
+  expect(responseBody).toMatch(/invalid|unauthorized|expired/i);
+});
+
+Then('all bypass attempts should fail with {string} status code', async function (expectedStatusCode: string) {
+  const bypassAttempts = this.testData.bypassAttempts;
+  
+  for (const attempt of bypassAttempts) {
+    expect(attempt.status).toBe(parseInt(expectedStatusCode));
+  }
+});
+
+Then('only authenticated users should view their own notifications', async function () {
+  const statusCode = this.testData.notificationViewAuthCheck?.status;
+  expect(statusCode).toBe(401);
+});
+
+Then('cross-user access should be prevented', async function () {
+  const statusCode = this.testData.unauthorizedAccessResponse?.status;
+  expect(statusCode).toBe(403);
+});
+
+Then('all unauthorized access attempts should be logged with timestamps and source IPs', async function () {
+  // TODO: Replace XPath with Object Repository when available
+  await actions.navigateTo(`${process.env.BASE_URL}/admin/security-logs`);
+  await waits.waitForNetworkIdle();
+  
+  const logEntries = page.locator('//div[@class="security-log-entry"]');
+  const firstLogEntry = logEntries.first();
+  
+  await assertions.assertVisible(firstLogEntry);
+  
+  const logContent = await firstLogEntry.textContent();
+  expect(logContent).toMatch(/\d{4}-\d{2}-\d{2}/);
+  expect(logContent).toMatch(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/);
+});
+
+Then('no notifications should be sent or accessed without valid authentication', async function () {
+  const unauthenticatedStatusCode = this.testData.unauthenticatedResponse?.status;
+  expect(unauthenticatedStatusCode).toBe(401);
+});
+
+Then('system security posture should remain intact', async function () {
+  // TODO: Replace XPath with Object Repository when available
+  await actions.navigateTo(`${process.env.BASE_URL}/admin/system-health`);
+  await waits.waitForNetworkIdle();
+  
+  const securityStatus = page.locator('//div[@id="security-status"]');
+  await assertions.assertContainsText(securityStatus, 'Secure');
+});
+
+Then('system should accept the input and store the schedule entry', async function () {
+  // TODO: Replace XPath with Object Repository when available
+  const successMessage = page.locator('//div[@id="success-message"]');
+  await assertions.assertVisible(successMessage);
+});
+
+Then('email notification should display sanitized content', async function () {
+  const emailHtml = this.testData.emailNotificationHtml;
+  const payload = this.testData.xssPayload;
+  
+  expect(emailHtml).not.toContain('<script>');
+  expect(emailHtml).not.toContain('onerror=');
+  expect(emailHtml).not.toContain('onload=');
+  expect(emailHtml).not.toContain('javascript:');
+});
+
+Then('script tags should be encoded or stripped', async function () {
+  const emailHtml = this.testData.emailNotificationHtml;
+  
+  expect(emailHtml).not.toContain('<script>');
+  expect(emailHtml).not.toContain('</script>');
+});
+
+Then('script should not execute', async function () {
+  const alertDialogPromise = page.waitForEvent('dialog', { timeout: 2000 }).catch(() => null);
+  const dialog = await alertDialogPromise;
+  
+  expect(dialog).toBeNull();
+});
+
+Then('in-app notification should render safe content without executing JavaScript', async function () {
+  const inAppHtml = this.testData.inAppNotificationHtml;
+  
+  expect(inAppHtml).not.toContain('<script>');
+  expect(inAppHtml).not.toContain('onerror=');
+  expect(inAppHtml).not.toContain('onload=');
+});
+
+Then('no alert popup should appear', async function () {
+  const alertDialogPromise = page.waitForEvent('dialog', { timeout: 2000 }).catch(() => null);
+  const dialog = await alertDialogPromise;
+  
+  expect(dialog).toBeNull();
+});
+
+Then('notification should be properly sanitized in the UI', async function () {
+  const inAppHtml = this.testData.inAppNotificationHtml;
+  const payload = this.testData.xssPayload;
+  
+  expect(inAppHtml).not.toContain('<script>');
+  expect(inAppHtml).not.toContain('<iframe');
+  expect(inAppHtml).not.toContain('javascript:');
+});
+
+Then('{string} header should be {string}', async function (headerName: string, expectedValue: string) {
+  const headers = this.testData.securityHeaders;
+  const headerKey = headerName.toLowerCase().replace(/-/g, '');
+  
+  if (headerName === 'Content-Type') {
+    expect(headers.contentType).toContain(expectedValue);
+  } else if (headerName === 'X-Content-Type-Options') {
+    expect(headers.xContentTypeOptions).toBe(expectedValue);
+  } else if (headerName === 'X-XSS-Protection') {
+    expect(headers.xXssProtection).toBeTruthy();
+  }
+});
+
+Then('{string} header should be present', async function (headerName: string) {
+  const headers = this.testData.securityHeaders;
+  const headerKey = headerName.toLowerCase();
+  
+  expect(headers.allHeaders[headerKey]).toBeTruthy();
+});
+
+Then('all security headers should prevent MIME-type sniffing', async function () {
+  const headers = this.testData.securityHeaders;
+  expect(headers.xContentTypeOptions).toBe('nosniff');
+});
+
+Then('no malicious scripts should be executed in any notification context', async function () {
+  const alertDialogPromise = page.waitForEvent('dialog', { timeout: 2000 }).catch(() => null);
+  const dialog = await alertDialogPromise;
+  
+  expect(dialog).toBeNull();
+  
+  const emailHtml = this.testData.emailNotificationHtml;
+  const inAppHtml = this.testData.inAppNotificationHtml;
+  
+  expect(emailHtml).not.toContain('<script>');
+  expect(inAppHtml).not.toContain('<script>');
+});
+
+Then('schedule data should remain intact with sanitized content', async function () {
+  // TODO: Replace XPath with Object Repository when available
+  await actions.click(page.locator('//button[@id="my-schedules"]'));
+  await waits.waitForNetworkIdle();
+  
+  const scheduleContent = page.locator('//div[@class="schedule-content"]');
+  await assertions.assertVisible(scheduleContent);
+  
+  const content = await scheduleContent.textContent();
+  expect(content).toBeTruthy();
+});
+
+Then('security logs should capture input validation events', async function () {
+  // TODO: Replace XPath with Object Repository when available
+  await actions.navigateTo(`${process.env.BASE_URL}/admin/security-logs`);
+  await waits.waitForNetworkIdle();
+  
+  const validationLogs = page.locator('//div[contains(@class, "security-log-entry") and contains(text(), "Input validation")]');
+  const logCount = await validationLogs.count();
+  
+  expect(logCount).toBeGreaterThan(0);
+});
+
+Then('{string} should receive sanitized notification', async function (userName: string) {
+  const notificationContent = this.testData.viewedNotificationContent;
+  
+  expect(notificationContent).not.toContain('<script>');
+  expect(notificationContent).not.toContain('onerror=');
+  expect(notificationContent).not.toContain('onload=');
+});
+
+Then('no script execution should occur', async function () {
+  const alertDialogPromise = page.waitForEvent('dialog', { timeout: 2000 }).catch(() => null);
+  const dialog = await alertDialogPromise;
+  
+  expect(dialog).toBeNull();
+});
+
+Then('stored XSS protection should be confirmed', async function () {
+  const notificationContent = this.testData.viewedNotificationContent;
+  
+  expect(notificationContent).not.toContain('<script>');
+  expect(notificationContent).not.toContain('javascript:');
+  expect(notificationContent).not.toContain('onerror=');
+  
+  const alertDialogPromise = page.waitForEvent('dialog', { timeout: 2000 }).catch(() => null);
+  const dialog = await alertDialogPromise;
+  
+  expect(dialog).toBeNull();
 });

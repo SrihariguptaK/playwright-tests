@@ -34,13 +34,30 @@ Before(async function () {
   homePage = new HomePage(page, context);
   
   this.testData = {
-    metrics: {},
-    notifications: [],
-    instances: [],
-    systemState: {},
-    chaosConfig: {},
-    baselineMetrics: {}
+    circuitBreaker: {
+      threshold: 5,
+      timeWindow: 10,
+      states: ['OPEN', 'CLOSED', 'HALF-OPEN']
+    },
+    retryPolicy: {
+      attempts: 3,
+      backoffPattern: ['1s', '2s', '4s']
+    },
+    queueConfig: {
+      capacity: 500,
+      processingRate: 50
+    },
+    metrics: {
+      baselineCpu: 40,
+      baselineMemory: 60,
+      baselineQueueDepth: 50
+    }
   };
+  
+  this.systemState = {};
+  this.notificationQueue = [];
+  this.auditLogs = [];
+  this.metrics = {};
 });
 
 After(async function (scenario) {
@@ -55,851 +72,1062 @@ After(async function (scenario) {
 
 // ==================== BACKGROUND STEPS ====================
 
-Given('notification service is running in production-like environment', async function () {
-  await actions.navigateTo(process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:8080/notification-service');
+// TODO: Replace XPath with Object Repository when available
+Given('notification service is operational', async function () {
+  const serviceStatusXPath = '//div[@id="notification-service-status"]';
+  await actions.navigateTo(process.env.BASE_URL || 'http://localhost:3000/admin/services');
   await waits.waitForNetworkIdle();
-  // TODO: Replace XPath with Object Repository when available
-  await assertions.assertVisible(page.locator('//div[@id="service-status"]'));
-  const statusText = await page.locator('//div[@id="service-status"]').textContent();
-  expect(statusText).toContain('Running');
+  await waits.waitForVisible(page.locator(serviceStatusXPath));
+  await assertions.assertContainsText(page.locator(serviceStatusXPath), 'operational');
+  this.systemState.notificationService = 'operational';
 });
 
-Given('monitoring tools are active to track metrics', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="monitoring-dashboard"]'));
-  await waits.waitForNetworkIdle();
-  await assertions.assertVisible(page.locator('//div[@id="metrics-panel"]'));
-  await assertions.assertVisible(page.locator('//div[@id="health-status"]'));
-  this.testData.monitoringActive = true;
+// TODO: Replace XPath with Object Repository when available
+Given('monitoring and alerting systems are active', async function () {
+  const monitoringStatusXPath = '//div[@id="monitoring-status"]';
+  await waits.waitForVisible(page.locator(monitoringStatusXPath));
+  await assertions.assertContainsText(page.locator(monitoringStatusXPath), 'active');
+  this.systemState.monitoring = 'active';
 });
 
-Given('test user accounts with scheduled appointments are configured', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="test-users"]'));
-  await waits.waitForNetworkIdle();
-  const userCount = await page.locator('//div[@class="test-user-item"]').count();
-  expect(userCount).toBeGreaterThan(0);
-  this.testData.testUsersConfigured = true;
+// TODO: Replace XPath with Object Repository when available
+Given('audit logging is enabled', async function () {
+  const auditLoggingXPath = '//div[@id="audit-logging-status"]';
+  await waits.waitForVisible(page.locator(auditLoggingXPath));
+  await assertions.assertContainsText(page.locator(auditLoggingXPath), 'enabled');
+  this.systemState.auditLogging = 'enabled';
 });
 
 // ==================== GIVEN STEPS ====================
 
 /**************************************************/
 /*  TEST CASE: TC-REL-001
-/*  Title: Notification service recovers automatically from database connection failure without notification loss
+/*  Title: Notification service maintains availability during database connection failure with circuit breaker protection
 /*  Priority: Critical
-/*  Category: Reliability - Database Failure
+/*  Category: Reliability - Chaos Engineering
 /**************************************************/
 
-Given('schedule database is operational with active connections', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="database-status"]'));
+// TODO: Replace XPath with Object Repository when available
+Given('circuit breaker is configured with threshold of {int} failures in {int} seconds', async function (threshold: number, timeWindow: number) {
+  const circuitBreakerConfigXPath = '//div[@id="circuit-breaker-config"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/circuit-breaker');
   await waits.waitForNetworkIdle();
-  await assertions.assertVisible(page.locator('//div[@id="db-connection-status"]'));
-  const connectionStatus = await page.locator('//span[@id="db-connection-count"]').textContent();
-  const activeConnections = parseInt(connectionStatus || '0');
-  expect(activeConnections).toBeGreaterThan(0);
-  this.testData.initialDbConnections = activeConnections;
+  
+  const thresholdFieldXPath = '//input[@id="threshold"]';
+  const timeWindowFieldXPath = '//input[@id="time-window"]';
+  const saveButtonXPath = '//button[@id="save-config"]';
+  
+  await actions.clearAndFill(page.locator(thresholdFieldXPath), threshold.toString());
+  await actions.clearAndFill(page.locator(timeWindowFieldXPath), timeWindow.toString());
+  await actions.click(page.locator(saveButtonXPath));
+  await waits.waitForNetworkIdle();
+  
+  this.systemState.circuitBreaker = {
+    threshold: threshold,
+    timeWindow: timeWindow,
+    state: 'CLOSED'
+  };
 });
 
-Given('message queue system is configured for notification persistence', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="message-queue-config"]'));
+// TODO: Replace XPath with Object Repository when available
+Given('schedule database is accessible and healthy', async function () {
+  const databaseStatusXPath = '//div[@id="database-status"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/database-health');
   await waits.waitForNetworkIdle();
-  await assertions.assertVisible(page.locator('//div[@id="queue-status"]'));
-  const queueStatus = await page.locator('//span[@id="queue-persistence-enabled"]').textContent();
-  expect(queueStatus).toContain('Enabled');
-  this.testData.queueConfigured = true;
+  await assertions.assertContainsText(page.locator(databaseStatusXPath), 'healthy');
+  this.systemState.database = 'healthy';
 });
 
-Given('baseline is established with {int} schedule changes delivered within {int} minute', async function (changeCount: number, timeLimit: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="create-baseline"]'));
+// TODO: Replace XPath with Object Repository when available
+Given('message queue is operational', async function () {
+  const queueStatusXPath = '//div[@id="message-queue-status"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/queue-health');
   await waits.waitForNetworkIdle();
-  await actions.fill(page.locator('//input[@id="baseline-change-count"]'), changeCount.toString());
-  await actions.fill(page.locator('//input[@id="baseline-time-limit"]'), timeLimit.toString());
-  await actions.click(page.locator('//button[@id="execute-baseline"]'));
+  await assertions.assertContainsText(page.locator(queueStatusXPath), 'operational');
+  this.systemState.messageQueue = 'operational';
+});
+
+// TODO: Replace XPath with Object Repository when available
+Given('{int} active users have scheduled appointments', async function (userCount: number) {
+  const activeUsersXPath = '//div[@id="active-users-count"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/users');
   await waits.waitForNetworkIdle();
-  await page.waitForTimeout(timeLimit * 60 * 1000);
-  const deliveredCount = await page.locator('//span[@id="baseline-delivered-count"]').textContent();
-  expect(parseInt(deliveredCount || '0')).toBe(changeCount);
-  this.testData.baselineMetrics = { changeCount, timeLimit, deliveredCount: changeCount };
+  await assertions.assertContainsText(page.locator(activeUsersXPath), userCount.toString());
+  this.systemState.activeUsers = userCount;
+});
+
+// TODO: Replace XPath with Object Repository when available
+Given('baseline notification delivery time is less than {int} seconds', async function (seconds: number) {
+  const deliveryTimeXPath = '//div[@id="baseline-delivery-time"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/metrics');
+  await waits.waitForNetworkIdle();
+  const deliveryTimeText = await page.locator(deliveryTimeXPath).textContent();
+  const deliveryTime = parseInt(deliveryTimeText?.replace(/\D/g, '') || '0');
+  expect(deliveryTime).toBeLessThan(seconds);
+  this.metrics.baselineDeliveryTime = deliveryTime;
+});
+
+// TODO: Replace XPath with Object Repository when available
+Given('MTBF is greater than {int} hours', async function (hours: number) {
+  const mtbfXPath = '//div[@id="mtbf-metric"]';
+  const mtbfText = await page.locator(mtbfXPath).textContent();
+  const mtbf = parseInt(mtbfText?.replace(/\D/g, '') || '0');
+  expect(mtbf).toBeGreaterThan(hours);
+  this.metrics.mtbf = mtbf;
 });
 
 /**************************************************/
 /*  TEST CASE: TC-REL-002
-/*  Title: System maintains notification delivery when email service experiences high latency
+/*  Title: Email service provider failure triggers automatic fallback with retry logic
 /*  Priority: Critical
-/*  Category: Reliability - Email Latency
+/*  Category: Reliability - Failover
 /**************************************************/
 
-Given('notification service is configured with dual-channel delivery', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="notification-config"]'));
+// TODO: Replace XPath with Object Repository when available
+Given('primary email service provider is configured and operational', async function () {
+  const primaryEspStatusXPath = '//div[@id="primary-esp-status"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/email-providers');
   await waits.waitForNetworkIdle();
-  await assertions.assertVisible(page.locator('//input[@id="email-channel-enabled"]'));
-  await assertions.assertVisible(page.locator('//input[@id="inapp-channel-enabled"]'));
-  const emailEnabled = await page.locator('//input[@id="email-channel-enabled"]').isChecked();
-  const inappEnabled = await page.locator('//input[@id="inapp-channel-enabled"]').isChecked();
-  expect(emailEnabled).toBe(true);
-  expect(inappEnabled).toBe(true);
+  await assertions.assertContainsText(page.locator(primaryEspStatusXPath), 'operational');
+  this.systemState.primaryEsp = 'operational';
 });
 
-Given('email service provider API integration is active', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="email-api-status"]'));
-  await waits.waitForNetworkIdle();
-  const apiStatus = await page.locator('//span[@id="email-api-connection"]').textContent();
-  expect(apiStatus).toContain('Active');
-  this.testData.emailApiActive = true;
+// TODO: Replace XPath with Object Repository when available
+Given('secondary email service provider is configured as fallback', async function () {
+  const secondaryEspStatusXPath = '//div[@id="secondary-esp-status"]';
+  await assertions.assertContainsText(page.locator(secondaryEspStatusXPath), 'configured');
+  this.systemState.secondaryEsp = 'configured';
 });
 
-Given('circuit breaker is configured with {int} second timeout threshold', async function (timeoutSeconds: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="circuit-breaker-config"]'));
+// TODO: Replace XPath with Object Repository when available
+Given('retry policy is configured with {int} attempts and exponential backoff of {string}', async function (attempts: number, backoffPattern: string) {
+  const retryPolicyXPath = '//div[@id="retry-policy-config"]';
+  await waits.waitForVisible(page.locator(retryPolicyXPath));
+  
+  const attemptsFieldXPath = '//input[@id="retry-attempts"]';
+  const backoffFieldXPath = '//input[@id="backoff-pattern"]';
+  const saveButtonXPath = '//button[@id="save-retry-policy"]';
+  
+  await actions.clearAndFill(page.locator(attemptsFieldXPath), attempts.toString());
+  await actions.clearAndFill(page.locator(backoffFieldXPath), backoffPattern);
+  await actions.click(page.locator(saveButtonXPath));
   await waits.waitForNetworkIdle();
-  await actions.fill(page.locator('//input[@id="circuit-breaker-timeout"]'), timeoutSeconds.toString());
-  await actions.click(page.locator('//button[@id="save-circuit-breaker-config"]'));
-  await waits.waitForNetworkIdle();
-  this.testData.circuitBreakerTimeout = timeoutSeconds;
+  
+  this.systemState.retryPolicy = {
+    attempts: attempts,
+    backoffPattern: backoffPattern
+  };
 });
 
-Given('in-app notification service is operational as fallback mechanism', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="inapp-service-status"]'));
-  await waits.waitForNetworkIdle();
-  const inappStatus = await page.locator('//span[@id="inapp-service-health"]').textContent();
-  expect(inappStatus).toContain('Operational');
-  this.testData.inappServiceOperational = true;
+// TODO: Replace XPath with Object Repository when available
+Given('in-app notification service is independent and operational', async function () {
+  const inAppServiceXPath = '//div[@id="in-app-notification-status"]';
+  await assertions.assertContainsText(page.locator(inAppServiceXPath), 'operational');
+  this.systemState.inAppService = 'operational';
 });
 
-Given('chaos engineering platform is configured with latency injection capability', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="chaos-engineering"]'));
+// TODO: Replace XPath with Object Repository when available
+Given('{int} users have valid email addresses and active sessions', async function (userCount: number) {
+  const validUsersXPath = '//div[@id="valid-users-count"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/users/active');
   await waits.waitForNetworkIdle();
-  await assertions.assertVisible(page.locator('//div[@id="latency-injection-panel"]'));
-  const latencyCapability = await page.locator('//span[@id="latency-injection-enabled"]').textContent();
-  expect(latencyCapability).toContain('Enabled');
-  this.testData.chaosConfig.latencyInjectionEnabled = true;
+  await assertions.assertContainsText(page.locator(validUsersXPath), userCount.toString());
+  this.systemState.validUsers = userCount;
 });
 
-Given('baseline metrics show {int} percent notification delivery within {int} minute', async function (deliveryPercent: number, timeLimit: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="baseline-metrics"]'));
+// TODO: Replace XPath with Object Repository when available
+Given('monitoring alerts are configured for ESP failures', async function () {
+  const alertConfigXPath = '//div[@id="esp-alert-config"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/alerts');
   await waits.waitForNetworkIdle();
-  const baselineDeliveryRate = await page.locator('//span[@id="baseline-delivery-rate"]').textContent();
-  expect(parseInt(baselineDeliveryRate || '0')).toBeGreaterThanOrEqual(deliveryPercent);
-  this.testData.baselineMetrics.deliveryPercent = deliveryPercent;
-  this.testData.baselineMetrics.timeLimit = timeLimit;
-});
-
-Given('chaos hypothesis is defined as {string}', async function (hypothesis: string) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.fill(page.locator('//textarea[@id="chaos-hypothesis"]'), hypothesis);
-  await actions.click(page.locator('//button[@id="save-hypothesis"]'));
-  await waits.waitForNetworkIdle();
-  this.testData.chaosConfig.hypothesis = hypothesis;
-});
-
-Given('blast radius is limited to {int} percent of user base', async function (blastRadiusPercent: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.fill(page.locator('//input[@id="blast-radius-percent"]'), blastRadiusPercent.toString());
-  await actions.click(page.locator('//button[@id="apply-blast-radius"]'));
-  await waits.waitForNetworkIdle();
-  this.testData.chaosConfig.blastRadiusPercent = blastRadiusPercent;
+  await assertions.assertContainsText(page.locator(alertConfigXPath), 'configured');
+  this.systemState.espAlerts = 'configured';
 });
 
 /**************************************************/
 /*  TEST CASE: TC-REL-003
-/*  Title: Notification service maintains zero notification loss during instance crash with automatic failover
+/*  Title: Message queue handles saturation and resource exhaustion under high load with backpressure mechanism
 /*  Priority: Critical
-/*  Category: Reliability - High Availability
+/*  Category: Reliability - Load Testing
 /**************************************************/
 
-Given('notification service is deployed with minimum {int} instances behind load balancer', async function (instanceCount: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="service-instances"]'));
+// TODO: Replace XPath with Object Repository when available
+Given('message queue is configured with capacity limit of {int} messages', async function (capacity: number) {
+  const queueCapacityXPath = '//div[@id="queue-capacity-config"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/queue-config');
   await waits.waitForNetworkIdle();
-  const activeInstances = await page.locator('//div[@class="instance-item active"]').count();
-  expect(activeInstances).toBeGreaterThanOrEqual(instanceCount);
-  this.testData.instances = [];
-  for (let i = 0; i < activeInstances; i++) {
-    const instanceId = await page.locator(`(//div[@class="instance-item active"])[${i + 1}]//span[@class="instance-id"]`).textContent();
-    this.testData.instances.push({ id: instanceId, status: 'active' });
-  }
+  
+  const capacityFieldXPath = '//input[@id="queue-capacity"]';
+  const saveButtonXPath = '//button[@id="save-queue-config"]';
+  
+  await actions.clearAndFill(page.locator(capacityFieldXPath), capacity.toString());
+  await actions.click(page.locator(saveButtonXPath));
+  await waits.waitForNetworkIdle();
+  
+  this.systemState.queueCapacity = capacity;
 });
 
-Given('load balancer is configured with health checks at {int} second interval', async function (intervalSeconds: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="load-balancer-config"]'));
-  await waits.waitForNetworkIdle();
-  await actions.fill(page.locator('//input[@id="health-check-interval"]'), intervalSeconds.toString());
-  await actions.click(page.locator('//button[@id="save-lb-config"]'));
-  await waits.waitForNetworkIdle();
-  this.testData.healthCheckInterval = intervalSeconds;
+// TODO: Replace XPath with Object Repository when available
+Given('notification service is configured with backpressure handling', async function () {
+  const backpressureConfigXPath = '//div[@id="backpressure-config"]';
+  await assertions.assertContainsText(page.locator(backpressureConfigXPath), 'enabled');
+  this.systemState.backpressure = 'enabled';
 });
 
-Given('{int} consecutive health check failures trigger instance removal', async function (failureThreshold: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.fill(page.locator('//input[@id="health-check-failure-threshold"]'), failureThreshold.toString());
-  await actions.click(page.locator('//button[@id="save-failure-threshold"]'));
-  await waits.waitForNetworkIdle();
-  this.testData.healthCheckFailureThreshold = failureThreshold;
+// TODO: Replace XPath with Object Repository when available
+Given('dead letter queue is configured for failed messages', async function () {
+  const dlqConfigXPath = '//div[@id="dlq-config"]';
+  await assertions.assertContainsText(page.locator(dlqConfigXPath), 'configured');
+  this.systemState.dlq = 'configured';
 });
 
-Given('shared message queue is accessible by all service instances', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="shared-queue-status"]'));
+// TODO: Replace XPath with Object Repository when available
+Given('system monitoring tracks queue depth, memory usage, and CPU utilization', async function () {
+  const monitoringMetricsXPath = '//div[@id="monitoring-metrics"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/monitoring');
   await waits.waitForNetworkIdle();
-  const queueAccessibility = await page.locator('//span[@id="queue-shared-access"]').textContent();
-  expect(queueAccessibility).toContain('All Instances');
-  this.testData.sharedQueueAccessible = true;
+  await assertions.assertVisible(page.locator(monitoringMetricsXPath));
+  this.systemState.monitoring = 'tracking';
 });
 
-Given('database connection pooling is configured across all instances', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="connection-pool-config"]'));
+// TODO: Replace XPath with Object Repository when available
+Given('{int} test user accounts have scheduled appointments', async function (userCount: number) {
+  const testUsersXPath = '//div[@id="test-users-count"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/test-users');
   await waits.waitForNetworkIdle();
-  const poolingStatus = await page.locator('//span[@id="connection-pooling-status"]').textContent();
-  expect(poolingStatus).toContain('Configured');
-  this.testData.connectionPoolingConfigured = true;
+  await assertions.assertContainsText(page.locator(testUsersXPath), userCount.toString());
+  this.systemState.testUsers = userCount;
 });
 
-Given('session persistence is disabled to allow stateless failover', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="session-config"]'));
+// TODO: Replace XPath with Object Repository when available
+Given('baseline CPU usage is below {int} percent', async function (percentage: number) {
+  const cpuUsageXPath = '//div[@id="cpu-usage"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/metrics/cpu');
   await waits.waitForNetworkIdle();
-  const sessionPersistence = await page.locator('//input[@id="session-persistence-enabled"]').isChecked();
-  expect(sessionPersistence).toBe(false);
-  this.testData.sessionPersistenceDisabled = true;
+  const cpuText = await page.locator(cpuUsageXPath).textContent();
+  const cpuUsage = parseInt(cpuText?.replace(/\D/g, '') || '0');
+  expect(cpuUsage).toBeLessThan(percentage);
+  this.metrics.baselineCpu = cpuUsage;
 });
 
-Given('monitoring is configured for instance health and notification processing metrics', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="monitoring-config"]'));
-  await waits.waitForNetworkIdle();
-  await assertions.assertVisible(page.locator('//div[@id="instance-health-monitoring"]'));
-  await assertions.assertVisible(page.locator('//div[@id="notification-processing-metrics"]'));
-  this.testData.monitoringConfigured = true;
+// TODO: Replace XPath with Object Repository when available
+Given('baseline memory usage is below {int} percent', async function (percentage: number) {
+  const memoryUsageXPath = '//div[@id="memory-usage"]';
+  const memoryText = await page.locator(memoryUsageXPath).textContent();
+  const memoryUsage = parseInt(memoryText?.replace(/\D/g, '') || '0');
+  expect(memoryUsage).toBeLessThan(percentage);
+  this.metrics.baselineMemory = memoryUsage;
 });
 
-Given('{string} is operational with active connections', async function (serviceName: string) {
-  // TODO: Replace XPath with Object Repository when available
-  const serviceXPath = `//div[@id='${serviceName.toLowerCase().replace(/\s+/g, '-')}-status']`;
-  await assertions.assertVisible(page.locator(serviceXPath));
-  const connectionStatus = await page.locator(`${serviceXPath}//span[@class='connection-status']`).textContent();
-  expect(connectionStatus).toContain('Active');
-});
-
-Given('{string} is configured for {string}', async function (systemName: string, purpose: string) {
-  // TODO: Replace XPath with Object Repository when available
-  const systemXPath = `//div[@id='${systemName.toLowerCase().replace(/\s+/g, '-')}-config']`;
-  await actions.click(page.locator(`//button[@id='view-${systemName.toLowerCase().replace(/\s+/g, '-')}']`));
-  await waits.waitForNetworkIdle();
-  await assertions.assertVisible(page.locator(systemXPath));
-});
-
-Given('{string} is configured with {string}', async function (component: string, configuration: string) {
-  // TODO: Replace XPath with Object Repository when available
-  const componentXPath = `//div[@id='${component.toLowerCase().replace(/\s+/g, '-')}-settings']`;
-  await actions.click(page.locator(`//button[@id='configure-${component.toLowerCase().replace(/\s+/g, '-')}']`));
-  await waits.waitForNetworkIdle();
-  await assertions.assertVisible(page.locator(componentXPath));
+// TODO: Replace XPath with Object Repository when available
+Given('baseline queue depth is below {int} messages', async function (depth: number) {
+  const queueDepthXPath = '//div[@id="queue-depth"]';
+  const depthText = await page.locator(queueDepthXPath).textContent();
+  const queueDepth = parseInt(depthText?.replace(/\D/g, '') || '0');
+  expect(queueDepth).toBeLessThan(depth);
+  this.metrics.baselineQueueDepth = queueDepth;
 });
 
 // ==================== WHEN STEPS ====================
 
-When('database connections are terminated', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="chaos-actions"]'));
+// TODO: Replace XPath with Object Repository when available
+When('database connections are terminated using chaos engineering tool', async function () {
+  const chaosToolXPath = '//div[@id="chaos-engineering-tool"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/chaos-engineering');
   await waits.waitForNetworkIdle();
-  await actions.click(page.locator('//button[@id="terminate-db-connections"]'));
+  
+  const terminateDbButtonXPath = '//button[@id="terminate-database-connections"]';
+  await actions.click(page.locator(terminateDbButtonXPath));
   await waits.waitForNetworkIdle();
-  this.testData.dbConnectionsTerminated = true;
-  this.testData.dbTerminationTime = Date.now();
+  
+  this.systemState.chaosAction = 'database-terminated';
 });
 
-When('{int} schedule changes are created while database is down', async function (changeCount: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="create-schedule-changes"]'));
+// TODO: Replace XPath with Object Repository when available
+When('{int} schedule change events are triggered across different user accounts', async function (eventCount: number) {
+  const triggerEventsXPath = '//div[@id="trigger-events"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/trigger-events');
   await waits.waitForNetworkIdle();
-  await actions.fill(page.locator('//input[@id="schedule-change-count"]'), changeCount.toString());
-  await actions.click(page.locator('//button[@id="execute-schedule-changes"]'));
+  
+  const eventCountFieldXPath = '//input[@id="event-count"]';
+  const triggerButtonXPath = '//button[@id="trigger-schedule-changes"]';
+  
+  await actions.clearAndFill(page.locator(eventCountFieldXPath), eventCount.toString());
+  await actions.click(page.locator(triggerButtonXPath));
   await waits.waitForNetworkIdle();
-  this.testData.scheduledChangesWhileDown = changeCount;
+  
+  this.systemState.triggeredEvents = eventCount;
 });
 
-When('system behavior is monitored for {int} minutes during outage', async function (monitoringMinutes: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="start-monitoring"]'));
+// TODO: Replace XPath with Object Repository when available
+When('system health endpoints are checked', async function () {
+  await actions.navigateTo(process.env.BASE_URL + '/admin/health');
   await waits.waitForNetworkIdle();
-  await page.waitForTimeout(monitoringMinutes * 60 * 1000);
-  this.testData.monitoringDuration = monitoringMinutes;
+  this.systemState.healthCheckTime = new Date().toISOString();
 });
 
-When('database connectivity is restored', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="restore-db-connections"]'));
+// TODO: Replace XPath with Object Repository when available
+When('database connectivity is restored after {int} minutes', async function (minutes: number) {
+  const restoreDbButtonXPath = '//button[@id="restore-database-connectivity"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/chaos-engineering');
   await waits.waitForNetworkIdle();
-  this.testData.dbRestorationTime = Date.now();
+  
+  await page.waitForTimeout(minutes * 60 * 1000);
+  
+  await actions.click(page.locator(restoreDbButtonXPath));
+  await waits.waitForNetworkIdle();
+  
+  this.systemState.databaseRestored = true;
 });
 
-When('network latency of {int} seconds is injected to email service provider API', async function (latencySeconds: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="inject-latency"]'));
-  await waits.waitForNetworkIdle();
-  await actions.fill(page.locator('//input[@id="latency-duration"]'), latencySeconds.toString());
-  await actions.selectByText(page.locator('//select[@id="latency-target"]'), 'Email Service Provider API');
-  await actions.click(page.locator('//button[@id="apply-latency-injection"]'));
-  await waits.waitForNetworkIdle();
-  this.testData.chaosConfig.injectedLatency = latencySeconds;
-  this.testData.chaosConfig.latencyInjectionTime = Date.now();
+// TODO: Replace XPath with Object Repository when available
+When('automatic recovery is observed', async function () {
+  const recoveryStatusXPath = '//div[@id="recovery-status"]';
+  await waits.waitForVisible(page.locator(recoveryStatusXPath));
+  await assertions.assertContainsText(page.locator(recoveryStatusXPath), 'recovering');
+  this.systemState.recoveryObserved = true;
 });
 
-When('{int} schedule changes are created affecting users in blast radius', async function (changeCount: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="create-schedule-changes-blast-radius"]'));
+// TODO: Replace XPath with Object Repository when available
+When('notification delivery is validated for all users', async function () {
+  const deliveryValidationXPath = '//div[@id="delivery-validation"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/notification-delivery');
   await waits.waitForNetworkIdle();
-  await actions.fill(page.locator('//input[@id="blast-radius-change-count"]'), changeCount.toString());
-  await actions.click(page.locator('//button[@id="execute-blast-radius-changes"]'));
-  await waits.waitForNetworkIdle();
-  this.testData.blastRadiusChanges = changeCount;
+  await waits.waitForVisible(page.locator(deliveryValidationXPath));
+  this.systemState.deliveryValidated = true;
 });
 
-When('latency injection is removed after {int} minutes', async function (durationMinutes: number) {
-  await page.waitForTimeout(durationMinutes * 60 * 1000);
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="remove-latency-injection"]'));
+// TODO: Replace XPath with Object Repository when available
+When('SLO compliance is verified', async function () {
+  const sloComplianceXPath = '//div[@id="slo-compliance"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/slo-compliance');
   await waits.waitForNetworkIdle();
-  this.testData.chaosConfig.latencyRemovalTime = Date.now();
+  await waits.waitForVisible(page.locator(sloComplianceXPath));
+  this.systemState.sloVerified = true;
 });
 
-When('steady state is monitored for {int} schedule changes with normal latency', async function (changeCount: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="monitor-steady-state"]'));
+// TODO: Replace XPath with Object Repository when available
+When('{int} schedule changes are processed', async function (changeCount: number) {
+  const processChangesXPath = '//div[@id="process-changes"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/process-changes');
   await waits.waitForNetworkIdle();
-  await actions.fill(page.locator('//input[@id="steady-state-change-count"]'), changeCount.toString());
-  await actions.click(page.locator('//button[@id="start-steady-state-monitoring"]'));
+  
+  const changeCountFieldXPath = '//input[@id="change-count"]';
+  const processButtonXPath = '//button[@id="process-schedule-changes"]';
+  
+  await actions.clearAndFill(page.locator(changeCountFieldXPath), changeCount.toString());
+  await actions.click(page.locator(processButtonXPath));
   await waits.waitForNetworkIdle();
-  this.testData.steadyStateChanges = changeCount;
+  
+  this.systemState.processedChanges = changeCount;
 });
 
-When('baseline high availability is verified with {int} service instances running', async function (instanceCount: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="verify-ha-baseline"]'));
+// TODO: Replace XPath with Object Repository when available
+When('primary ESP is configured to return HTTP {int} errors', async function (statusCode: number) {
+  const espConfigXPath = '//div[@id="esp-error-config"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/esp-config');
   await waits.waitForNetworkIdle();
-  const runningInstances = await page.locator('//div[@class="instance-item running"]').count();
-  expect(runningInstances).toBe(instanceCount);
-  this.testData.baselineInstanceCount = instanceCount;
+  
+  const statusCodeFieldXPath = '//input[@id="error-status-code"]';
+  const applyButtonXPath = '//button[@id="apply-error-config"]';
+  
+  await actions.clearAndFill(page.locator(statusCodeFieldXPath), statusCode.toString());
+  await actions.click(page.locator(applyButtonXPath));
+  await waits.waitForNetworkIdle();
+  
+  this.systemState.primaryEspError = statusCode;
 });
 
-When('continuous load of {int} schedule changes is generated over {int} minute period', async function (changeCount: number, durationMinutes: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="generate-continuous-load"]'));
+// TODO: Replace XPath with Object Repository when available
+When('{int} schedule change events are triggered during ESP outage', async function (eventCount: number) {
+  const triggerDuringOutageXPath = '//div[@id="trigger-during-outage"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/trigger-events');
   await waits.waitForNetworkIdle();
-  await actions.fill(page.locator('//input[@id="continuous-load-count"]'), changeCount.toString());
-  await actions.fill(page.locator('//input[@id="continuous-load-duration"]'), durationMinutes.toString());
-  await actions.click(page.locator('//button[@id="start-continuous-load"]'));
+  
+  const eventCountFieldXPath = '//input[@id="event-count"]';
+  const triggerButtonXPath = '//button[@id="trigger-during-outage"]';
+  
+  await actions.clearAndFill(page.locator(eventCountFieldXPath), eventCount.toString());
+  await actions.click(page.locator(triggerButtonXPath));
   await waits.waitForNetworkIdle();
-  this.testData.continuousLoadChanges = changeCount;
-  this.testData.continuousLoadDuration = durationMinutes;
+  
+  this.systemState.eventsTriggeredDuringOutage = eventCount;
 });
 
-When('primary instance handling majority of traffic is identified', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="identify-primary-instance"]'));
+// TODO: Replace XPath with Object Repository when available
+When('retry behavior and fallback activation are monitored', async function () {
+  const retryMonitorXPath = '//div[@id="retry-monitor"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/retry-monitor');
   await waits.waitForNetworkIdle();
-  const primaryInstanceId = await page.locator('//div[@class="instance-item primary"]//span[@class="instance-id"]').textContent();
-  this.testData.primaryInstanceId = primaryInstanceId;
+  await waits.waitForVisible(page.locator(retryMonitorXPath));
+  this.systemState.retryMonitored = true;
 });
 
-When('primary notification service instance is forcefully terminated', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="terminate-primary-instance"]'));
+// TODO: Replace XPath with Object Repository when available
+When('email delivery through secondary ESP is verified', async function () {
+  const secondaryEspDeliveryXPath = '//div[@id="secondary-esp-delivery"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/email-delivery');
   await waits.waitForNetworkIdle();
-  this.testData.instanceTerminationTime = Date.now();
+  await waits.waitForVisible(page.locator(secondaryEspDeliveryXPath));
+  this.systemState.secondaryEspVerified = true;
 });
 
-When('replacement instance is brought up', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="bring-up-replacement-instance"]'));
+// TODO: Replace XPath with Object Repository when available
+When('primary ESP is restored to healthy state', async function () {
+  const restoreEspButtonXPath = '//button[@id="restore-primary-esp"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/esp-config');
   await waits.waitForNetworkIdle();
-  this.testData.replacementInstanceStartTime = Date.now();
+  await actions.click(page.locator(restoreEspButtonXPath));
+  await waits.waitForNetworkIdle();
+  this.systemState.primaryEspRestored = true;
 });
 
-When('{int} new schedule changes are created post-recovery', async function (changeCount: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="create-post-recovery-changes"]'));
+// TODO: Replace XPath with Object Repository when available
+When('{int} new schedule changes are triggered', async function (changeCount: number) {
+  const newChangesXPath = '//div[@id="new-changes"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/trigger-events');
   await waits.waitForNetworkIdle();
-  await actions.fill(page.locator('//input[@id="post-recovery-change-count"]'), changeCount.toString());
-  await actions.click(page.locator('//button[@id="execute-post-recovery-changes"]'));
+  
+  const changeCountFieldXPath = '//input[@id="new-change-count"]';
+  const triggerButtonXPath = '//button[@id="trigger-new-changes"]';
+  
+  await actions.clearAndFill(page.locator(changeCountFieldXPath), changeCount.toString());
+  await actions.click(page.locator(triggerButtonXPath));
   await waits.waitForNetworkIdle();
-  this.testData.postRecoveryChanges = changeCount;
+  
+  this.systemState.newChangesTriggered = changeCount;
 });
 
-When('{int} schedule changes are created', async function (changeCount: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="create-schedule-changes"]'));
+// TODO: Replace XPath with Object Repository when available
+When('notification audit trail is validated for all {int} notifications', async function (notificationCount: number) {
+  const auditTrailXPath = '//div[@id="audit-trail"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/audit-trail');
   await waits.waitForNetworkIdle();
-  await actions.fill(page.locator('//input[@id="schedule-change-count"]'), changeCount.toString());
-  await actions.click(page.locator('//button[@id="execute-schedule-changes"]'));
-  await waits.waitForNetworkIdle();
+  await waits.waitForVisible(page.locator(auditTrailXPath));
+  this.systemState.auditTrailValidated = notificationCount;
 });
 
-When('{string} is {string}', async function (component: string, action: string) {
-  // TODO: Replace XPath with Object Repository when available
-  const actionXPath = `//button[@id='${action.toLowerCase().replace(/\s+/g, '-')}-${component.toLowerCase().replace(/\s+/g, '-')}']`;
-  await actions.click(page.locator(actionXPath));
+// TODO: Replace XPath with Object Repository when available
+When('resilience metrics are calculated', async function () {
+  const resilienceMetricsXPath = '//div[@id="resilience-metrics"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/resilience-metrics');
   await waits.waitForNetworkIdle();
+  await waits.waitForVisible(page.locator(resilienceMetricsXPath));
+  this.systemState.resilienceCalculated = true;
+});
+
+// TODO: Replace XPath with Object Repository when available
+When('{int} simultaneous schedule changes are triggered within {int} seconds', async function (changeCount: number, seconds: number) {
+  const simultaneousChangesXPath = '//div[@id="simultaneous-changes"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/load-test');
+  await waits.waitForNetworkIdle();
+  
+  const changeCountFieldXPath = '//input[@id="simultaneous-change-count"]';
+  const durationFieldXPath = '//input[@id="duration-seconds"]';
+  const triggerButtonXPath = '//button[@id="trigger-simultaneous-changes"]';
+  
+  await actions.clearAndFill(page.locator(changeCountFieldXPath), changeCount.toString());
+  await actions.clearAndFill(page.locator(durationFieldXPath), seconds.toString());
+  await actions.click(page.locator(triggerButtonXPath));
+  await waits.waitForNetworkIdle();
+  
+  this.systemState.simultaneousChanges = changeCount;
+});
+
+// TODO: Replace XPath with Object Repository when available
+When('backpressure activation and system behavior are monitored', async function () {
+  const backpressureMonitorXPath = '//div[@id="backpressure-monitor"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/backpressure-monitor');
+  await waits.waitForNetworkIdle();
+  await waits.waitForVisible(page.locator(backpressureMonitorXPath));
+  this.systemState.backpressureMonitored = true;
+});
+
+// TODO: Replace XPath with Object Repository when available
+When('priority-based processing is observed', async function () {
+  const priorityProcessingXPath = '//div[@id="priority-processing"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/priority-processing');
+  await waits.waitForNetworkIdle();
+  await waits.waitForVisible(page.locator(priorityProcessingXPath));
+  this.systemState.priorityProcessingObserved = true;
+});
+
+// TODO: Replace XPath with Object Repository when available
+When('queue drain rate and system recovery are monitored over {int} minutes', async function (minutes: number) {
+  const queueDrainMonitorXPath = '//div[@id="queue-drain-monitor"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/queue-drain-monitor');
+  await waits.waitForNetworkIdle();
+  await waits.waitForVisible(page.locator(queueDrainMonitorXPath));
+  
+  await page.waitForTimeout(minutes * 60 * 1000);
+  
+  this.systemState.queueDrainMonitored = minutes;
+});
+
+// TODO: Replace XPath with Object Repository when available
+When('notification delivery completeness is validated', async function () {
+  const deliveryCompletenessXPath = '//div[@id="delivery-completeness"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/delivery-completeness');
+  await waits.waitForNetworkIdle();
+  await waits.waitForVisible(page.locator(deliveryCompletenessXPath));
+  this.systemState.deliveryCompletenessValidated = true;
+});
+
+// TODO: Replace XPath with Object Repository when available
+When('data integrity is verified', async function () {
+  const dataIntegrityXPath = '//div[@id="data-integrity"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/data-integrity');
+  await waits.waitForNetworkIdle();
+  await waits.waitForVisible(page.locator(dataIntegrityXPath));
+  this.systemState.dataIntegrityVerified = true;
 });
 
 // ==================== THEN STEPS ====================
 
-Then('notification service should detect database unavailability', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await waits.waitForVisible(page.locator('//div[@id="db-unavailability-detected"]'));
-  await assertions.assertVisible(page.locator('//div[@id="db-unavailability-detected"]'));
-  const detectionMessage = await page.locator('//div[@id="db-unavailability-detected"]').textContent();
-  expect(detectionMessage).toContain('Database Unavailable');
+// TODO: Replace XPath with Object Repository when available
+Then('database becomes unavailable', async function () {
+  const databaseStatusXPath = '//div[@id="database-status"]';
+  await waits.waitForVisible(page.locator(databaseStatusXPath));
+  await assertions.assertContainsText(page.locator(databaseStatusXPath), 'unavailable');
 });
 
-Then('notification events should be queued to message buffer', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await assertions.assertVisible(page.locator('//div[@id="message-buffer-status"]'));
-  const queuedCount = await page.locator('//span[@id="queued-notification-count"]').textContent();
-  expect(parseInt(queuedCount || '0')).toBeGreaterThan(0);
-  this.testData.queuedNotifications = parseInt(queuedCount || '0');
+// TODO: Replace XPath with Object Repository when available
+Then('connection attempts fail with timeout errors', async function () {
+  const connectionErrorsXPath = '//div[@id="connection-errors"]';
+  await waits.waitForVisible(page.locator(connectionErrorsXPath));
+  await assertions.assertContainsText(page.locator(connectionErrorsXPath), 'timeout');
 });
 
-Then('service should remain operational without crash', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await assertions.assertVisible(page.locator('//div[@id="service-status"]'));
-  const serviceStatus = await page.locator('//span[@id="service-operational-status"]').textContent();
-  expect(serviceStatus).toContain('Operational');
+// TODO: Replace XPath with Object Repository when available
+Then('circuit breaker transitions to {string} state after {int} failed attempts', async function (state: string, attempts: number) {
+  const circuitBreakerStateXPath = '//div[@id="circuit-breaker-state"]';
+  await waits.waitForVisible(page.locator(circuitBreakerStateXPath));
+  await assertions.assertContainsText(page.locator(circuitBreakerStateXPath), state);
+  
+  const failedAttemptsXPath = '//div[@id="failed-attempts-count"]';
+  await assertions.assertContainsText(page.locator(failedAttemptsXPath), attempts.toString());
 });
 
-Then('health check endpoints should return degraded status', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="check-health-endpoints"]'));
+// TODO: Replace XPath with Object Repository when available
+Then('{int} notifications are queued in message queue', async function (notificationCount: number) {
+  const queuedNotificationsXPath = '//div[@id="queued-notifications-count"]';
+  await waits.waitForVisible(page.locator(queuedNotificationsXPath));
+  await assertions.assertContainsText(page.locator(queuedNotificationsXPath), notificationCount.toString());
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('error logs are generated with appropriate severity', async function () {
+  const errorLogsXPath = '//div[@id="error-logs"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/logs');
   await waits.waitForNetworkIdle();
-  const healthStatus = await page.locator('//span[@id="health-endpoint-status"]').textContent();
-  expect(healthStatus).toContain('Degraded');
+  await waits.waitForVisible(page.locator(errorLogsXPath));
+  await assertions.assertContainsText(page.locator(errorLogsXPath), 'ERROR');
 });
 
-Then('circuit breaker should open to prevent cascading failures', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await assertions.assertVisible(page.locator('//div[@id="circuit-breaker-status"]'));
-  const breakerState = await page.locator('//span[@id="circuit-breaker-state"]').textContent();
-  expect(breakerState).toContain('Open');
+// TODO: Replace XPath with Object Repository when available
+Then('notifications are not dropped', async function () {
+  const droppedNotificationsXPath = '//div[@id="dropped-notifications-count"]';
+  await assertions.assertContainsText(page.locator(droppedNotificationsXPath), '0');
 });
 
-Then('service should detect database availability within {int} seconds', async function (detectionSeconds: number) {
-  const startTime = Date.now();
-  // TODO: Replace XPath with Object Repository when available
-  await waits.waitForVisible(page.locator('//div[@id="db-availability-detected"]'));
-  const detectionTime = (Date.now() - startTime) / 1000;
-  expect(detectionTime).toBeLessThanOrEqual(detectionSeconds);
+// TODO: Replace XPath with Object Repository when available
+Then('service remains operational without crashes', async function () {
+  const serviceStatusXPath = '//div[@id="service-status"]';
+  await waits.waitForVisible(page.locator(serviceStatusXPath));
+  await assertions.assertContainsText(page.locator(serviceStatusXPath), 'operational');
 });
 
-Then('circuit breaker should transition to half-open then closed state', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await page.waitForTimeout(2000);
-  const halfOpenState = await page.locator('//span[@id="circuit-breaker-state"]').textContent();
-  expect(halfOpenState).toContain('Half-Open');
-  await page.waitForTimeout(3000);
-  const closedState = await page.locator('//span[@id="circuit-breaker-state"]').textContent();
-  expect(closedState).toContain('Closed');
+// TODO: Replace XPath with Object Repository when available
+Then('circuit breaker status is {string}', async function (status: string) {
+  const circuitBreakerStatusXPath = '//div[@id="circuit-breaker-status"]';
+  await waits.waitForVisible(page.locator(circuitBreakerStatusXPath));
+  await assertions.assertContainsText(page.locator(circuitBreakerStatusXPath), status);
 });
 
-Then('all {int} queued notifications should be delivered within {int} minutes', async function (notificationCount: number, timeLimit: number) {
-  const startTime = Date.now();
-  await page.waitForTimeout(timeLimit * 60 * 1000);
-  // TODO: Replace XPath with Object Repository when available
-  const deliveredCount = await page.locator('//span[@id="delivered-notification-count"]').textContent();
-  expect(parseInt(deliveredCount || '0')).toBe(notificationCount);
-  const deliveryTime = (Date.now() - startTime) / 1000 / 60;
-  expect(deliveryTime).toBeLessThanOrEqual(timeLimit);
+// TODO: Replace XPath with Object Repository when available
+Then('notification queue depth is {int}', async function (depth: number) {
+  const queueDepthXPath = '//div[@id="notification-queue-depth"]';
+  await waits.waitForVisible(page.locator(queueDepthXPath));
+  await assertions.assertContainsText(page.locator(queueDepthXPath), depth.toString());
 });
 
-Then('notification data integrity should be maintained', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="verify-data-integrity"]'));
+// TODO: Replace XPath with Object Repository when available
+Then('no memory leaks are detected', async function () {
+  const memoryLeaksXPath = '//div[@id="memory-leaks"]';
+  await waits.waitForVisible(page.locator(memoryLeaksXPath));
+  await assertions.assertContainsText(page.locator(memoryLeaksXPath), 'none');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('CPU usage remains below {int} percent', async function (percentage: number) {
+  const cpuUsageXPath = '//div[@id="cpu-usage"]';
+  const cpuText = await page.locator(cpuUsageXPath).textContent();
+  const cpuUsage = parseInt(cpuText?.replace(/\D/g, '') || '0');
+  expect(cpuUsage).toBeLessThan(percentage);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('database connection is restored successfully', async function () {
+  const databaseConnectionXPath = '//div[@id="database-connection-status"]';
+  await waits.waitForVisible(page.locator(databaseConnectionXPath));
+  await assertions.assertContainsText(page.locator(databaseConnectionXPath), 'restored');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('circuit breaker transitions to {string} state', async function (state: string) {
+  const circuitBreakerStateXPath = '//div[@id="circuit-breaker-state"]';
+  await waits.waitForVisible(page.locator(circuitBreakerStateXPath));
+  await assertions.assertContainsText(page.locator(circuitBreakerStateXPath), state);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('circuit breaker transitions from {string} to {string} after {int} successful requests', async function (fromState: string, toState: string, requestCount: number) {
+  const circuitBreakerStateXPath = '//div[@id="circuit-breaker-state"]';
+  await waits.waitForVisible(page.locator(circuitBreakerStateXPath));
+  await assertions.assertContainsText(page.locator(circuitBreakerStateXPath), toState);
+  
+  const successfulRequestsXPath = '//div[@id="successful-requests-count"]';
+  await assertions.assertContainsText(page.locator(successfulRequestsXPath), requestCount.toString());
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('all {int} queued notifications are processed within {int} minutes', async function (notificationCount: number, minutes: number) {
+  const processedNotificationsXPath = '//div[@id="processed-notifications-count"]';
+  await waits.waitForVisible(page.locator(processedNotificationsXPath));
+  
+  await page.waitForTimeout(minutes * 60 * 1000);
+  
+  await assertions.assertContainsText(page.locator(processedNotificationsXPath), notificationCount.toString());
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('MTTR is less than {int} minutes', async function (minutes: number) {
+  const mttrXPath = '//div[@id="mttr-metric"]';
+  const mttrText = await page.locator(mttrXPath).textContent();
+  const mttr = parseInt(mttrText?.replace(/\D/g, '') || '0');
+  expect(mttr).toBeLessThan(minutes);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('{int} percent notification delivery success is achieved', async function (percentage: number) {
+  const deliverySuccessXPath = '//div[@id="delivery-success-rate"]';
+  const successText = await page.locator(deliverySuccessXPath).textContent();
+  const successRate = parseInt(successText?.replace(/\D/g, '') || '0');
+  expect(successRate).toBe(percentage);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('no duplicate notifications are sent', async function () {
+  const duplicateNotificationsXPath = '//div[@id="duplicate-notifications-count"]';
+  await assertions.assertContainsText(page.locator(duplicateNotificationsXPath), '0');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('notification content is accurate', async function () {
+  const contentAccuracyXPath = '//div[@id="content-accuracy"]';
+  await waits.waitForVisible(page.locator(contentAccuracyXPath));
+  await assertions.assertContainsText(page.locator(contentAccuracyXPath), 'accurate');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('total system downtime for notification feature is {int}', async function (downtime: number) {
+  const downtimeXPath = '//div[@id="system-downtime"]';
+  const downtimeText = await page.locator(downtimeXPath).textContent();
+  const actualDowntime = parseInt(downtimeText?.replace(/\D/g, '') || '0');
+  expect(actualDowntime).toBe(downtime);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('availability is {int} percent in degraded mode', async function (percentage: number) {
+  const availabilityXPath = '//div[@id="availability-degraded"]';
+  const availabilityText = await page.locator(availabilityXPath).textContent();
+  const availability = parseInt(availabilityText?.replace(/\D/g, '') || '0');
+  expect(availability).toBe(percentage);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('RTO is less than {int} minutes', async function (minutes: number) {
+  const rtoXPath = '//div[@id="rto-metric"]';
+  const rtoText = await page.locator(rtoXPath).textContent();
+  const rto = parseInt(rtoText?.replace(/\D/g, '') || '0');
+  expect(rto).toBeLessThan(minutes);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('RPO is {int} with no data loss', async function (rpo: number) {
+  const rpoXPath = '//div[@id="rpo-metric"]';
+  const rpoText = await page.locator(rpoXPath).textContent();
+  const actualRpo = parseInt(rpoText?.replace(/\D/g, '') || '0');
+  expect(actualRpo).toBe(rpo);
+  
+  const dataLossXPath = '//div[@id="data-loss"]';
+  await assertions.assertContainsText(page.locator(dataLossXPath), 'none');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('MTTR is less than {int} minutes meeting SLO target', async function (minutes: number) {
+  const mttrSloXPath = '//div[@id="mttr-slo"]';
+  const mttrText = await page.locator(mttrSloXPath).textContent();
+  const mttr = parseInt(mttrText?.replace(/\D/g, '') || '0');
+  expect(mttr).toBeLessThan(minutes);
+  
+  const sloMetXPath = '//div[@id="slo-met"]';
+  await assertions.assertContainsText(page.locator(sloMetXPath), 'true');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('all services are restored to normal operation', async function () {
+  const servicesStatusXPath = '//div[@id="all-services-status"]';
+  await waits.waitForVisible(page.locator(servicesStatusXPath));
+  await assertions.assertContainsText(page.locator(servicesStatusXPath), 'normal');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('circuit breaker is in {string} state', async function (state: string) {
+  const circuitBreakerStateXPath = '//div[@id="circuit-breaker-state"]';
+  await waits.waitForVisible(page.locator(circuitBreakerStateXPath));
+  await assertions.assertContainsText(page.locator(circuitBreakerStateXPath), state);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('notification queue is empty', async function () {
+  const queueDepthXPath = '//div[@id="notification-queue-depth"]';
+  await assertions.assertContainsText(page.locator(queueDepthXPath), '0');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('no orphaned notifications exist in the system', async function () {
+  const orphanedNotificationsXPath = '//div[@id="orphaned-notifications-count"]';
+  await assertions.assertContainsText(page.locator(orphanedNotificationsXPath), '0');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('incident is logged with root cause analysis', async function () {
+  const incidentLogXPath = '//div[@id="incident-log"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/incidents');
   await waits.waitForNetworkIdle();
-  const integrityStatus = await page.locator('//span[@id="data-integrity-status"]').textContent();
-  expect(integrityStatus).toContain('Maintained');
+  await waits.waitForVisible(page.locator(incidentLogXPath));
+  await assertions.assertContainsText(page.locator(incidentLogXPath), 'root cause');
 });
 
-Then('new notifications should be delivered within {int} minute', async function (timeLimit: number) {
-  await page.waitForTimeout(timeLimit * 60 * 1000);
-  // TODO: Replace XPath with Object Repository when available
-  const newDeliveredCount = await page.locator('//span[@id="new-delivered-count"]').textContent();
-  expect(parseInt(newDeliveredCount || '0')).toBeGreaterThan(0);
+// TODO: Replace XPath with Object Repository when available
+Then('{int} percent delivery success is achieved on both channels', async function (percentage: number) {
+  const emailDeliveryXPath = '//div[@id="email-delivery-success"]';
+  const inAppDeliveryXPath = '//div[@id="in-app-delivery-success"]';
+  
+  const emailText = await page.locator(emailDeliveryXPath).textContent();
+  const emailSuccess = parseInt(emailText?.replace(/\D/g, '') || '0');
+  expect(emailSuccess).toBe(percentage);
+  
+  const inAppText = await page.locator(inAppDeliveryXPath).textContent();
+  const inAppSuccess = parseInt(inAppText?.replace(/\D/g, '') || '0');
+  expect(inAppSuccess).toBe(percentage);
 });
 
-Then('MTTR should be less than {int} minutes', async function (mttrLimit: number) {
-  // TODO: Replace XPath with Object Repository when available
-  const mttrValue = await page.locator('//span[@id="mttr-value"]').textContent();
-  const mttrMinutes = parseFloat(mttrValue || '0');
-  expect(mttrMinutes).toBeLessThan(mttrLimit);
+// TODO: Replace XPath with Object Repository when available
+Then('average delivery time is {int} seconds for email', async function (seconds: number) {
+  const emailDeliveryTimeXPath = '//div[@id="email-delivery-time"]';
+  const deliveryText = await page.locator(emailDeliveryTimeXPath).textContent();
+  const deliveryTime = parseInt(deliveryText?.replace(/\D/g, '') || '0');
+  expect(deliveryTime).toBe(seconds);
 });
 
-Then('notification delivery rate should be {int} percent with {int} total notifications', async function (deliveryRate: number, totalNotifications: number) {
-  // TODO: Replace XPath with Object Repository when available
-  const actualDeliveryRate = await page.locator('//span[@id="delivery-rate-percent"]').textContent();
-  const actualTotalNotifications = await page.locator('//span[@id="total-notifications"]').textContent();
-  expect(parseInt(actualDeliveryRate || '0')).toBe(deliveryRate);
-  expect(parseInt(actualTotalNotifications || '0')).toBe(totalNotifications);
+// TODO: Replace XPath with Object Repository when available
+Then('average delivery time is {int} seconds for in-app notifications', async function (seconds: number) {
+  const inAppDeliveryTimeXPath = '//div[@id="in-app-delivery-time"]';
+  const deliveryText = await page.locator(inAppDeliveryTimeXPath).textContent();
+  const deliveryTime = parseInt(deliveryText?.replace(/\D/g, '') || '0');
+  expect(deliveryTime).toBe(seconds);
 });
 
-Then('RTO compliance should be verified', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="verify-rto-compliance"]'));
+// TODO: Replace XPath with Object Repository when available
+Then('primary ESP returns {int} errors for all email send requests', async function (statusCode: number) {
+  const espErrorsXPath = '//div[@id="primary-esp-errors"]';
+  await waits.waitForVisible(page.locator(espErrorsXPath));
+  await assertions.assertContainsText(page.locator(espErrorsXPath), statusCode.toString());
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('system attempts to send emails via primary ESP', async function () {
+  const sendAttemptsXPath = '//div[@id="primary-esp-send-attempts"]';
+  await waits.waitForVisible(page.locator(sendAttemptsXPath));
+  const attemptsText = await page.locator(sendAttemptsXPath).textContent();
+  const attempts = parseInt(attemptsText?.replace(/\D/g, '') || '0');
+  expect(attempts).toBeGreaterThan(0);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('system receives {int} errors', async function (statusCode: number) {
+  const receivedErrorsXPath = '//div[@id="received-errors"]';
+  await waits.waitForVisible(page.locator(receivedErrorsXPath));
+  await assertions.assertContainsText(page.locator(receivedErrorsXPath), statusCode.toString());
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('retry logic initiates with exponential backoff at {string}', async function (backoffPattern: string) {
+  const retryLogicXPath = '//div[@id="retry-logic-pattern"]';
+  await waits.waitForVisible(page.locator(retryLogicXPath));
+  await assertions.assertContainsText(page.locator(retryLogicXPath), backoffPattern);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('system switches to secondary ESP after {int} failed attempts', async function (attempts: number) {
+  const fallbackActivationXPath = '//div[@id="fallback-activation"]';
+  await waits.waitForVisible(page.locator(fallbackActivationXPath));
+  await assertions.assertContainsText(page.locator(fallbackActivationXPath), 'secondary ESP');
+  
+  const failedAttemptsXPath = '//div[@id="failed-attempts-before-fallback"]';
+  await assertions.assertContainsText(page.locator(failedAttemptsXPath), attempts.toString());
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('fallback mechanism activates within {int} seconds of initial failure', async function (seconds: number) {
+  const fallbackTimeXPath = '//div[@id="fallback-activation-time"]';
+  const timeText = await page.locator(fallbackTimeXPath).textContent();
+  const activationTime = parseInt(timeText?.replace(/\D/g, '') || '0');
+  expect(activationTime).toBeLessThanOrEqual(seconds);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('total retry duration is {int} seconds', async function (seconds: number) {
+  const retryDurationXPath = '//div[@id="total-retry-duration"]';
+  const durationText = await page.locator(retryDurationXPath).textContent();
+  const duration = parseInt(durationText?.replace(/\D/g, '') || '0');
+  expect(duration).toBe(seconds);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('all {int} emails are successfully sent via secondary ESP within {int} seconds', async function (emailCount: number, seconds: number) {
+  const secondaryEspEmailsXPath = '//div[@id="secondary-esp-emails-sent"]';
+  await waits.waitForVisible(page.locator(secondaryEspEmailsXPath));
+  await assertions.assertContainsText(page.locator(secondaryEspEmailsXPath), emailCount.toString());
+  
+  const deliveryTimeXPath = '//div[@id="secondary-esp-delivery-time"]';
+  const timeText = await page.locator(deliveryTimeXPath).textContent();
+  const deliveryTime = parseInt(timeText?.replace(/\D/g, '') || '0');
+  expect(deliveryTime).toBeLessThanOrEqual(seconds);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('all {int} in-app notifications are delivered within {int} seconds', async function (notificationCount: number, seconds: number) {
+  const inAppNotificationsXPath = '//div[@id="in-app-notifications-delivered"]';
+  await waits.waitForVisible(page.locator(inAppNotificationsXPath));
+  await assertions.assertContainsText(page.locator(inAppNotificationsXPath), notificationCount.toString());
+  
+  const deliveryTimeXPath = '//div[@id="in-app-delivery-time"]';
+  const timeText = await page.locator(deliveryTimeXPath).textContent();
+  const deliveryTime = parseInt(timeText?.replace(/\D/g, '') || '0');
+  expect(deliveryTime).toBeLessThanOrEqual(seconds);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('total email delivery time is less than {int} seconds', async function (seconds: number) {
+  const totalDeliveryTimeXPath = '//div[@id="total-email-delivery-time"]';
+  const timeText = await page.locator(totalDeliveryTimeXPath).textContent();
+  const totalTime = parseInt(timeText?.replace(/\D/g, '') || '0');
+  expect(totalTime).toBeLessThan(seconds);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('system detects primary ESP recovery', async function () {
+  const espRecoveryXPath = '//div[@id="primary-esp-recovery"]';
+  await waits.waitForVisible(page.locator(espRecoveryXPath));
+  await assertions.assertContainsText(page.locator(espRecoveryXPath), 'recovered');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('new notifications route through primary ESP', async function () {
+  const routingXPath = '//div[@id="notification-routing"]';
+  await waits.waitForVisible(page.locator(routingXPath));
+  await assertions.assertContainsText(page.locator(routingXPath), 'primary ESP');
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('delivery time returns to baseline of less than {int} seconds', async function (seconds: number) {
+  const baselineDeliveryTimeXPath = '//div[@id="baseline-delivery-time"]';
+  const timeText = await page.locator(baselineDeliveryTimeXPath).textContent();
+  const deliveryTime = parseInt(timeText?.replace(/\D/g, '') || '0');
+  expect(deliveryTime).toBeLessThan(seconds);
+});
+
+// TODO: Replace XPath with Object Repository when available
+Then('audit logs show {int} successful deliveries via primary ESP before failure', async function (deliveryCount: number) {
+  const auditLogsXPath = '//div[@id="audit-logs-primary-before-failure"]';
+  await actions.navigateTo(process.env.BASE_URL + '/admin/audit-logs');
   await waits.waitForNetworkIdle();
-  const rtoCompliance = await page.locator('//span[@id="rto-compliance-status"]').textContent();
-  expect(rtoCompliance).toContain('Compliant');
+  await waits.waitForVisible(page.locator(auditLogsXPath));
+  await assertions.assertContainsText(page.locator(auditLogsXPath), deliveryCount.toString());
 });
 
-Then('no duplicate notifications should be sent to users', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="check-duplicate-notifications"]'));
-  await waits.waitForNetworkIdle();
-  const duplicateCount = await page.locator('//span[@id="duplicate-notification-count"]').textContent();
-  expect(parseInt(duplicateCount || '0')).toBe(0);
+// TODO: Replace XPath with Object Repository when available
+Then('audit logs show {int} successful deliveries via secondary ESP during failure', async function (deliveryCount: number) {
+  const auditLogsXPath = '//div[@id="audit-logs-secondary-during-failure"]';
+  await waits.waitForVisible(page.locator(auditLogsXPath));
+  await assertions.assertContainsText(page.locator(auditLogsXPath), deliveryCount.toString());
 });
 
-Then('{int} percent dual-channel delivery should occur within {int} minute', async function (deliveryPercent: number, timeLimit: number) {
-  await page.waitForTimeout(timeLimit * 60 * 1000);
-  // TODO: Replace XPath with Object Repository when available
-  const dualChannelRate = await page.locator('//span[@id="dual-channel-delivery-rate"]').textContent();
-  expect(parseInt(dualChannelRate || '0')).toBe(deliveryPercent);
+// TODO: Replace XPath with Object Repository when available
+Then('audit logs show {int} successful deliveries via primary ESP after recovery', async function (deliveryCount: number) {
+  const auditLogsXPath = '//div[@id="audit-logs-primary-after-recovery"]';
+  await waits.waitForVisible(page.locator(auditLogsXPath));
+  await assertions.assertContainsText(page.locator(auditLogsXPath), deliveryCount.toString());
 });
 
-Then('average email delivery time should be {int} milliseconds', async function (avgTimeMs: number) {
-  // TODO: Replace XPath with Object Repository when available
-  const actualAvgTime = await page.locator('//span[@id="avg-email-delivery-time"]').textContent();
-  expect(parseInt(actualAvgTime || '0')).toBeLessThanOrEqual(avgTimeMs);
+// TODO: Replace XPath with Object Repository when available
+Then('no duplicate emails are sent', async function () {
+  const duplicateEmailsXPath = '//div[@id="duplicate-emails-count"]';
+  await assertions.assertContainsText(page.locator(duplicateEmailsXPath), '0');
 });
 
-Then('in-app delivery time should be {int} milliseconds', async function (deliveryTimeMs: number) {
-  // TODO: Replace XPath with Object Repository when available
-  const actualInappTime = await page.locator('//span[@id="inapp-delivery-time"]').textContent();
-  expect(parseInt(actualInappTime || '0')).toBeLessThanOrEqual(deliveryTimeMs);
+// TODO: Replace XPath with Object Repository when available
+Then('delivery status accurately reflects channel used', async function () {
+  const deliveryStatusXPath = '//div[@id="delivery-status-accuracy"]';
+  await waits.waitForVisible(page.locator(deliveryStatusXPath));
+  await assertions.assertContainsText(page.locator(deliveryStatusXPath), 'accurate');
 });
 
-Then('in-app notifications should be delivered within {int} minute for all {int} changes', async function (timeLimit: number, changeCount: number) {
-  await page.waitForTimeout(timeLimit * 60 * 1000);
-  // TODO: Replace XPath with Object Repository when available
-  const inappDeliveredCount = await page.locator('//span[@id="inapp-delivered-count"]').textContent();
-  expect(parseInt(inappDeliveredCount || '0')).toBe(changeCount);
+// TODO: Replace XPath with Object Repository when available
+Then('email channel availability is {int} percent via fallback', async function (percentage: number) {
+  const emailAvailabilityXPath = '//div[@id="email-channel-availability"]';
+  const availabilityText = await page.locator(emailAvailabilityXPath).textContent();
+  const availability = parseInt(availabilityText?.replace(/\D/g, '') || '0');
+  expect(availability).toBe(percentage);
 });
 
-Then('email delivery attempts should timeout after {int} seconds', async function (timeoutSeconds: number) {
-  // TODO: Replace XPath with Object Repository when available
-  const emailTimeout = await page.locator('//span[@id="email-timeout-duration"]').textContent();
-  expect(parseInt(emailTimeout || '0')).toBe(timeoutSeconds);
+// TODO: Replace XPath with Object Repository when available
+Then('in-app channel availability is {int} percent', async function (percentage: number) {
+  const inAppAvailabilityXPath = '//div[@id="in-app-channel-availability"]';
+  const availabilityText = await page.locator(inAppAvailabilityXPath).textContent();
+  const availability = parseInt(availabilityText?.replace(/\D/g, '') || '0');
+  expect(availability).toBe(percentage);
 });
 
-Then('circuit breaker should open after {int} consecutive timeout failures', async function (failureThreshold: number) {
-  // TODO: Replace XPath with Object Repository when available
-  const consecutiveFailures = await page.locator('//span[@id="consecutive-timeout-failures"]').textContent();
-  expect(parseInt(consecutiveFailures || '0')).toBe(failureThreshold);
-  const breakerState = await page.locator('//span[@id="circuit-breaker-state"]').textContent();
-  expect(breakerState).toContain('Open');
+// TODO: Replace XPath with Object Repository when available
+Then('MTTR for email channel is less than {int} seconds', async function (seconds: number) {
+  const mttrXPath = '//div[@id="email-channel-mttr"]';
+  const mttrText = await page.locator(mttrXPath).textContent();
+  const mttr = parseInt(mttrText?.replace(/\D/g, '') || '0');
+  expect(mttr).toBeLessThan(seconds);
 });
 
-Then('email service should be marked as degraded', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  const emailServiceStatus = await page.locator('//span[@id="email-service-status"]').textContent();
-  expect(emailServiceStatus).toContain('Degraded');
+// TODO: Replace XPath with Object Repository when available
+Then('user impact is {int} missed notifications', async function (missedCount: number) {
+  const missedNotificationsXPath = '//div[@id="missed-notifications-count"]';
+  await assertions.assertContainsText(page.locator(missedNotificationsXPath), missedCount.toString());
 });
 
-Then('retry queue should be activated', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await assertions.assertVisible(page.locator('//div[@id="retry-queue-status"]'));
-  const retryQueueActive = await page.locator('//span[@id="retry-queue-active"]').textContent();
-  expect(retryQueueActive).toContain('Active');
+// TODO: Replace XPath with Object Repository when available
+Then('SLO compliance is {int} percent notification delivery maintained', async function (percentage: number) {
+  const sloComplianceXPath = '//div[@id="slo-compliance-percentage"]';
+  const complianceText = await page.locator(sloComplianceXPath).textContent();
+  const compliance = parseInt(complianceText?.replace(/\D/g, '') || '0');
+  expect(compliance).toBe(percentage);
 });
 
-Then('retry attempts should follow exponential backoff pattern with intervals {string}', async function (intervals: string) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="view-retry-intervals"]'));
-  await waits.waitForNetworkIdle();
-  const actualIntervals = await page.locator('//span[@id="retry-interval-pattern"]').textContent();
-  expect(actualIntervals).toContain(intervals);
+// TODO: Replace XPath with Object Repository when available
+Then('primary ESP is restored and active', async function () {
+  const primaryEspStatusXPath = '//div[@id="primary-esp-status"]';
+  await waits.waitForVisible(page.locator(primaryEspStatusXPath));
+  await assertions.assertContainsText(page.locator(primaryEspStatusXPath), 'active');
 });
 
-Then('maximum {int} retry attempts per notification should occur', async function (maxRetries: number) {
-  // TODO: Replace XPath with Object Repository when available
-  const actualMaxRetries = await page.locator('//span[@id="max-retry-attempts"]').textContent();
-  expect(parseInt(actualMaxRetries || '0')).toBe(maxRetries);
+// TODO: Replace XPath with Object Repository when available
+Then('all notifications are delivered successfully', async function () {
+  const deliverySuccessXPath = '//div[@id="all-notifications-delivered"]';
+  await waits.waitForVisible(page.locator(deliverySuccessXPath));
+  await assertions.assertContainsText(page.locator(deliverySuccessXPath), 'success');
 });
 
-Then('no system overload should occur', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="check-system-load"]'));
-  await waits.waitForNetworkIdle();
-  const systemOverload = await page.locator('//span[@id="system-overload-status"]').textContent();
-  expect(systemOverload).toContain('No Overload');
+// TODO: Replace XPath with Object Repository when available
+Then('no pending retry queues exist', async function () {
+  const pendingRetryQueuesXPath = '//div[@id="pending-retry-queues-count"]';
+  await assertions.assertContainsText(page.locator(pendingRetryQueuesXPath), '0');
 });
 
-Then('email API latency should return to less than {int} milliseconds', async function (latencyMs: number) {
-  // TODO: Replace XPath with Object Repository when available
-  const currentLatency = await page.locator('//span[@id="email-api-latency"]').textContent();
-  expect(parseInt(currentLatency || '0')).toBeLessThan(latencyMs);
+// TODO: Replace XPath with Object Repository when available
+Then('fallback mechanism is reset to monitor primary ESP', async function () {
+  const fallbackMechanismXPath = '//div[@id="fallback-mechanism-status"]';
+  await waits.waitForVisible(page.locator(fallbackMechanismXPath));
+  await assertions.assertContainsText(page.locator(fallbackMechanismXPath), 'monitoring primary');
 });
 
-Then('circuit breaker should transition to half-open state within {int} seconds', async function (transitionSeconds: number) {
-  const startTime = Date.now();
-  // TODO: Replace XPath with Object Repository when available
-  await page.waitForTimeout(transitionSeconds * 1000);
-  const breakerState = await page.locator('//span[@id="circuit-breaker-state"]').textContent();
-  expect(breakerState).toContain('Half-Open');
-  const transitionTime = (Date.now() - startTime) / 1000;
-  expect(transitionTime).toBeLessThanOrEqual(transitionSeconds);
+// TODO: Replace XPath with Object Repository when available
+Then('alert notifications are sent to operations team', async function () {
+  const alertNotificationsXPath = '//div[@id="alert-notifications-sent"]';
+  await waits.waitForVisible(page.locator(alertNotificationsXPath));
+  await assertions.assertContainsText(page.locator(alertNotificationsXPath), 'sent');
 });
 
-Then('all {int} email notifications should be delivered within {int} minutes post-recovery', async function (notificationCount: number, timeLimit: number) {
-  await page.waitForTimeout(timeLimit * 60 * 1000);
-  // TODO: Replace XPath with Object Repository when available
-  const emailDeliveredCount = await page.locator('//span[@id="email-delivered-post-recovery"]').textContent();
-  expect(parseInt(emailDeliveredCount || '0')).toBe(notificationCount);
+// TODO: Replace XPath with Object Repository when available
+Then('queue processing rate is {int} messages per second', async function (rate: number) {
+  const processingRateXPath = '//div[@id="queue-processing-rate"]';
+  const rateText = await page.locator(processingRateXPath).textContent();
+  const actualRate = parseInt(rateText?.replace(/\D/g, '') || '0');
+  expect(actualRate).toBe(rate);
 });
 
-Then('users should receive exactly {int} email and {int} in-app notification per change', async function (emailCount: number, inappCount: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="verify-notification-counts"]'));
-  await waits.waitForNetworkIdle();
-  const emailPerChange = await page.locator('//span[@id="email-per-change"]').textContent();
-  const inappPerChange = await page.locator('//span[@id="inapp-per-change"]').textContent();
-  expect(parseInt(emailPerChange || '0')).toBe(emailCount);
-  expect(parseInt(inappPerChange || '0')).toBe(inappCount);
+// TODO: Replace XPath with Object Repository when available
+Then('CPU usage is {int} percent', async function (percentage: number) {
+  const cpuUsageXPath = '//div[@id="cpu-usage"]';
+  const cpuText = await page.locator(cpuUsageXPath).textContent();
+  const cpuUsage = parseInt(cpuText?.replace(/\D/g, '') || '0');
+  expect(cpuUsage).toBe(percentage);
 });
 
-Then('chaos hypothesis should be confirmed', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="confirm-chaos-hypothesis"]'));
-  await waits.waitForNetworkIdle();
-  const hypothesisConfirmed = await page.locator('//span[@id="hypothesis-confirmation"]').textContent();
-  expect(hypothesisConfirmed).toContain('Confirmed');
+// TODO: Replace XPath with Object Repository when available
+Then('memory usage is {int} percent', async function (percentage: number) {
+  const memoryUsageXPath = '//div[@id="memory-usage"]';
+  const memoryText = await page.locator(memoryUsageXPath).textContent();
+  const memoryUsage = parseInt(memoryText?.replace(/\D/g, '') || '0');
+  expect(memoryUsage).toBe(percentage);
 });
 
-Then('overall notification success rate should be {int} percent', async function (successRate: number) {
-  // TODO: Replace XPath with Object Repository when available
-  const actualSuccessRate = await page.locator('//span[@id="overall-success-rate"]').textContent();
-  expect(parseInt(actualSuccessRate || '0')).toBe(successRate);
+// TODO: Replace XPath with Object Repository when available
+Then('queue depth peaks at {int} messages', async function (depth: number) {
+  const queueDepthPeakXPath = '//div[@id="queue-depth-peak"]';
+  const depthText = await page.locator(queueDepthPeakXPath).textContent();
+  const peakDepth = parseInt(depthText?.replace(/\D/g, '') || '0');
+  expect(peakDepth).toBe(depth);
 });
 
-Then('MTTR should be {int} seconds', async function (mttrSeconds: number) {
-  // TODO: Replace XPath with Object Repository when available
-  const actualMttr = await page.locator('//span[@id="mttr-seconds"]').textContent();
-  expect(parseInt(actualMttr || '0')).toBeLessThanOrEqual(mttrSeconds);
+// TODO: Replace XPath with Object Repository when available
+Then('all notifications are delivered within {int} seconds', async function (seconds: number) {
+  const allDeliveredXPath = '//div[@id="all-notifications-delivery-time"]';
+  const timeText = await page.locator(allDeliveredXPath).textContent();
+  const deliveryTime = parseInt(timeText?.replace(/\D/g, '') || '0');
+  expect(deliveryTime).toBeLessThanOrEqual(seconds);
 });
 
-Then('load balancer should distribute traffic evenly at {int} percent each', async function (trafficPercent: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="view-traffic-distribution"]'));
-  await waits.waitForNetworkIdle();
-  const instanceCount = await page.locator('//div[@class="instance-traffic"]').count();
-  for (let i = 0; i < instanceCount; i++) {
-    const instanceTraffic = await page.locator(`(//div[@class="instance-traffic"])[${i + 1}]//span[@class="traffic-percent"]`).textContent();
-    const traffic = parseInt(instanceTraffic || '0');
-    expect(traffic).toBeGreaterThanOrEqual(trafficPercent - 5);
-    expect(traffic).toBeLessThanOrEqual(trafficPercent + 5);
-  }
+// TODO: Replace XPath with Object Repository when available
+Then('queue depth rapidly increases to {int} messages', async function (depth: number) {
+  const queueDepthXPath = '//div[@id="queue-depth"]';
+  await waits.waitForVisible(page.locator(queueDepthXPath));
+  const depthText = await page.locator(queueDepthXPath).textContent();
+  const actualDepth = parseInt(depthText?.replace(/\D/g, '') || '0');
+  expect(actualDepth).toBe(depth);
 });
 
-Then('health checks should pass every {int} seconds for all instances', async function (intervalSeconds: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await page.waitForTimeout(intervalSeconds * 1000 * 3);
-  const healthChecksPassed = await page.locator('//div[@class="health-check-passed"]').count();
-  expect(healthChecksPassed).toBeGreaterThan(0);
+// TODO: Replace XPath with Object Repository when available
+Then('new messages experience backpressure', async function () {
+  const backpressureStatusXPath = '//div[@id="backpressure-status"]';
+  await waits.waitForVisible(page.locator(backpressureStatusXPath));
+  await assertions.assertContainsText(page.locator(backpressureStatusXPath), 'active');
 });
 
-Then('notifications should process normally across all instances', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="verify-normal-processing"]'));
-  await waits.waitForNetworkIdle();
-  const processingStatus = await page.locator('//span[@id="processing-status"]').textContent();
-  expect(processingStatus).toContain('Normal');
+// TODO: Replace XPath with Object Repository when available
+Then('system detects queue saturation condition', async function () {
+  const saturationDetectionXPath = '//div[@id="queue-saturation-detected"]';
+  await waits.waitForVisible(page.locator(saturationDetectionXPath));
+  await assertions.assertContainsText(page.locator(saturationDetectionXPath), 'true');
 });
 
-Then('delivery rate should be {int} percent within {int} minute SLA', async function (deliveryRate: number, slaMinutes: number) {
-  await page.waitForTimeout(slaMinutes * 60 * 1000);
-  // TODO: Replace XPath with Object Repository when available
-  const actualDeliveryRate = await page.locator('//span[@id="sla-delivery-rate"]').textContent();
-  expect(parseInt(actualDeliveryRate || '0')).toBe(deliveryRate);
+// TODO: Replace XPath with Object Repository when available
+Then('backpressure mechanism activates producer rate limiting', async function () {
+  const rateLimitingXPath = '//div[@id="producer-rate-limiting"]';
+  await waits.waitForVisible(page.locator(rateLimitingXPath));
+  await assertions.assertContainsText(page.locator(rateLimitingXPath), 'active');
 });
 
-Then('{int} to {int} notifications should be in active processing state', async function (minNotifications: number, maxNotifications: number) {
-  // TODO: Replace XPath with Object Repository when available
-  const activeProcessingCount = await page.locator('//div[@class="notification-processing"]').count();
-  expect(activeProcessingCount).toBeGreaterThanOrEqual(minNotifications);
-  expect(activeProcessingCount).toBeLessThanOrEqual(maxNotifications);
-});
-
-Then('primary instance should crash immediately', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await page.waitForTimeout(1000);
-  const primaryInstanceStatus = await page.locator('//div[@class="instance-item primary"]//span[@class="instance-status"]').textContent();
-  expect(primaryInstanceStatus).toContain('Crashed');
-});
-
-Then('health check should fail for crashed instance', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await page.waitForTimeout(5000);
-  const crashedInstanceHealth = await page.locator('//div[@class="instance-item crashed"]//span[@class="health-check-status"]').textContent();
-  expect(crashedInstanceHealth).toContain('Failed');
-});
-
-Then('in-flight notifications should remain in message queue as unacknowledged', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="view-message-queue"]'));
-  await waits.waitForNetworkIdle();
-  const unacknowledgedCount = await page.locator('//span[@id="unacknowledged-message-count"]').textContent();
-  expect(parseInt(unacknowledgedCount || '0')).toBeGreaterThan(0);
-});
-
-Then('load balancer should detect failure within {int} seconds', async function (detectionSeconds: number) {
-  const startTime = Date.now();
-  // TODO: Replace XPath with Object Repository when available
-  await page.waitForTimeout(detectionSeconds * 1000);
-  const failureDetected = await page.locator('//div[@id="lb-failure-detection"]').textContent();
-  expect(failureDetected).toContain('Detected');
-  const detectionTime = (Date.now() - startTime) / 1000;
-  expect(detectionTime).toBeLessThanOrEqual(detectionSeconds);
-});
-
-Then('failed instance should be removed from pool', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await page.waitForTimeout(2000);
-  const poolInstances = await page.locator('//div[@class="instance-item in-pool"]').count();
-  expect(poolInstances).toBeLessThan(this.testData.baselineInstanceCount);
-});
-
-Then('traffic should be redistributed to {int} remaining instances', async function (remainingInstances: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await page.waitForTimeout(3000);
-  const activeInstances = await page.locator('//div[@class="instance-item active in-pool"]').count();
-  expect(activeInstances).toBe(remainingInstances);
-});
-
-Then('message queue should reassign unacknowledged notifications within {int} seconds', async function (reassignSeconds: number) {
-  const startTime = Date.now();
-  await page.waitForTimeout(reassignSeconds * 1000);
-  // TODO: Replace XPath with Object Repository when available
-  const reassignedCount = await page.locator('//span[@id="reassigned-notification-count"]').textContent();
-  expect(parseInt(reassignedCount || '0')).toBeGreaterThan(0);
-  const reassignTime = (Date.now() - startTime) / 1000;
-  expect(reassignTime).toBeLessThanOrEqual(reassignSeconds);
-});
-
-Then('no notifications should be lost', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="verify-notification-loss"]'));
-  await waits.waitForNetworkIdle();
-  const lostNotifications = await page.locator('//span[@id="lost-notification-count"]').textContent();
-  expect(parseInt(lostNotifications || '0')).toBe(0);
-});
-
-Then('notification delivery should continue with less than {int} second interruption', async function (interruptionSeconds: number) {
-  // TODO: Replace XPath with Object Repository when available
-  const actualInterruption = await page.locator('//span[@id="delivery-interruption-duration"]').textContent();
-  expect(parseInt(actualInterruption || '0')).toBeLessThan(interruptionSeconds);
-});
-
-Then('all {int} notifications should be delivered successfully', async function (notificationCount: number) {
-  // TODO: Replace XPath with Object Repository when available
-  const successfulDeliveries = await page.locator('//span[@id="successful-delivery-count"]').textContent();
-  expect(parseInt(successfulDeliveries || '0')).toBe(notificationCount);
-});
-
-Then('new instance should start within {int} seconds', async function (startSeconds: number) {
-  const startTime = Date.now();
-  await page.waitForTimeout(startSeconds * 1000);
-  // TODO: Replace XPath with Object Repository when available
-  const newInstanceStatus = await page.locator('//div[@class="instance-item new"]//span[@class="instance-status"]').textContent();
-  expect(newInstanceStatus).toContain('Running');
-  const startupTime = (Date.now() - startTime) / 1000;
-  expect(startupTime).toBeLessThanOrEqual(startSeconds);
-});
-
-Then('new instance should pass health checks', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await page.waitForTimeout(5000);
-  const newInstanceHealth = await page.locator('//div[@class="instance-item new"]//span[@class="health-check-status"]').textContent();
-  expect(newInstanceHealth).toContain('Passed');
-});
-
-Then('new instance should be added to load balancer pool', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await page.waitForTimeout(3000);
-  const poolInstances = await page.locator('//div[@class="instance-item in-pool"]').count();
-  expect(poolInstances).toBe(this.testData.baselineInstanceCount);
-});
-
-Then('traffic should be rebalanced to {int} instances', async function (instanceCount: number) {
-  // TODO: Replace XPath with Object Repository when available
-  await page.waitForTimeout(5000);
-  const activeInstances = await page.locator('//div[@class="instance-item active in-pool"]').count();
-  expect(activeInstances).toBe(instanceCount);
-});
-
-Then('service availability should be {float} percent', async function (availabilityPercent: number) {
-  // TODO: Replace XPath with Object Repository when available
-  const actualAvailability = await page.locator('//span[@id="service-availability-percent"]').textContent();
-  expect(parseFloat(actualAvailability || '0')).toBeGreaterThanOrEqual(availabilityPercent);
-});
-
-Then('MTTR should be {int} seconds for failover time', async function (mttrSeconds: number) {
-  // TODO: Replace XPath with Object Repository when available
-  const failoverMttr = await page.locator('//span[@id="failover-mttr-seconds"]').textContent();
-  expect(parseInt(failoverMttr || '0')).toBeLessThanOrEqual(mttrSeconds);
-});
-
-Then('RPO should be {int} with zero notification loss', async function (rpoValue: number) {
-  // TODO: Replace XPath with Object Repository when available
-  const actualRpo = await page.locator('//span[@id="rpo-value"]').textContent();
-  expect(parseInt(actualRpo || '0')).toBe(rpoValue);
-  const lostNotifications = await page.locator('//span[@id="lost-notification-count"]').textContent();
-  expect(parseInt(lostNotifications || '0')).toBe(0);
-});
-
-Then('RTO should be {int} seconds for failover time', async function (rtoSeconds: number) {
-  // TODO: Replace XPath with Object Repository when available
-  const actualRto = await page.locator('//span[@id="rto-seconds"]').textContent();
-  expect(parseInt(actualRto || '0')).toBeLessThanOrEqual(rtoSeconds);
-});
-
-Then('failover event should be logged with complete metrics', async function () {
-  // TODO: Replace XPath with Object Repository when available
-  await actions.click(page.locator('//button[@id="view-failover-logs"]'));
-  await waits.waitForNetworkIdle();
-  await assertions.assertVisible(page.locator('//div[@id="failover-event-log"]'));
-  const metricsLogged = await page.locator('//div[@class="failover-metric"]').count();
-  expect(metricsLogged).toBeGreaterThan(0);
-});
-
-Then('the {string} should be {string}', async function (element: string, expectedState: string) {
-  // TODO: Replace XPath with Object Repository when available
-  const elementXPath = `//div[@id='${element.toLowerCase().replace(/\s+/g, '-')}']`;
-  await assertions.assertVisible(page.locator(elementXPath));
-  const actualState = await page.locator(elementXPath).textContent();
-  expect(actualState).toContain(expectedState);
-});
-
-Then('I should see {string}', async function (text: string) {
-  await assertions.assertContainsText(page.locator('body'), text);
-});
-
-Then('{string} should be {string}', async function (metric: string, expectedValue: string) {
-  // TODO: Replace XPath with Object Repository when available
-  const metricXPath = `//span[@id='${metric.toLowerCase().replace(/\s+/g, '-')}']`;
-  const actualValue = await page.locator(metricXPath).textContent();
-  expect(actualValue).toContain(expectedValue);
-});
-
-Then('{string} should {string}', async function (component: string, expectedBehavior: string) {
-  // TODO: Replace XPath with Object Repository when available
-  const componentXPath = `//div[@id='${component.toLowerCase().replace(/\s+/g, '-')}']`;
-  await assertions.assertVisible(page.locator(componentXPath));
-});
+// TODO: Replace XPath with Object Repository when available
+Then('queue remains at capacity of {int} messages', async function (capacity: number) {
+  const queueCapacityXPath = '
