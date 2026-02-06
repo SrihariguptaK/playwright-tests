@@ -1,0 +1,2311 @@
+{
+  "storyId": "ado-14160",
+  "storyTitle": "As a User, I want to receive alerts for attendance anomalies to address issues promptly.",
+  "testCases": [],
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify alert is triggered and sent within 5 minutes when late arrival anomaly is detected",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system with valid credentials",
+        "User has an active attendance record in the database",
+        "Attendance monitoring system is running and operational",
+        "User's expected arrival time is set to 9:00 AM in the system",
+        "Current system time is 9:16 AM (16 minutes past expected arrival)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "System automatically analyzes attendance data at 9:16 AM and detects late arrival anomaly",
+          "expectedResult": "System identifies the late arrival as an attendance anomaly based on the 15-minute threshold rule"
+        },
+        {
+          "step": 2,
+          "action": "System generates an alert with anomaly details including user name, timestamp, anomaly type (late arrival), and suggested action",
+          "expectedResult": "Alert is created in the system with all required fields populated: anomaly type 'Late Arrival', detected time '9:16 AM', delay duration '16 minutes', suggested action 'Contact employee to verify reason'"
+        },
+        {
+          "step": 3,
+          "action": "System dispatches the alert notification to the affected user's email and in-app notification center",
+          "expectedResult": "User receives email notification with subject 'Attendance Alert: Late Arrival Detected' and in-app notification appears in the notification bell icon with red badge"
+        },
+        {
+          "step": 4,
+          "action": "System dispatches the same alert to the user's manager via email and in-app notification",
+          "expectedResult": "Manager receives email notification with subject 'Team Attendance Alert: [User Name] - Late Arrival' and in-app notification appears in their notification center"
+        },
+        {
+          "step": 5,
+          "action": "Verify the timestamp between anomaly detection (9:16 AM) and alert delivery",
+          "expectedResult": "Alert delivery timestamp shows alerts were sent within 5 minutes of detection (by 9:21 AM maximum)"
+        }
+      ],
+      "postconditions": [
+        "Alert record is saved in the attendance alerts database with status 'Sent'",
+        "User and manager both have unacknowledged alerts in their notification centers",
+        "Alert appears in the historical attendance alerts log with complete details",
+        "System continues monitoring for additional attendance anomalies"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify user can acknowledge receipt of attendance anomaly alert and acknowledgment is recorded",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system with valid credentials",
+        "User has received an attendance anomaly alert for early departure",
+        "Alert is visible in the user's notification center with 'Unacknowledged' status",
+        "Alert details show: 'Early Departure - Left at 4:30 PM (Expected: 5:00 PM)'",
+        "User is on the Notifications page at /notifications"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on the notification bell icon in the top-right corner of the page",
+          "expectedResult": "Notification dropdown panel opens showing list of alerts including the attendance anomaly alert with red 'Unacknowledged' badge"
+        },
+        {
+          "step": 2,
+          "action": "Click on the attendance anomaly alert titled 'Attendance Alert: Early Departure Detected'",
+          "expectedResult": "Alert detail modal opens displaying full information: anomaly type, detection time, description 'You left at 4:30 PM, 30 minutes before expected departure time', and suggested action 'Submit explanation or time-off request'"
+        },
+        {
+          "step": 3,
+          "action": "Click the 'Acknowledge' button at the bottom of the alert detail modal",
+          "expectedResult": "Success message appears: 'Alert acknowledged successfully' in green banner at top of modal"
+        },
+        {
+          "step": 4,
+          "action": "Close the modal and return to the notifications list",
+          "expectedResult": "The acknowledged alert now shows a green 'Acknowledged' badge with timestamp of acknowledgment, and the red notification badge count decreases by 1"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to Attendance History page at /attendance/history and locate the alert in the historical records",
+          "expectedResult": "Alert record shows status 'Acknowledged', acknowledgment timestamp, and acknowledging user name"
+        }
+      ],
+      "postconditions": [
+        "Alert status is updated to 'Acknowledged' in the database",
+        "Acknowledgment timestamp and user ID are recorded in the alert record",
+        "Manager can see the acknowledgment status when viewing team alerts",
+        "Alert remains in historical records but is marked as resolved"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify alert includes complete anomaly details and suggested actions for multiple absence anomaly",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system as a manager with team view permissions",
+        "A team member has been absent for 3 consecutive days without prior notification",
+        "System has detected this as a 'Multiple Absence' anomaly",
+        "Manager is on the Team Attendance Dashboard at /attendance/team",
+        "Alert has been generated and sent to both the absent employee and their manager"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Open the notification center by clicking the notification bell icon",
+          "expectedResult": "Notification panel displays the attendance alert with title 'Critical Attendance Alert: Multiple Absence - [Employee Name]'"
+        },
+        {
+          "step": 2,
+          "action": "Click on the alert to view full details",
+          "expectedResult": "Alert detail view opens showing: Anomaly Type: 'Multiple Absence', Employee Name, Employee ID, Detection Date, Absence Duration: '3 consecutive days (Jan 15-17, 2024)', Last Known Attendance: 'Jan 14, 2024 5:15 PM'"
+        },
+        {
+          "step": 3,
+          "action": "Scroll down to view the 'Suggested Actions' section in the alert details",
+          "expectedResult": "Suggested Actions section displays: '1. Contact employee immediately via phone and email', '2. Verify employee wellbeing and safety', '3. Request medical documentation if applicable', '4. Initiate absence investigation per company policy', '5. Document all communication attempts'"
+        },
+        {
+          "step": 4,
+          "action": "Review the 'Alert Priority' and 'Escalation Status' fields",
+          "expectedResult": "Alert Priority shows 'Critical' in red text, Escalation Status shows 'Escalated to HR Department' with timestamp"
+        },
+        {
+          "step": 5,
+          "action": "Click on the 'View Employee Contact Info' button within the alert",
+          "expectedResult": "Employee contact information modal opens displaying phone number, email address, emergency contact details, and last known location"
+        }
+      ],
+      "postconditions": [
+        "Alert remains active until manager acknowledges and provides resolution notes",
+        "Alert is logged in both employee and manager attendance alert history",
+        "HR department has visibility to the escalated alert in their dashboard",
+        "System continues tracking the absence until employee returns or case is closed"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify alerts are sent to both user and manager simultaneously for overtime anomaly detection",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system and currently working",
+        "User's shift end time is configured as 5:00 PM in the system",
+        "Current system time is 8:05 PM (3 hours and 5 minutes past shift end)",
+        "User has not logged out or marked departure in the attendance system",
+        "Overtime threshold is set to 3 hours in system configuration"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "System automatically detects overtime anomaly at 8:05 PM when threshold is exceeded",
+          "expectedResult": "System identifies 'Excessive Overtime' anomaly and creates alert record with details: User name, Shift end time '5:00 PM', Current time '8:05 PM', Overtime duration '3 hours 5 minutes'"
+        },
+        {
+          "step": 2,
+          "action": "System simultaneously sends alert notification to the user's email address",
+          "expectedResult": "User receives email within 2 minutes with subject 'Attendance Alert: Excessive Overtime Detected' containing anomaly details and suggested action 'Please log out if work is complete or request overtime approval'"
+        },
+        {
+          "step": 3,
+          "action": "System simultaneously sends alert notification to the manager's email address",
+          "expectedResult": "Manager receives email within 2 minutes with subject 'Team Attendance Alert: Excessive Overtime - [User Name]' containing same anomaly details and suggested action 'Verify if overtime is authorized and ensure employee wellbeing'"
+        },
+        {
+          "step": 4,
+          "action": "User logs into the system and checks in-app notifications",
+          "expectedResult": "User sees the overtime alert in notification center with timestamp matching email delivery time (within 5 minutes of detection at 8:05 PM)"
+        },
+        {
+          "step": 5,
+          "action": "Manager logs into the system and checks in-app notifications",
+          "expectedResult": "Manager sees the same overtime alert in their notification center with identical timestamp, confirming simultaneous delivery"
+        },
+        {
+          "step": 6,
+          "action": "Check the alert delivery log at /api/attendance/alerts/delivery-log",
+          "expectedResult": "Delivery log shows two entries with same alert ID: one for user delivery and one for manager delivery, both with timestamps within 5 minutes of detection time (by 8:10 PM)"
+        }
+      ],
+      "postconditions": [
+        "Alert is recorded in the attendance alerts database with status 'Delivered to User and Manager'",
+        "Both user and manager have the alert available in their notification centers",
+        "Alert appears in historical records accessible to both user and manager",
+        "System tracks acknowledgment status separately for user and manager"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify historical record of attendance alerts is maintained and accessible with complete audit trail",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged into the system as a manager with historical data access permissions",
+        "Multiple attendance alerts have been generated over the past 30 days for the team",
+        "Alerts include various types: late arrivals, early departures, absences, and overtime",
+        "Some alerts have been acknowledged, others remain unacknowledged",
+        "User is on the Attendance Alerts History page at /attendance/alerts/history"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the 'Attendance Alerts History' section from the main navigation menu",
+          "expectedResult": "Attendance Alerts History page loads displaying a table with columns: Alert ID, Employee Name, Anomaly Type, Detection Date/Time, Alert Sent Date/Time, Status, Acknowledged By, Acknowledgment Date/Time, Actions"
+        },
+        {
+          "step": 2,
+          "action": "Apply date range filter to show alerts from the last 30 days by selecting start date and end date in the filter panel",
+          "expectedResult": "Table refreshes to display all alerts within the selected date range, showing count 'Displaying 47 alerts from Jan 1, 2024 to Jan 30, 2024'"
+        },
+        {
+          "step": 3,
+          "action": "Click on the 'Anomaly Type' column header to sort alerts by type",
+          "expectedResult": "Alerts are grouped and sorted by type: Absences (12), Early Departures (8), Late Arrivals (15), Overtime (12), with visual grouping indicators"
+        },
+        {
+          "step": 4,
+          "action": "Click on the 'View Details' button for a specific alert record (Alert ID: ALT-2024-001234)",
+          "expectedResult": "Alert detail modal opens showing complete information: Full anomaly description, Detection timestamp with millisecond precision, Alert generation timestamp, Delivery timestamps for user and manager, Acknowledgment details (if acknowledged), Suggested actions provided, Resolution notes (if any), Complete audit trail of all status changes"
+        },
+        {
+          "step": 5,
+          "action": "Click on the 'Export' button in the top-right corner of the history page",
+          "expectedResult": "Export options modal appears with formats: CSV, Excel, PDF. Select CSV and file downloads with name 'Attendance_Alerts_History_2024-01-01_to_2024-01-30.csv' containing all displayed records"
+        },
+        {
+          "step": 6,
+          "action": "Apply filter to show only 'Unacknowledged' alerts by selecting status filter",
+          "expectedResult": "Table updates to show only alerts with status 'Unacknowledged', displaying count '8 unacknowledged alerts requiring attention' with red highlight"
+        }
+      ],
+      "postconditions": [
+        "All historical alert records remain intact and accessible in the database",
+        "Audit trail is complete showing all actions taken on each alert",
+        "Exported data matches the displayed records exactly",
+        "Filter settings are preserved for the user session",
+        "User can access the same historical data on subsequent visits"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify system correctly identifies and alerts for pattern-based anomaly (frequent tardiness)",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User has been late to work 4 times in the past 7 days",
+        "Each late arrival was between 10-20 minutes past expected arrival time",
+        "System pattern detection algorithm is configured to flag 4+ late arrivals in 7 days as anomaly",
+        "Current date is the 8th day, and user has just arrived 15 minutes late again",
+        "User and manager accounts are active in the system"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "User checks in at 9:15 AM (15 minutes late) using the attendance system",
+          "expectedResult": "System records the check-in and analyzes attendance pattern for the past 7 days"
+        },
+        {
+          "step": 2,
+          "action": "System pattern detection algorithm identifies 5 late arrivals in 8 days, exceeding the threshold",
+          "expectedResult": "System generates a 'Frequent Tardiness Pattern' anomaly alert with severity level 'High' and includes pattern analysis: 'Employee has been late 5 times in the past 8 days (Jan 15, 17, 19, 21, 22) with average delay of 14 minutes'"
+        },
+        {
+          "step": 3,
+          "action": "System sends alert notification to user with pattern details and suggested actions",
+          "expectedResult": "User receives notification titled 'Attendance Pattern Alert: Frequent Tardiness Detected' with details of all late arrivals, pattern visualization, and suggested action 'Please review your schedule and discuss any challenges with your manager'"
+        },
+        {
+          "step": 4,
+          "action": "System sends alert notification to manager with pattern analysis and recommended interventions",
+          "expectedResult": "Manager receives notification titled 'Team Attendance Pattern Alert: Frequent Tardiness - [User Name]' with pattern details, trend graph, and suggested actions 'Schedule one-on-one meeting to discuss attendance concerns and identify support needs'"
+        },
+        {
+          "step": 5,
+          "action": "Manager logs in and views the alert details including the pattern visualization",
+          "expectedResult": "Alert detail view shows a timeline graph of late arrivals over the past 8 days, highlighting the pattern, with each incident marked and delay duration displayed"
+        }
+      ],
+      "postconditions": [
+        "Pattern-based anomaly is recorded in the alerts database with type 'Frequent Tardiness Pattern'",
+        "Alert includes references to all 5 individual late arrival incidents",
+        "System continues monitoring the pattern and will generate follow-up alerts if pattern persists",
+        "Alert is flagged for HR review if not resolved within 14 days"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify system does not send duplicate alerts when anomaly is detected multiple times within threshold period",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system",
+        "User has arrived late at 9:20 AM (20 minutes late)",
+        "System has already detected the late arrival anomaly and sent alert at 9:21 AM",
+        "Alert delivery is confirmed to both user and manager",
+        "System continues monitoring attendance data every minute"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "System runs attendance analysis again at 9:22 AM and detects the same late arrival anomaly",
+          "expectedResult": "System identifies that an alert for this specific anomaly (late arrival on this date) has already been sent within the last 24 hours"
+        },
+        {
+          "step": 2,
+          "action": "System checks the alert deduplication rules and alert history for this user and anomaly type",
+          "expectedResult": "System finds existing alert record with Alert ID matching the anomaly (user ID, date, anomaly type) and status 'Sent' with timestamp 9:21 AM"
+        },
+        {
+          "step": 3,
+          "action": "Verify no new alert is generated or sent to user or manager",
+          "expectedResult": "No new email notification is sent, no new in-app notification appears, and notification count remains unchanged for both user and manager"
+        },
+        {
+          "step": 4,
+          "action": "Check the alert database and API logs at /api/attendance/alerts for any duplicate alert creation attempts",
+          "expectedResult": "Database shows only one alert record for this anomaly, API logs show deduplication logic was triggered with message 'Alert suppressed - duplicate anomaly within threshold period'"
+        },
+        {
+          "step": 5,
+          "action": "Wait for system to run analysis again at 9:25 AM and 9:30 AM",
+          "expectedResult": "No additional alerts are generated for the same late arrival anomaly throughout the day, deduplication remains effective"
+        }
+      ],
+      "postconditions": [
+        "Only one alert exists in the database for this specific anomaly occurrence",
+        "User and manager received exactly one notification each",
+        "System logs show successful deduplication for subsequent detection attempts",
+        "Alert deduplication rules continue to function correctly for other anomalies"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify system handles alert generation failure gracefully when email service is unavailable",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User has arrived late at 9:25 AM triggering a late arrival anomaly",
+        "System has detected the anomaly and created alert record in database",
+        "Email service (SMTP server) is down or unreachable",
+        "In-app notification service is operational",
+        "System is configured to retry failed email deliveries"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "System attempts to send email notification to user at user@company.com",
+          "expectedResult": "Email delivery fails with error 'SMTP connection timeout' or 'Email service unavailable', error is logged in system logs with timestamp and error details"
+        },
+        {
+          "step": 2,
+          "action": "System attempts to send email notification to manager at manager@company.com",
+          "expectedResult": "Email delivery fails with same error, failure is logged separately for manager notification"
+        },
+        {
+          "step": 3,
+          "action": "Verify system still delivers in-app notifications despite email failure",
+          "expectedResult": "In-app notifications are successfully delivered to both user and manager notification centers, notifications appear with status 'Delivered (In-App Only)' and warning icon indicating email delivery pending"
+        },
+        {
+          "step": 4,
+          "action": "Check alert record status in database via /api/attendance/alerts/{alertId}",
+          "expectedResult": "Alert status shows 'Partially Delivered' with details: 'In-app: Success, Email: Failed - Retry scheduled', retry count is 0, next retry scheduled in 5 minutes"
+        },
+        {
+          "step": 5,
+          "action": "Wait 5 minutes for automatic retry attempt while email service remains down",
+          "expectedResult": "System attempts email delivery again, fails again, increments retry count to 1, schedules next retry in 15 minutes, alert status remains 'Partially Delivered'"
+        },
+        {
+          "step": 6,
+          "action": "Restore email service and wait for next retry attempt",
+          "expectedResult": "System successfully delivers emails on retry attempt, alert status updates to 'Fully Delivered', email delivery timestamp is recorded, retry count shows final value of 2"
+        }
+      ],
+      "postconditions": [
+        "Alert is eventually delivered via all channels (in-app and email)",
+        "All delivery attempts and failures are logged in system audit trail",
+        "Users received in-app notifications immediately despite email failure",
+        "System retry mechanism functioned correctly and stopped after successful delivery"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify system rejects alert acknowledgment attempt by unauthorized user who is not the alert recipient",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User A (john.doe@company.com) has received an attendance anomaly alert for late arrival",
+        "Alert is visible in User A's notification center with status 'Unacknowledged'",
+        "User B (jane.smith@company.com) is logged into the system with standard user permissions",
+        "User B is not User A's manager and has no administrative privileges",
+        "User B attempts to access User A's alert via direct API call or URL manipulation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "User B navigates to the alert detail page by manually entering URL /attendance/alerts/ALT-2024-001234 (User A's alert ID)",
+          "expectedResult": "System displays error page with message 'Access Denied: You do not have permission to view this alert' and HTTP status code 403 Forbidden"
+        },
+        {
+          "step": 2,
+          "action": "User B attempts to acknowledge the alert by sending POST request to /api/attendance/alerts/ALT-2024-001234/acknowledge with their authentication token",
+          "expectedResult": "API returns error response with status code 403 and JSON body: {\"error\": \"Unauthorized\", \"message\": \"You are not authorized to acknowledge this alert\", \"alertId\": \"ALT-2024-001234\"}"
+        },
+        {
+          "step": 3,
+          "action": "Check the alert status in the database after User B's unauthorized acknowledgment attempt",
+          "expectedResult": "Alert status remains 'Unacknowledged', no acknowledgment timestamp is recorded, no acknowledging user ID is set"
+        },
+        {
+          "step": 4,
+          "action": "Review system security logs for the unauthorized access attempt",
+          "expectedResult": "Security log contains entry: 'Unauthorized alert acknowledgment attempt - User: jane.smith@company.com, Alert: ALT-2024-001234, Owner: john.doe@company.com, Timestamp: [current time], Action: Blocked'"
+        },
+        {
+          "step": 5,
+          "action": "User A (legitimate recipient) logs in and verifies alert is still unacknowledged and functional",
+          "expectedResult": "User A can view the alert normally, alert shows 'Unacknowledged' status, User A can successfully acknowledge the alert using the 'Acknowledge' button"
+        }
+      ],
+      "postconditions": [
+        "Alert remains unacknowledged and unchanged after unauthorized attempt",
+        "Security incident is logged for audit and monitoring purposes",
+        "User B's unauthorized attempt did not compromise alert integrity",
+        "Legitimate user (User A) retains full access and control over their alert"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify system handles missing or invalid manager assignment gracefully when sending alerts",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User account exists in the system with user ID 'USR-12345'",
+        "User has no manager assigned in the organizational hierarchy (manager_id field is NULL)",
+        "User arrives late at 9:30 AM triggering a late arrival anomaly",
+        "System detects the anomaly and attempts to generate alert",
+        "Alert configuration requires notification to both user and manager"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "System detects late arrival anomaly for user USR-12345 and initiates alert generation process",
+          "expectedResult": "Alert record is created in database with anomaly details, user ID, and detection timestamp"
+        },
+        {
+          "step": 2,
+          "action": "System queries organizational hierarchy to retrieve user's manager information",
+          "expectedResult": "Query returns NULL or empty result for manager_id field, system logs warning: 'No manager assigned for user USR-12345'"
+        },
+        {
+          "step": 3,
+          "action": "System attempts to send alert notification to the user",
+          "expectedResult": "Alert is successfully sent to user via email and in-app notification with all anomaly details and suggested actions"
+        },
+        {
+          "step": 4,
+          "action": "System handles missing manager gracefully by escalating to default fallback recipient (HR department or system administrator)",
+          "expectedResult": "Alert is sent to fallback recipient (hr@company.com) with additional context: 'Alert escalated - No manager assigned for employee [User Name] (USR-12345)', email subject includes '[No Manager Assigned]' tag"
+        },
+        {
+          "step": 5,
+          "action": "Check alert status and delivery log in the database",
+          "expectedResult": "Alert status shows 'Delivered with Escalation', delivery log shows: User notification: Success, Manager notification: Escalated to HR (no manager assigned), Escalation timestamp recorded"
+        },
+        {
+          "step": 6,
+          "action": "Verify error handling log contains appropriate warning but not critical error",
+          "expectedResult": "System log shows warning level entry: 'Manager notification escalated due to missing manager assignment - User: USR-12345, Alert: ALT-2024-001235, Escalated to: HR Department', no system errors or exceptions thrown"
+        }
+      ],
+      "postconditions": [
+        "User receives their alert notification successfully",
+        "HR department is notified as fallback for missing manager",
+        "Alert is fully processed and recorded despite missing manager assignment",
+        "System continues normal operation without errors or crashes",
+        "Incident is flagged for HR to assign proper manager to the user"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify system does not trigger false positive alerts when attendance data is within acceptable thresholds",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User's expected arrival time is 9:00 AM with 15-minute grace period configured",
+        "User arrives at 9:12 AM (12 minutes after expected time, within grace period)",
+        "System is configured to trigger late arrival alerts only after 15-minute threshold",
+        "Attendance monitoring system is running and analyzing data",
+        "User and manager accounts are active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "User checks in at 9:12 AM using the attendance system",
+          "expectedResult": "System records check-in time as 9:12 AM and calculates delay as 12 minutes from expected arrival time"
+        },
+        {
+          "step": 2,
+          "action": "System analyzes attendance data and compares delay (12 minutes) against threshold (15 minutes)",
+          "expectedResult": "System determines that 12 minutes is within acceptable threshold and does not classify this as an anomaly"
+        },
+        {
+          "step": 3,
+          "action": "Verify no alert is generated in the alerts database",
+          "expectedResult": "No new alert record is created, database query for alerts on this date for this user returns empty result"
+        },
+        {
+          "step": 4,
+          "action": "Check user's notification center for any attendance-related notifications",
+          "expectedResult": "No attendance anomaly alert appears in notification center, notification count remains at previous value"
+        },
+        {
+          "step": 5,
+          "action": "Check manager's notification center for any team attendance alerts",
+          "expectedResult": "No alert is sent to manager regarding this user's arrival time, manager's notification center shows no new attendance alerts"
+        },
+        {
+          "step": 6,
+          "action": "Review system logs for attendance analysis at /api/attendance/analysis/logs",
+          "expectedResult": "Log entry shows: 'Attendance analyzed - User: USR-12345, Arrival: 9:12 AM, Delay: 12 minutes, Status: Within threshold, Action: No alert generated'"
+        }
+      ],
+      "postconditions": [
+        "No false positive alert is created or sent",
+        "User's attendance is recorded normally without anomaly flag",
+        "System threshold validation is working correctly",
+        "Users and managers are not bothered with unnecessary notifications"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify system handles database connection failure during alert generation without data loss",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User has triggered an attendance anomaly (early departure at 3:45 PM)",
+        "System has detected the anomaly and is in the process of generating alert",
+        "Database connection becomes unavailable due to network issue or database server restart",
+        "System has message queue or temporary storage configured for resilience",
+        "Alert generation process is at the stage of writing to database"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "System detects early departure anomaly and prepares alert data (user ID, anomaly type, timestamp, details)",
+          "expectedResult": "Alert data is prepared in memory with all required fields: Alert ID: ALT-2024-001236, User: USR-12345, Type: Early Departure, Time: 3:45 PM, Expected: 5:00 PM"
+        },
+        {
+          "step": 2,
+          "action": "System attempts to write alert record to attendance_alerts database table",
+          "expectedResult": "Database write operation fails with error 'Connection timeout' or 'Database unavailable', exception is caught by error handling layer"
+        },
+        {
+          "step": 3,
+          "action": "System error handler catches the database exception and triggers fallback mechanism",
+          "expectedResult": "Alert data is serialized and written to message queue or temporary file storage with status 'Pending Database Write', error is logged: 'Alert generation failed - Database unavailable - Alert queued for retry: ALT-2024-001236'"
+        },
+        {
+          "step": 4,
+          "action": "Verify no notification is sent to user or manager while database is unavailable",
+          "expectedResult": "No email or in-app notification is sent, system prevents partial alert delivery to maintain data consistency"
+        },
+        {
+          "step": 5,
+          "action": "Database connection is restored after 3 minutes",
+          "expectedResult": "System detects database availability, automatic retry mechanism is triggered"
+        },
+        {
+          "step": 6,
+          "action": "System processes queued alert from temporary storage and writes to database",
+          "expectedResult": "Alert record is successfully written to database with original timestamp preserved, alert status changes from 'Pending Database Write' to 'Sent', notifications are now sent to user and manager"
+        },
+        {
+          "step": 7,
+          "action": "Verify alert data integrity after recovery",
+          "expectedResult": "Alert record in database contains all original data: correct anomaly detection time (3:45 PM), correct user ID, complete anomaly details, no data corruption or loss"
+        }
+      ],
+      "postconditions": [
+        "Alert is successfully saved to database after recovery with no data loss",
+        "Notifications are delivered to user and manager after database recovery",
+        "System resilience mechanism (message queue) functioned correctly",
+        "All alert data maintains integrity and accuracy",
+        "System logs contain complete audit trail of failure and recovery"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Test alert generation when multiple anomalies occur simultaneously for the same user",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system with valid credentials",
+        "Attendance monitoring system is active and running",
+        "Test user has multiple attendance anomalies occurring at the exact same timestamp (late arrival, early departure, missing clock-in)",
+        "Manager account is configured to receive alerts for the test user"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Trigger multiple attendance anomalies simultaneously for the same user (late arrival at 9:15 AM, missing clock-in, and unauthorized break extension)",
+          "expectedResult": "System detects all three anomalies within 5 minutes"
+        },
+        {
+          "step": 2,
+          "action": "Navigate to the alerts dashboard as the affected user",
+          "expectedResult": "All three separate alerts are displayed in the alerts list with distinct anomaly descriptions and timestamps"
+        },
+        {
+          "step": 3,
+          "action": "Check the manager's alert inbox",
+          "expectedResult": "Manager receives three separate alert notifications, each with specific anomaly details and suggested actions"
+        },
+        {
+          "step": 4,
+          "action": "Verify the alert delivery timestamps",
+          "expectedResult": "All alerts are delivered within 5 minutes of anomaly detection, with unique alert IDs"
+        },
+        {
+          "step": 5,
+          "action": "Acknowledge each alert individually",
+          "expectedResult": "Each alert can be acknowledged separately, and acknowledgment status is tracked independently for each anomaly"
+        }
+      ],
+      "postconditions": [
+        "All three anomalies are recorded in the attendance alerts history with separate entries",
+        "Each alert maintains its own acknowledgment status",
+        "System performance remains stable with no duplicate or merged alerts",
+        "Alert counters accurately reflect three separate anomalies"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Test alert system behavior when anomaly occurs exactly at the 5-minute detection threshold boundary",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system",
+        "System clock is synchronized with attendance tracking system",
+        "Attendance anomaly detection service is running",
+        "Test environment allows precise timestamp manipulation for testing"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create an attendance anomaly (late arrival) at timestamp T",
+          "expectedResult": "Anomaly is recorded in the attendance database with exact timestamp T"
+        },
+        {
+          "step": 2,
+          "action": "Monitor alert generation at timestamp T+4:59 (4 minutes 59 seconds after anomaly)",
+          "expectedResult": "Alert is generated and dispatched to user and manager within the 5-minute SLA"
+        },
+        {
+          "step": 3,
+          "action": "Verify alert timestamp and delivery time in the alerts log",
+          "expectedResult": "Alert shows detection time within 5 minutes, with exact timestamps logged for anomaly occurrence and alert dispatch"
+        },
+        {
+          "step": 4,
+          "action": "Check alert content for accuracy",
+          "expectedResult": "Alert contains correct anomaly type, timestamp, user details, and suggested actions"
+        }
+      ],
+      "postconditions": [
+        "Alert is successfully delivered within the 5-minute SLA requirement",
+        "Alert timestamp data is accurately recorded in the system logs",
+        "No performance degradation occurs at the boundary threshold",
+        "Alert acknowledgment functionality remains available"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Test alert delivery when user has no assigned manager or manager account is inactive",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "Test user account exists with no manager assigned in the organizational hierarchy",
+        "Attendance monitoring system is active",
+        "User has valid authentication credentials",
+        "Attendance anomaly detection rules are configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Verify test user's profile shows no assigned manager",
+          "expectedResult": "User profile displays 'No Manager Assigned' or equivalent status"
+        },
+        {
+          "step": 2,
+          "action": "Trigger an attendance anomaly for the user (late arrival by 30 minutes)",
+          "expectedResult": "System detects the anomaly within 5 minutes"
+        },
+        {
+          "step": 3,
+          "action": "Check user's alert inbox",
+          "expectedResult": "User receives the alert with anomaly details and suggested actions"
+        },
+        {
+          "step": 4,
+          "action": "Verify system behavior for manager notification",
+          "expectedResult": "System logs show alert was attempted for manager but gracefully handled the missing manager scenario with appropriate fallback (e.g., notification to HR admin or system administrator)"
+        },
+        {
+          "step": 5,
+          "action": "Check error logs and system logs",
+          "expectedResult": "No critical errors are logged; system records the missing manager scenario with appropriate warning level log entry"
+        }
+      ],
+      "postconditions": [
+        "User receives alert successfully despite missing manager",
+        "System maintains alert history with notation about missing manager",
+        "Fallback notification is sent to designated backup recipient (HR/admin)",
+        "No system errors or crashes occur due to missing manager reference"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Test alert system with extremely large volume of simultaneous anomalies across multiple users",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "System has 500+ active users configured in the attendance system",
+        "Load testing environment is available",
+        "Attendance anomaly detection service is running with standard configuration",
+        "Database has sufficient capacity for high-volume alert storage"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Trigger attendance anomalies for 500 users simultaneously at the same timestamp (mass late arrival scenario)",
+          "expectedResult": "System begins processing all 500 anomalies without crashing or hanging"
+        },
+        {
+          "step": 2,
+          "action": "Monitor alert generation and dispatch over the next 5 minutes",
+          "expectedResult": "System generates and dispatches alerts for all 500 users, with at least 95% delivered within the 5-minute SLA"
+        },
+        {
+          "step": 3,
+          "action": "Check system performance metrics (CPU, memory, database connections)",
+          "expectedResult": "System resources remain within acceptable thresholds (CPU <80%, memory <85%, no connection pool exhaustion)"
+        },
+        {
+          "step": 4,
+          "action": "Verify alert accuracy by sampling 50 random alerts",
+          "expectedResult": "All sampled alerts contain correct user information, anomaly details, and timestamps with no data corruption"
+        },
+        {
+          "step": 5,
+          "action": "Test user and manager ability to access and acknowledge alerts during high load",
+          "expectedResult": "Alert dashboard remains responsive with page load times under 3 seconds; acknowledgment functionality works correctly"
+        }
+      ],
+      "postconditions": [
+        "All 500 alerts are recorded in the attendance alerts history",
+        "System performance returns to normal levels after alert processing completes",
+        "No data loss or corruption occurs during high-volume processing",
+        "Alert acknowledgment status is accurately tracked for all alerts"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Test alert content with special characters, Unicode, and extremely long anomaly descriptions",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged into the system",
+        "Attendance system supports custom anomaly descriptions",
+        "Test data includes special characters, Unicode symbols, and extended text",
+        "Alert display interface is accessible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create an attendance anomaly with description containing special characters: 'Late arrival @9:45 AM - Traffic on I-95 & Route 128 (50% delay) #incident-2024'",
+          "expectedResult": "System accepts and stores the anomaly description with all special characters intact"
+        },
+        {
+          "step": 2,
+          "action": "Create a second anomaly with Unicode characters: 'Usuario llegó tarde - 遅刻 - تأخير - Задержка - 30 minutos'",
+          "expectedResult": "System correctly processes and stores Unicode characters from multiple languages"
+        },
+        {
+          "step": 3,
+          "action": "Create a third anomaly with extremely long description (500+ characters) including suggested actions",
+          "expectedResult": "System accepts the long description and generates alert without truncation errors"
+        },
+        {
+          "step": 4,
+          "action": "Navigate to alerts dashboard and view all three alerts",
+          "expectedResult": "All alerts display correctly with special characters, Unicode text, and long descriptions properly rendered without encoding issues or layout breaks"
+        },
+        {
+          "step": 5,
+          "action": "Test alert acknowledgment with special character anomalies",
+          "expectedResult": "Acknowledgment functionality works correctly regardless of description content; confirmation message displays properly"
+        }
+      ],
+      "postconditions": [
+        "All alert descriptions are stored in database with correct character encoding",
+        "Alert history maintains data integrity for special characters and Unicode",
+        "UI displays all characters correctly without rendering issues",
+        "Search and filter functionality works with special character content"
+      ]
+    },
+    {
+      "id": "TC-EDGE-006",
+      "title": "Test alert system behavior when user acknowledges alert multiple times rapidly",
+      "category": "Edge Cases",
+      "priority": "Low",
+      "preconditions": [
+        "User is logged into the system with an active session",
+        "At least one unacknowledged attendance anomaly alert exists for the user",
+        "Alert acknowledgment API endpoint is accessible",
+        "Browser allows rapid consecutive clicks"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the alerts dashboard and locate an unacknowledged alert",
+          "expectedResult": "Alert is displayed with 'Acknowledge' button enabled and visible"
+        },
+        {
+          "step": 2,
+          "action": "Click the 'Acknowledge' button 10 times rapidly in succession (within 2 seconds)",
+          "expectedResult": "System processes the first acknowledgment and prevents duplicate acknowledgments"
+        },
+        {
+          "step": 3,
+          "action": "Verify alert status after rapid clicks",
+          "expectedResult": "Alert shows as acknowledged exactly once with a single timestamp; no duplicate acknowledgment records exist"
+        },
+        {
+          "step": 4,
+          "action": "Check system logs and database for duplicate entries",
+          "expectedResult": "Only one acknowledgment record exists in the database; no error logs related to duplicate processing"
+        },
+        {
+          "step": 5,
+          "action": "Verify UI state after acknowledgment",
+          "expectedResult": "'Acknowledge' button is disabled or removed; alert status shows 'Acknowledged' with timestamp and user who acknowledged"
+        }
+      ],
+      "postconditions": [
+        "Alert is marked as acknowledged exactly once in the database",
+        "No duplicate acknowledgment records or errors exist",
+        "Alert history shows single acknowledgment event with correct timestamp",
+        "System remains stable with no performance degradation"
+      ]
+    },
+    {
+      "id": "TC-EDGE-007",
+      "title": "Test alert generation when system time changes due to daylight saving time or timezone adjustments",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "System is configured to handle timezone-aware timestamps",
+        "Test environment allows simulation of timezone changes",
+        "User and manager are in different timezones",
+        "Attendance anomaly detection service is running"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure test user in Pacific timezone (PST/PDT) and manager in Eastern timezone (EST/EDT)",
+          "expectedResult": "User and manager profiles show correct timezone settings"
+        },
+        {
+          "step": 2,
+          "action": "Create an attendance anomaly at 9:00 AM PST (12:00 PM EST)",
+          "expectedResult": "Anomaly is recorded with UTC timestamp and timezone information"
+        },
+        {
+          "step": 3,
+          "action": "Verify alert is sent to user showing time in their local timezone (PST)",
+          "expectedResult": "User receives alert showing '9:00 AM PST' for the anomaly occurrence time"
+        },
+        {
+          "step": 4,
+          "action": "Verify alert is sent to manager showing time in their local timezone (EST)",
+          "expectedResult": "Manager receives alert showing '12:00 PM EST' for the same anomaly occurrence"
+        },
+        {
+          "step": 5,
+          "action": "Simulate daylight saving time transition and create another anomaly",
+          "expectedResult": "System correctly adjusts timestamps for DST; alerts show accurate local times with proper DST notation"
+        },
+        {
+          "step": 6,
+          "action": "Check alert history and verify timestamp consistency",
+          "expectedResult": "All timestamps are stored in UTC in database; display correctly converts to user's local timezone; no time calculation errors occur"
+        }
+      ],
+      "postconditions": [
+        "All alerts maintain accurate timezone information in database",
+        "Users see alerts in their configured local timezone",
+        "Alert history correctly handles DST transitions without duplicate or missing time periods",
+        "5-minute SLA is calculated correctly regardless of timezone differences"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Test complete keyboard navigation through attendance alerts dashboard and acknowledgment workflow",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system with keyboard-only access (mouse disabled)",
+        "Multiple attendance anomaly alerts exist in the user's inbox (at least 5 alerts)",
+        "Alerts dashboard is accessible via main navigation",
+        "Browser supports standard keyboard navigation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key from the main navigation menu to reach 'Alerts' link",
+          "expectedResult": "Focus indicator (visible outline) moves to 'Alerts' navigation link; focus is clearly visible with sufficient contrast (3:1 minimum)"
+        },
+        {
+          "step": 2,
+          "action": "Press Enter key to navigate to alerts dashboard",
+          "expectedResult": "Alerts dashboard loads; focus moves to main heading 'Attendance Alerts' or first interactive element; page title updates to include 'Alerts'"
+        },
+        {
+          "step": 3,
+          "action": "Press Tab key to navigate through the list of alerts",
+          "expectedResult": "Focus moves sequentially through each alert item; each alert receives visible focus indicator; focus order is logical (top to bottom)"
+        },
+        {
+          "step": 4,
+          "action": "Press Enter or Space key on a focused alert to expand details",
+          "expectedResult": "Alert expands to show full anomaly description and suggested actions; focus remains on the expanded alert; expansion is announced to screen readers"
+        },
+        {
+          "step": 5,
+          "action": "Press Tab key to reach the 'Acknowledge' button within the expanded alert",
+          "expectedResult": "Focus moves to 'Acknowledge' button with clear visual indicator; button is clearly identified as interactive"
+        },
+        {
+          "step": 6,
+          "action": "Press Enter or Space key to acknowledge the alert",
+          "expectedResult": "Alert is acknowledged; confirmation message appears and receives focus; success message is announced to screen readers; focus management allows continued navigation"
+        },
+        {
+          "step": 7,
+          "action": "Press Escape key while viewing expanded alert details",
+          "expectedResult": "Alert collapses; focus returns to the alert item in the list; no focus trap occurs"
+        },
+        {
+          "step": 8,
+          "action": "Use Shift+Tab to navigate backwards through alerts",
+          "expectedResult": "Focus moves in reverse order through all interactive elements; no elements are skipped; focus remains visible at all times"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements are accessible via keyboard without requiring mouse",
+        "Focus order is logical and follows visual layout",
+        "No keyboard traps exist; user can navigate away from any element",
+        "All actions can be completed using only keyboard (Tab, Shift+Tab, Enter, Space, Escape)"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Test screen reader compatibility and ARIA announcements for alert notifications",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Screen reader software is active (NVDA, JAWS, or VoiceOver)",
+        "User is logged into the system",
+        "Attendance monitoring system is configured to generate test alerts",
+        "Browser is compatible with screen reader (Chrome, Firefox, or Safari)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to alerts dashboard using screen reader navigation commands",
+          "expectedResult": "Screen reader announces page title 'Attendance Alerts Dashboard' and main landmark regions (navigation, main content, complementary)"
+        },
+        {
+          "step": 2,
+          "action": "Use screen reader to read the alerts list heading",
+          "expectedResult": "Screen reader announces 'Attendance Alerts, heading level 1' followed by alert count 'You have 5 unacknowledged alerts'"
+        },
+        {
+          "step": 3,
+          "action": "Navigate to first alert item using screen reader",
+          "expectedResult": "Screen reader announces complete alert information: 'Alert 1 of 5, Late Arrival, Detected at 9:15 AM on January 15, 2024, Status: Unacknowledged, button Acknowledge'"
+        },
+        {
+          "step": 4,
+          "action": "Trigger a new alert while on the alerts dashboard (simulate real-time alert)",
+          "expectedResult": "ARIA live region announces new alert: 'New attendance alert received: Late Arrival at 10:30 AM' without disrupting current screen reader position"
+        },
+        {
+          "step": 5,
+          "action": "Activate 'Acknowledge' button using screen reader",
+          "expectedResult": "Screen reader announces button activation, then success message: 'Alert acknowledged successfully' via ARIA live region with assertive politeness"
+        },
+        {
+          "step": 6,
+          "action": "Navigate through alert details using screen reader reading commands",
+          "expectedResult": "All text content is accessible; anomaly description, timestamp, suggested actions are all announced; no content is hidden from screen reader"
+        },
+        {
+          "step": 7,
+          "action": "Test screen reader announcement of alert priority/severity",
+          "expectedResult": "Screen reader announces alert severity: 'High priority alert' or equivalent; ARIA attributes properly convey urgency"
+        }
+      ],
+      "postconditions": [
+        "All alert content is accessible to screen reader users",
+        "ARIA live regions properly announce dynamic content updates",
+        "Alert status changes are announced without requiring page refresh",
+        "All interactive elements have appropriate ARIA labels and roles"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Test focus management and focus trap prevention in alert modal dialogs",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system with keyboard-only access",
+        "Alert system displays detailed alert information in modal dialogs",
+        "Multiple alerts are available for testing",
+        "Modal dialog implementation follows ARIA dialog pattern"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to an alert and press Enter to open detailed view in modal dialog",
+          "expectedResult": "Modal dialog opens; focus automatically moves to first focusable element in modal (close button or heading); background content is inert (not focusable)"
+        },
+        {
+          "step": 2,
+          "action": "Press Tab key repeatedly to cycle through all focusable elements in modal",
+          "expectedResult": "Focus cycles through: close button, alert details, suggested actions, acknowledge button, and back to close button; focus remains trapped within modal"
+        },
+        {
+          "step": 3,
+          "action": "Press Shift+Tab from first focusable element",
+          "expectedResult": "Focus moves to last focusable element in modal (acknowledge button); focus trap works in both directions"
+        },
+        {
+          "step": 4,
+          "action": "Press Escape key while modal is open",
+          "expectedResult": "Modal closes; focus returns to the trigger element (alert item that opened the modal); no focus is lost"
+        },
+        {
+          "step": 5,
+          "action": "Open modal again and click 'Acknowledge' button using keyboard",
+          "expectedResult": "Alert is acknowledged; modal closes; focus returns to alert list; success message is announced and receives focus"
+        },
+        {
+          "step": 6,
+          "action": "Verify background content is not accessible while modal is open",
+          "expectedResult": "Attempting to Tab outside modal keeps focus within modal; background has aria-hidden='true' or inert attribute; screen reader cannot access background content"
+        }
+      ],
+      "postconditions": [
+        "Focus is properly managed throughout modal lifecycle (open, interact, close)",
+        "Focus trap prevents keyboard users from accessing background content",
+        "Focus returns to logical position after modal closes",
+        "No focus is lost or moved to unexpected locations"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Test color contrast and visual indicators for alert severity levels",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system",
+        "Alerts dashboard displays alerts with different severity levels (low, medium, high, critical)",
+        "Color contrast analyzer tool is available for testing",
+        "Test includes users with color vision deficiencies simulation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to alerts dashboard and identify alerts with different severity levels",
+          "expectedResult": "Alerts are visually distinguishable by severity using multiple indicators (not color alone): icons, text labels, and color"
+        },
+        {
+          "step": 2,
+          "action": "Use color contrast analyzer to measure contrast ratio between alert text and background for each severity level",
+          "expectedResult": "All text meets WCAG 2.1 AA standards: normal text has 4.5:1 contrast ratio minimum; large text (18pt+) has 3:1 contrast ratio minimum"
+        },
+        {
+          "step": 3,
+          "action": "Measure contrast ratio for alert status indicators (acknowledged vs. unacknowledged)",
+          "expectedResult": "Status indicators have sufficient contrast (3:1 minimum for UI components); status is conveyed through text labels, not color alone"
+        },
+        {
+          "step": 4,
+          "action": "Enable color blindness simulation (protanopia, deuteranopia, tritanopia) and view alerts",
+          "expectedResult": "Alert severity and status remain distinguishable with color blindness simulation; icons and text labels provide redundant information"
+        },
+        {
+          "step": 5,
+          "action": "Test focus indicators on interactive elements (buttons, links) for contrast",
+          "expectedResult": "Focus indicators have 3:1 contrast ratio against adjacent colors; focus is clearly visible for all interactive elements"
+        },
+        {
+          "step": 6,
+          "action": "Verify error messages and success confirmations meet contrast requirements",
+          "expectedResult": "All feedback messages have 4.5:1 contrast ratio minimum; icons supplement color-coded messages"
+        }
+      ],
+      "postconditions": [
+        "All text content meets WCAG 2.1 AA contrast requirements (4.5:1 for normal text)",
+        "Alert severity is conveyed through multiple visual indicators, not color alone",
+        "Interface is usable for users with color vision deficiencies",
+        "Focus indicators are clearly visible with sufficient contrast"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Test alerts dashboard functionality at 200% browser zoom level",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged into the system",
+        "Browser zoom is set to 100% initially",
+        "Alerts dashboard contains multiple alerts with varying content lengths",
+        "Browser supports zoom functionality (Chrome, Firefox, Edge, Safari)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to alerts dashboard at 100% zoom and note the layout",
+          "expectedResult": "Dashboard displays normally with all alerts visible and properly formatted"
+        },
+        {
+          "step": 2,
+          "action": "Increase browser zoom to 200% using Ctrl/Cmd + '+' or browser zoom controls",
+          "expectedResult": "Page content scales proportionally; all text remains readable; no content is cut off or hidden"
+        },
+        {
+          "step": 3,
+          "action": "Verify all alert information is accessible without horizontal scrolling",
+          "expectedResult": "Content reflows to fit viewport; horizontal scrolling is not required to read alert details; responsive design adapts to zoomed view"
+        },
+        {
+          "step": 4,
+          "action": "Test interactive elements (buttons, links) at 200% zoom",
+          "expectedResult": "All buttons and links remain clickable; touch targets are at least 44x44 pixels; no overlapping elements; spacing is maintained"
+        },
+        {
+          "step": 5,
+          "action": "Navigate through alerts using keyboard at 200% zoom",
+          "expectedResult": "Keyboard navigation works correctly; focus indicators are visible and properly sized; no layout breaks occur during navigation"
+        },
+        {
+          "step": 6,
+          "action": "Acknowledge an alert at 200% zoom",
+          "expectedResult": "Acknowledgment workflow functions correctly; confirmation message is visible and readable; no functionality is lost at high zoom"
+        },
+        {
+          "step": 7,
+          "action": "Test at intermediate zoom levels (150%, 175%) and verify consistent behavior",
+          "expectedResult": "Interface remains functional and usable at all zoom levels between 100% and 200%; no critical breakpoints cause layout failures"
+        }
+      ],
+      "postconditions": [
+        "All content and functionality is accessible at 200% zoom without loss of information",
+        "No horizontal scrolling is required to access content",
+        "Layout adapts responsively to zoomed viewport",
+        "All interactive elements remain usable at high zoom levels"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "Test ARIA live regions for real-time alert notifications and dynamic content updates",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Screen reader is active (NVDA, JAWS, or VoiceOver)",
+        "User is logged into the system and viewing alerts dashboard",
+        "Attendance monitoring system can generate test alerts in real-time",
+        "ARIA live regions are implemented in the alerts interface"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Position screen reader focus on alerts dashboard main content area",
+          "expectedResult": "Screen reader is actively monitoring the page; user is reading existing alert content"
+        },
+        {
+          "step": 2,
+          "action": "Trigger a new high-priority attendance anomaly alert while user is on the dashboard",
+          "expectedResult": "ARIA live region with aria-live='assertive' immediately announces: 'New high priority alert: Late arrival detected at 2:30 PM. Please review immediately.' without interrupting current screen reader position"
+        },
+        {
+          "step": 3,
+          "action": "Trigger a low-priority informational alert",
+          "expectedResult": "ARIA live region with aria-live='polite' announces the alert after screen reader finishes current announcement: 'New alert: Early departure at 4:45 PM'"
+        },
+        {
+          "step": 4,
+          "action": "Acknowledge an alert using keyboard",
+          "expectedResult": "ARIA live region announces status change: 'Alert acknowledged successfully' with aria-live='polite'; alert count updates and is announced: 'You now have 4 unacknowledged alerts'"
+        },
+        {
+          "step": 5,
+          "action": "Test multiple rapid alerts (3 alerts within 10 seconds)",
+          "expectedResult": "ARIA live region announces each alert without overwhelming user; announcements are queued appropriately; no announcements are lost or duplicated"
+        },
+        {
+          "step": 6,
+          "action": "Verify ARIA live region attributes using browser inspector",
+          "expectedResult": "Live regions have appropriate attributes: aria-live='polite' or 'assertive', aria-atomic='true' for complete announcements, aria-relevant='additions text' for content changes"
+        }
+      ],
+      "postconditions": [
+        "All dynamic content updates are announced to screen reader users",
+        "ARIA live regions use appropriate politeness levels (assertive for urgent, polite for informational)",
+        "Announcements do not interrupt critical user tasks unnecessarily",
+        "Alert count and status changes are communicated effectively to assistive technology users"
+      ]
+    },
+    {
+      "id": "TC-ACCE-007",
+      "title": "Test mobile accessibility including touch target sizes and gesture support for alerts",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is accessing system on mobile device (iOS or Android) or mobile emulator",
+        "User is logged into the system with valid credentials",
+        "Multiple attendance alerts are available in the user's inbox",
+        "Mobile browser supports touch interactions and accessibility features"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to alerts dashboard on mobile device",
+          "expectedResult": "Dashboard renders in mobile-responsive layout; all content is visible without horizontal scrolling; text is readable without zooming"
+        },
+        {
+          "step": 2,
+          "action": "Measure touch target sizes for interactive elements (acknowledge button, alert items, navigation)",
+          "expectedResult": "All touch targets are minimum 44x44 pixels (iOS) or 48x48 pixels (Android); adequate spacing exists between targets (minimum 8 pixels)"
+        },
+        {
+          "step": 3,
+          "action": "Tap on an alert item to expand details",
+          "expectedResult": "Alert expands smoothly; tap is registered accurately; no accidental activation of adjacent elements; expansion animation is smooth"
+        },
+        {
+          "step": 4,
+          "action": "Test swipe gestures on alert items (if implemented)",
+          "expectedResult": "Swipe gestures work consistently; alternative tap-based methods are available for users who cannot perform swipes; gestures are discoverable"
+        },
+        {
+          "step": 5,
+          "action": "Enable mobile screen reader (VoiceOver on iOS or TalkBack on Android) and navigate alerts",
+          "expectedResult": "Screen reader announces all alert content; swipe navigation moves through elements logically; double-tap activates buttons; all functionality is accessible"
+        },
+        {
+          "step": 6,
+          "action": "Test acknowledge button with screen reader active",
+          "expectedResult": "Button is announced as 'Acknowledge button'; double-tap activates acknowledgment; confirmation is announced; focus management works correctly"
+        },
+        {
+          "step": 7,
+          "action": "Rotate device from portrait to landscape orientation",
+          "expectedResult": "Layout adapts to orientation change; all content remains accessible; no functionality is lost; focus is maintained during rotation"
+        },
+        {
+          "step": 8,
+          "action": "Test with mobile accessibility features enabled (larger text, bold text, reduce motion)",
+          "expectedResult": "Interface respects system accessibility settings; text scales appropriately; animations are reduced or removed when reduce motion is enabled"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements meet minimum touch target size requirements",
+        "Mobile screen readers can access all alert functionality",
+        "Interface is fully functional in both portrait and landscape orientations",
+        "System accessibility settings are respected and applied correctly"
+      ]
+    }
+  ],
+  "performance": [
+    {
+      "id": "PERF-LOAD-001",
+      "title": "Validate alert generation and dispatch performance under peak concurrent attendance anomaly detection load",
+      "category": "performance",
+      "subCategory": "Load Testing",
+      "priority": "Critical",
+      "description": "Test the system's ability to detect attendance anomalies and dispatch alerts to users and managers within the 5-minute SLA when processing peak concurrent attendance records. Validate response times, throughput, and resource utilization under normal and peak load conditions.",
+      "preconditions": [
+        "Attendance database populated with 100,000+ active user records",
+        "Alert dispatch service is operational",
+        "Monitoring tools configured to track P50, P95, P99 response times",
+        "Test environment mirrors production capacity",
+        "Baseline metrics established for normal load"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure load test to simulate 500 concurrent users with attendance anomalies (late arrivals, absences, early departures) being recorded simultaneously",
+          "expectedResult": "Load test environment configured successfully with 500 virtual users"
+        },
+        {
+          "step": 2,
+          "action": "Execute load test for 30 minutes, gradually ramping up from 100 to 500 concurrent anomaly detections over 10 minutes, sustaining peak for 15 minutes, then ramping down",
+          "expectedResult": "System processes all anomaly detections without errors during ramp-up and sustained load"
+        },
+        {
+          "step": 3,
+          "action": "Monitor and record API endpoint /api/attendance/alerts response times (P50, P95, P99), throughput (TPS), and error rates",
+          "expectedResult": "P50 ≤ 500ms, P95 ≤ 2000ms, P99 ≤ 4000ms; Throughput ≥ 50 TPS; Error rate < 0.1%"
+        },
+        {
+          "step": 4,
+          "action": "Measure alert dispatch latency from anomaly detection to user/manager notification",
+          "expectedResult": "95% of alerts dispatched within 5 minutes; 99% within 7 minutes"
+        },
+        {
+          "step": 5,
+          "action": "Monitor CPU utilization, memory consumption, database connection pool usage, and network I/O during peak load",
+          "expectedResult": "CPU utilization < 75%, Memory usage < 80%, Database connections < 85% of pool, no resource exhaustion"
+        }
+      ],
+      "postconditions": [
+        "All alerts successfully delivered to intended recipients",
+        "System returns to baseline resource utilization",
+        "No data loss or corruption in attendance database",
+        "Alert history accurately recorded"
+      ],
+      "testData": "500 user profiles with varied attendance patterns; Anomaly scenarios: 40% late arrivals (>15 min), 30% absences, 20% early departures, 10% multiple anomalies",
+      "toolsRequired": [
+        "JMeter or Gatling for load generation",
+        "Application Performance Monitoring (APM) tool",
+        "Database performance monitoring",
+        "Alert delivery tracking system"
+      ],
+      "estimatedTime": "2 hours",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": null
+    },
+    {
+      "id": "PERF-STRESS-001",
+      "title": "Identify system breaking point and validate graceful degradation when alert volume exceeds capacity",
+      "category": "performance",
+      "subCategory": "Stress Testing",
+      "priority": "High",
+      "description": "Determine the maximum capacity of the attendance anomaly alert system by progressively increasing load beyond expected peak until system failure or unacceptable performance degradation occurs. Validate that the system degrades gracefully and recovers properly without data loss.",
+      "preconditions": [
+        "System operating at baseline performance",
+        "Circuit breakers and rate limiters configured",
+        "Database backup completed",
+        "Monitoring and alerting systems active",
+        "Rollback procedures documented and ready"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Start stress test at 500 concurrent anomaly detections (known peak load) and increase by 200 users every 5 minutes until system failure or response time exceeds 30 seconds",
+          "expectedResult": "Load increases progressively; system continues processing requests"
+        },
+        {
+          "step": 2,
+          "action": "Monitor error rates, response times, and system behavior at each load increment (500, 700, 900, 1100, 1300+ concurrent users)",
+          "expectedResult": "System behavior documented at each threshold; breaking point identified when error rate > 5% or P95 response time > 30s"
+        },
+        {
+          "step": 3,
+          "action": "Observe graceful degradation mechanisms: rate limiting activation, queue management, circuit breaker triggers, and user-facing error messages",
+          "expectedResult": "System implements rate limiting at ~1000 users; Circuit breakers activate; Meaningful error messages returned; No system crashes"
+        },
+        {
+          "step": 4,
+          "action": "Stop load generation and monitor system recovery time and behavior",
+          "expectedResult": "System recovers to normal operation within 10 minutes; Queued alerts processed in order; No alerts lost"
+        },
+        {
+          "step": 5,
+          "action": "Verify data integrity in attendance database and alert history after recovery",
+          "expectedResult": "All anomaly records accurately stored; Alert history complete; No data corruption detected"
+        }
+      ],
+      "postconditions": [
+        "Breaking point documented with specific metrics",
+        "System fully recovered to operational state",
+        "Capacity planning recommendations generated",
+        "Graceful degradation mechanisms validated"
+      ],
+      "testData": "Progressive load from 500 to 1500+ concurrent anomaly scenarios with realistic attendance data patterns",
+      "toolsRequired": [
+        "JMeter or Gatling with progressive load profiles",
+        "Real-time monitoring dashboard",
+        "Database integrity verification tools",
+        "Log aggregation and analysis tools"
+      ],
+      "estimatedTime": "3 hours",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": null
+    },
+    {
+      "id": "PERF-SOAK-001",
+      "title": "Validate system stability and detect memory leaks during 24-hour continuous alert processing",
+      "category": "performance",
+      "subCategory": "Endurance Testing",
+      "priority": "High",
+      "description": "Execute extended duration testing to identify memory leaks, resource exhaustion, and performance degradation over time. Simulate realistic attendance anomaly patterns over a 24-hour period to ensure the system maintains consistent performance for long-running operations.",
+      "preconditions": [
+        "System at baseline with all services restarted",
+        "Memory profiling tools configured",
+        "Disk space monitoring enabled",
+        "Database maintenance jobs scheduled appropriately",
+        "24-hour test window allocated with minimal interference"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure endurance test with sustained load of 300 concurrent users (60% of peak) with realistic daily attendance patterns: morning spike (8-9 AM), lunch period (12-1 PM), evening spike (5-6 PM)",
+          "expectedResult": "Test configured with diurnal pattern matching real-world usage over 24 hours"
+        },
+        {
+          "step": 2,
+          "action": "Execute 24-hour soak test, continuously generating attendance anomalies and processing alerts",
+          "expectedResult": "Test runs continuously for 24 hours without manual intervention"
+        },
+        {
+          "step": 3,
+          "action": "Monitor memory utilization every 30 minutes, tracking heap size, garbage collection frequency, and memory growth trends",
+          "expectedResult": "Memory usage remains stable with no upward trend; Heap size fluctuates within normal range; GC frequency consistent; No memory leaks detected (memory growth < 5% over 24 hours)"
+        },
+        {
+          "step": 4,
+          "action": "Track response time consistency throughout the test period, comparing hour 1 vs hour 12 vs hour 24 performance metrics",
+          "expectedResult": "Response time degradation < 10% between hour 1 and hour 24; P95 remains under 2500ms throughout; No progressive performance degradation"
+        },
+        {
+          "step": 5,
+          "action": "Monitor database connection pool, thread pool utilization, disk I/O, and log file growth",
+          "expectedResult": "Connection pools stable; No connection leaks; Thread pools healthy; Disk I/O consistent; Log rotation functioning properly"
+        },
+        {
+          "step": 6,
+          "action": "Verify alert delivery consistency and accuracy at beginning, middle, and end of test period",
+          "expectedResult": "Alert delivery rate consistent throughout 24 hours; 95%+ alerts delivered within 5-minute SLA at all measurement points"
+        }
+      ],
+      "postconditions": [
+        "System remains operational after 24-hour test",
+        "No memory leaks identified",
+        "Performance metrics consistent from start to finish",
+        "All alerts processed and delivered successfully",
+        "Resource utilization returns to baseline"
+      ],
+      "testData": "Realistic 24-hour attendance pattern with ~25,000 total anomaly events distributed across time zones and shift patterns",
+      "toolsRequired": [
+        "JMeter or Gatling for sustained load",
+        "Memory profiler (JProfiler, YourKit, or VisualVM)",
+        "APM tool with long-term metric retention",
+        "Database performance monitoring",
+        "Disk and system resource monitoring"
+      ],
+      "estimatedTime": "26 hours (24-hour test + 2 hours setup/analysis)",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": null
+    },
+    {
+      "id": "PERF-SPIKE-001",
+      "title": "Validate system response to sudden traffic surge during mass attendance anomaly event",
+      "category": "performance",
+      "subCategory": "Spike Testing",
+      "priority": "Critical",
+      "description": "Test the system's ability to handle sudden, dramatic increases in attendance anomaly detection load, such as during system-wide events (e.g., severe weather causing mass late arrivals, system outage recovery). Validate auto-scaling, queue management, and alert prioritization under spike conditions.",
+      "preconditions": [
+        "Auto-scaling policies configured and enabled",
+        "Message queue system operational with capacity monitoring",
+        "Baseline load of 50 concurrent users established",
+        "Alert prioritization rules configured",
+        "Cloud infrastructure scaling limits verified"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish baseline load of 50 concurrent users generating normal attendance anomaly patterns",
+          "expectedResult": "System operating at baseline with stable performance metrics"
+        },
+        {
+          "step": 2,
+          "action": "Inject sudden spike to 800 concurrent users within 60 seconds, simulating mass attendance anomaly event (e.g., weather emergency causing widespread late arrivals)",
+          "expectedResult": "Load increases from 50 to 800 users in under 60 seconds"
+        },
+        {
+          "step": 3,
+          "action": "Monitor auto-scaling response time, instance provisioning, and load balancer behavior during spike",
+          "expectedResult": "Auto-scaling triggers within 2 minutes; New instances provisioned within 5 minutes; Load balancer distributes traffic effectively; No service interruption"
+        },
+        {
+          "step": 4,
+          "action": "Measure alert processing during spike: queue depth, processing latency, and delivery success rate",
+          "expectedResult": "Message queue absorbs spike without overflow; Queue depth peaks but remains manageable; 90%+ alerts delivered within 10 minutes (relaxed SLA during spike); Error rate < 2%"
+        },
+        {
+          "step": 5,
+          "action": "Sustain spike load for 10 minutes, then rapidly decrease back to baseline (50 users) within 2 minutes",
+          "expectedResult": "System maintains stability during sustained spike; Graceful scale-down occurs; No resource thrashing"
+        },
+        {
+          "step": 6,
+          "action": "Verify alert delivery completeness, order preservation, and system recovery to baseline performance",
+          "expectedResult": "All alerts eventually delivered (100% delivery within 15 minutes post-spike); Critical alerts prioritized; System returns to baseline performance within 5 minutes of load decrease"
+        }
+      ],
+      "postconditions": [
+        "All alerts from spike event successfully delivered",
+        "System scaled back to baseline capacity",
+        "No alerts lost or duplicated",
+        "Performance metrics return to normal",
+        "Auto-scaling behavior documented"
+      ],
+      "testData": "Spike scenario: 800 concurrent late arrival anomalies triggered simultaneously; Mix of user roles and manager hierarchies for alert routing",
+      "toolsRequired": [
+        "JMeter or Gatling with spike test profile",
+        "Cloud infrastructure monitoring (AWS CloudWatch, Azure Monitor, or GCP Monitoring)",
+        "Message queue monitoring tools",
+        "Auto-scaling policy analyzer",
+        "Real-time performance dashboard"
+      ],
+      "estimatedTime": "90 minutes",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": null
+    }
+  ],
+  "security": [
+    {
+      "id": "SEC-AUTHZ-001",
+      "title": "Horizontal Privilege Escalation - Unauthorized Access to Other Users' Attendance Alerts",
+      "category": "security",
+      "subCategory": "STRIDE-Elevation of Privilege",
+      "priority": "Critical",
+      "description": "Verify that a user cannot access, view, or manipulate attendance anomaly alerts belonging to other users by tampering with API parameters or direct object references. This tests for broken access control (OWASP A01) and horizontal privilege escalation vulnerabilities.",
+      "preconditions": [
+        "Two test user accounts exist (User A and User B) with different attendance records",
+        "User A has at least one attendance anomaly alert generated",
+        "User B is authenticated and has valid session token",
+        "API endpoint /api/attendance/alerts is accessible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Authenticate as User B and capture the session token",
+          "expectedResult": "User B successfully authenticates and receives valid session token"
+        },
+        {
+          "step": 2,
+          "action": "Identify User A's alert ID or user identifier from system logs or by intercepting legitimate requests",
+          "expectedResult": "User A's alert ID or user identifier is obtained"
+        },
+        {
+          "step": 3,
+          "action": "Using User B's session, send GET request to /api/attendance/alerts with User A's alert ID or user parameter (e.g., /api/attendance/alerts?userId=UserA or /api/attendance/alerts/UserA_AlertID)",
+          "expectedResult": "System returns 403 Forbidden or 401 Unauthorized error, denying access to User A's alerts"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to modify the request headers, add authorization bypass parameters, or use parameter pollution techniques to access User A's alerts",
+          "expectedResult": "All bypass attempts fail and system consistently denies access with appropriate error codes"
+        },
+        {
+          "step": 5,
+          "action": "Verify that User B can only access their own attendance alerts through the same endpoint",
+          "expectedResult": "User B successfully retrieves only their own alerts, confirming proper access control implementation"
+        }
+      ],
+      "postconditions": [
+        "No unauthorized access to User A's alerts is logged",
+        "Security audit log records all failed access attempts with User B's identity",
+        "User A's alert data remains confidential and unmodified"
+      ],
+      "testData": "UserA_ID: 1001, UserA_AlertID: ALT-2024-001, UserB_ID: 1002, UserB_SessionToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "toolsRequired": [
+        "Burp Suite",
+        "Postman",
+        "OWASP ZAP",
+        "Browser Developer Tools"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 8.6,
+      "complianceTag": "OWASP-A01, SOC2-CC6.1"
+    },
+    {
+      "id": "SEC-INJ-001",
+      "title": "SQL Injection in Attendance Anomaly Alert Query Parameters",
+      "category": "security",
+      "subCategory": "OWASP-A03 Injection",
+      "priority": "Critical",
+      "description": "Test the attendance alert API endpoint for SQL injection vulnerabilities by injecting malicious SQL payloads into query parameters. Verify that input validation and parameterized queries prevent unauthorized database access, data extraction, or manipulation.",
+      "preconditions": [
+        "User is authenticated with valid credentials",
+        "Attendance alert system is operational",
+        "Database contains attendance anomaly records",
+        "API endpoint /api/attendance/alerts accepts query parameters"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send GET request to /api/attendance/alerts with basic SQL injection payload in date parameter: /api/attendance/alerts?date=2024-01-01' OR '1'='1",
+          "expectedResult": "System rejects the request with 400 Bad Request error and does not execute the malicious SQL. No additional records are returned beyond authorized scope"
+        },
+        {
+          "step": 2,
+          "action": "Attempt union-based SQL injection to extract sensitive data: /api/attendance/alerts?userId=1001 UNION SELECT username,password,email FROM users--",
+          "expectedResult": "System sanitizes input and returns error or only legitimate alert data. No user credentials or unauthorized data is exposed"
+        },
+        {
+          "step": 3,
+          "action": "Test time-based blind SQL injection: /api/attendance/alerts?alertId=1001'; WAITFOR DELAY '00:00:10'--",
+          "expectedResult": "Response time remains normal (under 5 seconds), indicating the SQL command was not executed. System returns appropriate error or valid data only"
+        },
+        {
+          "step": 4,
+          "action": "Inject SQL commands attempting to modify data: /api/attendance/alerts?status=resolved'; UPDATE attendance_alerts SET status='dismissed' WHERE 1=1--",
+          "expectedResult": "Input is properly escaped/validated. No database modifications occur. Alert statuses remain unchanged"
+        },
+        {
+          "step": 5,
+          "action": "Review application logs and database query logs to confirm parameterized queries are used and no raw SQL injection attempts were executed",
+          "expectedResult": "Logs show all malicious inputs were sanitized. Only parameterized queries were executed against the database"
+        }
+      ],
+      "postconditions": [
+        "Database integrity is maintained with no unauthorized modifications",
+        "All SQL injection attempts are logged in security audit trail",
+        "No sensitive data was exposed or extracted",
+        "Application remains stable and functional"
+      ],
+      "testData": "SQL Injection Payloads: ' OR '1'='1, '; DROP TABLE attendance_alerts--, 1001' UNION SELECT NULL,NULL,NULL--, admin'--",
+      "toolsRequired": [
+        "SQLMap",
+        "Burp Suite",
+        "OWASP ZAP",
+        "Postman"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9.2,
+      "complianceTag": "OWASP-A03, PCI-DSS-6.5.1"
+    },
+    {
+      "id": "SEC-AUTH-001",
+      "title": "Authentication Bypass and Session Token Manipulation for Alert Access",
+      "category": "security",
+      "subCategory": "STRIDE-Spoofing",
+      "priority": "Critical",
+      "description": "Verify that attendance anomaly alerts cannot be accessed without proper authentication and that session tokens cannot be manipulated, predicted, or reused after logout. Tests for authentication failures (OWASP A07) and session management vulnerabilities.",
+      "preconditions": [
+        "Attendance alert system is operational with active alerts",
+        "API endpoint /api/attendance/alerts requires authentication",
+        "Test user account exists with valid credentials",
+        "Session management system is configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send GET request to /api/attendance/alerts without any authentication token or credentials",
+          "expectedResult": "System returns 401 Unauthorized error and denies access to alert data"
+        },
+        {
+          "step": 2,
+          "action": "Authenticate as valid user, capture session token, then logout. Attempt to reuse the same session token to access /api/attendance/alerts",
+          "expectedResult": "System rejects the expired/invalidated token with 401 Unauthorized error. Alert data is not accessible"
+        },
+        {
+          "step": 3,
+          "action": "Authenticate and obtain valid session token. Modify the token slightly (change 1-2 characters) and attempt to access alerts",
+          "expectedResult": "System detects token tampering, returns 401 Unauthorized, and logs the suspicious activity"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to access alerts using common default tokens, predictable token patterns, or tokens from other sessions",
+          "expectedResult": "All attempts fail with 401 Unauthorized. System does not accept any token except properly generated ones for the authenticated user"
+        },
+        {
+          "step": 5,
+          "action": "Test for session fixation by setting a custom session ID before authentication and verifying if it persists after login",
+          "expectedResult": "System generates new session token upon successful authentication, invalidating any pre-set session identifiers"
+        },
+        {
+          "step": 6,
+          "action": "Verify that session tokens have appropriate expiration time (maximum 24 hours) and are invalidated after period of inactivity",
+          "expectedResult": "Tokens expire as configured and require re-authentication. Expired tokens cannot access alert data"
+        }
+      ],
+      "postconditions": [
+        "No unauthorized access to attendance alerts occurred",
+        "All authentication bypass attempts are logged in security audit",
+        "Session tokens remain cryptographically secure and unpredictable",
+        "User must re-authenticate to access alerts after token expiration"
+      ],
+      "testData": "Valid Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMDAxIn0..., Tampered Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMDAyIn0..., Expired Token: [token from previous session]",
+      "toolsRequired": [
+        "Burp Suite",
+        "Postman",
+        "JWT.io",
+        "OWASP ZAP"
+      ],
+      "estimatedTime": "50 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 8.8,
+      "complianceTag": "OWASP-A07, SOC2-CC6.1, PCI-DSS-6.5.10"
+    },
+    {
+      "id": "SEC-INFO-001",
+      "title": "Information Disclosure Through Alert Error Messages and API Responses",
+      "category": "security",
+      "subCategory": "STRIDE-Information Disclosure",
+      "priority": "High",
+      "description": "Test whether the attendance alert system exposes sensitive information through verbose error messages, stack traces, database details, or API responses. Verify that error handling follows secure coding practices and does not leak system architecture, user data, or internal implementation details.",
+      "preconditions": [
+        "Attendance alert system is operational",
+        "API endpoint /api/attendance/alerts is accessible",
+        "Test user accounts with various permission levels exist",
+        "Error handling mechanisms are implemented"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send malformed request to /api/attendance/alerts with invalid JSON payload or missing required fields",
+          "expectedResult": "System returns generic error message (e.g., 'Invalid request format') without exposing database schema, table names, or internal field names"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to access non-existent alert ID: /api/attendance/alerts/99999999",
+          "expectedResult": "System returns generic 404 error ('Resource not found') without revealing whether the ID format is valid, database query details, or existence of other records"
+        },
+        {
+          "step": 3,
+          "action": "Trigger authentication failure by providing invalid credentials and analyze the error response",
+          "expectedResult": "Error message is generic ('Authentication failed') and does not indicate whether username exists, password is incorrect, or account is locked"
+        },
+        {
+          "step": 4,
+          "action": "Send requests with various invalid data types and boundary values to trigger application errors, monitoring for stack traces or debug information",
+          "expectedResult": "No stack traces, file paths, framework versions, or internal error details are exposed in responses. Only user-friendly error messages are returned"
+        },
+        {
+          "step": 5,
+          "action": "Analyze API responses for successful requests to verify that only necessary data is returned and sensitive fields (internal IDs, system metadata, other users' data) are filtered",
+          "expectedResult": "API responses contain only authorized alert information relevant to the authenticated user. No excessive data, internal system details, or other users' information is included"
+        },
+        {
+          "step": 6,
+          "action": "Check HTTP response headers for information disclosure (server version, framework details, technology stack)",
+          "expectedResult": "Response headers do not expose server software versions, framework details, or technology stack information. Generic or obfuscated headers are used"
+        }
+      ],
+      "postconditions": [
+        "No sensitive system information was disclosed through error messages",
+        "Application maintains security through obscurity where appropriate",
+        "Error handling logs detailed information server-side but returns generic messages to clients",
+        "API responses follow principle of least privilege for data exposure"
+      ],
+      "testData": "Invalid JSON: {alertId: 'invalid', Invalid Alert ID: 99999999, Malformed Date: '2024-13-45', SQL in parameter: alertId=1001' OR '1'='1",
+      "toolsRequired": [
+        "Burp Suite",
+        "Postman",
+        "Browser Developer Tools",
+        "OWASP ZAP"
+      ],
+      "estimatedTime": "40 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 6.4,
+      "complianceTag": "OWASP-A01, OWASP-A05, SOC2-CC6.1"
+    }
+  ],
+  "usability": [
+    {
+      "id": "UX-H01-001",
+      "title": "Verify real-time visibility of alert delivery status and anomaly detection progress",
+      "category": "usability",
+      "subCategory": "Nielsen-H01-Visibility of System Status",
+      "priority": "Critical",
+      "description": "Test whether users receive clear, immediate feedback about the system's attendance monitoring status, alert generation progress, and delivery confirmation. Users must understand when anomalies are being detected, when alerts are sent, and confirmation of receipt.",
+      "preconditions": [
+        "User is logged into the attendance system",
+        "Attendance data is being actively monitored",
+        "Test anomaly data is prepared (late arrival scenario)",
+        "User has appropriate permissions to view alerts"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Trigger an attendance anomaly (simulate late arrival by 30 minutes)",
+          "expectedResult": "System displays a visual indicator showing anomaly detection is in progress (e.g., processing icon, status message)"
+        },
+        {
+          "step": 2,
+          "action": "Observe the interface during the 5-minute alert generation window",
+          "expectedResult": "Progress indicator or status message shows 'Analyzing attendance data' or 'Alert being generated' with timestamp"
+        },
+        {
+          "step": 3,
+          "action": "Wait for alert to be dispatched to user and manager",
+          "expectedResult": "System displays confirmation message 'Alert sent to [User Name] and [Manager Name] at [timestamp]' with delivery status"
+        },
+        {
+          "step": 4,
+          "action": "Check alert notification center or dashboard",
+          "expectedResult": "Alert appears with clear status indicators (New/Read/Acknowledged) and timestamp of when it was generated"
+        },
+        {
+          "step": 5,
+          "action": "Navigate away and return to the alerts page",
+          "expectedResult": "System maintains and displays current status of all alerts without requiring page refresh"
+        }
+      ],
+      "postconditions": [
+        "Alert delivery status is clearly visible to user",
+        "Recommendation: Implement real-time status badges (e.g., 'Monitoring Active', 'Alert Sent', 'Delivered')",
+        "Recommendation: Add timestamp for each status change",
+        "Recommendation: Provide visual progress bar during the 5-minute detection-to-alert window",
+        "Recommendation: Use color coding (green=delivered, yellow=pending, red=failed)"
+      ],
+      "testData": "Test User: John Doe (ID: EMP001), Scheduled Time: 09:00 AM, Actual Arrival: 09:32 AM, Anomaly Type: Late Arrival, Manager: Jane Smith",
+      "toolsRequired": [
+        "Browser developer tools for network monitoring",
+        "Screen recording software",
+        "Timestamp verification tool"
+      ],
+      "estimatedTime": "25 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 4,
+      "complianceTag": "Nielsen-H01"
+    },
+    {
+      "id": "UX-H02-002",
+      "title": "Validate alert language uses familiar terminology and clear anomaly descriptions",
+      "category": "usability",
+      "subCategory": "Nielsen-H02-Match Between System and Real World",
+      "priority": "High",
+      "description": "Test whether alert messages use plain language that matches real-world attendance concepts, avoiding technical jargon. Anomaly descriptions should be immediately understandable without requiring interpretation or system knowledge.",
+      "preconditions": [
+        "Multiple types of attendance anomalies are configured (late arrival, early departure, absence, extended break)",
+        "User has no prior training on system terminology",
+        "Alert notification system is active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Trigger a 'late arrival' anomaly and review the alert message",
+          "expectedResult": "Alert reads 'You arrived 30 minutes late today at 9:30 AM (scheduled: 9:00 AM)' instead of technical terms like 'Temporal deviation detected: +30min offset'"
+        },
+        {
+          "step": 2,
+          "action": "Trigger an 'unauthorized absence' anomaly and check alert wording",
+          "expectedResult": "Alert states 'You were marked absent on [date] without prior approval' using clear, everyday language"
+        },
+        {
+          "step": 3,
+          "action": "Review the historical alert record interface",
+          "expectedResult": "Anomaly types are labeled with familiar terms: 'Late Arrival', 'Early Departure', 'Missed Shift' rather than codes like 'ANOM-001', 'ANOM-002'"
+        },
+        {
+          "step": 4,
+          "action": "Check if alert includes contextual information (date, time, location if applicable)",
+          "expectedResult": "Alert provides complete context: 'Late arrival on Monday, Jan 15, 2024 at Main Office' matching how users naturally think about attendance"
+        },
+        {
+          "step": 5,
+          "action": "Verify action items in alerts use imperative, clear language",
+          "expectedResult": "Alert suggests 'Contact your manager to explain' or 'Submit a leave request' instead of 'Initiate resolution workflow'"
+        }
+      ],
+      "postconditions": [
+        "All alert messages use plain, non-technical language",
+        "Recommendation: Conduct user testing with 5-7 employees to validate terminology comprehension",
+        "Recommendation: Replace any system codes with descriptive labels",
+        "Recommendation: Include visual icons alongside text (clock icon for late, calendar for absence)",
+        "Recommendation: Provide examples in help documentation using real-world scenarios"
+      ],
+      "testData": "Anomaly scenarios: Late Arrival (32 min), Early Departure (45 min), Unplanned Absence, Extended Lunch Break (25 min over)",
+      "toolsRequired": [
+        "Readability analysis tool (Flesch-Kincaid)",
+        "User feedback survey template"
+      ],
+      "estimatedTime": "30 minutes",
+      "automationFeasibility": "Low",
+      "riskScore": 3,
+      "complianceTag": "Nielsen-H02"
+    },
+    {
+      "id": "UX-H06-003",
+      "title": "Verify alert information is visible and recognizable without requiring recall of previous screens",
+      "category": "usability",
+      "subCategory": "Nielsen-H06-Recognition Rather Than Recall",
+      "priority": "High",
+      "description": "Test whether users can understand and act on alerts without needing to remember information from other parts of the system. All necessary context (anomaly type, date, time, expected vs actual, next steps) should be visible within the alert itself.",
+      "preconditions": [
+        "User has received multiple attendance alerts over time",
+        "Historical alert records are accessible",
+        "User is viewing alert from notification center"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Open a single alert notification without viewing any other system screens",
+          "expectedResult": "Alert displays complete information: anomaly type, date, scheduled time, actual time, deviation amount, and affected shift/location without requiring navigation"
+        },
+        {
+          "step": 2,
+          "action": "Check if alert includes visual reference to attendance policy",
+          "expectedResult": "Alert shows relevant policy snippet (e.g., 'Policy allows 15-minute grace period') so user doesn't need to recall or look up rules"
+        },
+        {
+          "step": 3,
+          "action": "Review available actions directly from the alert",
+          "expectedResult": "Alert displays actionable buttons/links: 'Acknowledge', 'Explain Reason', 'View Full Attendance Record', 'Contact Manager' without requiring user to remember where these functions are located"
+        },
+        {
+          "step": 4,
+          "action": "Access historical alerts list and review past anomalies",
+          "expectedResult": "Each historical alert shows summary information (date, type, status) visible in list view without requiring user to open each one to recall details"
+        },
+        {
+          "step": 5,
+          "action": "Verify if alert includes manager information and contact method",
+          "expectedResult": "Alert displays 'Your manager: Jane Smith (jane.smith@company.com)' so user doesn't need to remember or look up manager details"
+        }
+      ],
+      "postconditions": [
+        "All critical information is visible within alert context",
+        "Recommendation: Implement expandable alert cards showing full details on hover/click",
+        "Recommendation: Add 'Quick Actions' menu directly in alert notification",
+        "Recommendation: Display mini-calendar view showing attendance pattern for context",
+        "Recommendation: Include embedded policy reference with hyperlink to full policy",
+        "Recommendation: Show manager photo and contact info within alert for easy recognition"
+      ],
+      "testData": "Alert scenarios: Late arrival with policy reference, Absence with manager contact, Pattern alert showing 3 recent late arrivals",
+      "toolsRequired": [
+        "Eye-tracking software (optional)",
+        "User session recording tool",
+        "Cognitive walkthrough checklist"
+      ],
+      "estimatedTime": "35 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 3,
+      "complianceTag": "Nielsen-H06"
+    },
+    {
+      "id": "UX-H09-004",
+      "title": "Validate error messages and failed alert scenarios provide clear recovery guidance",
+      "category": "usability",
+      "subCategory": "Nielsen-H09-Help Users Recognize and Recover from Errors",
+      "priority": "Critical",
+      "description": "Test whether users receive helpful, constructive error messages when alert delivery fails, anomaly detection encounters issues, or user actions on alerts fail. Messages should explain what went wrong, why, and provide specific steps to resolve the issue.",
+      "preconditions": [
+        "Test environment can simulate alert delivery failures",
+        "Network connectivity can be controlled for testing",
+        "Invalid user actions can be triggered (e.g., acknowledging already-resolved alert)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Simulate alert delivery failure (e.g., email service down) and check user notification",
+          "expectedResult": "System displays clear message: 'Alert could not be delivered via email. You can view it here in your notification center. We will retry delivery in 10 minutes.' instead of generic 'Error 500' or 'Delivery failed'"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to acknowledge an alert that has already been resolved by manager",
+          "expectedResult": "Error message states: 'This alert was already resolved by your manager on [date]. No action needed from you.' with option to 'View Resolution Details'"
+        },
+        {
+          "step": 3,
+          "action": "Try to access alert details when API endpoint is unavailable",
+          "expectedResult": "Message displays: 'We cannot load alert details right now. Your alert summary: [brief text]. Try refreshing in a moment or contact support at [contact].' with 'Retry' button"
+        },
+        {
+          "step": 4,
+          "action": "Submit an explanation for an anomaly with missing required information",
+          "expectedResult": "Validation message highlights specific missing fields: 'Please provide: 1) Reason for late arrival, 2) Supporting documentation (if applicable)' with inline field highlighting"
+        },
+        {
+          "step": 5,
+          "action": "Check error message when user lacks permission to view certain alert details",
+          "expectedResult": "Message explains: 'You do not have permission to view manager-only notes. Contact your manager or HR for access.' with clear contact information and 'Request Access' button"
+        }
+      ],
+      "postconditions": [
+        "All error messages are constructive and solution-oriented",
+        "Recommendation: Implement error message template: [What happened] + [Why it happened] + [How to fix it] + [Who to contact]",
+        "Recommendation: Add 'Retry' or 'Alternative Action' buttons to all error messages",
+        "Recommendation: Provide error code for support reference but keep it secondary to plain language explanation",
+        "Recommendation: Log all errors with user-friendly incident ID that users can reference when contacting support",
+        "Recommendation: Create fallback notification methods (in-app notification if email fails)"
+      ],
+      "testData": "Error scenarios: Email delivery failure, Database timeout, Permission denied, Duplicate action attempt, Network connectivity loss",
+      "toolsRequired": [
+        "Network throttling tool",
+        "API mocking tool (Postman/Mock Service Worker)",
+        "Error logging dashboard"
+      ],
+      "estimatedTime": "40 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 4,
+      "complianceTag": "Nielsen-H09"
+    }
+  ],
+  "reliability": [
+    {
+      "id": "REL-FAIL-001",
+      "title": "Alert Service Resilience During Database Connection Failure",
+      "category": "reliability",
+      "subCategory": "Failure Injection Testing",
+      "priority": "Critical",
+      "description": "Validate that the attendance alert system maintains service availability and queues alerts when the attendance database becomes unavailable, ensuring no alert loss and automatic recovery when database connection is restored.",
+      "preconditions": [
+        "Attendance anomaly detection service is running",
+        "Database connection is healthy",
+        "Message queue/buffer system is configured",
+        "Monitoring tools are active to track MTTR"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish baseline: Generate 10 test attendance anomalies and verify alerts are sent successfully within 5 minutes",
+          "expectedResult": "All 10 alerts are delivered successfully. Steady state confirmed with 100% alert delivery rate"
+        },
+        {
+          "step": 2,
+          "action": "Inject failure: Terminate database connection or shut down attendance database service",
+          "expectedResult": "Database connection failure is detected. Service logs error but remains operational"
+        },
+        {
+          "step": 3,
+          "action": "Generate 15 attendance anomalies during database outage",
+          "expectedResult": "Alerts are queued in message buffer/queue. No alerts are lost. Circuit breaker opens to prevent cascading failures"
+        },
+        {
+          "step": 4,
+          "action": "Monitor system behavior for 10 minutes during outage",
+          "expectedResult": "Service remains responsive. Health check endpoint returns degraded status. No memory leaks or resource exhaustion observed"
+        },
+        {
+          "step": 5,
+          "action": "Restore database connection",
+          "expectedResult": "Service automatically detects restored connection. Circuit breaker transitions to half-open then closed state within 2 minutes (MTTR ≤ 2 minutes)"
+        },
+        {
+          "step": 6,
+          "action": "Verify queued alerts are processed and delivered",
+          "expectedResult": "All 15 queued alerts are delivered within 5 minutes of recovery. No data loss (RPO = 0). Total system availability ≥ 99.5%"
+        }
+      ],
+      "postconditions": [
+        "All alerts successfully delivered",
+        "System returns to healthy state",
+        "No orphaned connections or memory leaks",
+        "Alert delivery SLA maintained post-recovery"
+      ],
+      "testData": "15 test attendance anomalies: 5 late arrivals (>15 min), 5 early departures (>15 min), 5 unauthorized absences",
+      "toolsRequired": [
+        "Chaos Mesh or Gremlin for failure injection",
+        "Database connection killer script",
+        "APM tool (New Relic, Datadog) for monitoring",
+        "Message queue monitoring dashboard"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9,
+      "complianceTag": "SLO-Availability-99.5%, MTTR-2min, RPO-0"
+    },
+    {
+      "id": "REL-CHAOS-002",
+      "title": "Alert Dispatch Resilience Under Network Partition and Latency Injection",
+      "category": "reliability",
+      "subCategory": "Chaos Engineering - Network Failures",
+      "priority": "Critical",
+      "description": "Execute chaos experiment to validate alert delivery mechanism resilience when network partitions occur between alert service and notification endpoints (email/SMS gateways), ensuring graceful degradation and eventual consistency.",
+      "preconditions": [
+        "Alert notification service is operational",
+        "Multiple notification channels configured (email, SMS, in-app)",
+        "Network chaos tools are configured",
+        "Baseline alert delivery rate established at 100%"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Define hypothesis: 'Alert system will maintain 95% delivery rate within 10 minutes despite 30% network packet loss and 2000ms latency injection'",
+          "expectedResult": "Hypothesis documented. Blast radius limited to notification service only"
+        },
+        {
+          "step": 2,
+          "action": "Establish steady state: Send 20 test alerts and measure delivery time and success rate",
+          "expectedResult": "Baseline metrics: 100% delivery rate, average delivery time <5 minutes, MTBF baseline established"
+        },
+        {
+          "step": 3,
+          "action": "Inject chaos: Apply 30% packet loss and 2000ms latency to network path between alert service and notification gateways for 15 minutes",
+          "expectedResult": "Network degradation applied successfully. Service detects increased latency and packet loss"
+        },
+        {
+          "step": 4,
+          "action": "Generate 25 attendance anomaly alerts during chaos period",
+          "expectedResult": "Retry mechanism activates with exponential backoff. Alerts queue for retry. At least 20/25 alerts (80%) delivered within chaos window"
+        },
+        {
+          "step": 5,
+          "action": "Monitor circuit breaker behavior and failover to alternative notification channels",
+          "expectedResult": "Circuit breaker opens for failed channels. System automatically fails over to available channels (e.g., if email fails, SMS is attempted)"
+        },
+        {
+          "step": 6,
+          "action": "Remove network chaos and observe recovery",
+          "expectedResult": "All remaining queued alerts delivered within 5 minutes. Final delivery rate ≥95%. MTTR ≤5 minutes. System returns to steady state"
+        }
+      ],
+      "postconditions": [
+        "All alerts eventually delivered (eventual consistency achieved)",
+        "Network conditions restored to normal",
+        "Circuit breakers reset to closed state",
+        "No duplicate alert notifications sent"
+      ],
+      "testData": "25 attendance anomalies with varying severity levels: 10 Critical (unauthorized absence), 10 High (late >30 min), 5 Medium (late 15-30 min)",
+      "toolsRequired": [
+        "Toxiproxy or Pumba for network chaos",
+        "Prometheus/Grafana for metrics visualization",
+        "Alert delivery tracking dashboard",
+        "Network monitoring tools"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 8,
+      "complianceTag": "SLO-Delivery-95%, MTTR-5min, MTBF-720hours"
+    },
+    {
+      "id": "REL-DEP-003",
+      "title": "External Notification API Failure and Circuit Breaker Validation",
+      "category": "reliability",
+      "subCategory": "Dependency Resilience - External API Failures",
+      "priority": "High",
+      "description": "Validate system behavior when external notification APIs (email service, SMS gateway) become unavailable or return errors, ensuring circuit breaker pattern prevents cascading failures and alternative delivery mechanisms activate.",
+      "preconditions": [
+        "Multiple notification providers configured (primary and fallback)",
+        "Circuit breaker configured with thresholds: 50% error rate, 10 request minimum",
+        "Fallback notification mechanism available",
+        "API mock service ready to simulate failures"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure primary email API to return 503 Service Unavailable errors for all requests",
+          "expectedResult": "Email API mock configured to simulate complete outage"
+        },
+        {
+          "step": 2,
+          "action": "Generate 15 attendance anomaly alerts requiring email notifications",
+          "expectedResult": "System attempts to send via primary email API. Receives 503 errors. Circuit breaker tracks failure rate"
+        },
+        {
+          "step": 3,
+          "action": "Verify circuit breaker opens after threshold reached (5 consecutive failures or 50% error rate)",
+          "expectedResult": "Circuit breaker opens within 30 seconds. System stops calling failed email API. Logs indicate circuit breaker state change to OPEN"
+        },
+        {
+          "step": 4,
+          "action": "Observe automatic failover to secondary notification channel (SMS or in-app notifications)",
+          "expectedResult": "All 15 alerts successfully delivered via fallback channel within 7 minutes. No user-facing errors. Availability maintained at ≥99%"
+        },
+        {
+          "step": 5,
+          "action": "Restore primary email API to healthy state and wait for circuit breaker half-open period (5 minutes)",
+          "expectedResult": "Circuit breaker transitions to HALF-OPEN state. System sends test request to primary API"
+        },
+        {
+          "step": 6,
+          "action": "Generate 5 new alerts and verify circuit breaker closes after successful deliveries",
+          "expectedResult": "Primary email API successfully delivers alerts. Circuit breaker closes after 3 consecutive successes. System returns to normal operation"
+        }
+      ],
+      "postconditions": [
+        "All alerts delivered via primary or fallback channels",
+        "Circuit breaker in CLOSED state",
+        "No alert loss recorded",
+        "System health status returns to normal"
+      ],
+      "testData": "20 test alerts with user contact information: 15 during failure, 5 during recovery phase",
+      "toolsRequired": [
+        "WireMock or MockServer for API simulation",
+        "Circuit breaker monitoring dashboard (Hystrix, Resilience4j)",
+        "Application logs analyzer",
+        "Alert delivery audit trail"
+      ],
+      "estimatedTime": "40 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 7,
+      "complianceTag": "SLO-Availability-99%, Circuit-Breaker-Pattern"
+    },
+    {
+      "id": "REL-DATA-004",
+      "title": "Alert Data Integrity During Service Crash and Recovery Validation",
+      "category": "reliability",
+      "subCategory": "Data Integrity & Recovery Testing",
+      "priority": "Critical",
+      "description": "Validate that attendance alert data maintains integrity and no alerts are lost or duplicated when the alert service crashes unexpectedly during alert processing, ensuring RPO and RTO compliance with automatic recovery mechanisms.",
+      "preconditions": [
+        "Alert service running with transaction logging enabled",
+        "Database with ACID compliance configured",
+        "Alert processing queue with persistence enabled",
+        "Backup and recovery mechanisms configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Initiate processing of 30 attendance anomaly alerts in batches of 10",
+          "expectedResult": "First batch of 10 alerts begins processing. Alerts are written to persistent queue with transaction IDs"
+        },
+        {
+          "step": 2,
+          "action": "During processing of second batch (alerts 11-20), forcefully terminate alert service process (kill -9)",
+          "expectedResult": "Service crashes immediately. In-flight transactions are interrupted. Service becomes unavailable"
+        },
+        {
+          "step": 3,
+          "action": "Verify first batch (10 alerts) were successfully committed to database before crash",
+          "expectedResult": "All 10 alerts from first batch are persisted with 'DELIVERED' status. No partial or corrupted records found"
+        },
+        {
+          "step": 4,
+          "action": "Verify second batch alerts (in-flight during crash) are rolled back or marked for retry",
+          "expectedResult": "Alerts 11-20 are either rolled back or marked as 'PENDING' in queue. No alerts marked as delivered when they were not. Data integrity maintained"
+        },
+        {
+          "step": 5,
+          "action": "Restart alert service and measure recovery time",
+          "expectedResult": "Service restarts automatically within 2 minutes (RTO ≤2 min). Service performs recovery routine, checking for incomplete transactions"
+        },
+        {
+          "step": 6,
+          "action": "Verify automatic reprocessing of pending alerts (11-30) without duplicates",
+          "expectedResult": "All 20 remaining alerts processed successfully within 5 minutes. No duplicate alerts sent. Total data loss = 0 (RPO = 0). Alert audit log shows complete history"
+        },
+        {
+          "step": 7,
+          "action": "Validate end-to-end alert count and delivery status in database",
+          "expectedResult": "Exactly 30 alerts in database with unique IDs. All marked as 'DELIVERED'. No orphaned or duplicate records. Transaction log shows proper rollback and replay"
+        }
+      ],
+      "postconditions": [
+        "All 30 alerts successfully delivered with no loss",
+        "No duplicate alerts sent to users",
+        "Database consistency verified",
+        "Service fully operational with no residual errors"
+      ],
+      "testData": "30 unique attendance anomalies with distinct employee IDs and timestamps to track duplicates",
+      "toolsRequired": [
+        "Database transaction log analyzer",
+        "Service orchestrator (Kubernetes, Docker) for automatic restart",
+        "Data integrity validation scripts",
+        "Alert delivery audit system"
+      ],
+      "estimatedTime": "50 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 9,
+      "complianceTag": "RPO-0, RTO-2min, ACID-Compliance"
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true,
+    "performance": true,
+    "security": true,
+    "usability": true,
+    "reliability": true
+  },
+  "userStoryObject": {
+    "id": "ado-14160",
+    "title": "As a User, I want to receive alerts for attendance anomalies to address issues promptly.",
+    "description": "<div>CONTEXT &amp; BACKGROUND:\nThis story ensures that users are alerted to any attendance issues, allowing for timely intervention.\n\nCURRENT STATE:\nAttendance anomalies are currently tracked manually, leading to delays in addressing issues.\n\nDESIRED STATE:\nUsers receive immediate alerts for attendance anomalies, enabling quick resolution.\n\nKEY FUNCTIONALITY:\n• Automatic detection of attendance anomalies\n• Immediate alert dispatch to users and managers\n• Clear description of the anomaly\n• Historical record of attendance alerts\n\nUSER INTERACTION FLOW:\n1. System analyzes attendance data.\n2. Anomaly is detected (e.g., late arrival).\n3. Alert is generated and sent to the user and their manager.\n4. User receives the alert and takes necessary action.\n\nTECHNICAL CONSIDERATIONS:\n• Data source: Attendance database\n• Validation rules: Ensure alerts are sent only for confirmed anomalies\n• API endpoints: /api/attendance/alerts\n• Security: User authentication required for alert access\n• Performance: Alerts sent within 5 minutes of anomaly detection.\n\nOUT OF SCOPE:\n• Manual attendance tracking processes\n\nSUCCESS METRICS:\n• 90% of attendance anomalies are addressed within 24 hours. </div><br><div><strong>Persona:</strong> User (User) </div>",
+    "acceptanceCriteria": "<div><strong>Criteria 1:</strong> System identifies attendance anomalies and triggers alerts within 5 minutes of detection. </div><br><div><strong>Criteria 2:</strong> Notifications are sent to both the affected user and their manager. </div><br><div><strong>Criteria 3:</strong> Alerts include details of the anomaly and suggested actions. </div><br><div><strong>Criteria 4:</strong> Users can acknowledge receipt of the alert. </div><br>",
+    "adoWorkItemId": 14160,
+    "state": "New",
+    "assignedTo": "Unassigned",
+    "createdDate": "2026-01-29T09:29:24.513Z",
+    "priority": 1,
+    "storyPoints": 5,
+    "tags": "",
+    "epicId": "epic-13802",
+    "featureId": "feature-13828",
+    "source": "ado",
+    "adoUrl": "https://dev.azure.com/QS001/Venus/_workitems/edit/14160"
+  }
+}
