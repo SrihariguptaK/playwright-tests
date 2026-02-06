@@ -1,0 +1,2387 @@
+{
+  "storyId": "ado-14168",
+  "storyTitle": "As a User, I want to receive notifications for task updates to stay informed about my responsibilities.",
+  "testCases": [],
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify user receives in-app and email notifications when assigned task is updated",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system with valid credentials",
+        "User has at least one task assigned to them in the task management system",
+        "User has valid email address configured in their profile",
+        "Notification settings are enabled for task updates in user preferences",
+        "System notification service is running and operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the task management dashboard and locate a task assigned to the test user",
+          "expectedResult": "Task list displays with at least one task assigned to the user"
+        },
+        {
+          "step": 2,
+          "action": "As an admin or task owner, update the task by changing the due date from '2024-01-15' to '2024-01-20' and click 'Save' button",
+          "expectedResult": "Task is successfully updated and confirmation message 'Task updated successfully' appears"
+        },
+        {
+          "step": 3,
+          "action": "Check the in-app notification bell icon in the top-right corner of the screen within 1 minute",
+          "expectedResult": "Red notification badge appears on bell icon with count '1' and notification displays: 'Task [Task Name] has been updated: Due date changed from 2024-01-15 to 2024-01-20'"
+        },
+        {
+          "step": 4,
+          "action": "Check the user's email inbox within 1 minute of the task update",
+          "expectedResult": "Email notification received with subject 'Task Update: [Task Name]' containing details of the due date change"
+        },
+        {
+          "step": 5,
+          "action": "Click on the in-app notification to view full details",
+          "expectedResult": "Notification expands showing complete update details including timestamp, who made the change, and what was changed"
+        }
+      ],
+      "postconditions": [
+        "Notification is marked as delivered in the system logs",
+        "User remains logged in and on the notifications page",
+        "Task update is reflected in the task management database",
+        "Notification record is stored in notification history for the user"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify user can acknowledge receipt of task update notification",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system",
+        "User has received at least one unacknowledged task update notification",
+        "Notification is visible in the in-app notification center",
+        "User has permission to acknowledge notifications"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on the notification bell icon in the top-right corner",
+          "expectedResult": "Notification dropdown panel opens displaying list of unread notifications with red dot indicators"
+        },
+        {
+          "step": 2,
+          "action": "Locate the task update notification and click the 'Acknowledge' button or checkmark icon",
+          "expectedResult": "Notification status changes to 'Acknowledged' with green checkmark icon and timestamp showing when acknowledged"
+        },
+        {
+          "step": 3,
+          "action": "Refresh the page and reopen the notification center",
+          "expectedResult": "Acknowledged notification moves to 'Read' section and notification count badge decreases by 1"
+        },
+        {
+          "step": 4,
+          "action": "Navigate to notification history page via user profile menu",
+          "expectedResult": "Notification history displays the acknowledged notification with status 'Acknowledged' and acknowledgment timestamp"
+        }
+      ],
+      "postconditions": [
+        "Notification status is updated to 'Acknowledged' in the database",
+        "Acknowledgment timestamp is recorded in notification record",
+        "User remains on the notification history page",
+        "Notification count badge reflects accurate unread count"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify notifications include complete details of task updates for multiple field changes",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system",
+        "User has a task assigned with fields: title, description, due date, priority, and status",
+        "User has notification permissions enabled",
+        "Task is in 'In Progress' status"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "As task owner, navigate to the assigned task and click 'Edit' button",
+          "expectedResult": "Task edit form opens with all current field values populated"
+        },
+        {
+          "step": 2,
+          "action": "Update multiple fields: change priority from 'Medium' to 'High', due date from '2024-01-20' to '2024-01-18', and add comment 'Urgent client request', then click 'Save Changes'",
+          "expectedResult": "Task updates are saved successfully with confirmation message 'Task updated with 3 changes'"
+        },
+        {
+          "step": 3,
+          "action": "Check in-app notification within 1 minute",
+          "expectedResult": "Notification displays with title 'Task [Task Name] Updated' and detailed breakdown: 'Priority: Medium → High', 'Due Date: 2024-01-20 → 2024-01-18', 'Comment added: Urgent client request'"
+        },
+        {
+          "step": 4,
+          "action": "Open the email notification received",
+          "expectedResult": "Email contains formatted table showing 'Field', 'Old Value', 'New Value' columns with all three changes listed, plus timestamp and updater name"
+        },
+        {
+          "step": 5,
+          "action": "Click 'View Task' link in the notification",
+          "expectedResult": "System navigates directly to the updated task detail page showing all current values"
+        }
+      ],
+      "postconditions": [
+        "All task changes are persisted in the database",
+        "Notification record contains complete change history",
+        "User is on the task detail page",
+        "Task audit log records all field changes with timestamps"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify notifications are sent only for tasks assigned to the specific user",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Two users are logged into the system: User A and User B",
+        "User A has Task 1 assigned to them",
+        "User B has Task 2 assigned to them",
+        "Both users have notification settings enabled",
+        "Users are on different browser sessions"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "As admin, update Task 1 (assigned to User A) by changing status from 'To Do' to 'In Progress'",
+          "expectedResult": "Task 1 status is updated successfully"
+        },
+        {
+          "step": 2,
+          "action": "Check User A's notification center within 1 minute",
+          "expectedResult": "User A receives notification: 'Task 1 status changed to In Progress' with notification badge showing '1'"
+        },
+        {
+          "step": 3,
+          "action": "Check User B's notification center within 1 minute",
+          "expectedResult": "User B has no new notifications and notification badge shows '0' - no notification for Task 1 update"
+        },
+        {
+          "step": 4,
+          "action": "As admin, update Task 2 (assigned to User B) by changing priority to 'Critical'",
+          "expectedResult": "Task 2 priority is updated successfully"
+        },
+        {
+          "step": 5,
+          "action": "Check User B's notification center within 1 minute",
+          "expectedResult": "User B receives notification: 'Task 2 priority changed to Critical' with notification badge showing '1'"
+        },
+        {
+          "step": 6,
+          "action": "Verify User A's notification center does not show Task 2 update",
+          "expectedResult": "User A still has only 1 notification (for Task 1) and does not see Task 2 notification"
+        }
+      ],
+      "postconditions": [
+        "Each user has received notifications only for their assigned tasks",
+        "Notification routing is correctly filtered by task assignment",
+        "Both users remain logged in on their respective sessions",
+        "Notification logs show correct user-task associations"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify notification history maintains chronological record of all task notifications",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged into the system",
+        "User has received at least 5 task update notifications over the past week",
+        "Notifications include both acknowledged and unacknowledged items",
+        "User has access to notification history page"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on user profile icon and select 'Notification History' from dropdown menu",
+          "expectedResult": "Notification History page loads displaying all notifications in reverse chronological order (newest first)"
+        },
+        {
+          "step": 2,
+          "action": "Verify the list displays notification details including task name, update type, timestamp, and acknowledgment status",
+          "expectedResult": "Each notification entry shows: task title, change description, date/time stamp in format 'MM/DD/YYYY HH:MM AM/PM', and status badge (Acknowledged/Unread)"
+        },
+        {
+          "step": 3,
+          "action": "Apply date filter to show notifications from 'Last 7 Days' using the filter dropdown",
+          "expectedResult": "List refreshes to display only notifications from the past 7 days with count indicator showing 'Showing X notifications'"
+        },
+        {
+          "step": 4,
+          "action": "Click on any notification entry to expand full details",
+          "expectedResult": "Notification expands showing complete change details, who made the update, before/after values, and direct link to the task"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Export History' button at top of page",
+          "expectedResult": "CSV file downloads containing all notification records with columns: Date, Task Name, Update Type, Details, Status"
+        }
+      ],
+      "postconditions": [
+        "Notification history remains accessible and unchanged",
+        "User remains on notification history page",
+        "CSV export file is saved to downloads folder",
+        "All notification records are preserved in the database"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify notifications are sent within 1 minute of task update detection per performance requirement",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system with active session",
+        "System notification service is running with normal load",
+        "User has a task assigned in 'To Do' status",
+        "System clock is synchronized and accurate",
+        "Performance monitoring tools are available to track notification delivery time"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Note the current system time (e.g., 10:30:00 AM) before making any changes",
+          "expectedResult": "Current timestamp is recorded as baseline"
+        },
+        {
+          "step": 2,
+          "action": "As task owner, update the task description and click 'Save' button, noting the exact save timestamp",
+          "expectedResult": "Task is saved successfully at recorded timestamp (e.g., 10:30:05 AM) with confirmation message"
+        },
+        {
+          "step": 3,
+          "action": "Monitor the in-app notification bell icon continuously for the next 60 seconds",
+          "expectedResult": "Notification badge appears on bell icon within 60 seconds of task save"
+        },
+        {
+          "step": 4,
+          "action": "Click on the notification and check the notification timestamp",
+          "expectedResult": "Notification timestamp shows delivery within 1 minute of task update (e.g., between 10:30:05 AM and 10:31:05 AM)"
+        },
+        {
+          "step": 5,
+          "action": "Check email inbox and note the email received timestamp in email headers",
+          "expectedResult": "Email notification received timestamp is within 1 minute of task update time"
+        },
+        {
+          "step": 6,
+          "action": "Review system logs at /api/tasks/notifications endpoint for delivery metrics",
+          "expectedResult": "Logs show notification processing time < 60 seconds with status 'Delivered' and exact delivery timestamp"
+        }
+      ],
+      "postconditions": [
+        "Performance metric is recorded showing notification delivered within SLA",
+        "System logs contain complete audit trail of notification delivery",
+        "User remains logged in and viewing notification",
+        "Notification delivery time meets the 1-minute performance requirement"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify system handles notification delivery when user email address is invalid or missing",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system",
+        "User profile has invalid email address 'invalid-email-format' or email field is empty",
+        "User has a task assigned to them",
+        "In-app notification service is operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "As admin, update the task assigned to the user by changing priority from 'Low' to 'High'",
+          "expectedResult": "Task update is saved successfully in the system"
+        },
+        {
+          "step": 2,
+          "action": "Check in-app notification center within 1 minute",
+          "expectedResult": "In-app notification is delivered successfully showing 'Task priority changed to High' despite invalid email"
+        },
+        {
+          "step": 3,
+          "action": "Check user's email inbox for notification",
+          "expectedResult": "No email is received due to invalid email address"
+        },
+        {
+          "step": 4,
+          "action": "Review system error logs at /api/tasks/notifications endpoint",
+          "expectedResult": "Error log entry shows 'Email delivery failed: Invalid email address' with error code 400 and task notification ID"
+        },
+        {
+          "step": 5,
+          "action": "Verify in-app notification shows warning icon indicating 'Email delivery failed - please update your email address in profile settings'",
+          "expectedResult": "Warning message is displayed in notification details prompting user to fix email configuration"
+        }
+      ],
+      "postconditions": [
+        "In-app notification is successfully delivered and stored",
+        "Email delivery failure is logged in system error logs",
+        "User is notified about email configuration issue",
+        "Task update is not affected by notification delivery failure"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify system behavior when user has disabled notification settings",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system",
+        "User has navigated to Settings > Notifications page",
+        "User has disabled 'Task Update Notifications' toggle switch (set to OFF)",
+        "User has a task assigned to them",
+        "Notification settings are saved in user preferences"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Verify notification settings page shows 'Task Update Notifications' toggle is OFF with status 'Disabled'",
+          "expectedResult": "Settings page displays toggle in OFF position with gray color and text 'You will not receive task update notifications'"
+        },
+        {
+          "step": 2,
+          "action": "As admin, update the user's assigned task by changing due date from '2024-01-20' to '2024-01-25'",
+          "expectedResult": "Task update is saved successfully with confirmation message"
+        },
+        {
+          "step": 3,
+          "action": "Wait 2 minutes and check the in-app notification bell icon",
+          "expectedResult": "No notification badge appears and notification count remains at 0"
+        },
+        {
+          "step": 4,
+          "action": "Check user's email inbox for notification",
+          "expectedResult": "No email notification is received"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to notification history page",
+          "expectedResult": "No new notification entry is created for the task update"
+        },
+        {
+          "step": 6,
+          "action": "Review system logs to verify notification suppression",
+          "expectedResult": "Logs show entry 'Notification suppressed: User preferences disabled' with user ID and task ID"
+        }
+      ],
+      "postconditions": [
+        "No notifications are sent to user via any channel",
+        "User notification preferences remain disabled",
+        "Task update is successfully saved in database",
+        "System respects user's notification preference settings"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify system handles notification delivery when user session is expired or logged out",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User was previously logged into the system",
+        "User session has expired (timeout after 30 minutes of inactivity) or user has logged out",
+        "User has a task assigned to them",
+        "User has valid email address configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Verify user session is expired by attempting to access a protected page",
+          "expectedResult": "System redirects to login page with message 'Session expired. Please log in again.'"
+        },
+        {
+          "step": 2,
+          "action": "As admin in separate session, update the user's task by changing status from 'In Progress' to 'Completed'",
+          "expectedResult": "Task status is updated successfully"
+        },
+        {
+          "step": 3,
+          "action": "Verify email notification is sent to user's email address within 1 minute",
+          "expectedResult": "Email notification is delivered successfully with subject 'Task Update: [Task Name]' containing status change details"
+        },
+        {
+          "step": 4,
+          "action": "User logs back into the system with valid credentials",
+          "expectedResult": "Login successful and user is redirected to dashboard"
+        },
+        {
+          "step": 5,
+          "action": "Check in-app notification center immediately after login",
+          "expectedResult": "Notification badge shows '1' and notification displays 'Task status changed to Completed' with timestamp from when update occurred"
+        },
+        {
+          "step": 6,
+          "action": "Verify notification shows as 'Unread' with red dot indicator",
+          "expectedResult": "Notification is marked as unread and queued for delivery upon user login"
+        }
+      ],
+      "postconditions": [
+        "Email notification was delivered despite expired session",
+        "In-app notification was queued and delivered upon user login",
+        "User is logged in and viewing notifications",
+        "Notification delivery is not blocked by session expiration"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify system handles notification when task update fails validation or is rolled back",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system",
+        "User has a task assigned with due date '2024-01-20'",
+        "System has validation rules requiring due date to be in the future",
+        "Current system date is '2024-01-15'"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "As admin, attempt to update task due date to a past date '2024-01-10' and click 'Save'",
+          "expectedResult": "System displays validation error message 'Due date cannot be in the past' in red banner and task update is rejected"
+        },
+        {
+          "step": 2,
+          "action": "Wait 2 minutes and check user's in-app notification center",
+          "expectedResult": "No notification is generated or sent to the user since task update failed validation"
+        },
+        {
+          "step": 3,
+          "action": "Check user's email inbox",
+          "expectedResult": "No email notification is received"
+        },
+        {
+          "step": 4,
+          "action": "Review system logs at /api/tasks/notifications endpoint",
+          "expectedResult": "Logs show 'Task update failed validation - notification not triggered' with task ID and validation error details"
+        },
+        {
+          "step": 5,
+          "action": "Verify task in database still has original due date '2024-01-20'",
+          "expectedResult": "Task due date remains unchanged at '2024-01-20' confirming rollback"
+        }
+      ],
+      "postconditions": [
+        "No notification is sent for failed task update",
+        "Task data remains in original state",
+        "Validation error is logged in system",
+        "User does not receive false notification for unsuccessful update"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify system handles notification delivery when notification service is down or unavailable",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system",
+        "User has a task assigned to them",
+        "Notification service endpoint /api/tasks/notifications is unavailable or returning 503 Service Unavailable error",
+        "System monitoring shows notification service status as 'Down'"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Verify notification service status by checking system health dashboard",
+          "expectedResult": "Health dashboard shows 'Notification Service: Unavailable' with red status indicator"
+        },
+        {
+          "step": 2,
+          "action": "As admin, update the user's task by changing priority from 'Medium' to 'Critical'",
+          "expectedResult": "Task update is saved successfully with confirmation message 'Task updated successfully'"
+        },
+        {
+          "step": 3,
+          "action": "Wait 2 minutes and check user's in-app notification center",
+          "expectedResult": "No notification appears in notification center and badge count remains at 0"
+        },
+        {
+          "step": 4,
+          "action": "Check system error logs for notification delivery attempts",
+          "expectedResult": "Error logs show 'Notification delivery failed: Service unavailable (503)' with retry attempt counter and task update details"
+        },
+        {
+          "step": 5,
+          "action": "Verify notification is queued in notification queue table in database",
+          "expectedResult": "Database query shows notification record with status 'Pending' and retry_count '3' indicating queued for retry"
+        },
+        {
+          "step": 6,
+          "action": "Simulate notification service recovery and wait for retry mechanism to execute",
+          "expectedResult": "Once service is restored, queued notification is delivered to user with original timestamp and status changes to 'Delivered'"
+        }
+      ],
+      "postconditions": [
+        "Failed notification is queued for retry in database",
+        "Task update is successfully saved despite notification failure",
+        "System error logs contain complete failure and recovery audit trail",
+        "Notification is eventually delivered when service recovers"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify system prevents unauthorized users from acknowledging notifications belonging to other users",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User A is logged into the system with standard user role",
+        "User B has received a task update notification with notification ID 'NOTIF-12345'",
+        "User A attempts to access User B's notification via direct API call or URL manipulation",
+        "System has role-based access control enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "As User A, attempt to acknowledge User B's notification by sending POST request to /api/notifications/NOTIF-12345/acknowledge",
+          "expectedResult": "System returns HTTP 403 Forbidden error with message 'Access denied: You do not have permission to acknowledge this notification'"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to access User B's notification details by navigating to URL /notifications/NOTIF-12345",
+          "expectedResult": "System displays error page 'Access Denied' with message 'This notification does not belong to you' and redirects to User A's notification page"
+        },
+        {
+          "step": 3,
+          "action": "Verify User B's notification status remains unchanged in database",
+          "expectedResult": "Database query shows notification NOTIF-12345 status is still 'Unread' and acknowledged_by field is NULL"
+        },
+        {
+          "step": 4,
+          "action": "Check system security logs for unauthorized access attempt",
+          "expectedResult": "Security log entry shows 'Unauthorized notification access attempt by User A (ID: XXX) for notification NOTIF-12345 owned by User B (ID: YYY)' with timestamp"
+        },
+        {
+          "step": 5,
+          "action": "As User B, log in and verify notification is still unacknowledged",
+          "expectedResult": "User B sees notification with 'Unread' status and can successfully acknowledge it"
+        }
+      ],
+      "postconditions": [
+        "User B's notification remains unacknowledged and secure",
+        "Unauthorized access attempt is logged in security audit trail",
+        "User A remains on their own notification page",
+        "System enforces proper authorization for notification access"
+      ]
+    },
+    {
+      "id": "TC-NEGA-007",
+      "title": "Verify system handles notification delivery when database connection is lost during notification creation",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged into the system",
+        "User has a task assigned to them",
+        "Database connection is unstable or simulated to fail during notification write operation",
+        "System has database connection retry mechanism configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Simulate database connection failure by disconnecting database during task update operation",
+          "expectedResult": "Database connection is unavailable for write operations"
+        },
+        {
+          "step": 2,
+          "action": "As admin, attempt to update the user's task by changing description to 'Updated description'",
+          "expectedResult": "System displays error message 'Unable to save task update: Database connection error. Please try again.' and task update is not saved"
+        },
+        {
+          "step": 3,
+          "action": "Verify no notification is created or sent to the user",
+          "expectedResult": "No in-app notification appears and no email is sent since task update transaction failed"
+        },
+        {
+          "step": 4,
+          "action": "Check system error logs for database connection failure",
+          "expectedResult": "Error logs show 'Database connection lost during task update - transaction rolled back' with error code and timestamp"
+        },
+        {
+          "step": 5,
+          "action": "Restore database connection and retry the task update",
+          "expectedResult": "Task update succeeds with confirmation message and notification is successfully generated and delivered to user"
+        },
+        {
+          "step": 6,
+          "action": "Verify notification is delivered after successful retry",
+          "expectedResult": "User receives in-app and email notification with task update details within 1 minute of successful save"
+        }
+      ],
+      "postconditions": [
+        "Task update and notification creation are atomic - both succeed or both fail",
+        "No orphaned notifications exist for failed task updates",
+        "System error logs contain complete transaction failure details",
+        "Notification is delivered only after successful task update"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Verify notification delivery when multiple rapid task updates occur within seconds",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system with valid credentials",
+        "User has at least one task assigned in the task management system",
+        "Email and in-app notification channels are enabled for the user",
+        "System notification service is running and operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the task management page and select an assigned task",
+          "expectedResult": "Task details page is displayed with current task information"
+        },
+        {
+          "step": 2,
+          "action": "Have another user or admin update the same task 5 times in rapid succession (within 10 seconds) - change title, description, due date, priority, and status",
+          "expectedResult": "System detects all 5 updates and queues notifications for processing"
+        },
+        {
+          "step": 3,
+          "action": "Check the in-app notification center within 1 minute of the updates",
+          "expectedResult": "All 5 notifications are displayed in chronological order, each showing the specific update details without duplication or loss"
+        },
+        {
+          "step": 4,
+          "action": "Check the user's email inbox within 2 minutes of the updates",
+          "expectedResult": "5 separate email notifications are received, or 1 consolidated email listing all 5 updates with timestamps"
+        },
+        {
+          "step": 5,
+          "action": "Verify notification content includes task name, update type, timestamp, and updater name for each notification",
+          "expectedResult": "All notification details are accurate and correspond to the actual updates made"
+        }
+      ],
+      "postconditions": [
+        "All 5 notifications are stored in the notification history",
+        "User remains logged in and on the task details page",
+        "No duplicate or missing notifications exist in the system",
+        "System performance remains stable with no degradation"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Verify notification behavior when user has 1000+ tasks assigned simultaneously",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User account exists with valid email address",
+        "User has exactly 1000 tasks assigned in the system",
+        "Database has sufficient capacity for bulk operations",
+        "Notification service is configured with rate limiting settings"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Log in as the user with 1000 assigned tasks",
+          "expectedResult": "User successfully logs in and dashboard loads showing task count of 1000"
+        },
+        {
+          "step": 2,
+          "action": "Have an admin perform a bulk update operation that modifies all 1000 tasks simultaneously (e.g., change project category)",
+          "expectedResult": "Bulk update operation completes successfully and system begins generating notifications"
+        },
+        {
+          "step": 3,
+          "action": "Monitor the in-app notification center for notification delivery",
+          "expectedResult": "Notifications are delivered in batches or as a single consolidated notification indicating '1000 tasks updated' with option to view details"
+        },
+        {
+          "step": 4,
+          "action": "Check email inbox for notification delivery",
+          "expectedResult": "Email notification is sent as a digest/summary format rather than 1000 individual emails, containing summary of bulk update"
+        },
+        {
+          "step": 5,
+          "action": "Click on the consolidated notification to view detailed update information",
+          "expectedResult": "Detailed view opens showing paginated list of all 1000 updated tasks with update details, loading within 3 seconds"
+        },
+        {
+          "step": 6,
+          "action": "Verify system performance and response time during notification processing",
+          "expectedResult": "System remains responsive, API response times stay under 2 seconds, no timeout errors occur"
+        }
+      ],
+      "postconditions": [
+        "All 1000 task updates are recorded in notification history",
+        "User's notification preferences remain unchanged",
+        "System resources return to normal levels after processing",
+        "No notifications are lost or duplicated in the process"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Verify notification delivery when user's email address contains special characters and Unicode",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User account exists with email address containing special characters: test+user.name@sub-domain.co.uk",
+        "Another test user exists with Unicode email: tëst.üser@dömain.com",
+        "Both users have tasks assigned in the system",
+        "Email service supports international email addresses (RFC 6531)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Log in as admin and update a task assigned to user with email 'test+user.name@sub-domain.co.uk'",
+          "expectedResult": "Task update is saved successfully in the system"
+        },
+        {
+          "step": 2,
+          "action": "Wait 1 minute and verify email notification delivery to the special character email address",
+          "expectedResult": "Email notification is successfully delivered to test+user.name@sub-domain.co.uk without bouncing or errors"
+        },
+        {
+          "step": 3,
+          "action": "Update a task assigned to user with Unicode email 'tëst.üser@dömain.com'",
+          "expectedResult": "Task update is saved and notification generation begins"
+        },
+        {
+          "step": 4,
+          "action": "Check email delivery status for the Unicode email address within 2 minutes",
+          "expectedResult": "Email notification is delivered successfully to tëst.üser@dömain.com with proper character encoding"
+        },
+        {
+          "step": 5,
+          "action": "Verify both users receive in-app notifications regardless of email format",
+          "expectedResult": "In-app notifications appear correctly for both users with all task update details displayed properly"
+        }
+      ],
+      "postconditions": [
+        "Both email notifications are logged as successfully delivered in system logs",
+        "No email bounce-back errors are recorded",
+        "Notification history shows successful delivery for both users",
+        "Email addresses remain valid and unchanged in user profiles"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Verify notification behavior when task update contains maximum character limits and special formatting",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with an assigned task",
+        "Task description field has a maximum character limit of 5000 characters",
+        "System supports rich text formatting in task descriptions",
+        "Notification templates are configured to handle long content"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to an assigned task and click 'Edit' button",
+          "expectedResult": "Task edit form opens with current task details displayed"
+        },
+        {
+          "step": 2,
+          "action": "Update task description with exactly 5000 characters including special characters: emojis (🚀💡✅), HTML entities (&lt;&gt;&amp;), quotes (\"\"), line breaks, and Unicode characters (中文, العربية, עברית)",
+          "expectedResult": "Task description is saved successfully with all 5000 characters and special formatting preserved"
+        },
+        {
+          "step": 3,
+          "action": "Check in-app notification within 1 minute",
+          "expectedResult": "Notification displays truncated preview (first 200 characters) with 'Read more' link, special characters render correctly without breaking UI"
+        },
+        {
+          "step": 4,
+          "action": "Click on the notification to view full update details",
+          "expectedResult": "Full task description is displayed with all 5000 characters, emojis, and Unicode text rendering correctly"
+        },
+        {
+          "step": 5,
+          "action": "Check email notification for the same update",
+          "expectedResult": "Email contains properly formatted content with special characters encoded correctly, HTML entities escaped, and emojis displayed or converted to text equivalents"
+        },
+        {
+          "step": 6,
+          "action": "Verify notification acknowledgment functionality works with long content",
+          "expectedResult": "User can successfully acknowledge the notification, and acknowledgment is recorded in system"
+        }
+      ],
+      "postconditions": [
+        "Task description remains intact with all 5000 characters in database",
+        "Notification is marked as acknowledged in notification history",
+        "No character encoding errors are logged in system",
+        "Email and in-app notification content match the actual task update"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Verify notification delivery when user is offline and comes back online after extended period",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User has active account with tasks assigned",
+        "User is currently logged in on a desktop browser",
+        "Network connectivity is stable initially",
+        "System supports offline notification queuing"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Log in as the user and navigate to the dashboard",
+          "expectedResult": "Dashboard loads successfully showing current tasks and notification center"
+        },
+        {
+          "step": 2,
+          "action": "Simulate network disconnection by disabling network adapter or enabling airplane mode",
+          "expectedResult": "Browser shows offline status, application displays offline indicator"
+        },
+        {
+          "step": 3,
+          "action": "While user is offline, have another user update 3 tasks assigned to the offline user with different update types (status change, due date change, comment added)",
+          "expectedResult": "Updates are saved in the system and notifications are queued for delivery"
+        },
+        {
+          "step": 4,
+          "action": "Keep user offline for 30 minutes, then restore network connectivity",
+          "expectedResult": "Network connection is re-established, application detects online status"
+        },
+        {
+          "step": 5,
+          "action": "Observe notification center within 30 seconds of coming back online",
+          "expectedResult": "All 3 queued notifications are delivered immediately to in-app notification center with correct timestamps showing when updates actually occurred"
+        },
+        {
+          "step": 6,
+          "action": "Check email inbox for notifications sent during offline period",
+          "expectedResult": "3 email notifications are present, sent at the time of actual updates (not when user came back online)"
+        },
+        {
+          "step": 7,
+          "action": "Verify notification details match the actual task updates",
+          "expectedResult": "All notification content is accurate with correct task names, update types, and timestamps"
+        }
+      ],
+      "postconditions": [
+        "All 3 notifications are marked as delivered in system logs",
+        "User's online status is updated in the system",
+        "No notifications are lost or duplicated",
+        "Notification history shows correct delivery timestamps"
+      ]
+    },
+    {
+      "id": "TC-EDGE-006",
+      "title": "Verify notification system behavior during database connection failure and recovery",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "System is running with active database connection",
+        "User has tasks assigned and is logged in",
+        "Database monitoring tools are available",
+        "System has error handling and retry mechanisms configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Verify system is operational by updating a task and confirming notification delivery",
+          "expectedResult": "Notification is delivered successfully within 1 minute, confirming baseline functionality"
+        },
+        {
+          "step": 2,
+          "action": "Simulate database connection failure by stopping database service or blocking database port",
+          "expectedResult": "Database becomes unavailable, system logs connection errors"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to update a task assigned to the user during database outage",
+          "expectedResult": "Task update fails gracefully with error message 'Service temporarily unavailable, please try again', no notification is generated"
+        },
+        {
+          "step": 4,
+          "action": "Restore database connection after 2 minutes of downtime",
+          "expectedResult": "Database service resumes, system re-establishes connection successfully"
+        },
+        {
+          "step": 5,
+          "action": "Update the same task again after database recovery",
+          "expectedResult": "Task update succeeds and notification generation begins"
+        },
+        {
+          "step": 6,
+          "action": "Verify notification is delivered to user within 1 minute of database recovery",
+          "expectedResult": "Both in-app and email notifications are delivered successfully with correct task update details"
+        },
+        {
+          "step": 7,
+          "action": "Check system logs for error handling during outage and recovery",
+          "expectedResult": "Logs show proper error handling, retry attempts, and successful recovery without data loss"
+        }
+      ],
+      "postconditions": [
+        "Database connection is stable and operational",
+        "All notifications after recovery are delivered successfully",
+        "No phantom or duplicate notifications exist from the outage period",
+        "System performance returns to normal levels"
+      ]
+    },
+    {
+      "id": "TC-EDGE-007",
+      "title": "Verify notification delivery when user has disabled email but enabled in-app notifications only",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User account exists with notification preferences configured",
+        "User has explicitly disabled email notifications in settings",
+        "User has enabled in-app notifications only",
+        "User has at least one task assigned"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Log in as the user and navigate to Settings > Notifications",
+          "expectedResult": "Notification preferences page displays with 'Email Notifications' toggle set to OFF and 'In-App Notifications' toggle set to ON"
+        },
+        {
+          "step": 2,
+          "action": "Have another user update a task assigned to this user (change task status from 'In Progress' to 'Completed')",
+          "expectedResult": "Task update is saved successfully in the system"
+        },
+        {
+          "step": 3,
+          "action": "Wait 1 minute and check the in-app notification center",
+          "expectedResult": "In-app notification appears showing 'Task [Task Name] status changed to Completed' with timestamp and updater name"
+        },
+        {
+          "step": 4,
+          "action": "Check user's email inbox for any notification emails",
+          "expectedResult": "No email notification is received, respecting user's preference to disable email notifications"
+        },
+        {
+          "step": 5,
+          "action": "Verify notification history shows the delivery method as 'In-App Only'",
+          "expectedResult": "Notification history log indicates notification was sent via in-app channel only, email delivery was skipped per user preference"
+        },
+        {
+          "step": 6,
+          "action": "Click 'Acknowledge' button on the in-app notification",
+          "expectedResult": "Notification is marked as acknowledged, acknowledgment timestamp is recorded, notification moves to 'Read' section"
+        }
+      ],
+      "postconditions": [
+        "User's notification preferences remain unchanged (email OFF, in-app ON)",
+        "Notification is stored in history with correct delivery channel information",
+        "No email was sent or attempted to user's email address",
+        "Acknowledgment status is persisted in the database"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Verify complete keyboard navigation through notification center and acknowledgment workflow",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system with keyboard as primary input device",
+        "User has at least 3 unread notifications in the notification center",
+        "Browser supports standard keyboard navigation (Tab, Shift+Tab, Enter, Escape)",
+        "Screen is set to default zoom level (100%)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key repeatedly from the main navigation bar until focus reaches the notification bell icon",
+          "expectedResult": "Notification bell icon receives visible focus indicator (2px solid outline with 3:1 contrast ratio), focus ring is clearly visible around the icon"
+        },
+        {
+          "step": 2,
+          "action": "Press Enter key to open the notification center dropdown",
+          "expectedResult": "Notification center panel opens, focus automatically moves to the first notification item, panel has role='dialog' and aria-label='Notification Center'"
+        },
+        {
+          "step": 3,
+          "action": "Press Tab key to navigate through each notification item in the list",
+          "expectedResult": "Focus moves sequentially through all 3 notifications, each notification has visible focus indicator, focus order is logical (top to bottom)"
+        },
+        {
+          "step": 4,
+          "action": "Press Enter key on the second notification to view full details",
+          "expectedResult": "Notification expands to show full task update details, focus remains on the expanded notification, 'Acknowledge' button becomes visible and focusable"
+        },
+        {
+          "step": 5,
+          "action": "Press Tab key to move focus to the 'Acknowledge' button",
+          "expectedResult": "'Acknowledge' button receives visible focus indicator, button has accessible name 'Acknowledge notification for [Task Name]'"
+        },
+        {
+          "step": 6,
+          "action": "Press Enter key to acknowledge the notification",
+          "expectedResult": "Notification is marked as read, success message 'Notification acknowledged' appears and is announced, notification moves to read section or is removed from unread list"
+        },
+        {
+          "step": 7,
+          "action": "Press Escape key to close the notification center",
+          "expectedResult": "Notification center closes, focus returns to the notification bell icon where interaction started"
+        },
+        {
+          "step": 8,
+          "action": "Press Shift+Tab to verify reverse navigation works correctly",
+          "expectedResult": "Focus moves backward through interactive elements in reverse order without skipping or trapping focus"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements in notification center are keyboard accessible",
+        "Focus is never trapped in the notification panel",
+        "Focus indicators are visible throughout the entire workflow",
+        "Notification acknowledgment is successfully recorded in the system"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Verify screen reader announces notification content and updates with proper ARIA labels",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "NVDA or JAWS screen reader is installed and running",
+        "User is logged into the system",
+        "User has notification center access",
+        "At least 2 new task update notifications are available"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the notification bell icon using screen reader navigation commands",
+          "expectedResult": "Screen reader announces 'Notifications button, 2 unread notifications' with badge count, element has aria-label='Notifications, 2 unread'"
+        },
+        {
+          "step": 2,
+          "action": "Activate the notification bell icon using Enter key",
+          "expectedResult": "Screen reader announces 'Notification Center dialog opened, 2 unread notifications', focus moves into the dialog, aria-live region is established"
+        },
+        {
+          "step": 3,
+          "action": "Navigate to the first notification using arrow keys or Tab",
+          "expectedResult": "Screen reader announces complete notification content: 'Notification 1 of 2, Task [Task Name] updated by [User Name], Status changed to In Progress, 5 minutes ago, unread, button Acknowledge'"
+        },
+        {
+          "step": 4,
+          "action": "While notification center is open, have another user create a new task update triggering a new notification",
+          "expectedResult": "New notification appears in the list, aria-live='polite' region announces 'New notification received: Task [Task Name] updated', notification count updates to 3"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to the 'Acknowledge' button on a notification",
+          "expectedResult": "Screen reader announces 'Acknowledge button, acknowledges notification for Task [Task Name]' with clear context of what will be acknowledged"
+        },
+        {
+          "step": 6,
+          "action": "Activate the 'Acknowledge' button using Enter or Space key",
+          "expectedResult": "Screen reader announces 'Notification acknowledged' via aria-live region, notification status changes to read, aria-label updates to include 'read' status"
+        },
+        {
+          "step": 7,
+          "action": "Navigate through notification history section",
+          "expectedResult": "Screen reader announces 'Notification history, 1 item' with proper heading structure (h2 or h3), each historical notification is announced with timestamp and read status"
+        },
+        {
+          "step": 8,
+          "action": "Close notification center and verify announcement",
+          "expectedResult": "Screen reader announces 'Notification Center dialog closed', focus returns to notification bell icon with updated count announcement"
+        }
+      ],
+      "postconditions": [
+        "All notifications have proper ARIA labels and roles",
+        "Dynamic content updates are announced via aria-live regions",
+        "Screen reader users can access all notification information",
+        "Focus management follows ARIA Authoring Practices Guide patterns"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify notification UI maintains accessibility at 200% zoom and with large text settings",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system on a desktop browser",
+        "Browser zoom is initially set to 100%",
+        "User has at least 3 notifications with varying content lengths",
+        "Operating system text size is set to default"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Set browser zoom to 200% using Ctrl and + keys (or Cmd and + on Mac)",
+          "expectedResult": "Page zooms to 200%, notification bell icon remains visible and accessible in the navigation bar, no horizontal scrolling is required for main content"
+        },
+        {
+          "step": 2,
+          "action": "Click on the notification bell icon at 200% zoom",
+          "expectedResult": "Notification center panel opens and scales proportionally, all text is readable, no content is cut off or overlapping, panel width adjusts to viewport"
+        },
+        {
+          "step": 3,
+          "action": "Verify notification list items are fully visible and readable at 200% zoom",
+          "expectedResult": "All notification text is readable without horizontal scrolling, task names and update details are not truncated inappropriately, line height provides adequate spacing (at least 1.5x font size)"
+        },
+        {
+          "step": 4,
+          "action": "Scroll through the notification list at 200% zoom",
+          "expectedResult": "Vertical scrolling works smoothly, scroll bar is visible and usable, no content is hidden or inaccessible"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Acknowledge' button on a notification at 200% zoom",
+          "expectedResult": "Button is fully clickable with adequate touch target size (minimum 44x44 pixels), button text is fully visible, action completes successfully"
+        },
+        {
+          "step": 6,
+          "action": "Change operating system text size to 'Large' (150%) while maintaining 200% browser zoom",
+          "expectedResult": "Text scales appropriately, notification content remains readable and properly formatted, no text overlaps or is cut off"
+        },
+        {
+          "step": 7,
+          "action": "Test notification center responsiveness by resizing browser window to 1280px width at 200% zoom",
+          "expectedResult": "Notification panel adapts to smaller viewport, content reflows appropriately, all functionality remains accessible"
+        }
+      ],
+      "postconditions": [
+        "All notification content is accessible at 200% zoom per WCAG 2.1 Level AA",
+        "No loss of functionality or content at increased zoom levels",
+        "Text remains readable and properly spaced",
+        "User can reset zoom to 100% and system returns to normal display"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify color contrast ratios meet WCAG 2.1 AA standards for all notification states",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system",
+        "Color contrast analyzer tool is available (e.g., browser extension or WAVE tool)",
+        "Notifications exist in multiple states: unread, read, acknowledged, error",
+        "System uses default theme with standard color palette"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Open notification center and use color contrast analyzer on unread notification text",
+          "expectedResult": "Unread notification text has minimum 4.5:1 contrast ratio against background (for normal text) or 3:1 for large text (18pt+), passes WCAG AA standards"
+        },
+        {
+          "step": 2,
+          "action": "Measure contrast ratio of notification badge count (number indicator on bell icon)",
+          "expectedResult": "Badge background and text have minimum 3:1 contrast ratio against both the badge background and the page background, badge is clearly visible"
+        },
+        {
+          "step": 3,
+          "action": "Check contrast ratio of read/acknowledged notification text",
+          "expectedResult": "Read notification text maintains minimum 4.5:1 contrast ratio even in dimmed or gray state, text remains readable"
+        },
+        {
+          "step": 4,
+          "action": "Verify contrast of interactive elements: 'Acknowledge' button in default, hover, focus, and active states",
+          "expectedResult": "Button text has 4.5:1 contrast in all states, button border/outline has 3:1 contrast against background, focus indicator has 3:1 contrast"
+        },
+        {
+          "step": 5,
+          "action": "Test notification timestamp and metadata text contrast",
+          "expectedResult": "Timestamp text (e.g., '5 minutes ago') has minimum 4.5:1 contrast ratio, secondary information remains readable"
+        },
+        {
+          "step": 6,
+          "action": "Verify notification status indicators (icons, colors) do not rely solely on color",
+          "expectedResult": "Unread status is indicated by both color AND icon/text label (e.g., blue dot + 'Unread' label), information is not conveyed by color alone"
+        },
+        {
+          "step": 7,
+          "action": "Check error or warning notification contrast if task update fails",
+          "expectedResult": "Error notifications use sufficient contrast (4.5:1 minimum), error state is indicated by icon and text, not color alone"
+        },
+        {
+          "step": 8,
+          "action": "Test notification center in dark mode (if available)",
+          "expectedResult": "All contrast ratios meet WCAG AA standards in dark mode, text remains readable, focus indicators are visible"
+        }
+      ],
+      "postconditions": [
+        "All text and interactive elements meet WCAG 2.1 Level AA contrast requirements",
+        "Information is not conveyed by color alone",
+        "Notification states are distinguishable for users with color blindness",
+        "Documentation includes contrast ratio measurements for design reference"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Verify focus management and focus trap prevention in notification modal dialogs",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged into the system with keyboard navigation enabled",
+        "User has notifications that can be expanded to show full details",
+        "System implements modal dialog pattern for detailed notification view",
+        "Browser supports focus management APIs"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to notification bell icon using Tab key and press Enter to open notification center",
+          "expectedResult": "Notification center opens, focus moves to first focusable element inside the panel, background content is inert (aria-hidden='true' or inert attribute)"
+        },
+        {
+          "step": 2,
+          "action": "Tab through all interactive elements within the notification center",
+          "expectedResult": "Focus cycles only through elements within the notification panel (focus is trapped), Tab from last element returns focus to first element"
+        },
+        {
+          "step": 3,
+          "action": "Press Shift+Tab from the first focusable element in notification center",
+          "expectedResult": "Focus moves to the last focusable element in the panel (reverse focus trap works correctly), focus does not escape to background content"
+        },
+        {
+          "step": 4,
+          "action": "Click on a notification to open detailed view in a modal dialog",
+          "expectedResult": "Modal dialog opens with role='dialog' and aria-modal='true', focus moves to the first focusable element in modal (close button or notification content), background is inert"
+        },
+        {
+          "step": 5,
+          "action": "Press Tab repeatedly within the modal dialog",
+          "expectedResult": "Focus cycles through modal elements only: notification details, 'Acknowledge' button, 'Close' button, then back to first element, focus never escapes to background"
+        },
+        {
+          "step": 6,
+          "action": "Press Escape key while modal is open",
+          "expectedResult": "Modal closes, focus returns to the notification item that triggered the modal, notification center remains open"
+        },
+        {
+          "step": 7,
+          "action": "Open modal again and click 'Acknowledge' button",
+          "expectedResult": "Notification is acknowledged, modal closes, focus returns to notification list, next notification in list receives focus (or notification center if list is empty)"
+        },
+        {
+          "step": 8,
+          "action": "Press Escape key to close notification center",
+          "expectedResult": "Notification center closes, focus returns to notification bell icon (original trigger element), no focus is lost"
+        }
+      ],
+      "postconditions": [
+        "Focus is properly managed throughout notification interaction workflow",
+        "Focus never escapes modal or panel boundaries inappropriately",
+        "Focus always returns to logical element when dialogs close",
+        "Background content is properly inert when modals are open"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "Verify mobile touch accessibility for notification interactions on touch devices",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is accessing system on a mobile device (iOS or Android) or tablet",
+        "Touch screen is the primary input method",
+        "User is logged in with active notifications",
+        "Device screen size is between 320px and 768px width"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Tap on the notification bell icon in mobile navigation",
+          "expectedResult": "Notification bell has minimum 44x44 pixel touch target, icon responds to tap with visual feedback, notification panel opens smoothly"
+        },
+        {
+          "step": 2,
+          "action": "Verify spacing between notification items in the list",
+          "expectedResult": "Each notification item has adequate spacing (minimum 8px between items), touch targets do not overlap, accidental taps on adjacent items are prevented"
+        },
+        {
+          "step": 3,
+          "action": "Tap on a notification item to expand details",
+          "expectedResult": "Notification expands smoothly, tap target is at least 44x44 pixels, visual feedback indicates tap was registered (ripple effect or highlight)"
+        },
+        {
+          "step": 4,
+          "action": "Tap the 'Acknowledge' button on a notification",
+          "expectedResult": "'Acknowledge' button has minimum 44x44 pixel touch target, button provides haptic feedback (if device supports), action completes successfully"
+        },
+        {
+          "step": 5,
+          "action": "Swipe down to scroll through notification list",
+          "expectedResult": "Scrolling is smooth and responsive, scroll momentum feels natural, no accidental taps occur during scrolling"
+        },
+        {
+          "step": 6,
+          "action": "Test swipe gesture to dismiss notification (if implemented)",
+          "expectedResult": "Swipe gesture is discoverable and works consistently, swipe threshold is appropriate (not too sensitive), undo option is available after dismissal"
+        },
+        {
+          "step": 7,
+          "action": "Tap outside notification panel to close it",
+          "expectedResult": "Panel closes when tapping outside, close action is intuitive, no unintended actions occur on background content"
+        },
+        {
+          "step": 8,
+          "action": "Test notification interactions with device in landscape orientation",
+          "expectedResult": "All touch targets remain accessible in landscape mode, layout adapts appropriately, no functionality is lost"
+        }
+      ],
+      "postconditions": [
+        "All touch targets meet minimum 44x44 pixel size requirement",
+        "Touch interactions are responsive and provide appropriate feedback",
+        "No accidental activations occur due to small or overlapping targets",
+        "Notification functionality is fully accessible on mobile devices"
+      ]
+    },
+    {
+      "id": "TC-ACCE-007",
+      "title": "Verify ARIA live regions announce real-time notification updates without disrupting user workflow",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Screen reader (NVDA, JAWS, or VoiceOver) is active",
+        "User is logged into the system and working on a task page",
+        "User has notification center closed initially",
+        "Another user or admin can trigger task updates in real-time"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to a task details page and begin reading task information with screen reader",
+          "expectedResult": "Screen reader reads task content normally, user is engaged with current page content"
+        },
+        {
+          "step": 2,
+          "action": "Have another user update a task assigned to the current user while they are on the task page",
+          "expectedResult": "New notification is generated and queued for announcement"
+        },
+        {
+          "step": 3,
+          "action": "Observe screen reader announcement behavior within 1 minute of task update",
+          "expectedResult": "Screen reader announces 'New notification: Task [Task Name] updated' using aria-live='polite', announcement does not interrupt current reading, announcement occurs at natural pause"
+        },
+        {
+          "step": 4,
+          "action": "Continue reading page content with screen reader after announcement",
+          "expectedResult": "Screen reader resumes reading from where it was before announcement, user's reading position is not lost, workflow is not disrupted"
+        },
+        {
+          "step": 5,
+          "action": "Have another user create an urgent/high-priority task update",
+          "expectedResult": "Screen reader announces urgent notification using aria-live='assertive' (if priority is high), announcement is immediate but not jarring, notification includes priority indicator"
+        },
+        {
+          "step": 6,
+          "action": "Open notification center while screen reader is active",
+          "expectedResult": "Screen reader announces 'Notification center opened, 2 unread notifications', notification count is announced, aria-live region is established for future updates"
+        },
+        {
+          "step": 7,
+          "action": "While notification center is open, trigger a new notification",
+          "expectedResult": "Screen reader announces 'New notification received' via aria-live region, notification appears in list, count updates and is announced"
+        },
+        {
+          "step": 8,
+          "action": "Acknowledge a notification and verify announcement",
+          "expectedResult": "Screen reader announces 'Notification acknowledged' via aria-live='polite', status change is communicated clearly, focus remains on logical next element"
+        }
+      ],
+      "postconditions": [
+        "ARIA live regions are properly implemented with appropriate politeness levels",
+        "Real-time updates are announced without disrupting user workflow",
+        "Screen reader users are informed of new notifications in a timely manner",
+        "Notification announcements are clear, concise, and contextually appropriate"
+      ]
+    }
+  ],
+  "performance": [
+    {
+      "id": "PERF-LOAD-001",
+      "title": "Validate notification delivery performance under peak concurrent task updates",
+      "category": "performance",
+      "subCategory": "Load Testing",
+      "priority": "Critical",
+      "description": "Test the notification system's ability to deliver notifications within the 1-minute SLA when processing peak concurrent task updates from multiple users. Validate response times, throughput, and resource utilization under sustained load representing 150% of average daily task update volume.",
+      "preconditions": [
+        "Notification service is deployed and operational",
+        "Task management database contains at least 10,000 active tasks",
+        "Test user accounts (5,000) are provisioned with task assignments",
+        "Monitoring tools configured to capture P50, P95, P99 latencies",
+        "Baseline metrics established for normal load conditions"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure load testing tool (JMeter/K6) to simulate 5,000 concurrent users updating tasks at a rate of 500 updates/minute",
+          "expectedResult": "Load test configuration validated and ready to execute"
+        },
+        {
+          "step": 2,
+          "action": "Execute load test for 30 minutes with sustained task update operations via /api/tasks/notifications endpoint",
+          "expectedResult": "Test runs without errors, all requests are processed"
+        },
+        {
+          "step": 3,
+          "action": "Monitor and record notification delivery times from task update timestamp to user receipt timestamp",
+          "expectedResult": "95% of notifications delivered within 60 seconds (P95 ≤ 60s), P50 ≤ 15s, P99 ≤ 90s"
+        },
+        {
+          "step": 4,
+          "action": "Measure system throughput and validate notification processing rate",
+          "expectedResult": "System maintains minimum 8 TPS (500 updates/60s), error rate < 0.1%"
+        },
+        {
+          "step": 5,
+          "action": "Analyze resource utilization metrics (CPU, Memory, Database connections, Message queue depth)",
+          "expectedResult": "CPU utilization < 70%, Memory utilization < 80%, no connection pool exhaustion, queue depth remains manageable (< 1000 messages)"
+        }
+      ],
+      "postconditions": [
+        "All notifications successfully delivered and logged",
+        "System returns to idle state within 5 minutes",
+        "No memory leaks detected",
+        "Performance metrics documented for baseline comparison"
+      ],
+      "testData": "5,000 test user accounts with assigned tasks, 15,000 task update payloads with varying update types (status change, assignment change, due date modification)",
+      "toolsRequired": [
+        "Apache JMeter or K6",
+        "Application Performance Monitoring (New Relic/Datadog)",
+        "Database monitoring tools",
+        "Message queue monitoring dashboard"
+      ],
+      "estimatedTime": "90 minutes",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": null
+    },
+    {
+      "id": "PERF-STRESS-001",
+      "title": "Identify notification system breaking point and validate graceful degradation",
+      "category": "performance",
+      "subCategory": "Stress Testing",
+      "priority": "High",
+      "description": "Progressively increase task update load beyond normal capacity to identify the system's breaking point. Validate that the notification system degrades gracefully without data loss, maintains core functionality, and recovers properly when load returns to normal levels.",
+      "preconditions": [
+        "Notification service is in healthy state",
+        "Circuit breakers and rate limiters are configured",
+        "Dead letter queue configured for failed notifications",
+        "Auto-scaling policies are active",
+        "Alerting thresholds configured for critical metrics"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Start with baseline load of 500 task updates/minute and incrementally increase by 500 updates/minute every 5 minutes",
+          "expectedResult": "Load increases progressively from 500 to 5,000+ updates/minute"
+        },
+        {
+          "step": 2,
+          "action": "Monitor system behavior at each load increment, tracking response times, error rates, and resource saturation",
+          "expectedResult": "System metrics captured at each load level, breaking point identified when error rate exceeds 5% or P95 latency exceeds 300 seconds"
+        },
+        {
+          "step": 3,
+          "action": "Validate graceful degradation mechanisms activate (rate limiting, circuit breakers, queue backpressure)",
+          "expectedResult": "System returns HTTP 429 (Too Many Requests) or queues notifications instead of dropping them, no service crashes"
+        },
+        {
+          "step": 4,
+          "action": "Verify notification data integrity - check that no notifications are lost during stress conditions",
+          "expectedResult": "All task updates are either processed or queued in dead letter queue for retry, zero data loss confirmed"
+        },
+        {
+          "step": 5,
+          "action": "Reduce load back to normal levels and monitor system recovery",
+          "expectedResult": "System recovers within 10 minutes, queued notifications are processed, performance metrics return to baseline"
+        }
+      ],
+      "postconditions": [
+        "Breaking point documented (maximum sustainable load identified)",
+        "All queued notifications eventually delivered",
+        "System fully recovered with no residual errors",
+        "Capacity planning recommendations generated"
+      ],
+      "testData": "Progressively increasing task update volumes from 500 to 10,000+ updates/minute, distributed across 10,000 test users",
+      "toolsRequired": [
+        "K6 or Gatling for progressive load generation",
+        "APM tools for real-time monitoring",
+        "Log aggregation platform (ELK/Splunk)",
+        "Database query analyzer"
+      ],
+      "estimatedTime": "120 minutes",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": null
+    },
+    {
+      "id": "PERF-SOAK-001",
+      "title": "Validate notification system stability and detect resource leaks during extended operation",
+      "category": "performance",
+      "subCategory": "Endurance Testing",
+      "priority": "High",
+      "description": "Execute sustained load test over 8-hour period to identify memory leaks, connection pool exhaustion, disk space issues, and other resource degradation problems that only manifest during prolonged operation. Ensure notification delivery SLA is maintained throughout the entire duration.",
+      "preconditions": [
+        "Notification system deployed with production-equivalent configuration",
+        "Monitoring dashboards configured for long-term metric collection",
+        "Sufficient test data and user accounts for 8-hour test",
+        "Database maintenance jobs scheduled outside test window",
+        "Disk space and log rotation configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure sustained load of 300 task updates/minute (representing 80% of peak capacity) to run continuously for 8 hours",
+          "expectedResult": "Load test configured for 8-hour duration with consistent update rate"
+        },
+        {
+          "step": 2,
+          "action": "Execute endurance test and monitor notification delivery times every 30 minutes",
+          "expectedResult": "Test runs for full 8 hours, P95 notification delivery time remains ≤ 60 seconds throughout entire duration"
+        },
+        {
+          "step": 3,
+          "action": "Track memory utilization trends across all service components (application servers, message brokers, databases)",
+          "expectedResult": "Memory usage remains stable or shows sawtooth pattern (GC cycles), no continuous upward trend indicating memory leaks"
+        },
+        {
+          "step": 4,
+          "action": "Monitor database connection pool usage, thread pool utilization, and file descriptor counts",
+          "expectedResult": "Connection pools maintain healthy utilization (60-80%), no connection leaks, file descriptors remain below 70% of limit"
+        },
+        {
+          "step": 5,
+          "action": "Analyze error logs and notification failure rates throughout the test duration",
+          "expectedResult": "Error rate remains consistently < 0.1%, no increasing trend in failures, no timeout errors"
+        },
+        {
+          "step": 6,
+          "action": "Review disk space consumption for logs, temporary files, and database growth",
+          "expectedResult": "Disk usage growth is linear and predictable, log rotation functioning properly, no disk space exhaustion"
+        }
+      ],
+      "postconditions": [
+        "System remains stable after 8-hour test completion",
+        "All performance metrics within acceptable ranges",
+        "No evidence of resource leaks or degradation",
+        "Endurance test report generated with trend analysis"
+      ],
+      "testData": "144,000 task update events (300/min × 480 minutes) distributed across 3,000 active users with realistic update patterns",
+      "toolsRequired": [
+        "K6 or JMeter for sustained load generation",
+        "Grafana/Prometheus for time-series metric visualization",
+        "Memory profiling tools (JProfiler, VisualVM)",
+        "Database performance monitoring tools"
+      ],
+      "estimatedTime": "10 hours (including setup and analysis)",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": null
+    },
+    {
+      "id": "PERF-SPIKE-001",
+      "title": "Validate notification system response to sudden traffic spikes and auto-scaling effectiveness",
+      "category": "performance",
+      "subCategory": "Spike Testing",
+      "priority": "Critical",
+      "description": "Test the notification system's ability to handle sudden, dramatic increases in task update volume (simulating scenarios like bulk task imports or mass reassignments). Validate auto-scaling triggers, queue buffering, and that the 1-minute SLA is maintained or gracefully degraded during spike events.",
+      "preconditions": [
+        "Auto-scaling policies configured and enabled",
+        "Message queue with sufficient capacity configured",
+        "Baseline load of 100 task updates/minute established",
+        "Monitoring alerts configured for spike detection",
+        "Horizontal pod autoscaler (HPA) or equivalent configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish baseline load of 100 task updates/minute for 10 minutes",
+          "expectedResult": "System operating normally with P95 latency < 20 seconds, stable resource utilization"
+        },
+        {
+          "step": 2,
+          "action": "Inject sudden spike to 3,000 task updates/minute (30x increase) sustained for 5 minutes",
+          "expectedResult": "Spike load successfully generated, all requests accepted by the system"
+        },
+        {
+          "step": 3,
+          "action": "Monitor auto-scaling response time and instance provisioning",
+          "expectedResult": "Auto-scaling triggers within 60 seconds, additional instances provisioned within 3 minutes"
+        },
+        {
+          "step": 4,
+          "action": "Track notification delivery times during spike period",
+          "expectedResult": "Initial notifications may exceed 1-minute SLA (P95 ≤ 180s acceptable during spike), but 90% delivered within 5 minutes, no notifications dropped"
+        },
+        {
+          "step": 5,
+          "action": "Verify message queue buffering prevents notification loss",
+          "expectedResult": "Queue depth increases during spike but remains within limits, all messages eventually processed"
+        },
+        {
+          "step": 6,
+          "action": "Return to baseline load (100 updates/minute) and monitor scale-down behavior",
+          "expectedResult": "System scales down within 10 minutes, performance returns to baseline (P95 < 20s), queued notifications cleared within 15 minutes"
+        }
+      ],
+      "postconditions": [
+        "All notifications from spike period successfully delivered",
+        "System scaled back to baseline capacity",
+        "No errors or data loss during spike event",
+        "Auto-scaling behavior documented and validated"
+      ],
+      "testData": "Baseline: 1,000 task updates over 10 minutes; Spike: 15,000 task updates over 5 minutes; Recovery: 1,000 task updates over 10 minutes",
+      "toolsRequired": [
+        "K6 or Gatling with spike load profile capability",
+        "Kubernetes metrics server or cloud provider auto-scaling dashboard",
+        "Message queue monitoring (RabbitMQ/Kafka dashboard)",
+        "Real-time APM tools"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": null
+    }
+  ],
+  "security": [
+    {
+      "id": "SEC-AUTHZ-001",
+      "title": "Unauthorized Access to Other Users' Task Notifications via API Manipulation",
+      "category": "security",
+      "subCategory": "STRIDE-Elevation of Privilege, OWASP-A01",
+      "priority": "Critical",
+      "description": "Verify that authenticated users cannot access task notifications belonging to other users by manipulating API parameters or endpoints. This tests for horizontal privilege escalation and broken access control vulnerabilities where an attacker could view sensitive task information of other users.",
+      "preconditions": [
+        "Two user accounts exist: UserA and UserB",
+        "UserA has active task notifications in the system",
+        "UserB is authenticated and has valid session token",
+        "API endpoint /api/tasks/notifications is accessible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Authenticate as UserB and capture the valid authentication token",
+          "expectedResult": "UserB successfully authenticates and receives valid session token"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to access UserA's notifications by calling GET /api/tasks/notifications with UserA's user ID or task ID in the request parameters while authenticated as UserB",
+          "expectedResult": "API returns 403 Forbidden or 401 Unauthorized error, denying access to UserA's notifications"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to manipulate the request by using IDOR (Insecure Direct Object Reference) techniques: modify notification IDs, user IDs in headers, query parameters, or request body",
+          "expectedResult": "All attempts are blocked with appropriate error responses; no data from UserA's notifications is exposed"
+        },
+        {
+          "step": 4,
+          "action": "Verify that UserB can only access their own notifications through the legitimate endpoint",
+          "expectedResult": "UserB successfully retrieves only their own notifications; access control is properly enforced at the API level"
+        }
+      ],
+      "postconditions": [
+        "No unauthorized access to UserA's notifications occurred",
+        "Security logs record the unauthorized access attempts",
+        "UserB's session remains valid for legitimate operations"
+      ],
+      "testData": "UserA ID: 1001, UserB ID: 1002, Sample notification IDs: N-5001 (UserA), N-5002 (UserB), Task IDs: T-2001 (UserA), T-2002 (UserB)",
+      "toolsRequired": [
+        "Postman or Burp Suite",
+        "Authentication token interceptor",
+        "API testing framework"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 8.6,
+      "complianceTag": "OWASP-A01, SOC2-CC6.1, PCI-DSS-6.5.8"
+    },
+    {
+      "id": "SEC-INJ-001",
+      "title": "Cross-Site Scripting (XSS) Injection in Task Update Notification Content",
+      "category": "security",
+      "subCategory": "STRIDE-Tampering, OWASP-A03",
+      "priority": "Critical",
+      "description": "Verify that the notification system properly sanitizes and encodes task update content to prevent stored and reflected XSS attacks. Malicious scripts injected into task descriptions or update messages should not execute when notifications are displayed to users.",
+      "preconditions": [
+        "User has permission to update tasks",
+        "Notification system is active and configured",
+        "Test user account is authenticated",
+        "Browser-based notification display is enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Update a task with XSS payload in the task description: '<script>alert(\"XSS\")</script>' and '<img src=x onerror=alert(\"XSS\")>'",
+          "expectedResult": "Task update is accepted and notification is generated"
+        },
+        {
+          "step": 2,
+          "action": "Retrieve the notification via API endpoint /api/tasks/notifications and inspect the response payload",
+          "expectedResult": "Malicious script tags are properly encoded or sanitized (e.g., &lt;script&gt; instead of <script>); no executable JavaScript is present in the response"
+        },
+        {
+          "step": 3,
+          "action": "Display the notification in the user interface (web browser or mobile app)",
+          "expectedResult": "The notification displays the sanitized text without executing any JavaScript; no alert boxes appear; no console errors related to script execution"
+        },
+        {
+          "step": 4,
+          "action": "Test additional XSS vectors including: event handlers (onload, onerror), SVG-based XSS, JavaScript protocol handlers (javascript:), and DOM-based XSS payloads",
+          "expectedResult": "All XSS attempts are neutralized through proper output encoding, Content Security Policy headers are present, and no script execution occurs"
+        }
+      ],
+      "postconditions": [
+        "No JavaScript execution occurred in the browser",
+        "Task update content is stored safely in the database",
+        "Notification content is properly encoded for display",
+        "Security logs capture the injection attempt"
+      ],
+      "testData": "XSS Payloads: '<script>alert(1)</script>', '<img src=x onerror=alert(1)>', '<svg onload=alert(1)>', '\" onmouseover=alert(1) //', 'javascript:alert(1)'",
+      "toolsRequired": [
+        "Burp Suite Professional",
+        "OWASP ZAP",
+        "Browser Developer Tools",
+        "XSS payload library"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 8.2,
+      "complianceTag": "OWASP-A03, OWASP-XSS, SOC2-CC6.1"
+    },
+    {
+      "id": "SEC-INFO-001",
+      "title": "Information Disclosure Through Notification Metadata and Error Messages",
+      "category": "security",
+      "subCategory": "STRIDE-Information Disclosure, OWASP-A01",
+      "priority": "High",
+      "description": "Verify that notification API responses and error messages do not leak sensitive information such as internal system details, database structure, other users' data, or implementation details that could aid attackers in reconnaissance.",
+      "preconditions": [
+        "User is authenticated with valid credentials",
+        "Notification system is operational",
+        "Multiple users with different permission levels exist",
+        "API endpoint /api/tasks/notifications is accessible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send malformed requests to /api/tasks/notifications with invalid parameters, missing authentication, SQL injection attempts, and boundary value violations",
+          "expectedResult": "Error messages are generic (e.g., 'Invalid request', '400 Bad Request') without revealing stack traces, database queries, file paths, or internal system architecture"
+        },
+        {
+          "step": 2,
+          "action": "Analyze notification API responses for excessive metadata exposure including: internal user IDs, database primary keys, system timestamps, server information, technology stack details",
+          "expectedResult": "API responses contain only necessary information; internal IDs are obfuscated or use UUIDs; no database schema information is exposed; server headers are minimized"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to enumerate valid notification IDs or user accounts by iterating through sequential IDs or using timing attacks",
+          "expectedResult": "System implements rate limiting; responses have consistent timing regardless of resource existence; enumeration attempts are logged and blocked after threshold"
+        },
+        {
+          "step": 4,
+          "action": "Inspect notification content for unintended data leakage such as: other users' email addresses, task details from unrelated projects, system configuration data, or PII of other users",
+          "expectedResult": "Notifications contain only information relevant to the authenticated user; no cross-user data leakage occurs; sensitive fields are properly filtered based on user permissions"
+        }
+      ],
+      "postconditions": [
+        "No sensitive system information was disclosed",
+        "Error messages remain generic and unhelpful to attackers",
+        "Enumeration attempts are logged for security monitoring",
+        "User privacy is maintained across notification system"
+      ],
+      "testData": "Invalid notification IDs: -1, 0, 999999, 'abc', null; SQL injection: ' OR 1=1--, '; DROP TABLE--; Invalid user IDs: sequential integers 1-1000",
+      "toolsRequired": [
+        "Burp Suite Intruder",
+        "Postman",
+        "Network traffic analyzer",
+        "Log analysis tools"
+      ],
+      "estimatedTime": "50 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 7.4,
+      "complianceTag": "OWASP-A01, HIPAA-164.312, GDPR-Article-32, SOC2-CC6.1"
+    },
+    {
+      "id": "SEC-AUTH-001",
+      "title": "Authentication Bypass and Session Management Vulnerabilities in Notification Access",
+      "category": "security",
+      "subCategory": "STRIDE-Spoofing, OWASP-A07",
+      "priority": "Critical",
+      "description": "Verify that the notification system enforces proper authentication and session management, preventing unauthorized access through token manipulation, session hijacking, replay attacks, or authentication bypass techniques.",
+      "preconditions": [
+        "Notification API endpoint /api/tasks/notifications is deployed",
+        "Authentication mechanism is implemented (JWT, OAuth, or session-based)",
+        "Valid user account exists for testing",
+        "HTTPS is enabled for secure communication"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to access /api/tasks/notifications without providing any authentication token or credentials",
+          "expectedResult": "API returns 401 Unauthorized error; no notification data is returned; access is completely denied"
+        },
+        {
+          "step": 2,
+          "action": "Test with expired, malformed, and tampered authentication tokens: modify token signature, change expiration time, alter user ID claims, use tokens from different environments",
+          "expectedResult": "All invalid tokens are rejected with 401 Unauthorized; token signature validation is enforced; token expiration is properly checked; no access is granted"
+        },
+        {
+          "step": 3,
+          "action": "Capture a valid authentication token, log out the user, and attempt to replay the token to access notifications",
+          "expectedResult": "Token is invalidated upon logout; replay attempts are rejected; session management properly tracks token lifecycle"
+        },
+        {
+          "step": 4,
+          "action": "Test for session fixation and hijacking: attempt to use another user's session ID, test for predictable session tokens, verify secure cookie attributes (HttpOnly, Secure, SameSite)",
+          "expectedResult": "Session tokens are cryptographically random and unpredictable; cookies have proper security flags set; session fixation attacks are prevented; concurrent session limits are enforced"
+        },
+        {
+          "step": 5,
+          "action": "Verify that authentication tokens have appropriate expiration times and that refresh token mechanisms (if implemented) are secure",
+          "expectedResult": "Access tokens expire within reasonable timeframe (15-60 minutes); refresh tokens are properly secured and rotated; token lifetime aligns with security requirements"
+        }
+      ],
+      "postconditions": [
+        "No unauthorized access to notifications occurred",
+        "All authentication bypass attempts are logged",
+        "Valid user sessions remain functional",
+        "Security monitoring alerts are triggered for suspicious activity"
+      ],
+      "testData": "Expired token (timestamp modified), Malformed token: 'invalid.token.here', Tampered payload: modified user_id claim, Empty token: '', Null token, Token from different user",
+      "toolsRequired": [
+        "JWT.io decoder",
+        "Burp Suite",
+        "Postman",
+        "Token manipulation tools",
+        "Session management testing tools"
+      ],
+      "estimatedTime": "55 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9,
+      "complianceTag": "OWASP-A07, PCI-DSS-6.5.10, SOC2-CC6.1, NIST-800-63B"
+    }
+  ],
+  "usability": [
+    {
+      "id": "UX-H01-001",
+      "title": "Verify real-time notification delivery status and system feedback",
+      "category": "usability",
+      "subCategory": "Nielsen-H01-Visibility of System Status",
+      "priority": "Critical",
+      "description": "Validate that users receive clear, immediate visual feedback when a task update occurs and a notification is sent. Users should understand the current state of notification delivery (sent, delivered, read) and be able to distinguish between new and read notifications.",
+      "preconditions": [
+        "User is logged into the system",
+        "User has at least one task assigned",
+        "Notification system is enabled for the user",
+        "User has appropriate permissions to receive task notifications"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Have another user update a task assigned to the test user (change status, priority, or add a comment)",
+          "expectedResult": "System detects the task update immediately and begins notification process"
+        },
+        {
+          "step": 2,
+          "action": "Observe the notification indicator (badge, icon, or counter) in the user interface",
+          "expectedResult": "Visual indicator appears within 1 minute showing unread notification count with clear visual distinction (e.g., red badge, bold text, or animation)"
+        },
+        {
+          "step": 3,
+          "action": "Click on the notification icon/area to view notification details",
+          "expectedResult": "Notification panel opens showing clear timestamp, task name, type of update, and who made the change with visual hierarchy"
+        },
+        {
+          "step": 4,
+          "action": "Read the notification and navigate to the updated task",
+          "expectedResult": "Notification status changes to 'read' with visual indication (grayed out, checkmark, or removed from unread count)"
+        },
+        {
+          "step": 5,
+          "action": "Return to notification center and verify historical notifications",
+          "expectedResult": "Clear visual distinction between read and unread notifications with consistent status indicators throughout the interface"
+        }
+      ],
+      "postconditions": [
+        "Notification is marked as read in the system",
+        "Unread notification counter is updated accurately",
+        "Recommendation: Implement progressive disclosure with notification preview on hover",
+        "Recommendation: Add loading indicators during notification fetch operations",
+        "Recommendation: Use color coding for different notification types (update, comment, assignment)"
+      ],
+      "testData": "Task ID: TASK-001, Update Type: Status change from 'In Progress' to 'Review', Updated by: John Doe, Timestamp: Current system time",
+      "toolsRequired": [
+        "Browser developer tools for timing verification",
+        "Screen recording software for documentation",
+        "Multiple user accounts for testing"
+      ],
+      "estimatedTime": "25 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 4,
+      "complianceTag": "Nielsen-H01-Visibility"
+    },
+    {
+      "id": "UX-H02-002",
+      "title": "Evaluate notification language clarity and real-world terminology alignment",
+      "category": "usability",
+      "subCategory": "Nielsen-H02-Match Between System and Real World",
+      "priority": "High",
+      "description": "Assess whether notification messages use clear, user-friendly language that matches real-world task management terminology rather than technical jargon. Verify that update descriptions are meaningful and actionable for users without requiring system knowledge.",
+      "preconditions": [
+        "User is logged into the system",
+        "Multiple types of task updates are available (status change, assignment, comment, due date change)",
+        "Notification history contains various notification types"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Trigger a task status change notification (e.g., from 'To Do' to 'In Progress')",
+          "expectedResult": "Notification displays in plain language: 'Sarah moved \"Website Redesign\" from To Do to In Progress' rather than technical terms like 'Task.status.updated: 1->2'"
+        },
+        {
+          "step": 2,
+          "action": "Trigger a task assignment notification",
+          "expectedResult": "Notification reads: 'Mike assigned you to \"Q4 Budget Review\"' using natural, conversational language"
+        },
+        {
+          "step": 3,
+          "action": "Trigger a due date change notification",
+          "expectedResult": "Notification displays: 'Due date changed to Tomorrow, 3:00 PM' or 'Due in 2 days' using relative, human-readable time formats instead of ISO timestamps"
+        },
+        {
+          "step": 4,
+          "action": "Review notification for comment additions",
+          "expectedResult": "Notification shows: 'Emma commented on \"Marketing Campaign\"' with preview of comment text, avoiding technical database field names"
+        },
+        {
+          "step": 5,
+          "action": "Verify that all notifications include clear action verbs and context",
+          "expectedResult": "Each notification uses familiar task management vocabulary (assigned, completed, commented, updated, moved) that matches user mental models"
+        }
+      ],
+      "postconditions": [
+        "All notification messages are comprehensible without technical knowledge",
+        "Recommendation: Conduct user testing with non-technical users to validate language clarity",
+        "Recommendation: Implement localization support for international users",
+        "Recommendation: Use action-oriented language that suggests next steps (e.g., 'Review changes' button)"
+      ],
+      "testData": "Sample notifications: Status change, Assignment, Comment addition, Due date modification, Priority change",
+      "toolsRequired": [
+        "Content readability analyzer",
+        "User feedback collection tool"
+      ],
+      "estimatedTime": "30 minutes",
+      "automationFeasibility": "Low",
+      "riskScore": 3,
+      "complianceTag": "Nielsen-H02-Real-World-Match"
+    },
+    {
+      "id": "UX-H03-003",
+      "title": "Validate user control over notification preferences and management",
+      "category": "usability",
+      "subCategory": "Nielsen-H03-User Control and Freedom",
+      "priority": "High",
+      "description": "Verify that users have adequate control over their notification settings, including the ability to customize notification types, frequency, delivery channels, and easily dismiss or manage notifications without feeling trapped by the system.",
+      "preconditions": [
+        "User is logged into the system",
+        "User has received multiple notifications",
+        "Notification settings page is accessible",
+        "User has permissions to modify their own notification preferences"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to notification settings/preferences page from the notification center",
+          "expectedResult": "Settings page is easily accessible (maximum 2 clicks) with clear navigation path and breadcrumb trail to return"
+        },
+        {
+          "step": 2,
+          "action": "Review available notification customization options",
+          "expectedResult": "User can toggle notifications by type (assignments, comments, status changes, due dates) with clear labels and immediate save/cancel options"
+        },
+        {
+          "step": 3,
+          "action": "Disable notifications for a specific task or project",
+          "expectedResult": "Option to mute/unmute individual tasks or projects is available with clear indication of muted status and easy reversal"
+        },
+        {
+          "step": 4,
+          "action": "Dismiss individual notifications from the notification center",
+          "expectedResult": "Each notification has a clear dismiss/close button (X icon) that removes it from view with optional undo action within 5 seconds"
+        },
+        {
+          "step": 5,
+          "action": "Use 'Mark all as read' or 'Clear all' functionality",
+          "expectedResult": "Bulk action is available with confirmation dialog for destructive actions and ability to cancel before completion"
+        },
+        {
+          "step": 6,
+          "action": "Attempt to restore a dismissed notification or revert preference changes",
+          "expectedResult": "Recently dismissed notifications can be recovered from a 'Recently Deleted' section or undo action is available"
+        }
+      ],
+      "postconditions": [
+        "User preferences are saved and applied immediately",
+        "Dismissed notifications are removed from active view",
+        "Recommendation: Implement 'Do Not Disturb' mode with scheduled quiet hours",
+        "Recommendation: Add notification digest option (daily/weekly summary) for users who prefer batch updates",
+        "Recommendation: Provide notification preview before enabling to help users make informed choices"
+      ],
+      "testData": "User preferences: Email notifications ON, Push notifications OFF, Task assignments: Immediate, Comments: Digest mode",
+      "toolsRequired": [
+        "Browser for UI testing",
+        "Database access to verify preference persistence"
+      ],
+      "estimatedTime": "35 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 3,
+      "complianceTag": "Nielsen-H03-User-Control"
+    },
+    {
+      "id": "UX-H06-004",
+      "title": "Assess notification information visibility and context availability",
+      "category": "usability",
+      "subCategory": "Nielsen-H06-Recognition Rather Than Recall",
+      "priority": "High",
+      "description": "Evaluate whether notifications provide sufficient context and information visibility so users can recognize and act on updates without needing to recall previous task states or navigate away to understand the notification. Verify that all necessary information is present within the notification itself.",
+      "preconditions": [
+        "User is logged into the system",
+        "User has multiple tasks with different statuses and priorities",
+        "Notification history contains various update types",
+        "User has not viewed the updated task recently"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Receive a task status change notification and review its content without clicking through",
+          "expectedResult": "Notification displays: task name, previous status, new status, who made the change, when it occurred, and task priority/due date without requiring navigation"
+        },
+        {
+          "step": 2,
+          "action": "Review a comment notification in the notification panel",
+          "expectedResult": "Notification shows: commenter name with avatar, comment preview (first 100 characters), task context, and timestamp with option to expand inline"
+        },
+        {
+          "step": 3,
+          "action": "Examine a task assignment notification",
+          "expectedResult": "Notification includes: task title, description preview, due date, priority level, assigner name, and quick action buttons (Accept/View) visible without navigation"
+        },
+        {
+          "step": 4,
+          "action": "Hover over or expand a notification to see additional details",
+          "expectedResult": "Expanded view reveals full context including task description, all recent changes, related team members, and direct link to task with preview tooltip"
+        },
+        {
+          "step": 5,
+          "action": "Review notification history for a task with multiple updates",
+          "expectedResult": "Notifications are grouped by task with visual timeline showing progression of changes, eliminating need to remember previous states"
+        },
+        {
+          "step": 6,
+          "action": "Verify that notification includes visual cues for priority and urgency",
+          "expectedResult": "Color coding, icons, or badges indicate priority level (High/Medium/Low) and urgency (overdue, due soon) at a glance"
+        }
+      ],
+      "postconditions": [
+        "User can make informed decisions based on notification content alone",
+        "Notification history provides complete audit trail",
+        "Recommendation: Add inline quick actions (approve, comment, reassign) directly in notifications",
+        "Recommendation: Include visual diff or 'what changed' summary for complex updates",
+        "Recommendation: Show related notifications grouped by task or project for better context",
+        "Recommendation: Display user avatars and task thumbnails for faster recognition"
+      ],
+      "testData": "Task: 'Q4 Marketing Campaign', Previous Status: 'In Progress', New Status: 'Review', Changed by: 'Sarah Johnson', Priority: High, Due: Tomorrow",
+      "toolsRequired": [
+        "Browser for UI testing",
+        "Screen capture tool for documentation"
+      ],
+      "estimatedTime": "30 minutes",
+      "automationFeasibility": "Low",
+      "riskScore": 3,
+      "complianceTag": "Nielsen-H06-Recognition-vs-Recall"
+    }
+  ],
+  "reliability": [
+    {
+      "id": "REL-FAIL-001",
+      "title": "Notification Service Crash During Task Update - Recovery and Message Delivery Validation",
+      "category": "reliability",
+      "subCategory": "Failure Injection Testing",
+      "priority": "Critical",
+      "description": "Validate system resilience when notification service crashes during task update processing. Test message queue persistence, automatic service recovery, and guaranteed notification delivery after recovery. This ensures zero notification loss during service failures and validates MTTR compliance.",
+      "preconditions": [
+        "Task management system is operational",
+        "Notification service is running with health monitoring enabled",
+        "Message queue (e.g., RabbitMQ/Kafka) is configured with persistence",
+        "At least 5 active users with tasks assigned",
+        "Chaos engineering tool (e.g., Chaos Monkey, Gremlin) is configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish baseline: Update 10 tasks and verify all notifications are delivered within 1 minute (steady state validation)",
+          "expectedResult": "All 10 notifications delivered successfully within SLO of 1 minute, confirming steady state"
+        },
+        {
+          "step": 2,
+          "action": "Inject failure: Forcefully terminate notification service process while simultaneously updating 5 tasks",
+          "expectedResult": "Notification service crashes, task updates are persisted in message queue, no notifications delivered immediately"
+        },
+        {
+          "step": 3,
+          "action": "Monitor system behavior: Verify health check detects failure and automatic restart mechanism triggers within 30 seconds",
+          "expectedResult": "Service orchestrator (Kubernetes/Docker Swarm) detects failure and initiates service restart within 30 seconds (MTTR validation)"
+        },
+        {
+          "step": 4,
+          "action": "Validate recovery: After service restart, verify message queue replay and notification delivery for all 5 pending updates",
+          "expectedResult": "All 5 notifications are delivered within 2 minutes of service recovery, zero message loss confirmed"
+        },
+        {
+          "step": 5,
+          "action": "Verify data integrity: Check notification history table for all 5 notifications with correct timestamps and delivery status",
+          "expectedResult": "All notifications logged with accurate metadata, delivery status marked as 'delivered', no duplicate notifications sent"
+        }
+      ],
+      "postconditions": [
+        "Notification service is fully operational",
+        "All pending notifications delivered successfully",
+        "Message queue is empty of pending notifications",
+        "System returns to steady state with <1 minute notification delivery"
+      ],
+      "testData": "Task IDs: TASK-001 to TASK-005, User IDs: USER-101 to USER-105, Update types: status change, assignee change, due date change",
+      "toolsRequired": [
+        "Chaos Monkey or Gremlin for service termination",
+        "Message queue monitoring tool (RabbitMQ Management UI, Kafka Manager)",
+        "APM tool (New Relic, Datadog) for MTTR measurement",
+        "Database query tool for notification history validation"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9,
+      "complianceTag": "SLO-MTTR-30s, SLO-Delivery-1min"
+    },
+    {
+      "id": "REL-DEP-002",
+      "title": "Database Connection Pool Exhaustion - Circuit Breaker and Graceful Degradation Validation",
+      "category": "reliability",
+      "subCategory": "Dependency Resilience",
+      "priority": "Critical",
+      "description": "Test system behavior when task management database connection pool is exhausted due to high load or connection leaks. Validate circuit breaker activation, retry logic with exponential backoff, and graceful degradation to prevent cascading failures. Ensures notification service remains available even when database is under stress.",
+      "preconditions": [
+        "Database connection pool configured with max 20 connections",
+        "Circuit breaker implemented with threshold of 50% failure rate over 10 requests",
+        "Retry policy configured with exponential backoff (1s, 2s, 4s, 8s)",
+        "Fallback mechanism available (cache or secondary read replica)",
+        "Load testing tool configured to simulate connection exhaustion"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish baseline: Generate 50 task updates and verify all notifications delivered with database response time <200ms",
+          "expectedResult": "All 50 notifications delivered successfully, database connection pool utilization at 40%, circuit breaker in CLOSED state"
+        },
+        {
+          "step": 2,
+          "action": "Inject failure: Simulate connection pool exhaustion by creating 25 long-running database queries that hold connections for 60 seconds",
+          "expectedResult": "Connection pool reaches 100% utilization, new notification requests start failing with connection timeout errors"
+        },
+        {
+          "step": 3,
+          "action": "Trigger task updates: Update 20 tasks during connection exhaustion period and monitor circuit breaker behavior",
+          "expectedResult": "Circuit breaker detects 50% failure rate after 10 requests and transitions to OPEN state within 5 seconds, preventing further database calls"
+        },
+        {
+          "step": 4,
+          "action": "Validate retry logic: Monitor retry attempts with exponential backoff (1s, 2s, 4s, 8s) and verify fallback to cached task data or read replica",
+          "expectedResult": "System performs 4 retry attempts with correct backoff intervals, then activates fallback mechanism to retrieve task data from cache/replica"
+        },
+        {
+          "step": 5,
+          "action": "Validate recovery: After 30 seconds (half-open timeout), verify circuit breaker transitions to HALF-OPEN and allows test requests",
+          "expectedResult": "Circuit breaker enters HALF-OPEN state, allows 3 test requests, all succeed as connections are released, circuit breaker returns to CLOSED state"
+        },
+        {
+          "step": 6,
+          "action": "Verify notification delivery: Confirm all 20 notifications are eventually delivered within 90 seconds of task update",
+          "expectedResult": "All 20 notifications delivered successfully after circuit breaker recovery, no notifications lost, delivery SLO extended but within acceptable degraded performance"
+        }
+      ],
+      "postconditions": [
+        "Database connection pool returns to normal utilization (<50%)",
+        "Circuit breaker in CLOSED state",
+        "All pending notifications delivered",
+        "No connection leaks detected",
+        "System performance metrics return to baseline"
+      ],
+      "testData": "20 task updates with IDs TASK-100 to TASK-119, User IDs USER-200 to USER-219, Long-running query: SELECT * FROM tasks WHERE SLEEP(60)",
+      "toolsRequired": [
+        "Database connection pool monitor (HikariCP metrics, pgBouncer stats)",
+        "Circuit breaker dashboard (Hystrix Dashboard, Resilience4j metrics)",
+        "Load testing tool (JMeter, Gatling) for connection exhaustion",
+        "APM tool for retry pattern visualization"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 8,
+      "complianceTag": "SLO-Availability-99.9%, Circuit-Breaker-Pattern"
+    },
+    {
+      "id": "REL-CHAOS-003",
+      "title": "Network Partition Between Notification Service and Message Queue - Split-Brain Prevention",
+      "category": "reliability",
+      "subCategory": "Chaos Engineering Experiments",
+      "priority": "High",
+      "description": "Chaos experiment to validate system behavior during network partition between notification service and message queue. Test message durability, duplicate notification prevention, and eventual consistency after partition heals. Validates blast radius containment and prevents split-brain scenarios where notifications might be sent multiple times.",
+      "preconditions": [
+        "Notification service and message queue deployed in separate network segments",
+        "Network chaos tool (Pumba, Toxiproxy) configured for partition injection",
+        "Message queue configured with at-least-once delivery guarantee",
+        "Idempotency keys implemented for notification deduplication",
+        "Monitoring dashboards for message queue lag and notification delivery rates"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Define hypothesis: 'During network partition, notifications will be queued locally and delivered after partition heals with zero duplicates and <5 minute total delay'",
+          "expectedResult": "Hypothesis documented with success criteria: zero message loss, zero duplicates, MTTR <5 minutes"
+        },
+        {
+          "step": 2,
+          "action": "Establish steady state: Update 15 tasks and measure baseline notification delivery time (target: <1 minute) and success rate (target: 100%)",
+          "expectedResult": "Baseline established: 15/15 notifications delivered in average 45 seconds, 100% success rate"
+        },
+        {
+          "step": 3,
+          "action": "Inject network partition: Use Toxiproxy to block all traffic between notification service and message queue for 3 minutes",
+          "expectedResult": "Network partition active, notification service cannot reach message queue, connection attempts timeout after 10 seconds"
+        },
+        {
+          "step": 4,
+          "action": "Generate task updates during partition: Update 10 tasks and monitor notification service behavior (local queuing, error handling)",
+          "expectedResult": "Notification service detects message queue unavailability, stores 10 notifications in local persistent queue or database, logs partition event"
+        },
+        {
+          "step": 5,
+          "action": "Heal partition: Remove network partition and monitor automatic reconnection and message replay",
+          "expectedResult": "Notification service reconnects to message queue within 30 seconds, replays 10 queued notifications with idempotency keys"
+        },
+        {
+          "step": 6,
+          "action": "Validate notification delivery: Verify all 10 notifications delivered exactly once within 5 minutes of original task update",
+          "expectedResult": "All 10 notifications delivered successfully, zero duplicates confirmed via idempotency key tracking, total delay <5 minutes, hypothesis validated"
+        },
+        {
+          "step": 7,
+          "action": "Verify blast radius: Confirm other system components (task management, user authentication) remained operational during partition",
+          "expectedResult": "Blast radius contained to notification delivery only, core task management functionality unaffected, no cascading failures detected"
+        }
+      ],
+      "postconditions": [
+        "Network partition removed",
+        "Notification service and message queue fully connected",
+        "All pending notifications delivered",
+        "No duplicate notifications in user notification history",
+        "System returns to steady state performance"
+      ],
+      "testData": "10 task updates: TASK-200 to TASK-209, Users: USER-300 to USER-309, Idempotency keys: UUID format for each notification",
+      "toolsRequired": [
+        "Toxiproxy or Pumba for network partition injection",
+        "Message queue monitoring (RabbitMQ/Kafka metrics)",
+        "Database query tool to verify idempotency key uniqueness",
+        "Distributed tracing tool (Jaeger, Zipkin) for message flow visualization",
+        "Chaos experiment tracking tool (Chaos Toolkit, LitmusChaos)"
+      ],
+      "estimatedTime": "50 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 7,
+      "complianceTag": "Chaos-Engineering-Principle, SLO-MTTR-5min"
+    },
+    {
+      "id": "REL-DATA-004",
+      "title": "Notification Service Crash Mid-Transaction - Data Consistency and RPO Validation",
+      "category": "reliability",
+      "subCategory": "Data Integrity & Recovery",
+      "priority": "High",
+      "description": "Validate data consistency and Recovery Point Objective (RPO) compliance when notification service crashes during notification persistence transaction. Test transaction rollback, notification history integrity, and ensure no partial or corrupted notification records. Validates RPO of zero data loss for committed transactions.",
+      "preconditions": [
+        "Database configured with ACID transaction support",
+        "Notification history table with transactional integrity constraints",
+        "Write-ahead logging (WAL) enabled for crash recovery",
+        "Backup mechanism configured with point-in-time recovery",
+        "Chaos tool capable of precise timing for mid-transaction crash"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish baseline: Create 20 task updates and verify all notification records persisted correctly in notification_history table with complete metadata",
+          "expectedResult": "20 complete notification records in database with status='delivered', all foreign key constraints satisfied, no orphaned records"
+        },
+        {
+          "step": 2,
+          "action": "Inject failure: Initiate 5 task updates, then crash notification service precisely during database transaction commit phase (after INSERT but before COMMIT)",
+          "expectedResult": "Notification service crashes mid-transaction, database connection terminated abruptly"
+        },
+        {
+          "step": 3,
+          "action": "Validate automatic rollback: Query notification_history table immediately after crash to verify uncommitted transactions are rolled back",
+          "expectedResult": "Zero partial records in database, all uncommitted transactions automatically rolled back by database engine, referential integrity maintained"
+        },
+        {
+          "step": 4,
+          "action": "Restart notification service and verify recovery: Check that service replays messages from queue and successfully persists all 5 notifications",
+          "expectedResult": "Service restarts within 30 seconds, processes 5 pending notifications from message queue, all 5 records successfully committed to database"
+        },
+        {
+          "step": 5,
+          "action": "Validate RPO compliance: Verify zero data loss for committed transactions and confirm all notifications have consistent state (no duplicates, no missing fields)",
+          "expectedResult": "RPO of zero achieved: all committed notifications before crash are intact, all uncommitted notifications successfully retried and committed, no data corruption detected"
+        },
+        {
+          "step": 6,
+          "action": "Verify notification delivery: Confirm all 5 users received notifications and notification_history matches actual delivery status",
+          "expectedResult": "All 5 notifications delivered to users, notification_history table shows accurate delivery timestamps and status, audit trail complete"
+        }
+      ],
+      "postconditions": [
+        "Notification service operational",
+        "Database in consistent state with no orphaned records",
+        "All notifications accounted for in notification_history",
+        "Transaction logs show proper rollback and replay",
+        "RPO validation passed with zero data loss"
+      ],
+      "testData": "5 task updates: TASK-500 to TASK-504, Users: USER-600 to USER-604, Notification metadata: task_id, user_id, update_type, timestamp, delivery_status",
+      "toolsRequired": [
+        "Database transaction monitor (PostgreSQL pg_stat_activity, MySQL SHOW PROCESSLIST)",
+        "Chaos tool with precise timing control (Gremlin, custom script)",
+        "Database query tool for transaction log analysis",
+        "Backup validation tool for point-in-time recovery testing"
+      ],
+      "estimatedTime": "40 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 8,
+      "complianceTag": "RPO-Zero-Data-Loss, ACID-Compliance"
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true,
+    "performance": true,
+    "security": true,
+    "usability": true,
+    "reliability": true
+  },
+  "userStoryObject": {
+    "id": "ado-14168",
+    "title": "As a User, I want to receive notifications for task updates to stay informed about my responsibilities.",
+    "description": "<div>CONTEXT &amp; BACKGROUND:\nThis story ensures that users are kept up-to-date with any changes to their tasks, enhancing collaboration.\n\nCURRENT STATE:\nUsers currently miss updates on task changes, leading to confusion and delays.\n\nDESIRED STATE:\nUsers receive immediate notifications about task updates, allowing for timely action.\n\nKEY FUNCTIONALITY:\n• Automatic detection of task updates\n• Immediate notification dispatch to users\n• Clear description of the update\n• Historical record of task notifications\n\nUSER INTERACTION FLOW:\n1. Task is updated in the system.\n2. System detects the update.\n3. Notification is generated and sent to the user.\n4. User receives the notification and takes necessary action.\n\nTECHNICAL CONSIDERATIONS:\n• Data source: Task management database\n• Validation rules: Ensure notifications are sent only for confirmed task updates\n• API endpoints: /api/tasks/notifications\n• Security: User authentication required for notification access\n• Performance: Notifications sent within 1 minute of task update detection.\n\nOUT OF SCOPE:\n• Manual task update processes\n\nSUCCESS METRICS:\n• 95% of users report receiving notifications within 1 minute of task updates. </div><br><div><strong>Persona:</strong> User (User) </div>",
+    "acceptanceCriteria": "<div><strong>Criteria 1:</strong> System sends notifications for any updates made to tasks assigned to users. </div><br><div><strong>Criteria 2:</strong> Users receive notifications via both email and in-app alerts. </div><br><div><strong>Criteria 3:</strong> Notifications include details of the task update. </div><br><div><strong>Criteria 4:</strong> Users can acknowledge receipt of the notification. </div><br>",
+    "adoWorkItemId": 14168,
+    "state": "New",
+    "assignedTo": "Unassigned",
+    "createdDate": "2026-01-29T09:29:26.407Z",
+    "priority": 1,
+    "storyPoints": 5,
+    "tags": "",
+    "epicId": "epic-13802",
+    "featureId": "feature-13829",
+    "source": "ado",
+    "adoUrl": "https://dev.azure.com/QS001/Venus/_workitems/edit/14168"
+  }
+}
