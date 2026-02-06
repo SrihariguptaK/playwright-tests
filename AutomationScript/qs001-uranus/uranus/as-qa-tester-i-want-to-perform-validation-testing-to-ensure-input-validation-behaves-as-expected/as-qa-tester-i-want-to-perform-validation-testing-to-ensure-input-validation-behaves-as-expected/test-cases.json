@@ -1,0 +1,2405 @@
+{
+  "storyId": "ado-16126",
+  "storyTitle": "As QA Tester, I want to perform validation testing to ensure input validation behaves as expected",
+  "testCases": [],
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify client-side real-time validation displays error messages for required fields",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Test environment is accessible and functional",
+        "User is logged in with QA Tester role permissions",
+        "Test form with validation rules is loaded in browser",
+        "Browser console is open to monitor client-side validation events",
+        "Test data set with valid and invalid inputs is prepared"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the test form page containing input fields with validation rules",
+          "expectedResult": "Form page loads successfully with all input fields visible and empty"
+        },
+        {
+          "step": 2,
+          "action": "Click into the 'Email Address' required field and then click outside without entering any data",
+          "expectedResult": "Red error message 'Email Address is required' appears immediately below the field with error icon"
+        },
+        {
+          "step": 3,
+          "action": "Enter valid email 'testuser@example.com' in the 'Email Address' field",
+          "expectedResult": "Error message disappears, field border changes to green, and success checkmark icon appears"
+        },
+        {
+          "step": 4,
+          "action": "Click into 'Phone Number' required field, enter '555-1234', then delete all characters",
+          "expectedResult": "Red error message 'Phone Number is required' displays immediately with error icon"
+        },
+        {
+          "step": 5,
+          "action": "Verify error message styling includes red text color (#D32F2F), error icon, and appropriate ARIA attributes",
+          "expectedResult": "Error message has correct styling, aria-live='polite' attribute, and role='alert' for screen reader compatibility"
+        }
+      ],
+      "postconditions": [
+        "Form remains in editable state with validation active",
+        "All validation error messages are cleared when valid data is entered",
+        "Browser console shows no JavaScript errors related to validation",
+        "Form data is not submitted to server until all validations pass"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify server-side validation rejects invalid data with appropriate HTTP error responses",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Test API endpoint is accessible and responding",
+        "User has valid authentication token for API requests",
+        "API testing tool (Postman/Insomnia) is configured with test environment",
+        "Test database is in known state with existing test records",
+        "Network monitoring tool is active to capture request/response"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Send POST request to '/api/users' endpoint with payload containing invalid email format: {\"email\": \"invalidemail\", \"name\": \"Test User\"}",
+          "expectedResult": "Server returns HTTP 400 Bad Request with JSON response: {\"error\": \"Invalid email format\", \"field\": \"email\"}"
+        },
+        {
+          "step": 2,
+          "action": "Send POST request with missing required field: {\"email\": \"test@example.com\"} without 'name' field",
+          "expectedResult": "Server returns HTTP 400 Bad Request with JSON response: {\"error\": \"Name is required\", \"field\": \"name\"}"
+        },
+        {
+          "step": 3,
+          "action": "Send POST request with valid data: {\"email\": \"valid@example.com\", \"name\": \"Valid User\"}",
+          "expectedResult": "Server returns HTTP 201 Created with JSON response containing created user object and unique ID"
+        },
+        {
+          "step": 4,
+          "action": "Verify database to confirm invalid data from steps 1-2 was NOT persisted",
+          "expectedResult": "Database query shows no records created for invalid requests, only valid request from step 3 is saved"
+        },
+        {
+          "step": 5,
+          "action": "Check server logs for validation error entries with timestamps and request details",
+          "expectedResult": "Server logs contain validation error entries with severity level 'WARNING', timestamp, and rejected payload details"
+        }
+      ],
+      "postconditions": [
+        "Database contains only valid data from successful requests",
+        "Invalid data attempts are logged in server error logs",
+        "API returns consistent error response format across all validation failures",
+        "No data corruption or partial saves occurred from invalid requests"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify validation error messages are accurate, clear, and user-friendly across all form fields",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Test form with multiple field types (text, email, number, date, dropdown) is loaded",
+        "User is logged in and has access to the form",
+        "Error message content specification document is available for reference",
+        "Browser is set to default language (English) for testing"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Leave 'Username' required field empty and attempt to submit form by clicking 'Submit' button",
+          "expectedResult": "Error message 'Username is required' appears in red text below the field with clear, non-technical language"
+        },
+        {
+          "step": 2,
+          "action": "Enter 'ab' in 'Username' field that requires minimum 3 characters",
+          "expectedResult": "Error message 'Username must be at least 3 characters long' displays with current character count indicator"
+        },
+        {
+          "step": 3,
+          "action": "Enter 'test@invalid' in 'Email' field and move focus to next field",
+          "expectedResult": "Error message 'Please enter a valid email address (e.g., user@example.com)' appears with example format"
+        },
+        {
+          "step": 4,
+          "action": "Enter '-50' in 'Age' field that requires positive numbers only",
+          "expectedResult": "Error message 'Age must be a positive number' displays immediately upon input"
+        },
+        {
+          "step": 5,
+          "action": "Select future date in 'Birth Date' field that should be in the past",
+          "expectedResult": "Error message 'Birth Date cannot be in the future' appears with calendar icon and clear instruction"
+        },
+        {
+          "step": 6,
+          "action": "Verify all error messages use consistent formatting, color scheme, and positioning across different field types",
+          "expectedResult": "All error messages use same red color (#D32F2F), appear below respective fields, use same font size (14px), and include error icon"
+        }
+      ],
+      "postconditions": [
+        "All error messages match approved content specification",
+        "Error messages provide actionable guidance for users to correct inputs",
+        "No technical jargon or system error codes are exposed to users",
+        "Form remains in editable state allowing users to correct errors"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify validation features perform correctly under simulated high load conditions",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Load testing tool (JMeter/K6) is configured with test scripts",
+        "Test environment is isolated from production",
+        "Baseline performance metrics are documented (response time, throughput)",
+        "Server monitoring tools are active (CPU, memory, network usage)",
+        "Test data set with 1000+ unique validation scenarios is prepared"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure load test to simulate 100 concurrent users submitting forms with validation errors over 5 minutes",
+          "expectedResult": "Load test configuration is saved and ready to execute with 100 virtual users, 5-minute duration"
+        },
+        {
+          "step": 2,
+          "action": "Execute load test and monitor server response times for validation error responses",
+          "expectedResult": "95th percentile response time remains under 500ms for validation error responses throughout test duration"
+        },
+        {
+          "step": 3,
+          "action": "Increase load to 500 concurrent users and monitor validation processing performance",
+          "expectedResult": "Server continues to process validation requests with 95th percentile response time under 1000ms, no timeouts occur"
+        },
+        {
+          "step": 4,
+          "action": "Review server resource utilization (CPU, memory, database connections) during peak load",
+          "expectedResult": "CPU usage stays below 80%, memory usage below 75%, database connection pool has available connections"
+        },
+        {
+          "step": 5,
+          "action": "Verify validation error messages are still accurate and complete during high load conditions",
+          "expectedResult": "Random sampling of 50 responses shows 100% accuracy in validation error messages with no truncation or corruption"
+        },
+        {
+          "step": 6,
+          "action": "Check application logs for any validation-related errors, exceptions, or performance warnings",
+          "expectedResult": "Logs show no critical errors, no validation logic failures, and no database deadlocks or connection issues"
+        }
+      ],
+      "postconditions": [
+        "System returns to normal performance levels after load test completion",
+        "No data corruption or validation logic failures occurred during high load",
+        "Performance metrics are documented and compared against baseline",
+        "All validation features continue to function correctly post-test"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify accessibility compliance of validation feedback elements using automated and manual testing",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Test form is loaded in browser with accessibility testing extensions installed (axe DevTools, WAVE)",
+        "Screen reader software (NVDA/JAWS) is installed and configured",
+        "Keyboard navigation is enabled (mouse disconnected for testing)",
+        "WCAG 2.1 Level AA compliance checklist is available",
+        "Color contrast analyzer tool is ready"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Run axe DevTools automated accessibility scan on form page with validation errors displayed",
+          "expectedResult": "Scan completes with zero critical or serious accessibility violations related to validation elements"
+        },
+        {
+          "step": 2,
+          "action": "Use keyboard only (Tab, Shift+Tab, Enter) to navigate through form fields and trigger validation errors",
+          "expectedResult": "All form fields are reachable via keyboard, validation errors trigger on blur, focus indicator is visible (3px blue outline)"
+        },
+        {
+          "step": 3,
+          "action": "Activate NVDA screen reader and navigate to field with validation error using Tab key",
+          "expectedResult": "Screen reader announces field label, current value, error state, and error message: 'Email Address, invalid entry, Error: Please enter a valid email address'"
+        },
+        {
+          "step": 4,
+          "action": "Verify error messages have proper ARIA attributes by inspecting DOM: aria-live, aria-invalid, aria-describedby",
+          "expectedResult": "Error container has aria-live='polite', input field has aria-invalid='true', aria-describedby links to error message ID"
+        },
+        {
+          "step": 5,
+          "action": "Use color contrast analyzer to check error message text color against background",
+          "expectedResult": "Error text (#D32F2F) against white background (#FFFFFF) has contrast ratio of at least 4.5:1, meeting WCAG AA standards"
+        },
+        {
+          "step": 6,
+          "action": "Test with browser zoom at 200% to verify error messages remain visible and readable",
+          "expectedResult": "Error messages scale properly, remain positioned correctly below fields, text does not overlap or truncate"
+        }
+      ],
+      "postconditions": [
+        "All validation feedback elements meet WCAG 2.1 Level AA compliance",
+        "Accessibility test results are documented with screenshots and scan reports",
+        "Any identified accessibility issues are logged as defects with severity ratings",
+        "Form remains fully functional with assistive technologies enabled"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify validation test case execution coverage reaches 100% of defined test scenarios",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "Complete test case repository is available in test management tool (TestRail/Zephyr)",
+        "All validation requirements are documented with traceability matrix",
+        "Test execution environment is stable and accessible",
+        "Test data for all scenarios is prepared and validated",
+        "Defect tracking system is configured and accessible"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Generate test coverage report from test management tool showing all validation-related test cases",
+          "expectedResult": "Report displays total of 150 validation test cases across functional, negative, edge case, and accessibility categories"
+        },
+        {
+          "step": 2,
+          "action": "Execute all 150 validation test cases systematically, marking each as Pass/Fail/Blocked in test management tool",
+          "expectedResult": "All test cases are executed with results recorded, execution progress shows 100% completion"
+        },
+        {
+          "step": 3,
+          "action": "Generate requirements traceability matrix to verify all acceptance criteria are covered by executed tests",
+          "expectedResult": "Traceability matrix shows 100% coverage: all 5 acceptance criteria mapped to executed test cases with Pass status"
+        },
+        {
+          "step": 4,
+          "action": "Review test execution summary to identify any failed or blocked test cases",
+          "expectedResult": "Summary report shows pass rate, failed test cases are logged as defects with severity and priority assigned"
+        },
+        {
+          "step": 5,
+          "action": "Verify all identified defects are tracked in defect management system with proper categorization",
+          "expectedResult": "All defects have unique IDs, assigned to developers, include reproduction steps, and linked to failed test cases"
+        }
+      ],
+      "postconditions": [
+        "100% of validation test cases have been executed with documented results",
+        "Test coverage report confirms all acceptance criteria are validated",
+        "All defects are tracked and assigned for resolution",
+        "Test execution metrics are documented for project reporting"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Verify validation handles SQL injection attempts in text input fields",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Test form with text input fields is loaded and accessible",
+        "User is logged in with standard user permissions",
+        "Database monitoring tool is active to detect unauthorized queries",
+        "Security testing is approved and documented in test plan",
+        "Backup of test database is available for restoration if needed"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter SQL injection payload \"'; DROP TABLE users; --\" in 'Username' field and click 'Submit' button",
+          "expectedResult": "Client-side validation rejects input with error message 'Username contains invalid characters', form does not submit"
+        },
+        {
+          "step": 2,
+          "action": "Bypass client-side validation using browser console and send POST request with SQL injection payload directly to server",
+          "expectedResult": "Server returns HTTP 400 Bad Request with error message 'Invalid input detected', payload is sanitized and not executed"
+        },
+        {
+          "step": 3,
+          "action": "Verify database tables remain intact by querying 'users' table",
+          "expectedResult": "Database query returns expected results, 'users' table exists with all records intact, no data loss occurred"
+        },
+        {
+          "step": 4,
+          "action": "Check server security logs for SQL injection attempt detection and logging",
+          "expectedResult": "Security log contains entry with severity 'CRITICAL', timestamp, source IP, and blocked SQL injection payload details"
+        },
+        {
+          "step": 5,
+          "action": "Test additional SQL injection patterns: \"1' OR '1'='1\", \"admin'--\", \"'; SELECT * FROM users WHERE ''='\"",
+          "expectedResult": "All SQL injection attempts are blocked by server-side validation, appropriate error messages returned, no database queries executed"
+        }
+      ],
+      "postconditions": [
+        "Database integrity is maintained with no unauthorized modifications",
+        "All SQL injection attempts are logged in security audit trail",
+        "Application remains functional and secure after attack attempts",
+        "Security incident report is generated for review"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Verify validation handles XSS (Cross-Site Scripting) attempts in input fields",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Test form is loaded in browser with developer tools open",
+        "User has valid session and is authenticated",
+        "Content Security Policy (CSP) headers are configured on server",
+        "XSS testing payloads are prepared and documented",
+        "Test is conducted in isolated test environment"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter XSS payload \"<script>alert('XSS')</script>\" in 'Name' field and submit form",
+          "expectedResult": "Input is sanitized, script tags are encoded as &lt;script&gt;, no JavaScript alert executes, validation error may display"
+        },
+        {
+          "step": 2,
+          "action": "Enter XSS payload with event handler \"<img src=x onerror=alert('XSS')>\" in 'Description' field",
+          "expectedResult": "Input is sanitized, HTML tags are encoded, no image loads, no JavaScript executes, error message displays"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to inject XSS via URL parameter: \"?name=<script>alert('XSS')</script>\" and load page",
+          "expectedResult": "URL parameter is sanitized before rendering, script does not execute, page displays encoded value or validation error"
+        },
+        {
+          "step": 4,
+          "action": "Check browser console for any JavaScript errors or CSP violations",
+          "expectedResult": "Console shows CSP violation warnings if script execution was attempted, no actual script execution occurs"
+        },
+        {
+          "step": 5,
+          "action": "Verify stored data in database is properly encoded and does not contain executable script tags",
+          "expectedResult": "Database query shows XSS payloads are stored as encoded strings (e.g., &lt;script&gt;), not as executable code"
+        },
+        {
+          "step": 6,
+          "action": "Retrieve and display the stored data on another page to verify output encoding prevents XSS",
+          "expectedResult": "Data displays as plain text with visible encoded characters, no scripts execute when data is rendered"
+        }
+      ],
+      "postconditions": [
+        "No XSS vulnerabilities are exploitable in validation inputs",
+        "All malicious scripts are sanitized and encoded properly",
+        "Application security posture is maintained against XSS attacks",
+        "Security test results are documented with payload samples"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Verify validation handles extremely long input strings exceeding maximum length limits",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Test form with defined maximum length constraints is loaded",
+        "Test data generator tool is available to create long strings",
+        "Browser performance monitoring is active",
+        "Maximum field lengths are documented: Username (50 chars), Description (500 chars), Email (100 chars)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Generate and enter 10,000 character string in 'Username' field (max 50 chars) and attempt to submit",
+          "expectedResult": "Client-side validation displays error 'Username must not exceed 50 characters', input is truncated or rejected, form does not submit"
+        },
+        {
+          "step": 2,
+          "action": "Bypass client-side validation and send POST request with 10,000 character username directly to API",
+          "expectedResult": "Server returns HTTP 400 Bad Request with error 'Username exceeds maximum length of 50 characters', data is not saved"
+        },
+        {
+          "step": 3,
+          "action": "Enter exactly 51 characters in 'Username' field (one character over limit)",
+          "expectedResult": "Validation error displays 'Username must not exceed 50 characters (currently 51)', character counter shows 51/50 in red"
+        },
+        {
+          "step": 4,
+          "action": "Test with Unicode characters and emojis: enter 50 emoji characters in 'Username' field",
+          "expectedResult": "Validation correctly counts multi-byte characters, enforces 50 character limit regardless of byte size, appropriate error if exceeded"
+        },
+        {
+          "step": 5,
+          "action": "Monitor browser performance and responsiveness when handling extremely long input strings",
+          "expectedResult": "Browser remains responsive, no freezing or crashing occurs, validation processes within 200ms, no memory leaks detected"
+        },
+        {
+          "step": 6,
+          "action": "Verify database field constraints prevent storage of oversized data if validation is bypassed",
+          "expectedResult": "Database rejects insert/update with error, data integrity is maintained, no truncation occurs silently"
+        }
+      ],
+      "postconditions": [
+        "All maximum length constraints are enforced at client and server levels",
+        "Application handles extreme input lengths gracefully without crashes",
+        "Database integrity is protected by field-level constraints",
+        "Performance remains acceptable even with boundary-testing inputs"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Verify validation handles special characters and Unicode in input fields",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "Test form is loaded with various input field types",
+        "Character encoding is set to UTF-8 in browser and server",
+        "Test data set includes special characters: !@#$%^&*()_+-=[]{}|;:',.<>?/~`",
+        "Unicode test data includes: Chinese (中文), Arabic (العربية), Emoji (😀🎉), RTL text"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter special characters \"!@#$%^&*()\" in 'Username' field that allows only alphanumeric characters",
+          "expectedResult": "Validation error displays 'Username can only contain letters and numbers', special characters are rejected"
+        },
+        {
+          "step": 2,
+          "action": "Enter Unicode Chinese characters \"测试用户名\" in 'Name' field that should accept international characters",
+          "expectedResult": "Input is accepted, no validation error, characters display correctly, form can be submitted successfully"
+        },
+        {
+          "step": 3,
+          "action": "Enter emoji characters \"😀🎉💻\" in 'Description' field and submit form",
+          "expectedResult": "Emojis are accepted and stored correctly, display properly when retrieved, no encoding issues occur"
+        },
+        {
+          "step": 4,
+          "action": "Enter Arabic RTL text \"مرحبا بك\" in 'Address' field and verify text direction handling",
+          "expectedResult": "RTL text displays correctly with proper text direction, validation processes correctly, data is stored and retrieved accurately"
+        },
+        {
+          "step": 5,
+          "action": "Enter null byte character (\\0) and other control characters in 'Comments' field",
+          "expectedResult": "Validation rejects control characters with error 'Invalid characters detected', input is sanitized before processing"
+        },
+        {
+          "step": 6,
+          "action": "Test mixed content: \"User123!@#中文😀\" in fields with different validation rules",
+          "expectedResult": "Validation correctly identifies allowed vs. disallowed characters based on field rules, appropriate error messages display"
+        }
+      ],
+      "postconditions": [
+        "Special characters are handled according to field-specific validation rules",
+        "Unicode and international characters are properly supported where appropriate",
+        "Character encoding remains consistent throughout input, storage, and retrieval",
+        "No data corruption or encoding issues occur with special character inputs"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Verify validation handles concurrent form submissions and race conditions",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Test form is loaded in multiple browser tabs (3 tabs minimum)",
+        "User is logged in with same session across all tabs",
+        "Network throttling is disabled for accurate timing",
+        "Server-side duplicate submission prevention is implemented",
+        "Database transaction isolation level is documented"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Fill out identical form data in 3 separate browser tabs with same user session",
+          "expectedResult": "All 3 tabs show form filled with identical data, validation passes in all tabs, submit buttons are enabled"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Submit' button in all 3 tabs simultaneously (within 100ms window)",
+          "expectedResult": "Only one submission is processed successfully, other submissions are rejected with error 'Duplicate submission detected' or similar"
+        },
+        {
+          "step": 3,
+          "action": "Rapidly click 'Submit' button 10 times in quick succession (double-click scenario)",
+          "expectedResult": "Submit button is disabled after first click, only one submission is processed, subsequent clicks are ignored, loading indicator displays"
+        },
+        {
+          "step": 4,
+          "action": "Verify database to check for duplicate records from concurrent submissions",
+          "expectedResult": "Database contains only one record from the submission, no duplicate entries exist, transaction logs show proper locking"
+        },
+        {
+          "step": 5,
+          "action": "Check server logs for concurrent request handling and duplicate prevention mechanisms",
+          "expectedResult": "Logs show multiple requests received, duplicate detection triggered, only one request processed, others rejected with appropriate status codes"
+        },
+        {
+          "step": 6,
+          "action": "Test with network delay: submit form, immediately submit again before first request completes",
+          "expectedResult": "Second submission is queued or rejected, user sees message 'Submission in progress', no race condition creates duplicate data"
+        }
+      ],
+      "postconditions": [
+        "No duplicate records are created from concurrent submissions",
+        "Application handles race conditions gracefully without data corruption",
+        "User receives clear feedback about submission status",
+        "Database integrity is maintained under concurrent access scenarios"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Verify validation handles expired sessions and authentication failures during form submission",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with active session",
+        "Test form is loaded and filled with valid data",
+        "Session timeout is configured (e.g., 30 minutes)",
+        "Session management mechanism is documented",
+        "Test environment allows manual session manipulation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Fill out form with valid data, then manually expire session by clearing session cookie or waiting for timeout",
+          "expectedResult": "Session is expired, user authentication token is invalid"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Submit' button to attempt form submission with expired session",
+          "expectedResult": "Server returns HTTP 401 Unauthorized, error message displays 'Your session has expired. Please log in again.', form data is preserved"
+        },
+        {
+          "step": 3,
+          "action": "Verify user is redirected to login page with return URL parameter to resume after re-authentication",
+          "expectedResult": "User is redirected to '/login?returnUrl=/form-page', login page displays with message about session expiration"
+        },
+        {
+          "step": 4,
+          "action": "Log in again with valid credentials and verify return to form page",
+          "expectedResult": "After successful login, user is redirected back to form page, previously entered data is restored from session storage or cache"
+        },
+        {
+          "step": 5,
+          "action": "Test with invalid authentication token: modify auth token in browser storage to invalid value and submit form",
+          "expectedResult": "Server rejects request with HTTP 401, error message 'Authentication failed', user is prompted to log in again"
+        },
+        {
+          "step": 6,
+          "action": "Verify form data is not lost and can be recovered after re-authentication",
+          "expectedResult": "Form data is preserved in browser local storage or session storage, restored after successful re-authentication"
+        }
+      ],
+      "postconditions": [
+        "No data is submitted with expired or invalid authentication",
+        "User receives clear guidance to re-authenticate",
+        "Form data is preserved and recoverable after re-authentication",
+        "Security is maintained by rejecting unauthenticated requests"
+      ]
+    },
+    {
+      "id": "TC-NEGA-007",
+      "title": "Verify validation handles network failures and timeout scenarios during form submission",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "Test form is loaded with valid data entered",
+        "Browser developer tools network tab is open",
+        "Network throttling capability is available in browser",
+        "Server timeout settings are documented (e.g., 30 second timeout)",
+        "Error handling mechanism for network failures is implemented"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Fill form with valid data, enable 'Offline' mode in browser network settings, then click 'Submit' button",
+          "expectedResult": "Client-side detects no network connection, displays error message 'No internet connection. Please check your network and try again.', form data is preserved"
+        },
+        {
+          "step": 2,
+          "action": "Re-enable network, set network throttling to 'Slow 3G', submit form and observe timeout behavior",
+          "expectedResult": "Loading indicator displays, after 30 seconds timeout occurs, error message 'Request timed out. Please try again.' appears, submit button is re-enabled"
+        },
+        {
+          "step": 3,
+          "action": "Use browser developer tools to block specific API endpoint, then submit form",
+          "expectedResult": "Request fails with network error, user sees message 'Unable to submit form. Please try again later.', form remains editable with data intact"
+        },
+        {
+          "step": 4,
+          "action": "Simulate server returning HTTP 500 Internal Server Error during validation processing",
+          "expectedResult": "Error message displays 'An error occurred while processing your request. Please try again.', technical error details are not exposed to user"
+        },
+        {
+          "step": 5,
+          "action": "Verify form data is retained in browser after network failure for retry attempt",
+          "expectedResult": "All form field values remain populated, user can click 'Submit' again without re-entering data, validation state is preserved"
+        },
+        {
+          "step": 6,
+          "action": "Test retry mechanism: after network failure, restore connection and click 'Submit' again",
+          "expectedResult": "Form submits successfully on retry, data is saved correctly, success message displays, no duplicate submissions occur"
+        }
+      ],
+      "postconditions": [
+        "Application handles network failures gracefully without data loss",
+        "User receives clear, actionable error messages for network issues",
+        "Form data is preserved for retry attempts",
+        "No partial data is saved during network failures"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Test validation with maximum character limit boundary values",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with QA Tester role",
+        "Test form with character-limited input fields is accessible",
+        "Browser developer tools are open to monitor client-side validation",
+        "Test data includes strings at exact max length, max+1, and max-1 characters"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the input validation test form page",
+          "expectedResult": "Form loads successfully with all input fields visible and empty"
+        },
+        {
+          "step": 2,
+          "action": "Enter a string with exactly the maximum allowed characters (e.g., 255 characters) into a text field with character limit",
+          "expectedResult": "Input is accepted, character counter shows '255/255', no validation error appears"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to enter one additional character beyond the maximum limit",
+          "expectedResult": "Client-side validation prevents input OR displays error message 'Maximum character limit reached', field shows red border"
+        },
+        {
+          "step": 4,
+          "action": "Clear the field and enter a string with max-1 characters (254 characters)",
+          "expectedResult": "Input is accepted, character counter shows '254/255', no validation error, field remains valid"
+        },
+        {
+          "step": 5,
+          "action": "Submit the form with the max-1 character input",
+          "expectedResult": "Form submits successfully, server accepts the data, success message 'Data saved successfully' appears"
+        }
+      ],
+      "postconditions": [
+        "Data with boundary values is correctly stored in the database",
+        "No client-side or server-side errors are logged",
+        "Form remains in a valid state for subsequent testing"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Test validation with special characters, Unicode, and emoji inputs",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with QA Tester role",
+        "Test form with text input fields is accessible",
+        "Test data includes special characters (!@#$%^&*), Unicode characters (中文, العربية), and emojis (😀🎉)",
+        "Database supports UTF-8 encoding"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the input validation test form",
+          "expectedResult": "Form displays with all input fields ready for data entry"
+        },
+        {
+          "step": 2,
+          "action": "Enter special characters '!@#$%^&*()_+-=[]{}|;:,.<>?/' into a text field",
+          "expectedResult": "Characters are accepted, no validation error appears, field displays entered characters correctly"
+        },
+        {
+          "step": 3,
+          "action": "Enter Unicode text in multiple languages: '中文测试 العربية テスト' into another text field",
+          "expectedResult": "Unicode characters display correctly, no validation error, text renders in proper direction (RTL for Arabic)"
+        },
+        {
+          "step": 4,
+          "action": "Enter emoji characters '😀🎉🚀💯' into a text field",
+          "expectedResult": "Emojis display correctly, no validation error, character count reflects proper emoji length"
+        },
+        {
+          "step": 5,
+          "action": "Submit the form with all special character, Unicode, and emoji inputs",
+          "expectedResult": "Form submits successfully, server-side validation accepts the data, success confirmation appears"
+        },
+        {
+          "step": 6,
+          "action": "Retrieve the saved data and verify display",
+          "expectedResult": "All special characters, Unicode text, and emojis are correctly stored and displayed without corruption"
+        }
+      ],
+      "postconditions": [
+        "Special characters, Unicode, and emojis are correctly stored in database with UTF-8 encoding",
+        "Data integrity is maintained across save and retrieval operations",
+        "No character encoding errors are logged in server logs"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Test validation behavior with rapid successive form submissions",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with QA Tester role",
+        "Test form with submit button is accessible",
+        "Network throttling is disabled for maximum submission speed",
+        "Server-side duplicate submission prevention is implemented"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the input validation test form",
+          "expectedResult": "Form loads successfully with submit button enabled"
+        },
+        {
+          "step": 2,
+          "action": "Fill in all required fields with valid test data",
+          "expectedResult": "All fields accept input, no validation errors appear, submit button remains enabled"
+        },
+        {
+          "step": 3,
+          "action": "Click the submit button rapidly 5 times in quick succession (within 1 second)",
+          "expectedResult": "Submit button becomes disabled after first click, subsequent clicks are ignored, loading indicator appears"
+        },
+        {
+          "step": 4,
+          "action": "Monitor network requests in browser developer tools",
+          "expectedResult": "Only one POST request is sent to the server, no duplicate submissions occur"
+        },
+        {
+          "step": 5,
+          "action": "Wait for server response and verify success message",
+          "expectedResult": "Single success message 'Data submitted successfully' appears, no duplicate success messages"
+        },
+        {
+          "step": 6,
+          "action": "Check database for duplicate entries",
+          "expectedResult": "Only one record is created in the database, no duplicate entries exist"
+        }
+      ],
+      "postconditions": [
+        "Form submission is processed exactly once despite multiple clicks",
+        "Submit button is re-enabled after response is received",
+        "No duplicate data exists in the database",
+        "User can submit the form again if needed"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Test validation with empty, null, and whitespace-only inputs",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with QA Tester role",
+        "Test form with required and optional fields is accessible",
+        "Client-side and server-side validation are both active",
+        "Test data includes empty strings, null values, and various whitespace patterns"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the input validation test form",
+          "expectedResult": "Form displays with required fields marked with asterisk (*) or 'Required' label"
+        },
+        {
+          "step": 2,
+          "action": "Leave all required fields completely empty and attempt to submit the form",
+          "expectedResult": "Client-side validation prevents submission, error messages 'This field is required' appear below each required field, fields show red borders"
+        },
+        {
+          "step": 3,
+          "action": "Enter only whitespace characters (spaces, tabs) '     ' into a required text field",
+          "expectedResult": "Client-side validation detects whitespace-only input, error message 'This field cannot be empty or contain only spaces' appears"
+        },
+        {
+          "step": 4,
+          "action": "Enter valid data in required fields but leave optional fields empty, then submit",
+          "expectedResult": "Form submits successfully, server accepts empty optional fields, success message appears"
+        },
+        {
+          "step": 5,
+          "action": "Use browser developer tools to set a field value to null and submit",
+          "expectedResult": "Server-side validation rejects null values for required fields, returns error response 'Invalid data: required field cannot be null'"
+        },
+        {
+          "step": 6,
+          "action": "Enter leading and trailing whitespace '  valid data  ' in a text field and submit",
+          "expectedResult": "Server trims whitespace automatically, data is saved as 'valid data' without leading/trailing spaces"
+        }
+      ],
+      "postconditions": [
+        "Required fields cannot be submitted with empty, null, or whitespace-only values",
+        "Optional fields accept empty values without errors",
+        "Whitespace is properly trimmed from valid inputs before storage",
+        "Appropriate error messages guide user to correct input issues"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Test validation performance under simulated high concurrent load",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "Load testing tool (JMeter, LoadRunner, or k6) is configured and ready",
+        "Test environment can handle concurrent requests",
+        "Test data set with 1000 valid and invalid input combinations is prepared",
+        "Server monitoring tools are active to track response times and errors"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure load testing tool to simulate 100 concurrent users submitting forms simultaneously",
+          "expectedResult": "Load test configuration is saved and validated, ready to execute"
+        },
+        {
+          "step": 2,
+          "action": "Execute load test with 50% valid inputs and 50% invalid inputs over 5 minutes",
+          "expectedResult": "Load test runs successfully, all requests are sent to the server"
+        },
+        {
+          "step": 3,
+          "action": "Monitor server response times during the load test",
+          "expectedResult": "Average response time remains under 2 seconds, 95th percentile under 5 seconds, no timeouts occur"
+        },
+        {
+          "step": 4,
+          "action": "Verify that validation errors are correctly returned for invalid inputs under load",
+          "expectedResult": "All invalid inputs receive appropriate error responses with correct HTTP status codes (400 Bad Request), error messages are accurate"
+        },
+        {
+          "step": 5,
+          "action": "Verify that valid inputs are successfully processed under load",
+          "expectedResult": "All valid inputs receive success responses (200 OK), data is correctly saved to database"
+        },
+        {
+          "step": 6,
+          "action": "Check server logs and error logs for any validation failures or crashes",
+          "expectedResult": "No server errors, crashes, or validation logic failures are logged, system remains stable throughout test"
+        },
+        {
+          "step": 7,
+          "action": "Verify data integrity by checking database for correct number of records",
+          "expectedResult": "Database contains exactly the number of valid submissions, no data corruption or duplicate entries"
+        }
+      ],
+      "postconditions": [
+        "Validation system performs correctly under high concurrent load",
+        "Response times remain within acceptable thresholds",
+        "No data loss or corruption occurs during high load",
+        "Server remains stable and responsive after load test completes"
+      ]
+    },
+    {
+      "id": "TC-EDGE-006",
+      "title": "Test validation behavior across different browsers and browser versions",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "Test environment has access to multiple browsers: Chrome (latest), Firefox (latest), Safari (latest), Edge (latest)",
+        "Test form with various input types (text, email, number, date) is accessible",
+        "User is logged in with QA Tester role in each browser",
+        "Test data includes edge cases for each input type"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Open the validation test form in Chrome browser",
+          "expectedResult": "Form loads correctly, all input fields and validation messages display properly"
+        },
+        {
+          "step": 2,
+          "action": "Enter invalid email format 'test@invalid' in email field and tab out",
+          "expectedResult": "Client-side validation triggers, error message 'Please enter a valid email address' appears, field shows red border"
+        },
+        {
+          "step": 3,
+          "action": "Repeat steps 1-2 in Firefox browser",
+          "expectedResult": "Validation behavior is identical to Chrome, same error messages and styling appear"
+        },
+        {
+          "step": 4,
+          "action": "Repeat steps 1-2 in Safari browser",
+          "expectedResult": "Validation behavior is consistent with Chrome and Firefox, error messages display correctly"
+        },
+        {
+          "step": 5,
+          "action": "Repeat steps 1-2 in Edge browser",
+          "expectedResult": "Validation behavior matches other browsers, no browser-specific issues occur"
+        },
+        {
+          "step": 6,
+          "action": "Test HTML5 input type validation (number field with min/max) in each browser",
+          "expectedResult": "All browsers enforce min/max constraints consistently, native browser validation messages appear or custom messages override them uniformly"
+        },
+        {
+          "step": 7,
+          "action": "Test date picker validation in each browser",
+          "expectedResult": "Date validation works consistently across browsers, invalid dates are rejected with appropriate error messages"
+        }
+      ],
+      "postconditions": [
+        "Validation behavior is consistent across all major browsers",
+        "No browser-specific validation bugs are identified",
+        "User experience is uniform regardless of browser choice",
+        "Any browser-specific issues are documented for development team"
+      ]
+    },
+    {
+      "id": "TC-EDGE-007",
+      "title": "Test validation with extremely large data sets and file uploads",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with QA Tester role",
+        "Test form includes file upload field and large text area",
+        "Test files prepared: 1MB file, 10MB file, 50MB file, and file exceeding max limit",
+        "Server has file size limits configured (e.g., max 25MB)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the form with file upload validation",
+          "expectedResult": "Form displays with file upload field showing accepted file types and size limit message"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to upload a file that exceeds the maximum allowed size (e.g., 50MB when limit is 25MB)",
+          "expectedResult": "Client-side validation prevents upload, error message 'File size exceeds maximum limit of 25MB' appears immediately"
+        },
+        {
+          "step": 3,
+          "action": "Upload a file at exactly the maximum allowed size (25MB)",
+          "expectedResult": "File upload begins, progress bar shows upload progress, file is accepted without error"
+        },
+        {
+          "step": 4,
+          "action": "Enter extremely large text (100,000 characters) into a text area field",
+          "expectedResult": "Text area accepts input up to its limit, character counter updates correctly, performance remains smooth without browser lag"
+        },
+        {
+          "step": 5,
+          "action": "Submit the form with large file and large text data",
+          "expectedResult": "Form submits successfully, loading indicator shows progress, server processes request within acceptable time (under 30 seconds)"
+        },
+        {
+          "step": 6,
+          "action": "Verify server-side validation by bypassing client-side checks and sending oversized file via API",
+          "expectedResult": "Server-side validation rejects the request, returns 413 Payload Too Large error with message 'File size exceeds server limit'"
+        }
+      ],
+      "postconditions": [
+        "Large valid files and text are successfully uploaded and stored",
+        "Oversized files are rejected by both client-side and server-side validation",
+        "System performance remains stable when handling large data",
+        "Appropriate error messages guide users when limits are exceeded"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Test complete keyboard navigation through validation form and error messages",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is on the validation test form page",
+        "Mouse is disconnected or not used during test",
+        "Screen reader is turned off to test keyboard-only navigation",
+        "Form contains multiple input fields with validation rules"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key from browser address bar to navigate to the first form field",
+          "expectedResult": "Focus moves to first input field, visible focus indicator (blue outline or custom styling) appears around the field"
+        },
+        {
+          "step": 2,
+          "action": "Continue pressing Tab key to navigate through all form fields in logical order",
+          "expectedResult": "Focus moves sequentially through all interactive elements (input fields, buttons, links), focus indicator is clearly visible on each element, tab order follows visual layout"
+        },
+        {
+          "step": 3,
+          "action": "Press Shift+Tab to navigate backwards through form fields",
+          "expectedResult": "Focus moves in reverse order through all fields, focus indicator remains visible, no focus traps occur"
+        },
+        {
+          "step": 4,
+          "action": "Navigate to a required field, leave it empty, and press Tab to move to next field",
+          "expectedResult": "Validation error message appears, focus moves to next field, error message is associated with the field and visible"
+        },
+        {
+          "step": 5,
+          "action": "Press Shift+Tab to return focus to the field with validation error",
+          "expectedResult": "Focus returns to the invalid field, focus indicator is visible, error message remains displayed"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to the submit button using Tab key and press Enter",
+          "expectedResult": "Form submission is triggered, if validation fails, focus moves to first invalid field, all error messages are displayed"
+        },
+        {
+          "step": 7,
+          "action": "Press Escape key when focus is on any form field",
+          "expectedResult": "If a modal or dropdown is open, it closes; otherwise, no unexpected behavior occurs, focus remains on current element"
+        }
+      ],
+      "postconditions": [
+        "All form elements are accessible via keyboard navigation",
+        "Focus order is logical and follows visual layout",
+        "No keyboard traps prevent users from navigating away",
+        "Validation errors are accessible to keyboard-only users"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Test screen reader announcements for validation errors and success messages",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "Screen reader is enabled (NVDA on Windows, JAWS, or VoiceOver on Mac)",
+        "User is on the validation test form page",
+        "Form contains required fields and validation rules",
+        "Audio output is enabled to hear screen reader announcements"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the first input field using screen reader navigation commands",
+          "expectedResult": "Screen reader announces field label, field type (e.g., 'Email, edit text'), required status ('required'), and any help text"
+        },
+        {
+          "step": 2,
+          "action": "Leave a required field empty and navigate to the next field",
+          "expectedResult": "Screen reader announces validation error message 'Error: This field is required' immediately after moving focus, error is associated with the field"
+        },
+        {
+          "step": 3,
+          "action": "Enter invalid data (e.g., invalid email format) and navigate away from the field",
+          "expectedResult": "Screen reader announces specific validation error 'Error: Please enter a valid email address', error message is clear and descriptive"
+        },
+        {
+          "step": 4,
+          "action": "Correct the invalid input to valid data and navigate away from the field",
+          "expectedResult": "Screen reader announces that error is cleared or remains silent, no error message is announced, field is marked as valid"
+        },
+        {
+          "step": 5,
+          "action": "Fill all fields with valid data and activate the submit button",
+          "expectedResult": "Screen reader announces success message 'Success: Form submitted successfully' using ARIA live region, announcement is clear and immediate"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to an error summary section (if present) after validation fails",
+          "expectedResult": "Screen reader announces 'Error summary' heading, lists all validation errors with links to corresponding fields, errors are numbered or bulleted"
+        },
+        {
+          "step": 7,
+          "action": "Activate a link in the error summary to jump to the invalid field",
+          "expectedResult": "Focus moves to the corresponding invalid field, screen reader announces field label and error message"
+        }
+      ],
+      "postconditions": [
+        "All validation errors are announced by screen reader with clear, descriptive messages",
+        "Success messages are announced via ARIA live regions",
+        "Field labels, types, and required status are properly announced",
+        "Error summary provides accessible navigation to invalid fields"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Test focus management and focus trap prevention in validation modals and dialogs",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is on a page with validation that triggers modal dialogs or popups",
+        "Keyboard-only navigation is being used",
+        "Modal dialog appears after validation error or confirmation is needed",
+        "Screen reader is enabled for testing"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Trigger a validation error that opens a modal dialog (e.g., confirmation dialog before submission)",
+          "expectedResult": "Modal opens, focus automatically moves to the first focusable element in the modal (close button or first action button), screen reader announces modal title and role"
+        },
+        {
+          "step": 2,
+          "action": "Press Tab key repeatedly to navigate through all focusable elements in the modal",
+          "expectedResult": "Focus cycles only through elements within the modal (buttons, links, form fields), focus does not escape to background page content"
+        },
+        {
+          "step": 3,
+          "action": "Press Shift+Tab from the first focusable element in the modal",
+          "expectedResult": "Focus moves to the last focusable element in the modal, creating a focus trap that keeps focus within the modal"
+        },
+        {
+          "step": 4,
+          "action": "Press Escape key while focus is inside the modal",
+          "expectedResult": "Modal closes, focus returns to the element that triggered the modal (e.g., submit button), screen reader announces modal closure"
+        },
+        {
+          "step": 5,
+          "action": "Reopen the modal and activate the close button using Enter or Space key",
+          "expectedResult": "Modal closes, focus returns to the triggering element, no focus is lost to the document body"
+        },
+        {
+          "step": 6,
+          "action": "Reopen the modal and activate a confirmation button inside the modal",
+          "expectedResult": "Modal closes after action is completed, focus returns to appropriate element (next field or success message), screen reader announces the result"
+        }
+      ],
+      "postconditions": [
+        "Focus is properly trapped within modal dialogs during interaction",
+        "Focus returns to logical element after modal closes",
+        "Escape key consistently closes modals and returns focus",
+        "Screen reader users are informed of modal state changes"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Test color contrast and visual indicators for validation states",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is on the validation test form page",
+        "Color contrast analyzer tool is available (e.g., WAVE, axe DevTools, or Colour Contrast Analyser)",
+        "Form displays validation states: default, error, success, focus",
+        "Browser zoom is set to 100%"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use color contrast analyzer to check contrast ratio of error message text against its background",
+          "expectedResult": "Error message text has minimum contrast ratio of 4.5:1 for normal text or 3:1 for large text (18pt+), meets WCAG 2.1 AA standards"
+        },
+        {
+          "step": 2,
+          "action": "Check contrast ratio of error state border color (red) against white background",
+          "expectedResult": "Error border has minimum contrast ratio of 3:1 against adjacent colors, meets WCAG 2.1 AA standards for non-text contrast"
+        },
+        {
+          "step": 3,
+          "action": "Verify that validation errors are indicated by more than just color (e.g., icons, text, borders)",
+          "expectedResult": "Error state includes error icon (X or exclamation mark) in addition to red color, error message text is present, not relying solely on color"
+        },
+        {
+          "step": 4,
+          "action": "Check contrast ratio of success message text and success state indicators (green)",
+          "expectedResult": "Success message has minimum 4.5:1 contrast ratio, success icon is present in addition to green color"
+        },
+        {
+          "step": 5,
+          "action": "Focus on an input field and check focus indicator contrast",
+          "expectedResult": "Focus indicator (outline or border) has minimum 3:1 contrast ratio against background, focus indicator is at least 2px thick or clearly visible"
+        },
+        {
+          "step": 6,
+          "action": "Enable Windows High Contrast Mode or browser high contrast extension and test validation states",
+          "expectedResult": "All validation states (error, success, focus) remain visible and distinguishable in high contrast mode, icons and borders are visible"
+        }
+      ],
+      "postconditions": [
+        "All validation states meet WCAG 2.1 AA color contrast requirements",
+        "Validation errors and success states are indicated by multiple visual cues, not color alone",
+        "Focus indicators are clearly visible with sufficient contrast",
+        "Form remains usable in high contrast mode"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Test form validation accessibility at 200% browser zoom and text scaling",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is on the validation test form page",
+        "Browser zoom is initially set to 100%",
+        "Form contains multiple fields with validation rules and error messages",
+        "Test is performed on desktop browser (Chrome, Firefox, or Edge)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Set browser zoom to 200% using Ctrl/Cmd + Plus key or browser zoom menu",
+          "expectedResult": "Page zooms to 200%, all content scales proportionally, no horizontal scrolling is required for form content"
+        },
+        {
+          "step": 2,
+          "action": "Verify that all form labels, input fields, and buttons are visible and readable at 200% zoom",
+          "expectedResult": "All text is readable, no text is truncated or cut off, form layout adapts responsively, no overlapping elements"
+        },
+        {
+          "step": 3,
+          "action": "Trigger validation errors by submitting form with invalid data at 200% zoom",
+          "expectedResult": "Error messages display completely, error text is not truncated, error icons are visible, error messages are positioned correctly near their fields"
+        },
+        {
+          "step": 4,
+          "action": "Navigate through form fields using Tab key at 200% zoom",
+          "expectedResult": "Focus indicator is visible and properly sized at 200% zoom, focused elements scroll into view automatically if needed"
+        },
+        {
+          "step": 5,
+          "action": "Increase browser text size to 200% using browser settings (separate from zoom)",
+          "expectedResult": "Text scales to 200%, layout adapts without breaking, no text overlaps or becomes unreadable, form remains functional"
+        },
+        {
+          "step": 6,
+          "action": "Test form submission with valid data at 200% zoom and text size",
+          "expectedResult": "Form submits successfully, success message is fully visible and readable, all functionality works as expected"
+        }
+      ],
+      "postconditions": [
+        "Form remains fully functional at 200% zoom level",
+        "All validation messages are readable and properly positioned when zoomed",
+        "No content is lost or becomes inaccessible due to zoom",
+        "Layout adapts responsively without horizontal scrolling"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "Test ARIA attributes and roles for validation feedback elements",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is on the validation test form page",
+        "Browser developer tools are open to inspect ARIA attributes",
+        "Screen reader is enabled for testing announcements",
+        "Form contains fields with validation rules and error messages"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Inspect a required input field in browser developer tools",
+          "expectedResult": "Field has aria-required='true' attribute, field has associated label with proper for/id relationship or aria-labelledby"
+        },
+        {
+          "step": 2,
+          "action": "Trigger a validation error and inspect the input field",
+          "expectedResult": "Field has aria-invalid='true' attribute, field has aria-describedby attribute pointing to error message ID, error message element has appropriate role or is in live region"
+        },
+        {
+          "step": 3,
+          "action": "Inspect the error message element in developer tools",
+          "expectedResult": "Error message has unique ID matching aria-describedby value, error message has role='alert' or is within aria-live='polite' or 'assertive' region"
+        },
+        {
+          "step": 4,
+          "action": "Correct the validation error and inspect the field again",
+          "expectedResult": "aria-invalid attribute is removed or set to 'false', aria-describedby no longer references error message, error message is removed from DOM or hidden with aria-hidden='true'"
+        },
+        {
+          "step": 5,
+          "action": "Inspect the form element itself in developer tools",
+          "expectedResult": "Form has appropriate role='form' or is a semantic <form> element, form has accessible name via aria-label or aria-labelledby if multiple forms exist on page"
+        },
+        {
+          "step": 6,
+          "action": "Test with screen reader to verify ARIA attributes result in correct announcements",
+          "expectedResult": "Screen reader announces required status, invalid status, and error messages correctly based on ARIA attributes, all ARIA relationships function as intended"
+        },
+        {
+          "step": 7,
+          "action": "Inspect success message after successful form submission",
+          "expectedResult": "Success message is in aria-live='polite' region, success message is announced by screen reader without requiring focus, message has appropriate role or semantic markup"
+        }
+      ],
+      "postconditions": [
+        "All form fields have appropriate ARIA attributes for validation states",
+        "Error messages are properly associated with fields via aria-describedby",
+        "ARIA live regions correctly announce dynamic validation feedback",
+        "Screen reader users receive all necessary validation information"
+      ]
+    },
+    {
+      "id": "TC-ACCE-007",
+      "title": "Test mobile accessibility for validation feedback with touch and gesture support",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "Test is performed on mobile device (iOS or Android) or mobile emulator",
+        "Mobile screen reader is enabled (VoiceOver on iOS or TalkBack on Android)",
+        "User is on the validation test form page in mobile browser",
+        "Form is responsive and optimized for mobile devices"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enable mobile screen reader and navigate to the first form field by swiping right",
+          "expectedResult": "Screen reader announces field label, field type, required status, and any help text, focus indicator is visible on mobile"
+        },
+        {
+          "step": 2,
+          "action": "Verify that all touch targets (input fields, buttons) are at least 44x44 pixels",
+          "expectedResult": "All interactive elements meet minimum touch target size, adequate spacing exists between touch targets to prevent accidental taps"
+        },
+        {
+          "step": 3,
+          "action": "Tap on an input field and trigger validation error by entering invalid data",
+          "expectedResult": "Error message appears below field, error message is announced by screen reader, error message is large enough to read on mobile screen"
+        },
+        {
+          "step": 4,
+          "action": "Use screen reader gestures to navigate through error messages",
+          "expectedResult": "Screen reader can navigate to and read all error messages, error messages are in logical reading order, swipe gestures work correctly"
+        },
+        {
+          "step": 5,
+          "action": "Test form submission using screen reader double-tap gesture on submit button",
+          "expectedResult": "Form submits when double-tapped with screen reader active, validation errors are announced if present, success message is announced if submission succeeds"
+        },
+        {
+          "step": 6,
+          "action": "Test pinch-to-zoom functionality on the form",
+          "expectedResult": "Form can be zoomed up to 200% without loss of functionality, validation messages remain visible and readable when zoomed, no content is cut off"
+        },
+        {
+          "step": 7,
+          "action": "Rotate device to landscape orientation and test validation",
+          "expectedResult": "Form layout adapts to landscape orientation, all validation messages remain visible, functionality is preserved in both orientations"
+        }
+      ],
+      "postconditions": [
+        "All form elements meet mobile accessibility guidelines",
+        "Touch targets are appropriately sized for mobile interaction",
+        "Screen reader gestures work correctly for all validation feedback",
+        "Form remains accessible in both portrait and landscape orientations",
+        "Zoom functionality works without breaking validation features"
+      ]
+    }
+  ],
+  "performance": [
+    {
+      "id": "PERF-LOAD-001",
+      "title": "Validation Performance Under Concurrent User Load",
+      "category": "performance",
+      "subCategory": "Load Testing",
+      "priority": "Critical",
+      "description": "Validate that both client-side and server-side validation mechanisms maintain acceptable response times and accuracy when processing concurrent validation requests from multiple users submitting forms simultaneously.",
+      "preconditions": [
+        "Test environment with validation features deployed and accessible",
+        "Load testing tool configured (JMeter/K6/Gatling)",
+        "Test data set with valid and invalid input combinations prepared",
+        "Monitoring tools configured for response time, CPU, memory metrics",
+        "Baseline performance metrics established for single-user scenario"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure load test to simulate 100 concurrent users submitting forms with mixed valid/invalid inputs over 10 minutes",
+          "expectedResult": "Load test script configured with ramp-up period of 2 minutes and steady state of 8 minutes"
+        },
+        {
+          "step": 2,
+          "action": "Execute load test and monitor client-side validation response time for real-time field validation",
+          "expectedResult": "Client-side validation responds within 100ms (P95) for all field validations"
+        },
+        {
+          "step": 3,
+          "action": "Monitor server-side validation response time for form submission validation",
+          "expectedResult": "Server-side validation completes within 500ms (P95) and 1000ms (P99) with throughput of minimum 50 TPS"
+        },
+        {
+          "step": 4,
+          "action": "Verify error rate and validation accuracy throughout the test",
+          "expectedResult": "Error rate remains below 0.1%, all validation rules execute correctly with 100% accuracy, no false positives/negatives"
+        },
+        {
+          "step": 5,
+          "action": "Monitor system resource utilization (CPU, memory, database connections)",
+          "expectedResult": "CPU utilization stays below 70%, memory usage stable without leaks, database connection pool below 80% capacity"
+        }
+      ],
+      "postconditions": [
+        "All validation responses logged and analyzed",
+        "Performance metrics report generated with P50, P95, P99 response times",
+        "System returns to idle state with no resource leaks",
+        "Test data cleaned from database"
+      ],
+      "testData": "Dataset of 1000+ form submissions with 60% valid inputs, 40% invalid inputs covering all validation rules (required fields, format validation, length constraints, special characters, SQL injection attempts)",
+      "toolsRequired": [
+        "JMeter or K6 for load generation",
+        "Application Performance Monitoring (APM) tool",
+        "Server monitoring (Prometheus/Grafana/New Relic)",
+        "Browser DevTools for client-side metrics"
+      ],
+      "estimatedTime": "2 hours",
+      "automationFeasibility": "High",
+      "riskScore": 8,
+      "complianceTag": "PERFORMANCE-BASELINE"
+    },
+    {
+      "id": "PERF-STRESS-001",
+      "title": "Validation System Breaking Point and Graceful Degradation",
+      "category": "performance",
+      "subCategory": "Stress Testing",
+      "priority": "High",
+      "description": "Determine the breaking point of validation system by progressively increasing load beyond normal capacity, validate graceful degradation behavior, and verify system recovery after stress conditions are removed.",
+      "preconditions": [
+        "Validation system deployed in test environment",
+        "Load testing tool configured for progressive load increase",
+        "System monitoring and alerting configured",
+        "Incident response procedures documented",
+        "Database and application logs enabled for detailed diagnostics"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Start with baseline load of 100 concurrent users and progressively increase by 50 users every 3 minutes until system failure or degradation",
+          "expectedResult": "Load increases systematically: 100→150→200→250→300+ users with metrics captured at each level"
+        },
+        {
+          "step": 2,
+          "action": "Monitor validation response times and identify degradation threshold where P95 exceeds 2000ms or error rate exceeds 5%",
+          "expectedResult": "Breaking point identified with specific user count, response time degradation pattern documented"
+        },
+        {
+          "step": 3,
+          "action": "Verify graceful degradation mechanisms: queue management, rate limiting, appropriate error messages to users",
+          "expectedResult": "System implements rate limiting or queuing, returns HTTP 503 or 429 with retry-after headers, no system crashes or data corruption"
+        },
+        {
+          "step": 4,
+          "action": "Observe system behavior at breaking point for 5 minutes to check for cascading failures",
+          "expectedResult": "No cascading failures to dependent services, database connections managed properly, circuit breakers activate if configured"
+        },
+        {
+          "step": 5,
+          "action": "Reduce load back to normal levels and monitor system recovery time and stability",
+          "expectedResult": "System recovers to normal performance within 5 minutes, response times return to baseline, no residual errors or resource leaks"
+        }
+      ],
+      "postconditions": [
+        "Breaking point documented with specific metrics",
+        "System fully recovered to normal operation",
+        "Stress test report generated with capacity recommendations",
+        "Any identified bottlenecks logged as defects or improvement items"
+      ],
+      "testData": "Automated generation of form submissions with realistic validation scenarios, mix of simple and complex validation rules",
+      "toolsRequired": [
+        "JMeter or Gatling for progressive load generation",
+        "APM tool for real-time monitoring",
+        "Log aggregation tool (ELK/Splunk)",
+        "Infrastructure monitoring (CloudWatch/Datadog)"
+      ],
+      "estimatedTime": "3 hours",
+      "automationFeasibility": "High",
+      "riskScore": 9,
+      "complianceTag": "RESILIENCE-STRESS"
+    },
+    {
+      "id": "PERF-SOAK-001",
+      "title": "Validation System Endurance and Memory Leak Detection",
+      "category": "performance",
+      "subCategory": "Endurance Testing",
+      "priority": "High",
+      "description": "Execute extended duration test of validation system under sustained moderate load to identify memory leaks, resource exhaustion, performance degradation over time, and long-running stability issues.",
+      "preconditions": [
+        "Validation system deployed with monitoring enabled",
+        "Sustained load test configured for 4-hour duration minimum",
+        "Memory profiling tools configured",
+        "Baseline memory and resource metrics captured",
+        "Sufficient test data for extended test duration"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure endurance test with sustained load of 75 concurrent users (75% of normal capacity) for 4 hours",
+          "expectedResult": "Test configured with consistent load pattern, no ramp-up/down, continuous form submissions with validation"
+        },
+        {
+          "step": 2,
+          "action": "Monitor response time trends throughout the test duration, capturing P50, P95, P99 metrics every 15 minutes",
+          "expectedResult": "Response times remain stable: client-side validation <100ms (P95), server-side validation <500ms (P95) throughout entire duration with variance <10%"
+        },
+        {
+          "step": 3,
+          "action": "Monitor memory utilization patterns on application servers, database servers, and cache layers",
+          "expectedResult": "Memory usage remains stable or shows controlled growth, no continuous upward trend indicating memory leaks, garbage collection operates normally"
+        },
+        {
+          "step": 4,
+          "action": "Track database connection pool usage, file handles, thread counts, and other resource metrics",
+          "expectedResult": "All resources remain within normal operating ranges, no resource exhaustion, connection pools maintain healthy state"
+        },
+        {
+          "step": 5,
+          "action": "Verify validation accuracy and error message consistency throughout the test duration",
+          "expectedResult": "Validation logic maintains 100% accuracy, error messages remain consistent and clear, no degradation in validation quality"
+        },
+        {
+          "step": 6,
+          "action": "Analyze logs for any errors, warnings, or anomalies that appear over time",
+          "expectedResult": "No increase in error rates over time, error rate remains <0.1%, no new error patterns emerge during extended run"
+        }
+      ],
+      "postconditions": [
+        "System remains stable and operational after test completion",
+        "Endurance test report generated with trend analysis",
+        "Memory analysis report confirms no leaks detected",
+        "Recommendations documented for production capacity planning"
+      ],
+      "testData": "Rotating dataset of 5000+ form submissions to simulate realistic variety, includes all validation scenarios",
+      "toolsRequired": [
+        "JMeter or K6 for sustained load",
+        "Memory profiler (JProfiler/YourKit/VisualVM)",
+        "APM tool with trend analysis",
+        "Time-series database for metrics (Prometheus/InfluxDB)",
+        "Grafana for visualization"
+      ],
+      "estimatedTime": "5 hours (including 4-hour test execution)",
+      "automationFeasibility": "High",
+      "riskScore": 7,
+      "complianceTag": "STABILITY-ENDURANCE"
+    },
+    {
+      "id": "PERF-SPIKE-001",
+      "title": "Validation System Spike Load and Auto-Scaling Response",
+      "category": "performance",
+      "subCategory": "Spike Testing",
+      "priority": "Critical",
+      "description": "Validate system behavior during sudden traffic spikes by simulating rapid increase from baseline to peak load, verify auto-scaling mechanisms, and test rapid load decrease to ensure proper resource de-allocation.",
+      "preconditions": [
+        "Validation system deployed with auto-scaling configured",
+        "Spike test scenario configured in load testing tool",
+        "Auto-scaling policies defined and enabled",
+        "Monitoring dashboards configured for real-time observation",
+        "Alert thresholds configured for spike detection"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Start with baseline load of 20 concurrent users for 5 minutes to establish normal state",
+          "expectedResult": "System operates normally with baseline metrics: response time <300ms (P95), CPU <30%, memory stable"
+        },
+        {
+          "step": 2,
+          "action": "Rapidly increase load to 300 concurrent users within 30 seconds (10x spike)",
+          "expectedResult": "Load spike executed successfully, all 300 virtual users actively submitting forms with validation requests"
+        },
+        {
+          "step": 3,
+          "action": "Monitor validation response times during spike: measure time to detect spike, auto-scaling trigger time, and new instance provisioning time",
+          "expectedResult": "Auto-scaling triggers within 60 seconds, new instances provisioned within 3-5 minutes, response times may temporarily degrade to <2000ms (P95) but remain functional"
+        },
+        {
+          "step": 4,
+          "action": "Maintain peak load for 10 minutes and verify system stabilization after auto-scaling completes",
+          "expectedResult": "After auto-scaling completes, response times return to acceptable levels: <500ms (P95), error rate <1%, throughput scales proportionally to handle 300 users"
+        },
+        {
+          "step": 5,
+          "action": "Rapidly decrease load back to 20 users within 30 seconds and monitor scale-down behavior",
+          "expectedResult": "System handles rapid load decrease gracefully, no errors during scale-down, excess instances de-provisioned within 10-15 minutes per scale-down policy"
+        },
+        {
+          "step": 6,
+          "action": "Verify validation accuracy and data integrity throughout spike and scale-down events",
+          "expectedResult": "No validation errors or data loss during scaling events, all form submissions processed correctly, validation rules applied consistently"
+        }
+      ],
+      "postconditions": [
+        "System returns to baseline configuration after scale-down",
+        "No orphaned resources or instances remaining",
+        "Spike test report generated with auto-scaling timeline",
+        "All validation data processed and stored correctly"
+      ],
+      "testData": "Burst dataset of 3000+ form submissions prepared for rapid execution during spike",
+      "toolsRequired": [
+        "JMeter or K6 with spike test profile",
+        "Cloud provider monitoring (AWS CloudWatch/Azure Monitor)",
+        "APM tool for application-level metrics",
+        "Auto-scaling dashboard for real-time observation"
+      ],
+      "estimatedTime": "90 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9,
+      "complianceTag": "SCALABILITY-SPIKE"
+    }
+  ],
+  "security": [
+    {
+      "id": "SEC-INJ-001",
+      "title": "SQL Injection and XSS Attack Prevention in Input Validation Fields",
+      "category": "security",
+      "subCategory": "OWASP-A03-Injection",
+      "priority": "Critical",
+      "description": "Validate that all input validation fields properly sanitize and reject malicious SQL injection and Cross-Site Scripting (XSS) payloads on both client-side and server-side validation layers. This test ensures the application is protected against the most common and critical injection attacks that could compromise data integrity and user security.",
+      "preconditions": [
+        "Application input forms are accessible and functional",
+        "Both client-side and server-side validation are implemented",
+        "Test environment database contains sample data",
+        "Security testing tools (Burp Suite, OWASP ZAP) are configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Identify all input fields in the application (text fields, text areas, search boxes, form inputs)",
+          "expectedResult": "Complete inventory of all user input fields is documented"
+        },
+        {
+          "step": 2,
+          "action": "Inject SQL injection payloads: ' OR '1'='1, '; DROP TABLE users--, ' UNION SELECT NULL, username, password FROM users--",
+          "expectedResult": "Client-side validation blocks malicious input immediately with clear error message. Server-side validation rejects payload and returns 400 Bad Request with sanitized error message. No SQL query execution occurs. Database remains unchanged."
+        },
+        {
+          "step": 3,
+          "action": "Inject XSS payloads: <script>alert('XSS')</script>, <img src=x onerror=alert('XSS')>, <svg/onload=alert('XSS')>",
+          "expectedResult": "Input is sanitized/encoded on both client and server side. Script tags are escaped or removed. No JavaScript execution occurs. Output is HTML-encoded when displayed."
+        },
+        {
+          "step": 4,
+          "action": "Bypass client-side validation using browser developer tools or proxy (Burp Suite) to send malicious payloads directly to server",
+          "expectedResult": "Server-side validation independently catches and rejects all malicious payloads. Returns appropriate error codes (400/422) with safe error messages. Logs security event for monitoring."
+        },
+        {
+          "step": 5,
+          "action": "Test with encoded/obfuscated injection payloads: URL-encoded, Unicode-encoded, and double-encoded malicious strings",
+          "expectedResult": "All encoding variations are detected and blocked. Validation logic decodes input before validation to prevent bypass attempts."
+        },
+        {
+          "step": 6,
+          "action": "Verify error messages do not reveal system information (database structure, technology stack, file paths)",
+          "expectedResult": "Generic, user-friendly error messages are displayed. No technical details or stack traces exposed to end users."
+        }
+      ],
+      "postconditions": [
+        "No malicious code executed in browser or database",
+        "All injection attempts are logged in security audit logs",
+        "Application remains in stable state",
+        "No data corruption or unauthorized data access occurred"
+      ],
+      "testData": "SQL Injection: ' OR '1'='1, '; DROP TABLE users--, 1' UNION SELECT NULL,NULL,NULL--, admin'--; XSS: <script>alert(document.cookie)</script>, <img src=x onerror=alert(1)>, javascript:alert('XSS'), <svg/onload=alert('XSS')>",
+      "toolsRequired": [
+        "Burp Suite Professional",
+        "OWASP ZAP",
+        "Browser Developer Tools",
+        "SQL injection payload lists (SQLMap)",
+        "XSS payload lists (XSS Hunter)"
+      ],
+      "estimatedTime": "2-3 hours",
+      "automationFeasibility": "High",
+      "riskScore": 9.2,
+      "complianceTag": "OWASP-A03, CWE-89, CWE-79, PCI-DSS-6.5.1"
+    },
+    {
+      "id": "SEC-TAMP-002",
+      "title": "Input Tampering and Data Integrity Validation Bypass Testing",
+      "category": "security",
+      "subCategory": "STRIDE-Tampering",
+      "priority": "Critical",
+      "description": "Test the application's resilience against input tampering attacks where attackers attempt to manipulate validation logic, bypass input constraints, or modify data in transit. Verify that server-side validation cannot be circumvented and data integrity is maintained throughout the validation process.",
+      "preconditions": [
+        "Application has both client-side and server-side validation implemented",
+        "HTTP proxy tool (Burp Suite/OWASP ZAP) is configured",
+        "Test user accounts with different privilege levels are available",
+        "Validation rules and constraints are documented"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Identify validation constraints (max length, data type, format, allowed characters, range limits) on input fields",
+          "expectedResult": "Complete documentation of all validation rules and constraints per field"
+        },
+        {
+          "step": 2,
+          "action": "Disable JavaScript in browser and attempt to submit forms with invalid data that would normally be blocked by client-side validation",
+          "expectedResult": "Server-side validation independently rejects invalid input with appropriate error messages. No data is processed or stored."
+        },
+        {
+          "step": 3,
+          "action": "Use HTTP proxy to intercept requests and modify validated input before it reaches the server (change field values, lengths, data types, add hidden fields)",
+          "expectedResult": "Server validates all input independently. Modified data is rejected. Tampering attempts are logged. Original validation constraints are enforced."
+        },
+        {
+          "step": 4,
+          "action": "Test boundary value manipulation: exceed max length (e.g., 255 char limit with 10000 chars), negative values where positive expected, special characters in numeric fields",
+          "expectedResult": "All boundary violations are caught by server-side validation. Buffer overflow protection is active. Input is truncated or rejected appropriately."
+        },
+        {
+          "step": 5,
+          "action": "Attempt to inject hidden form fields or modify field names/IDs to bypass validation or escalate privileges (e.g., add isAdmin=true, role=administrator)",
+          "expectedResult": "Server ignores unexpected parameters. Only whitelisted fields are processed. No privilege escalation occurs. Security event is logged."
+        },
+        {
+          "step": 6,
+          "action": "Test parameter pollution by submitting duplicate parameters with different values (e.g., amount=10&amount=10000)",
+          "expectedResult": "Application handles parameter pollution securely using first/last value consistently or rejects ambiguous requests. No unintended behavior occurs."
+        }
+      ],
+      "postconditions": [
+        "No unauthorized data modifications occurred",
+        "All tampering attempts are logged with timestamps and source IPs",
+        "Data integrity is maintained in database",
+        "Application security posture is validated"
+      ],
+      "testData": "Oversized inputs: 10000+ character strings; Type mismatches: 'abc' for numeric fields; Hidden parameters: isAdmin=true, role=admin; Duplicate parameters: id=1&id=999; Special characters: null bytes, control characters",
+      "toolsRequired": [
+        "Burp Suite Repeater/Intruder",
+        "OWASP ZAP",
+        "Browser with JavaScript disabled",
+        "Postman/cURL for API testing"
+      ],
+      "estimatedTime": "2 hours",
+      "automationFeasibility": "Medium",
+      "riskScore": 8.4,
+      "complianceTag": "STRIDE-Tampering, OWASP-A08, CWE-20, PCI-DSS-6.5.5"
+    },
+    {
+      "id": "SEC-DOS-003",
+      "title": "Denial of Service Through Malicious Input and Validation Exploitation",
+      "category": "security",
+      "subCategory": "STRIDE-Denial-of-Service",
+      "priority": "High",
+      "description": "Validate that input validation mechanisms cannot be exploited to cause denial of service through resource exhaustion, infinite loops, regex DoS (ReDoS), or excessive validation processing. Ensure the application remains available and responsive under malicious input attacks designed to degrade performance or crash the system.",
+      "preconditions": [
+        "Application is deployed in test environment with monitoring enabled",
+        "Performance monitoring tools are configured (CPU, memory, response time)",
+        "Load testing tools are available",
+        "Baseline performance metrics are documented"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Submit extremely large input payloads (10MB+ strings, deeply nested JSON/XML structures) to validation endpoints",
+          "expectedResult": "Application enforces maximum payload size limits. Requests exceeding limits are rejected with 413 Payload Too Large. Server resources remain stable. Response time stays within acceptable thresholds (<3 seconds)."
+        },
+        {
+          "step": 2,
+          "action": "Test for Regular Expression Denial of Service (ReDoS) by submitting inputs designed to cause catastrophic backtracking in regex validation patterns (e.g., (a+)+b with 'aaaaaaaaaaaaaaaaaaaaaaaa')",
+          "expectedResult": "Regex patterns have complexity limits and timeouts. Validation completes within 1 second or times out gracefully. CPU usage does not spike above 80%. No application hang or crash occurs."
+        },
+        {
+          "step": 3,
+          "action": "Submit rapid-fire validation requests (1000+ requests per second) from single IP to test rate limiting and throttling mechanisms",
+          "expectedResult": "Rate limiting is enforced (e.g., 100 requests/minute per IP). Excess requests receive 429 Too Many Requests response. Legitimate users are not affected. IP-based throttling activates."
+        },
+        {
+          "step": 4,
+          "action": "Test with inputs containing excessive special characters, Unicode characters, or null bytes that may cause parsing issues or memory leaks",
+          "expectedResult": "Input parsing is efficient and bounded. Memory usage remains stable. No memory leaks detected. Invalid characters are handled gracefully without crashes."
+        },
+        {
+          "step": 5,
+          "action": "Submit validation requests with circular references or recursive structures (for JSON/XML inputs) to test for infinite loop vulnerabilities",
+          "expectedResult": "Recursive depth limits are enforced (e.g., max 10 levels). Circular references are detected and rejected. Validation terminates within timeout period. No infinite loops occur."
+        }
+      ],
+      "postconditions": [
+        "Application remains available and responsive",
+        "No resource exhaustion or memory leaks detected",
+        "All DoS attempts are logged and monitored",
+        "System performance returns to baseline after test"
+      ],
+      "testData": "Large payloads: 10MB strings, 1000-level nested JSON; ReDoS patterns: (a+)+b, (a|a)*b, (a|ab)*c; Unicode bombs: zalgo text, bidirectional override characters; Null bytes and control characters",
+      "toolsRequired": [
+        "Apache JMeter",
+        "Artillery.io",
+        "Application Performance Monitoring (APM) tool",
+        "Memory profiler",
+        "ReDoS testing tools"
+      ],
+      "estimatedTime": "2-3 hours",
+      "automationFeasibility": "High",
+      "riskScore": 7.8,
+      "complianceTag": "STRIDE-DoS, OWASP-A05, CWE-400, CWE-1333"
+    },
+    {
+      "id": "SEC-INFO-004",
+      "title": "Information Disclosure Through Validation Error Messages and Responses",
+      "category": "security",
+      "subCategory": "STRIDE-Information-Disclosure",
+      "priority": "High",
+      "description": "Verify that validation error messages and responses do not leak sensitive information about the system architecture, database structure, internal logic, user enumeration, or other details that could aid attackers in reconnaissance. Ensure error handling follows secure coding practices and provides user-friendly messages without exposing technical details.",
+      "preconditions": [
+        "Application validation features are functional",
+        "Various input scenarios are prepared (valid, invalid, edge cases)",
+        "HTTP traffic inspection tools are configured",
+        "Documentation of expected error message formats is available"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Submit invalid inputs to all validation endpoints and capture detailed error responses (HTTP headers, body, status codes)",
+          "expectedResult": "Error messages are generic and user-friendly (e.g., 'Invalid input format'). No stack traces, file paths, database errors, or technology stack details are exposed. HTTP headers do not reveal server versions."
+        },
+        {
+          "step": 2,
+          "action": "Test user enumeration by submitting validation requests with existing vs non-existing usernames/emails and comparing error messages",
+          "expectedResult": "Error messages are identical for existing and non-existing users (e.g., 'Invalid credentials' for both). Timing differences are negligible (<50ms). No user enumeration is possible."
+        },
+        {
+          "step": 3,
+          "action": "Trigger validation errors with SQL injection attempts and analyze error messages for database information leakage (table names, column names, SQL syntax)",
+          "expectedResult": "No database error messages are returned to client. Generic validation error is displayed. Database errors are logged server-side only. No SQL query fragments visible."
+        },
+        {
+          "step": 4,
+          "action": "Test validation with malformed data types and analyze responses for internal logic disclosure (expected formats, field names, validation rules)",
+          "expectedResult": "Error messages provide minimal guidance without revealing internal validation logic. Field names in errors match user-facing labels, not database column names. Validation rules are not explicitly stated."
+        },
+        {
+          "step": 5,
+          "action": "Examine HTTP response headers and timing for information leakage (Server, X-Powered-By, X-AspNet-Version headers, timing attacks for validation logic)",
+          "expectedResult": "Sensitive headers are removed or obfuscated. Response timing is consistent regardless of validation outcome. No version information exposed. Security headers are properly configured."
+        },
+        {
+          "step": 6,
+          "action": "Test verbose error modes by manipulating debug parameters, headers, or cookies (e.g., ?debug=true, X-Debug: 1) to check if detailed errors can be enabled",
+          "expectedResult": "Debug modes are disabled in production. No parameters or headers can enable verbose error output. Application behavior is consistent regardless of debug attempts."
+        }
+      ],
+      "postconditions": [
+        "No sensitive information was disclosed through error messages",
+        "User enumeration is not possible",
+        "System architecture remains confidential",
+        "All information disclosure attempts are logged"
+      ],
+      "testData": "Invalid usernames: admin, test@test.com, nonexistent@example.com; SQL errors: malformed queries; Type mismatches: strings for numbers, invalid dates; Debug parameters: ?debug=true, ?verbose=1",
+      "toolsRequired": [
+        "Burp Suite",
+        "OWASP ZAP",
+        "Browser Developer Tools",
+        "Timing analysis tools",
+        "HTTP header analysis tools"
+      ],
+      "estimatedTime": "1.5-2 hours",
+      "automationFeasibility": "Medium",
+      "riskScore": 6.8,
+      "complianceTag": "STRIDE-Information-Disclosure, OWASP-A01, CWE-209, CWE-200"
+    }
+  ],
+  "usability": [
+    {
+      "id": "UX-H01-001",
+      "title": "Verify Real-Time Validation Feedback Provides Immediate System Status",
+      "category": "usability",
+      "subCategory": "Nielsen-H01-Visibility of System Status",
+      "priority": "Critical",
+      "description": "Validate that users receive immediate, clear visual feedback when entering data in input fields with validation rules. This ensures users understand the system's current state and whether their input is being processed and validated in real-time.",
+      "preconditions": [
+        "Application with input validation is accessible",
+        "Test forms with various validation rules are available (required fields, email format, password strength, numeric ranges)",
+        "Browser developer tools available for timing measurements"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to a form with real-time validation enabled and observe the initial state of input fields",
+          "expectedResult": "Input fields are clearly visible with no validation indicators shown initially"
+        },
+        {
+          "step": 2,
+          "action": "Begin typing in a required email field with invalid format (e.g., 'test@')",
+          "expectedResult": "Visual feedback appears within 500ms showing validation is occurring (e.g., field border color change, inline icon, or loading indicator)"
+        },
+        {
+          "step": 3,
+          "action": "Complete the email address with valid format (e.g., 'test@example.com')",
+          "expectedResult": "Positive validation feedback appears immediately (e.g., green checkmark, success icon, or border color change to green)"
+        },
+        {
+          "step": 4,
+          "action": "Move focus to another field and observe if validation status persists",
+          "expectedResult": "Validation status indicators remain visible and consistent, showing user the current state of each field"
+        },
+        {
+          "step": 5,
+          "action": "Submit form with mix of valid and invalid fields",
+          "expectedResult": "Clear visual distinction between validated and non-validated fields, with processing indicator during submission"
+        }
+      ],
+      "postconditions": [
+        "Document response time for validation feedback (should be <500ms)",
+        "Recommendation: Implement progressive validation states (typing → validating → valid/invalid)",
+        "Recommendation: Use consistent color coding (red=error, yellow=warning, green=success)",
+        "Recommendation: Add ARIA live regions for screen reader announcements of validation status"
+      ],
+      "testData": "Valid email: test@example.com, Invalid email: test@, Valid phone: +1-555-0100, Invalid phone: 123",
+      "toolsRequired": [
+        "Browser Developer Tools",
+        "Screen reader (NVDA/JAWS) for accessibility validation",
+        "Network throttling tools to test under slow connections"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "complianceTag": "WCAG-3.3.1"
+    },
+    {
+      "id": "UX-H05-001",
+      "title": "Validate Error Prevention Through Input Constraints and Helpful Guidance",
+      "category": "usability",
+      "subCategory": "Nielsen-H05-Error Prevention",
+      "priority": "Critical",
+      "description": "Test that the system prevents errors before they occur through appropriate input constraints, format hints, examples, and proactive guidance. This reduces user frustration and improves data quality by preventing invalid submissions.",
+      "preconditions": [
+        "Forms with various input types are available (text, numeric, date, email, password)",
+        "Test data sets prepared for boundary conditions",
+        "Access to form specifications documenting validation rules"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Examine input fields for presence of format hints, placeholders, or examples (e.g., 'MM/DD/YYYY' for date fields)",
+          "expectedResult": "All fields requiring specific formats display clear examples or placeholders showing expected format"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to enter alphabetic characters in a numeric-only field",
+          "expectedResult": "System prevents entry of invalid characters (input is blocked or automatically filtered) OR shows immediate inline warning"
+        },
+        {
+          "step": 3,
+          "action": "Test date picker fields by attempting manual entry versus using date picker widget",
+          "expectedResult": "Date picker widget is provided to prevent format errors; manual entry includes format validation with helpful correction suggestions"
+        },
+        {
+          "step": 4,
+          "action": "Enter password in password field and observe strength indicator and requirements display",
+          "expectedResult": "Password requirements are visible before/during entry (not just on error); strength meter updates in real-time; specific unmet requirements are highlighted"
+        },
+        {
+          "step": 5,
+          "action": "Test field length limits by attempting to exceed maximum character count",
+          "expectedResult": "Character counter displays remaining characters; system prevents exceeding limit with clear indication of maximum allowed"
+        },
+        {
+          "step": 6,
+          "action": "Attempt to submit form with required fields empty",
+          "expectedResult": "Submit button is disabled until required fields are completed OR confirmation dialog warns about incomplete fields before submission"
+        }
+      ],
+      "postconditions": [
+        "Document all error prevention mechanisms found and missing",
+        "Recommendation: Implement input masks for formatted fields (phone, SSN, credit card)",
+        "Recommendation: Add character counters for all length-limited fields",
+        "Recommendation: Provide autocomplete suggestions for common inputs to reduce typing errors",
+        "Recommendation: Use appropriate HTML5 input types (email, tel, number) for native validation"
+      ],
+      "testData": "Numeric field test: 'abc123', Date formats: '13/45/2023', '2023-02-30', Password: 'weak', 'Str0ng!Pass123'",
+      "toolsRequired": [
+        "Manual testing tools",
+        "Browser developer tools to inspect input attributes",
+        "Accessibility validator for ARIA attributes"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "Medium",
+      "complianceTag": "WCAG-3.3.4"
+    },
+    {
+      "id": "UX-H09-001",
+      "title": "Evaluate Error Message Clarity and Recovery Guidance for Validation Failures",
+      "category": "usability",
+      "subCategory": "Nielsen-H09-Help Users Recognize and Recover from Errors",
+      "priority": "Critical",
+      "description": "Assess whether error messages are expressed in plain language, precisely indicate the problem, and constructively suggest solutions. Verify that users can easily understand what went wrong and how to fix validation errors.",
+      "preconditions": [
+        "Application with server-side and client-side validation is accessible",
+        "Test scenarios prepared for various validation error types",
+        "List of validation rules documented for reference"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Submit form with invalid email format and read the error message displayed",
+          "expectedResult": "Error message uses plain language (e.g., 'Please enter a valid email address like name@example.com') rather than technical jargon (e.g., 'Invalid regex pattern match')"
+        },
+        {
+          "step": 2,
+          "action": "Trigger multiple validation errors simultaneously and observe error presentation",
+          "expectedResult": "All errors are clearly listed with specific field identification; error summary appears at top of form with links to each problematic field; each field shows inline error message"
+        },
+        {
+          "step": 3,
+          "action": "Test password validation failure and analyze the error message content",
+          "expectedResult": "Error message specifically states which requirements are not met (e.g., 'Password must contain at least one uppercase letter and one number') rather than generic message"
+        },
+        {
+          "step": 4,
+          "action": "Trigger a server-side validation error (e.g., duplicate username) and evaluate the error response",
+          "expectedResult": "Error message clearly explains the issue and suggests solution (e.g., 'This username is already taken. Please choose a different username or try: username123, username_2024')"
+        },
+        {
+          "step": 5,
+          "action": "Correct one error in a multi-error scenario and resubmit",
+          "expectedResult": "Corrected field no longer shows error; remaining errors are still clearly displayed; user can progressively fix errors without losing context"
+        },
+        {
+          "step": 6,
+          "action": "Test error message visibility and positioning relative to the problematic field",
+          "expectedResult": "Error messages appear immediately adjacent to or within the relevant field; errors remain visible without scrolling; visual indicators (icons, colors) draw attention to errors"
+        }
+      ],
+      "postconditions": [
+        "Document error message quality score based on clarity, specificity, and actionability",
+        "Recommendation: Avoid technical error codes in user-facing messages; log them separately for debugging",
+        "Recommendation: Use positive language suggesting solutions rather than just stating problems",
+        "Recommendation: Implement error message templates following consistent structure: [Problem] + [Why] + [Solution]",
+        "Recommendation: Ensure error messages are accessible via screen readers with appropriate ARIA attributes"
+      ],
+      "testData": "Invalid inputs: email='notanemail', password='123', phone='abc', date='99/99/9999', duplicate username='admin'",
+      "toolsRequired": [
+        "Screen reader for accessibility testing",
+        "Browser developer tools for ARIA inspection",
+        "Error message content analysis checklist"
+      ],
+      "estimatedTime": "50 minutes",
+      "automationFeasibility": "Medium",
+      "complianceTag": "WCAG-3.3.3"
+    },
+    {
+      "id": "UX-H04-001",
+      "title": "Verify Consistency of Validation Behavior and Error Presentation Across Forms",
+      "category": "usability",
+      "subCategory": "Nielsen-H04-Consistency and Standards",
+      "priority": "High",
+      "description": "Test that validation behavior, error message formatting, visual indicators, and interaction patterns are consistent across all forms and input fields in the application. Inconsistency causes confusion and increases cognitive load for users.",
+      "preconditions": [
+        "Multiple forms available in the application (registration, login, profile update, checkout, etc.)",
+        "Documentation of validation standards and design system guidelines",
+        "Checklist of consistency criteria prepared"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to 3-5 different forms in the application and document validation trigger timing (on blur, on submit, real-time)",
+          "expectedResult": "All forms use consistent validation trigger pattern (e.g., all use real-time validation for format checks and on-submit for business rule validation)"
+        },
+        {
+          "step": 2,
+          "action": "Compare error message styling across different forms (color, icon, position, typography)",
+          "expectedResult": "Error messages use identical visual styling: same red color (#D32F2F or consistent), same error icon, same positioning (below field), same font size and weight"
+        },
+        {
+          "step": 3,
+          "action": "Test required field indicators across multiple forms",
+          "expectedResult": "Required fields are marked consistently (e.g., all use red asterisk in same position, or all use '(required)' label)"
+        },
+        {
+          "step": 4,
+          "action": "Trigger validation errors on similar field types across different forms (e.g., email fields in registration vs. profile update)",
+          "expectedResult": "Same field types show identical validation rules and error messages regardless of which form they appear in"
+        },
+        {
+          "step": 5,
+          "action": "Test success/valid state indicators across forms",
+          "expectedResult": "Valid input confirmation uses consistent visual pattern (e.g., all show green checkmark icon, or all use green border)"
+        },
+        {
+          "step": 6,
+          "action": "Compare keyboard navigation and accessibility patterns for validation errors across forms",
+          "expectedResult": "Tab order, focus management, and ARIA announcements are consistent; error focus behavior is identical across all forms"
+        }
+      ],
+      "postconditions": [
+        "Create consistency audit report documenting deviations from standards",
+        "Recommendation: Establish and document validation design system with reusable components",
+        "Recommendation: Create shared validation message library to ensure consistent wording",
+        "Recommendation: Implement centralized validation framework to enforce consistent behavior",
+        "Recommendation: Add automated visual regression tests to catch consistency issues"
+      ],
+      "testData": "Test across forms: Registration, Login, Profile Edit, Password Reset, Checkout, Contact Form",
+      "toolsRequired": [
+        "Spreadsheet for consistency tracking",
+        "Screenshot tool for visual comparison",
+        "Design system documentation",
+        "Accessibility testing tools"
+      ],
+      "estimatedTime": "75 minutes",
+      "automationFeasibility": "Medium",
+      "complianceTag": "WCAG-3.2.4"
+    }
+  ],
+  "reliability": [
+    {
+      "id": "REL-FAIL-001",
+      "title": "Validation Service Resilience Under Database Connection Failure",
+      "category": "reliability",
+      "subCategory": "Failure Injection Testing",
+      "priority": "Critical",
+      "description": "Validate that input validation system maintains client-side functionality and provides graceful degradation when database connection fails during server-side validation operations. Test circuit breaker activation and fallback mechanisms.",
+      "preconditions": [
+        "Validation service is operational with both client-side and server-side validation enabled",
+        "Database connection monitoring is configured",
+        "Circuit breaker pattern is implemented for database calls",
+        "Baseline validation response time established (< 200ms)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish steady state by submitting 100 valid and invalid form inputs, measuring success rate and response times",
+          "expectedResult": "100% validation success rate, average response time < 200ms, all error messages display correctly"
+        },
+        {
+          "step": 2,
+          "action": "Inject database connection failure using chaos engineering tool (e.g., Gremlin, Chaos Monkey) - terminate database connections",
+          "expectedResult": "Database connection pool reports failure, circuit breaker opens within 5 seconds"
+        },
+        {
+          "step": 3,
+          "action": "Submit form inputs with various validation scenarios (required fields, format validation, length constraints)",
+          "expectedResult": "Client-side validation continues to function normally, server-side validation returns graceful error message 'Validation service temporarily unavailable, please try again', no 500 errors exposed to user"
+        },
+        {
+          "step": 4,
+          "action": "Monitor system behavior for 2 minutes during failure state, attempt 50 form submissions",
+          "expectedResult": "Circuit breaker remains open, client-side validation blocks obviously invalid inputs, user receives consistent error messaging, no data loss occurs"
+        },
+        {
+          "step": 5,
+          "action": "Restore database connection and monitor recovery",
+          "expectedResult": "Circuit breaker transitions to half-open state within 30 seconds, successful validation request closes circuit breaker, full functionality restored within 60 seconds (MTTR < 60s)"
+        },
+        {
+          "step": 6,
+          "action": "Verify data integrity by checking all submissions during failure period",
+          "expectedResult": "No corrupted validation records, all failed submissions properly logged for retry, transaction rollback successful for incomplete operations"
+        }
+      ],
+      "postconditions": [
+        "System returns to steady state with 100% validation functionality",
+        "Circuit breaker is in closed state",
+        "No data corruption or orphaned records exist",
+        "All monitoring alerts are cleared"
+      ],
+      "testData": "Test dataset: 50 valid forms (proper email format, required fields filled, valid phone numbers), 50 invalid forms (missing required fields, malformed emails, SQL injection attempts, XSS payloads)",
+      "toolsRequired": [
+        "Chaos engineering tool (Gremlin, Chaos Monkey, or Toxiproxy)",
+        "Database connection monitoring tool",
+        "APM tool for circuit breaker state monitoring",
+        "Load testing tool (JMeter, k6)"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9,
+      "complianceTag": "SLO-Availability-99.9%, MTTR-60s"
+    },
+    {
+      "id": "REL-CHAOS-002",
+      "title": "Network Latency Injection on Validation API Endpoints",
+      "category": "reliability",
+      "subCategory": "Chaos Engineering Experiments",
+      "priority": "High",
+      "description": "Execute hypothesis-driven chaos experiment to validate that validation service maintains acceptable user experience when network latency increases to 2000ms between client and validation API. Test timeout handling, retry logic, and user feedback mechanisms.",
+      "preconditions": [
+        "Validation API endpoints are accessible and responding normally",
+        "Network latency baseline established (< 100ms)",
+        "Timeout configurations documented (client timeout: 5s, server timeout: 10s)",
+        "Retry policy configured with exponential backoff"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Define hypothesis: 'When network latency increases to 2000ms, validation service will maintain 95% success rate with retry logic, and users will receive feedback within 8 seconds'",
+          "expectedResult": "Hypothesis documented with measurable success criteria and blast radius limited to test user segment (5% of traffic)"
+        },
+        {
+          "step": 2,
+          "action": "Measure steady state metrics: validation success rate, P95 response time, error rate, user abandonment rate",
+          "expectedResult": "Baseline established: 99.5% success rate, P95 response time 250ms, error rate < 0.5%, abandonment rate < 2%"
+        },
+        {
+          "step": 3,
+          "action": "Inject 2000ms network latency using Toxiproxy or similar tool on validation API endpoints for test user segment",
+          "expectedResult": "Latency injection confirmed via network monitoring, affects only designated test segment (blast radius contained)"
+        },
+        {
+          "step": 4,
+          "action": "Submit 200 form validations during latency injection period, monitor retry attempts and timeout behavior",
+          "expectedResult": "Client-side loading indicators display immediately, retry logic activates after first timeout (5s), exponential backoff applied (5s, 10s, 20s intervals), users see 'Validating...' message with progress indicator"
+        },
+        {
+          "step": 5,
+          "action": "Measure validation success rate, total response time including retries, and user experience metrics",
+          "expectedResult": "Success rate ≥ 95% (hypothesis validated), P95 response time < 8 seconds with retries, error messages clear when max retries exceeded, no client-side crashes or hangs"
+        },
+        {
+          "step": 6,
+          "action": "Remove latency injection and verify system returns to steady state within 2 minutes",
+          "expectedResult": "Metrics return to baseline: 99.5% success rate, P95 response time 250ms, no residual performance degradation, retry queue cleared"
+        }
+      ],
+      "postconditions": [
+        "Network latency injection removed",
+        "System performance returns to baseline",
+        "Chaos experiment results documented with hypothesis validation outcome",
+        "Retry queue is empty"
+      ],
+      "testData": "Mixed validation scenarios: 100 simple validations (email, required fields), 50 complex validations (multi-field dependencies), 50 edge cases (boundary values, special characters)",
+      "toolsRequired": [
+        "Toxiproxy or similar network chaos tool",
+        "APM tool for distributed tracing",
+        "Real User Monitoring (RUM) tool",
+        "Metrics dashboard (Grafana, Datadog)"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 7,
+      "complianceTag": "SLO-Latency-P95-8s, Availability-95%"
+    },
+    {
+      "id": "REL-DEP-003",
+      "title": "External Validation Service Dependency Failure and Fallback Testing",
+      "category": "reliability",
+      "subCategory": "Dependency Resilience",
+      "priority": "Critical",
+      "description": "Test system resilience when external validation services (email verification API, address validation service) become unavailable. Validate fallback to local validation rules, cache utilization, and degraded mode operation without blocking user workflows.",
+      "preconditions": [
+        "External validation services integrated (email verification, address validation)",
+        "Local fallback validation rules configured",
+        "Cache layer operational with 1-hour TTL for validation results",
+        "Circuit breaker configured for external service calls (failure threshold: 5 failures in 10 seconds)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish baseline with external services operational: submit 100 validations requiring external service calls, measure success rate and response time",
+          "expectedResult": "100% validation success, average response time 300ms, cache hit rate 40%, external service call success rate 100%"
+        },
+        {
+          "step": 2,
+          "action": "Simulate external email verification API failure by blocking API endpoint or returning 503 errors",
+          "expectedResult": "External service returns errors, circuit breaker opens after 5 consecutive failures within 10 seconds, monitoring alerts triggered"
+        },
+        {
+          "step": 3,
+          "action": "Submit 50 email validation requests during external service outage",
+          "expectedResult": "System falls back to local regex-based email validation, validation completes successfully with warning message 'Advanced email verification temporarily unavailable', response time < 100ms (faster due to local processing)"
+        },
+        {
+          "step": 4,
+          "action": "Submit previously validated emails that should be in cache",
+          "expectedResult": "Cache serves validation results successfully, no external service calls attempted, response time < 50ms, cache hit rate 100% for cached entries"
+        },
+        {
+          "step": 5,
+          "action": "Test address validation with external service down, submit 30 address validation requests",
+          "expectedResult": "System uses fallback validation (basic format check, required fields), user workflow not blocked, informational message displayed 'Address verification limited, please ensure accuracy', validation marked as 'unverified' in database"
+        },
+        {
+          "step": 6,
+          "action": "Restore external services and monitor circuit breaker recovery and cache refresh",
+          "expectedResult": "Circuit breaker transitions to half-open after 60 seconds, successful test request closes circuit, previously unverified validations queued for re-verification, full service restored within 90 seconds (MTTR < 90s)"
+        }
+      ],
+      "postconditions": [
+        "External services operational and circuit breaker closed",
+        "Cache refreshed with latest validation results",
+        "Unverified entries re-processed and updated",
+        "System metrics return to baseline"
+      ],
+      "testData": "Email dataset: 25 valid emails (various domains), 15 invalid format emails, 10 disposable email addresses; Address dataset: 20 valid US addresses, 10 international addresses",
+      "toolsRequired": [
+        "API mocking tool (WireMock, Mockoon)",
+        "Circuit breaker monitoring dashboard",
+        "Cache monitoring tool (Redis Insights)",
+        "Service dependency mapping tool"
+      ],
+      "estimatedTime": "50 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 8,
+      "complianceTag": "SLO-Availability-99.5%, MTTR-90s, RPO-0-data-loss"
+    },
+    {
+      "id": "REL-CB-004",
+      "title": "Circuit Breaker State Transitions and Retry Policy Validation Under Load",
+      "category": "reliability",
+      "subCategory": "Circuit Breaker & Retry Logic",
+      "priority": "High",
+      "description": "Validate circuit breaker state transitions (closed → open → half-open → closed) and exponential backoff retry policy under sustained load conditions. Ensure validation service protects itself from cascading failures while maximizing availability.",
+      "preconditions": [
+        "Circuit breaker configured: failure threshold 50%, minimum 10 requests, timeout 30 seconds",
+        "Retry policy configured: max 3 retries, exponential backoff (1s, 2s, 4s)",
+        "Load testing environment prepared with 500 concurrent users",
+        "Monitoring dashboards configured for circuit breaker metrics"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Generate baseline load: 500 concurrent users submitting validation requests at 10 requests/second for 2 minutes",
+          "expectedResult": "Circuit breaker in closed state, 99% success rate, average response time 200ms, zero circuit breaker trips"
+        },
+        {
+          "step": 2,
+          "action": "Introduce intermittent failures in validation service (50% failure rate) while maintaining load",
+          "expectedResult": "Circuit breaker detects failure threshold exceeded (50% of 10+ requests failing), transitions to open state within 5 seconds, fast-fail responses returned immediately without calling failing service"
+        },
+        {
+          "step": 3,
+          "action": "Monitor system behavior in open state for 30 seconds under continued load",
+          "expectedResult": "All requests fail fast with circuit open error, response time < 10ms (no backend calls), retry logic NOT activated for circuit-open failures, system protected from overload"
+        },
+        {
+          "step": 4,
+          "action": "Wait for circuit breaker timeout (30 seconds), observe transition to half-open state",
+          "expectedResult": "Circuit breaker automatically transitions to half-open state after 30 seconds, allows single test request through to validation service"
+        },
+        {
+          "step": 5,
+          "action": "With circuit in half-open state and failures still occurring, submit test requests",
+          "expectedResult": "If test request fails, circuit immediately reopens for another 30 seconds, retry logic activates with exponential backoff (1s, 2s, 4s) for transient errors, max 3 retry attempts before final failure"
+        },
+        {
+          "step": 6,
+          "action": "Restore validation service to healthy state, wait for next half-open transition and successful test request",
+          "expectedResult": "Successful test request in half-open state closes circuit breaker, full traffic resumes, success rate returns to 99%, MTTR from failure injection to full recovery < 120 seconds"
+        },
+        {
+          "step": 7,
+          "action": "Verify retry policy behavior: introduce single transient failure (timeout) during normal operation",
+          "expectedResult": "Request retried with 1s delay (first retry), if fails again 2s delay (second retry), if fails third time 4s delay (final retry), total max time 7 seconds before final failure, exponential backoff confirmed"
+        }
+      ],
+      "postconditions": [
+        "Circuit breaker in closed state with healthy service",
+        "All retry queues cleared",
+        "Load testing stopped and resources released",
+        "Circuit breaker metrics logged for analysis"
+      ],
+      "testData": "Load test profile: 500 virtual users, ramp-up 30 seconds, steady state 5 minutes, validation mix: 60% simple validations, 30% complex validations, 10% edge cases",
+      "toolsRequired": [
+        "Load testing tool (k6, Gatling, JMeter)",
+        "Circuit breaker library monitoring (Hystrix Dashboard, Resilience4j metrics)",
+        "Chaos engineering tool for failure injection",
+        "Time-series metrics database (Prometheus)"
+      ],
+      "estimatedTime": "75 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 8,
+      "complianceTag": "SLO-Availability-99%, MTTR-120s, MTBF-30-days"
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true,
+    "performance": true,
+    "security": true,
+    "usability": true,
+    "reliability": true
+  },
+  "userStoryObject": {
+    "id": "ado-16126",
+    "title": "As QA Tester, I want to perform validation testing to ensure input validation behaves as expected",
+    "description": "<div><strong>CONTEXT &amp; BACKGROUND:</strong><br><br>Validation features must be thoroughly tested to prevent data quality issues and user dissatisfaction.<br><br><strong>CURRENT STATE:</strong><br><br>Limited test coverage on validation features causes potential undetected defects.<br><br><strong>DESIRED STATE:</strong><br><br>Comprehensive test coverage ensures robust validation and consistent user feedback.<br><br><strong>KEY FUNCTIONALITY:</strong><br><br><ul><li>Test client-side real-time validation </li><li>Test server-side validation and error handling </li> </ul><ul><li>Verify error message accuracy and clarity </li><li>Test performance under load </li><li>Validate accessibility of feedback elements </li> </ul><br><br><strong>USER INTERACTION FLOW:</strong><br><br><ol><li>Execute test cases on validation features </li><li>Identify defects or inconsistencies </li><li>Report and verify fixes </li><li>Confirm validation meets requirements </li> </ol><br><br><strong>TECHNICAL CONSIDERATIONS:</strong><br><br><ul><li>Test tools: Automation frameworks, load testing tools </li><li>Data source: Test input forms </li><li>Validation: Confirm acceptance criteria </li> </ul><br><br><strong>OUT OF SCOPE:</strong><br><br><ul><li>Development of validation logic </li> </ul><br><br><strong>SUCCESS METRICS:</strong><br><br><ul><li>100% test case coverage for validation functionality </li><li>Zero critical defects in validation features post-release </li><li>Test execution completed within scheduled timeframe </li> </ul> </div><br><div><strong>Persona:</strong> QA Tester (QA Tester) </div>",
+    "acceptanceCriteria": "<div><strong>Criteria 1:</strong> All defined validation test cases execute successfully with expected results </div><br><div><strong>Criteria 2:</strong> Client-side validation error messages display correctly for invalid inputs </div><br><div><strong>Criteria 3:</strong> Server-side validation rejects invalid data with appropriate error responses </div><br><div><strong>Criteria 4:</strong> Validation features perform correctly under simulated high load </div><br><div><strong>Criteria 5:</strong> Accessibility compliance of validation feedback verified through testing </div><br>",
+    "adoWorkItemId": 16126,
+    "state": "New",
+    "assignedTo": "Unassigned",
+    "createdDate": "2026-02-03T06:13:03.89Z",
+    "priority": 2,
+    "storyPoints": 5,
+    "tags": "",
+    "epicId": "epic-14589",
+    "featureId": "feature-14641",
+    "source": "ado",
+    "adoUrl": "https://dev.azure.com/QS001/Uranus/_workitems/edit/16126"
+  }
+}
