@@ -1,0 +1,2527 @@
+{
+  "storyId": "ado-1645",
+  "storyTitle": "Configure Question Display Rules",
+  "testCases": [],
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Successfully configure display condition for question using single policy data criterion",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Business SME, Product Configurator, or Product Manager role",
+        "User has RBAC permissions to configure underwriting questions",
+        "At least one underwriting question exists in the system",
+        "Policy data fields are available for condition configuration",
+        "Rule engine/tool is accessible and operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Underwriting Questions Configuration page",
+          "expectedResult": "Underwriting Questions Configuration page loads successfully with list of existing questions displayed"
+        },
+        {
+          "step": 2,
+          "action": "Select an existing question from the list by clicking on it",
+          "expectedResult": "Question details panel opens showing current configuration including display rules section"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Add Display Condition' button in the display rules section",
+          "expectedResult": "Display condition configuration dialog opens with fields for selecting criteria type, operator, and value"
+        },
+        {
+          "step": 4,
+          "action": "Select 'Policy Data' from criteria type dropdown, choose 'Policy Type' field, select 'Equals' operator, and enter 'Commercial Auto' as value",
+          "expectedResult": "All fields populate correctly with selected values, no validation errors appear"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Save Condition' button",
+          "expectedResult": "Success message 'Display condition saved successfully' appears in green banner at top, condition appears in display rules list with correct criteria details"
+        },
+        {
+          "step": 6,
+          "action": "Click 'Save Question Configuration' button",
+          "expectedResult": "Success message 'Question configuration updated successfully' appears, user returns to questions list view"
+        }
+      ],
+      "postconditions": [
+        "Display condition is saved and associated with the selected question",
+        "Question will only display when Policy Type equals 'Commercial Auto' in PAS workflow",
+        "Configuration change is logged in audit trail with user details and timestamp",
+        "User remains on Underwriting Questions Configuration page"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Configure multiple display conditions using risk attributes and coverage selections with AND logic",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Product Configurator role",
+        "User has RBAC permissions to configure underwriting questions",
+        "Underwriting question 'Fleet Size Details' exists in the system",
+        "Risk attributes and coverage selection fields are configured in reference data",
+        "Rule engine supports multiple condition evaluation with logical operators"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Underwriting Questions Configuration page and select 'Fleet Size Details' question",
+          "expectedResult": "Question configuration panel opens showing current settings and empty display rules section"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Add Display Condition' button and configure first condition: Criteria Type='Risk Attributes', Field='Number of Vehicles', Operator='Greater Than', Value='10'",
+          "expectedResult": "First condition is added and displayed in conditions list with correct parameters"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Add Display Condition' button again and configure second condition: Criteria Type='Coverage Selections', Field='Liability Coverage', Operator='Equals', Value='Selected'",
+          "expectedResult": "Second condition is added below first condition with AND operator displayed between them"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Add Display Condition' button again and configure third condition: Criteria Type='Policy Data', Field='State', Operator='In', Value='CA,NY,TX'",
+          "expectedResult": "Third condition is added with AND operator, all three conditions are visible in the list"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Save Question Configuration' button",
+          "expectedResult": "Success message appears, all three conditions are saved and question will display only when all conditions are met simultaneously"
+        }
+      ],
+      "postconditions": [
+        "Question has three display conditions configured with AND logic",
+        "Question will display in PAS workflow only when Number of Vehicles > 10 AND Liability Coverage is Selected AND State is CA, NY, or TX",
+        "All conditions are stored in database and linked to question ID",
+        "Configuration is immediately active for policy workflows"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Modify existing display condition without changing question definition",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Business SME role",
+        "Question 'Driver History' exists with display condition: Policy Type = 'Personal Auto'",
+        "Question definition includes question text, answer type, and validation rules",
+        "User has permission to modify display conditions"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Underwriting Questions Configuration page and select 'Driver History' question",
+          "expectedResult": "Question configuration opens showing existing display condition and question definition details"
+        },
+        {
+          "step": 2,
+          "action": "In the display rules section, click 'Edit' icon next to existing condition 'Policy Type = Personal Auto'",
+          "expectedResult": "Edit condition dialog opens with current values pre-populated: Criteria Type='Policy Data', Field='Policy Type', Operator='Equals', Value='Personal Auto'"
+        },
+        {
+          "step": 3,
+          "action": "Change the Value field from 'Personal Auto' to 'Commercial Auto' and click 'Update Condition' button",
+          "expectedResult": "Condition updates in the list showing new value 'Commercial Auto', success message 'Condition updated successfully' appears"
+        },
+        {
+          "step": 4,
+          "action": "Verify question definition section shows unchanged question text, answer type, and validation rules",
+          "expectedResult": "Question definition remains exactly as before with no modifications to question text, answer type, or validation rules"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Save Question Configuration' button",
+          "expectedResult": "Success message appears, configuration is saved with modified display condition but unchanged question definition"
+        }
+      ],
+      "postconditions": [
+        "Display condition is updated to Policy Type = 'Commercial Auto'",
+        "Question definition (text, answer type, validation) remains unchanged",
+        "Question now displays for Commercial Auto policies instead of Personal Auto policies in PAS workflow",
+        "Change is logged in audit trail showing only display condition modification"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify question displays in PAS workflow only when configured conditions are met",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Question 'Additional Insured Details' is configured with display condition: Coverage Selections = 'Additional Insured Coverage' AND Policy Type = 'Commercial General Liability'",
+        "User has access to PAS workflow for creating new policies",
+        "Test policy data is available for Commercial General Liability policy type",
+        "Additional Insured Coverage is available as a coverage option"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to PAS workflow and start creating a new policy, select Policy Type as 'Commercial General Liability'",
+          "expectedResult": "Policy creation workflow begins, policy type is set to Commercial General Liability"
+        },
+        {
+          "step": 2,
+          "action": "Proceed through workflow to Coverage Selections page and select 'Additional Insured Coverage' checkbox",
+          "expectedResult": "Additional Insured Coverage is selected and marked as active"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Next' to proceed to Underwriting Questions section",
+          "expectedResult": "Underwriting Questions page loads and displays 'Additional Insured Details' question because both conditions are met"
+        },
+        {
+          "step": 4,
+          "action": "Verify the question 'Additional Insured Details' is visible with all its fields and answer options",
+          "expectedResult": "Question is fully displayed with proper formatting, labels, and input fields as configured"
+        },
+        {
+          "step": 5,
+          "action": "Navigate back to Coverage Selections page and deselect 'Additional Insured Coverage' checkbox",
+          "expectedResult": "Additional Insured Coverage is deselected"
+        },
+        {
+          "step": 6,
+          "action": "Click 'Next' to return to Underwriting Questions section",
+          "expectedResult": "Underwriting Questions page loads but 'Additional Insured Details' question does NOT appear because condition is no longer met"
+        }
+      ],
+      "postconditions": [
+        "Question displays dynamically based on real-time evaluation of configured conditions",
+        "Question appears only when all configured conditions are satisfied",
+        "Question is hidden when conditions are not met without requiring page refresh",
+        "Policy workflow continues normally regardless of question visibility"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify questions are evaluated independently when multiple questions have different display conditions",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "Question A 'Fleet Size' has condition: Number of Vehicles > 5",
+        "Question B 'Driver Experience' has condition: Driver Age < 25",
+        "Question C 'Safety Features' has condition: Vehicle Year > 2020",
+        "User has access to PAS workflow",
+        "Test policy with 8 vehicles, driver age 30, vehicle year 2022 is available"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to PAS workflow and create new policy, enter Number of Vehicles as '8'",
+          "expectedResult": "Number of Vehicles field accepts value 8"
+        },
+        {
+          "step": 2,
+          "action": "Enter Driver Age as '30' and Vehicle Year as '2022', then proceed to Underwriting Questions section",
+          "expectedResult": "All policy data is saved and workflow advances to Underwriting Questions page"
+        },
+        {
+          "step": 3,
+          "action": "Verify which questions are displayed on the Underwriting Questions page",
+          "expectedResult": "Question A 'Fleet Size' is displayed (8 > 5 = TRUE), Question B 'Driver Experience' is NOT displayed (30 < 25 = FALSE), Question C 'Safety Features' is displayed (2022 > 2020 = TRUE)"
+        },
+        {
+          "step": 4,
+          "action": "Navigate back and change Driver Age to '23', then return to Underwriting Questions section",
+          "expectedResult": "Question A 'Fleet Size' is still displayed, Question B 'Driver Experience' now appears (23 < 25 = TRUE), Question C 'Safety Features' remains displayed"
+        },
+        {
+          "step": 5,
+          "action": "Navigate back and change Number of Vehicles to '3', then return to Underwriting Questions section",
+          "expectedResult": "Question A 'Fleet Size' is now hidden (3 > 5 = FALSE), Question B 'Driver Experience' remains displayed, Question C 'Safety Features' remains displayed"
+        }
+      ],
+      "postconditions": [
+        "Each question is evaluated independently based on its own configured conditions",
+        "Display of one question does not affect evaluation of other questions",
+        "Questions appear and disappear dynamically as their individual conditions are met or not met",
+        "All question evaluations occur without errors or dependencies on each other"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Configure display condition using dropdown field with reference data values",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Product Manager role",
+        "Dropdown field 'Business Type' is configured with reference data values: 'Retail', 'Manufacturing', 'Services', 'Construction'",
+        "Question 'Hazardous Materials Handling' exists in the system",
+        "Reference data is loaded and accessible in rule configuration",
+        "User has permission to configure display conditions"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Underwriting Questions Configuration page and select 'Hazardous Materials Handling' question",
+          "expectedResult": "Question configuration panel opens with display rules section available"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Add Display Condition' button and select Criteria Type as 'Policy Data', Field as 'Business Type'",
+          "expectedResult": "Field dropdown populates with 'Business Type' selected, Operator dropdown becomes active"
+        },
+        {
+          "step": 3,
+          "action": "Select Operator as 'In' and click on Value field",
+          "expectedResult": "Value field displays as multi-select dropdown populated with reference data values: 'Retail', 'Manufacturing', 'Services', 'Construction'"
+        },
+        {
+          "step": 4,
+          "action": "Select 'Manufacturing' and 'Construction' from the dropdown values",
+          "expectedResult": "Both values are selected and displayed as chips in the Value field"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Save Condition' button and then 'Save Question Configuration' button",
+          "expectedResult": "Success messages appear, condition is saved with Business Type In ['Manufacturing', 'Construction']"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to PAS workflow, create policy with Business Type = 'Manufacturing', and proceed to Underwriting Questions",
+          "expectedResult": "Question 'Hazardous Materials Handling' is displayed because condition is met"
+        }
+      ],
+      "postconditions": [
+        "Display condition is configured using reference data dropdown values",
+        "Question displays only when Business Type is Manufacturing or Construction",
+        "Reference data values are properly validated and stored in condition configuration",
+        "Condition works correctly in PAS workflow with real-time evaluation"
+      ]
+    },
+    {
+      "id": "TC-FUNC-007",
+      "title": "Delete display condition and verify question displays unconditionally in PAS workflow",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Business SME role",
+        "Question 'General Liability Limits' exists with display condition: State = 'CA'",
+        "User has permission to delete display conditions",
+        "Question is currently hidden in PAS workflow for non-CA states"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Underwriting Questions Configuration page and select 'General Liability Limits' question",
+          "expectedResult": "Question configuration opens showing existing display condition 'State = CA' in display rules section"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Delete' icon next to the display condition 'State = CA'",
+          "expectedResult": "Confirmation dialog appears with message 'Are you sure you want to delete this display condition? The question will display unconditionally.'"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Confirm' button in the confirmation dialog",
+          "expectedResult": "Display condition is removed from the list, display rules section shows 'No conditions configured - question will always display', success message 'Display condition deleted successfully' appears"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save Question Configuration' button",
+          "expectedResult": "Configuration is saved successfully with no display conditions"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to PAS workflow, create new policy with State = 'NY', and proceed to Underwriting Questions section",
+          "expectedResult": "Question 'General Liability Limits' is now displayed even though State is NY (not CA), because no display conditions exist"
+        }
+      ],
+      "postconditions": [
+        "Display condition is permanently deleted from question configuration",
+        "Question displays unconditionally in all PAS workflows regardless of policy data",
+        "Deletion is logged in audit trail with user details and timestamp",
+        "Question definition remains unchanged, only display rules are affected"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "id": "TC-NEGA-001",
+      "title": "Attempt to configure display condition without required RBAC permissions",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with role that does NOT have RBAC permissions to configure underwriting questions (e.g., Underwriter or Claims Adjuster role)",
+        "Underwriting Questions Configuration page exists in the system",
+        "At least one question exists in the system",
+        "RBAC is properly configured and enforced"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to navigate to Underwriting Questions Configuration page by entering URL directly or clicking menu link",
+          "expectedResult": "Access denied error page displays with message 'You do not have permission to access this page. Required role: Business SME, Product Configurator, or Product Manager' in red banner"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to access question configuration API endpoint directly using browser developer tools or API client",
+          "expectedResult": "HTTP 403 Forbidden response is returned with error message 'Insufficient permissions to configure underwriting questions'"
+        },
+        {
+          "step": 3,
+          "action": "Verify that no configuration options or buttons are visible in any accessible pages",
+          "expectedResult": "No 'Add Display Condition', 'Edit', or 'Delete' buttons are visible or accessible in the UI"
+        }
+      ],
+      "postconditions": [
+        "No display conditions are created or modified",
+        "Unauthorized access attempt is logged in security audit trail with user ID, timestamp, and attempted action",
+        "User remains on access denied page or is redirected to home page",
+        "System security remains intact with no unauthorized changes"
+      ]
+    },
+    {
+      "id": "TC-NEGA-002",
+      "title": "Attempt to save display condition with empty or null required fields",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Product Configurator role",
+        "User has RBAC permissions to configure underwriting questions",
+        "Question 'Property Value' exists and is selected for configuration",
+        "Display condition configuration dialog is open"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "In the display condition dialog, leave Criteria Type dropdown empty (not selected) and click 'Save Condition' button",
+          "expectedResult": "Validation error message 'Criteria Type is required' appears in red text below the field, condition is not saved, dialog remains open"
+        },
+        {
+          "step": 2,
+          "action": "Select Criteria Type as 'Policy Data', leave Field dropdown empty, and click 'Save Condition' button",
+          "expectedResult": "Validation error message 'Field is required' appears in red text below the Field dropdown, condition is not saved"
+        },
+        {
+          "step": 3,
+          "action": "Select Field as 'Policy Type', leave Operator dropdown empty, and click 'Save Condition' button",
+          "expectedResult": "Validation error message 'Operator is required' appears in red text below the Operator dropdown, condition is not saved"
+        },
+        {
+          "step": 4,
+          "action": "Select Operator as 'Equals', leave Value field empty (null), and click 'Save Condition' button",
+          "expectedResult": "Validation error message 'Value is required' appears in red text below the Value field, condition is not saved"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to submit form with all fields empty by clicking 'Save Condition' button",
+          "expectedResult": "Multiple validation error messages appear for all required fields, error summary 'Please correct 4 errors before saving' displays at top of dialog in red banner"
+        }
+      ],
+      "postconditions": [
+        "No display condition is created or saved in the database",
+        "Dialog remains open with validation errors displayed",
+        "User can correct errors and retry or cancel the operation",
+        "Question configuration remains unchanged"
+      ]
+    },
+    {
+      "id": "TC-NEGA-003",
+      "title": "Attempt to configure display condition with invalid or malformed data values",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Business SME role",
+        "Question 'Vehicle Count' is selected for configuration",
+        "Display condition dialog is open",
+        "Field 'Number of Vehicles' expects numeric values only"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure condition with Criteria Type='Risk Attributes', Field='Number of Vehicles', Operator='Greater Than', Value='abc' (non-numeric text), and click 'Save Condition'",
+          "expectedResult": "Validation error 'Value must be a valid number' appears in red below Value field, condition is not saved"
+        },
+        {
+          "step": 2,
+          "action": "Change Value to '<script>alert(\"XSS\")</script>' (XSS attack attempt) and click 'Save Condition'",
+          "expectedResult": "Input is sanitized, validation error 'Invalid characters detected in value' appears, condition is not saved, no script execution occurs"
+        },
+        {
+          "step": 3,
+          "action": "Change Value to 'DROP TABLE questions; --' (SQL injection attempt) and click 'Save Condition'",
+          "expectedResult": "Input is sanitized and rejected, validation error 'Invalid value format' appears, no database operations are executed, condition is not saved"
+        },
+        {
+          "step": 4,
+          "action": "Change Value to '-999' (negative number for field that expects positive values) and click 'Save Condition'",
+          "expectedResult": "Validation error 'Value must be a positive number' appears, condition is not saved"
+        },
+        {
+          "step": 5,
+          "action": "Change Value to '999999999999999999999' (exceeds maximum integer value) and click 'Save Condition'",
+          "expectedResult": "Validation error 'Value exceeds maximum allowed limit' appears, condition is not saved"
+        }
+      ],
+      "postconditions": [
+        "No malformed or malicious data is saved to the database",
+        "System security is maintained with proper input sanitization",
+        "All validation errors are logged for security monitoring",
+        "Question configuration remains unchanged and secure"
+      ]
+    },
+    {
+      "id": "TC-NEGA-004",
+      "title": "Attempt to modify display condition for non-existent or deleted question",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Product Manager role",
+        "Question with ID 'Q-12345' was previously deleted from the system",
+        "User attempts to access configuration via direct URL or cached link",
+        "Database has referential integrity constraints"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to question configuration page using URL with deleted question ID: '/config/questions/Q-12345'",
+          "expectedResult": "Error page displays with message 'Question not found. The question may have been deleted or does not exist.' with HTTP 404 status"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to call API endpoint to update display condition for deleted question using API client with question ID 'Q-12345'",
+          "expectedResult": "API returns HTTP 404 Not Found with JSON error response: {\"error\": \"Question not found\", \"questionId\": \"Q-12345\"}"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to add display condition to question with invalid/malformed ID 'Q-INVALID-@#$'",
+          "expectedResult": "API returns HTTP 400 Bad Request with error message 'Invalid question ID format'"
+        }
+      ],
+      "postconditions": [
+        "No display conditions are created or modified",
+        "Database integrity is maintained with no orphaned records",
+        "Error is logged in application logs with attempted question ID and user details",
+        "User is redirected to questions list page or error page"
+      ]
+    },
+    {
+      "id": "TC-NEGA-005",
+      "title": "Attempt to configure circular or conflicting display conditions",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Product Configurator role",
+        "Question A 'Driver Details' exists",
+        "Question B 'Vehicle Details' exists",
+        "System should prevent logical conflicts in condition configuration"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure Question A with display condition: Field='Answer to Question B', Operator='Equals', Value='Yes'",
+          "expectedResult": "Condition is saved successfully"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to configure Question B with display condition: Field='Answer to Question A', Operator='Equals', Value='Yes'",
+          "expectedResult": "Validation error 'Circular dependency detected. Question B cannot depend on Question A because Question A already depends on Question B' appears in red banner, condition is not saved"
+        },
+        {
+          "step": 3,
+          "action": "Configure same question with conflicting conditions: Condition 1: 'Policy Type = Commercial Auto' AND Condition 2: 'Policy Type = Personal Auto' with AND logic",
+          "expectedResult": "Warning message 'Conflicting conditions detected. These conditions can never be satisfied simultaneously. Question will never display.' appears in orange banner"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to save the conflicting configuration by clicking 'Save Question Configuration'",
+          "expectedResult": "Error message 'Cannot save conflicting display conditions. Please review and correct the logic.' appears, configuration is not saved"
+        }
+      ],
+      "postconditions": [
+        "Circular dependencies are prevented and not saved to database",
+        "Conflicting conditions are detected and rejected",
+        "System maintains logical integrity of display rules",
+        "User is prompted to correct the configuration errors"
+      ]
+    },
+    {
+      "id": "TC-NEGA-006",
+      "title": "Attempt to configure display condition when rule engine is unavailable or returns error",
+      "category": "Negative",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Business SME role",
+        "Question 'Flood Coverage Details' is selected for configuration",
+        "Rule engine service is down or experiencing errors",
+        "System has error handling for external service failures"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click 'Add Display Condition' button to open configuration dialog",
+          "expectedResult": "Loading spinner appears briefly, then error message 'Unable to load rule configuration. Rule engine service is currently unavailable. Please try again later.' displays in red banner"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to proceed with configuration by selecting Criteria Type dropdown",
+          "expectedResult": "Dropdown is disabled or shows error state, tooltip displays 'Rule engine unavailable'"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to save a previously configured condition when rule engine is down",
+          "expectedResult": "Error message 'Cannot save display condition. Rule engine validation failed. Please contact system administrator.' appears, condition is not saved"
+        },
+        {
+          "step": 4,
+          "action": "Check system logs or error console for detailed error information",
+          "expectedResult": "Error log shows 'Rule engine connection timeout' or 'Rule engine returned HTTP 500 error' with timestamp and request details"
+        }
+      ],
+      "postconditions": [
+        "No display conditions are saved when rule engine is unavailable",
+        "User receives clear error message about service unavailability",
+        "System remains stable without crashing or data corruption",
+        "Error is logged for system administrator investigation and monitoring"
+      ]
+    },
+    {
+      "id": "TC-NEGA-007",
+      "title": "Attempt to configure display condition with reference data value that no longer exists",
+      "category": "Negative",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Product Manager role",
+        "Question 'Industry Classification' has display condition using reference data field 'Business Category'",
+        "Reference data value 'Obsolete Category' was previously available but has been deleted or deactivated",
+        "Existing condition references the deleted value"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to question configuration and attempt to edit existing display condition that references deleted reference data value 'Obsolete Category'",
+          "expectedResult": "Warning message 'This condition references a reference data value that no longer exists: Obsolete Category' appears in orange banner above condition"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Edit' on the condition with invalid reference data",
+          "expectedResult": "Edit dialog opens with Value field showing 'Obsolete Category (Invalid - No longer available)' in red text"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to save the condition without changing the invalid value",
+          "expectedResult": "Validation error 'Selected value is no longer valid. Please select a current reference data value.' appears, condition is not saved"
+        },
+        {
+          "step": 4,
+          "action": "Attempt to add new condition with manually typed reference data value that doesn't exist in current reference data",
+          "expectedResult": "Validation error 'Invalid reference data value. Please select from available options.' appears, condition is not saved"
+        },
+        {
+          "step": 5,
+          "action": "Verify behavior in PAS workflow when condition references invalid reference data",
+          "expectedResult": "Question does not display in PAS workflow, error is logged: 'Display condition evaluation failed for Question ID due to invalid reference data', workflow continues without interruption"
+        }
+      ],
+      "postconditions": [
+        "Conditions with invalid reference data are flagged and prevented from saving",
+        "System maintains data integrity by validating reference data values",
+        "User is required to update conditions with valid reference data values",
+        "PAS workflow handles invalid conditions gracefully without breaking"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "TC-EDGE-001",
+      "title": "Configure display rule with maximum number of nested conditions (10+ levels deep)",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Product Configurator role",
+        "Question configuration page is loaded",
+        "Rule engine supports nested condition creation",
+        "At least 15 different underwriting criteria fields are available for selection"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to 'Configure Question Display Rules' section",
+          "expectedResult": "Display rules configuration interface loads successfully"
+        },
+        {
+          "step": 2,
+          "action": "Select an existing underwriting question 'Fire Protection System Type'",
+          "expectedResult": "Question details and current display rules are shown"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Add Display Condition' button and create a nested condition structure with 12 levels: IF (PolicyType = 'Commercial') AND (IF (CoverageAmount > 1000000) AND (IF (RiskClass = 'High') AND (IF (State = 'CA') AND (IF (BuildingAge > 50) AND (IF (OccupancyType = 'Retail') AND (IF (SquareFootage > 10000) AND (IF (SprinklerSystem = 'No') AND (IF (FireAlarmType = 'Manual') AND (IF (DistanceToFireStation > 5) AND (IF (PriorClaims > 2) AND (IF (YearsInBusiness < 3)))))))))))))",
+          "expectedResult": "System allows creation of deeply nested conditions up to supported limit, displays visual hierarchy of conditions, shows warning if approaching system limit"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Save Display Rule' button",
+          "expectedResult": "System validates the complex rule structure, saves successfully or displays specific error message indicating maximum nesting depth exceeded with exact limit number"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to policy workflow with test data matching all 12 nested conditions",
+          "expectedResult": "Question displays correctly when all deeply nested conditions are met, system performance remains acceptable (loads within 3 seconds)"
+        }
+      ],
+      "postconditions": [
+        "Complex nested display rule is saved in database with proper hierarchy structure",
+        "Rule evaluation engine can process the nested conditions without timeout",
+        "System logs show successful rule evaluation with execution time metrics",
+        "Question appears in workflow only when all nested conditions are satisfied"
+      ]
+    },
+    {
+      "id": "TC-EDGE-002",
+      "title": "Modify display conditions while multiple users are simultaneously editing the same question rule",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "Two users (User A and User B) are logged in with Product Configurator role from different browsers/sessions",
+        "Both users have navigated to the same question 'Building Construction Type' display rule configuration",
+        "Question has existing display rule: IF (PolicyType = 'Property') AND (CoverageAmount > 500000)",
+        "Database supports concurrent access and locking mechanisms"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "User A clicks 'Edit Display Rule' button at timestamp T0",
+          "expectedResult": "Edit mode is enabled for User A, rule fields become editable, optimistic or pessimistic lock is acquired"
+        },
+        {
+          "step": 2,
+          "action": "User B clicks 'Edit Display Rule' button at timestamp T0+5 seconds while User A is still editing",
+          "expectedResult": "System displays message 'This rule is currently being edited by User A. You can view in read-only mode or request edit access.' OR allows concurrent editing with conflict detection"
+        },
+        {
+          "step": 3,
+          "action": "User A modifies condition to: IF (PolicyType = 'Property') AND (CoverageAmount > 750000) AND (State = 'TX')",
+          "expectedResult": "Changes are reflected in User A's interface, unsaved changes indicator appears"
+        },
+        {
+          "step": 4,
+          "action": "User B (if allowed concurrent editing) modifies condition to: IF (PolicyType = 'Property') AND (CoverageAmount > 500000) AND (RiskClass = 'Standard')",
+          "expectedResult": "Changes are reflected in User B's interface independently"
+        },
+        {
+          "step": 5,
+          "action": "User A clicks 'Save' button at timestamp T1",
+          "expectedResult": "User A's changes are saved successfully, confirmation message 'Display rule updated successfully' appears"
+        },
+        {
+          "step": 6,
+          "action": "User B clicks 'Save' button at timestamp T1+10 seconds",
+          "expectedResult": "System detects conflict and displays message 'This rule was modified by User A at [timestamp]. Please review the latest version and reapply your changes.' OR implements last-write-wins with warning OR implements merge strategy"
+        }
+      ],
+      "postconditions": [
+        "Data integrity is maintained - no corrupted or partially merged rules exist",
+        "Audit log records both users' edit attempts with timestamps and outcomes",
+        "Final saved rule reflects proper conflict resolution strategy",
+        "User B is notified of conflict and can review current state before re-editing"
+      ]
+    },
+    {
+      "id": "TC-EDGE-003",
+      "title": "Configure display rule referencing a dropdown field with 10,000+ reference data values",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Business SME role",
+        "A dropdown field 'Industry Classification Code' exists with 10,500 reference data values loaded",
+        "Question 'Specialized Equipment Coverage' needs display rule based on specific industry codes",
+        "System has performance monitoring enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to question 'Specialized Equipment Coverage' configuration page",
+          "expectedResult": "Configuration page loads within 3 seconds, all fields are accessible"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Add Display Condition' and select 'Industry Classification Code' from criteria dropdown",
+          "expectedResult": "Field is selected, operator dropdown appears with options (equals, not equals, in, not in, contains)"
+        },
+        {
+          "step": 3,
+          "action": "Select operator 'IN' and click on value selector to choose from reference data",
+          "expectedResult": "Value selector opens with search/filter capability, displays first 50-100 values with virtual scrolling or pagination, includes search box for filtering 10,500 values"
+        },
+        {
+          "step": 4,
+          "action": "Type 'Manufacturing' in search box to filter industry codes",
+          "expectedResult": "Search executes within 2 seconds, filtered results (approximately 500-800 matching codes) display, search performance remains acceptable"
+        },
+        {
+          "step": 5,
+          "action": "Select 25 different industry codes from filtered results using multi-select checkboxes",
+          "expectedResult": "Selected codes are highlighted, counter shows '25 selected', UI remains responsive without lag"
+        },
+        {
+          "step": 6,
+          "action": "Click 'Apply' to add selected codes to the IN condition, then click 'Save Display Rule'",
+          "expectedResult": "Rule saves successfully with all 25 industry codes stored, confirmation message appears, save operation completes within 5 seconds"
+        },
+        {
+          "step": 7,
+          "action": "Navigate to policy workflow and select an Industry Classification Code that matches one of the 25 configured codes",
+          "expectedResult": "Question 'Specialized Equipment Coverage' appears immediately, rule evaluation completes within 1 second despite large reference data set"
+        }
+      ],
+      "postconditions": [
+        "Display rule with 25 industry code values is persisted correctly in database",
+        "Rule evaluation performance is acceptable even with large reference data set",
+        "Question displays correctly when any of the 25 industry codes are selected in policy workflow",
+        "System performance metrics show no degradation in rule evaluation time"
+      ]
+    },
+    {
+      "id": "TC-EDGE-004",
+      "title": "Configure display rule with special characters, Unicode, and SQL injection patterns in condition values",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Product Manager role",
+        "Question 'Business Name Verification' exists and accepts text input",
+        "Display rule configuration allows text-based conditions",
+        "System has input validation and SQL injection protection enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to 'Business Name Verification' question display rule configuration",
+          "expectedResult": "Configuration interface loads successfully"
+        },
+        {
+          "step": 2,
+          "action": "Create display condition: IF (BusinessName CONTAINS \"O'Reilly's Café & Bakery\") - testing single quotes and special characters",
+          "expectedResult": "System accepts the condition, properly escapes single quotes, displays condition correctly in preview"
+        },
+        {
+          "step": 3,
+          "action": "Add another condition: IF (BusinessDescription CONTAINS \"日本語テスト中文测试한국어\") - testing Unicode characters from Japanese, Chinese, Korean",
+          "expectedResult": "System accepts Unicode characters, stores them correctly, displays them properly in the UI without garbled text"
+        },
+        {
+          "step": 4,
+          "action": "Add another condition: IF (BusinessType EQUALS \"'; DROP TABLE Questions; --\") - testing SQL injection pattern",
+          "expectedResult": "System treats input as literal string value, does not execute as SQL command, properly sanitizes and escapes the input"
+        },
+        {
+          "step": 5,
+          "action": "Add condition with emoji and special symbols: IF (BusinessCategory CONTAINS \"Food 🍕🍔 & Beverage ©®™ <script>alert('test')</script>\")",
+          "expectedResult": "System accepts emojis, sanitizes HTML/script tags, stores safely, displays emojis correctly if supported or shows fallback"
+        },
+        {
+          "step": 6,
+          "action": "Click 'Save Display Rule' button",
+          "expectedResult": "All conditions save successfully, no SQL errors occur, confirmation message appears, data is properly escaped in database"
+        },
+        {
+          "step": 7,
+          "action": "Verify saved rule by reopening the configuration",
+          "expectedResult": "All special characters, Unicode, and emojis display correctly as entered, no data corruption or loss occurred"
+        }
+      ],
+      "postconditions": [
+        "Display rule with special characters is stored safely in database with proper escaping",
+        "No SQL injection vulnerability is exploited",
+        "Unicode characters are preserved correctly in database and display properly",
+        "System security logs show no suspicious activity or injection attempts",
+        "Rule can be evaluated correctly when matching policy data contains similar special characters"
+      ]
+    },
+    {
+      "id": "TC-EDGE-005",
+      "title": "Delete underwriting criteria field that is referenced in 50+ active display rules",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Product Configurator role with delete permissions",
+        "Underwriting criteria field 'PropertyAge' exists and is used in 53 different question display rules",
+        "All 53 questions with rules referencing 'PropertyAge' are in active/published state",
+        "System has referential integrity checks and dependency tracking enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to 'Manage Underwriting Criteria' section",
+          "expectedResult": "List of all underwriting criteria fields displays with usage indicators"
+        },
+        {
+          "step": 2,
+          "action": "Locate 'PropertyAge' field and click 'Delete' icon",
+          "expectedResult": "System displays warning modal: 'This field is referenced in 53 active display rules. Deleting it will affect the following questions: [list of question names]. Do you want to: 1) Cancel deletion, 2) Delete and remove from all rules, 3) Delete and mark rules as invalid, 4) View all dependencies first'"
+        },
+        {
+          "step": 3,
+          "action": "Click 'View all dependencies first' link",
+          "expectedResult": "Detailed dependency report opens showing all 53 questions, their current display rules, and how PropertyAge is used in each rule (with rule preview)"
+        },
+        {
+          "step": 4,
+          "action": "Close dependency report and click 'Delete and mark rules as invalid' option, then confirm deletion",
+          "expectedResult": "System processes deletion, marks all 53 affected rules with 'Invalid - Missing Criteria' status, displays progress indicator during bulk update, shows completion message: '53 display rules have been marked as invalid and require reconfiguration'"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to one of the affected questions 'Fire Safety Requirements' configuration page",
+          "expectedResult": "Display rule section shows warning banner: 'Display rule contains invalid criteria: PropertyAge (deleted). Please reconfigure the rule.' Rule is not evaluated in workflow until fixed"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to policy workflow where 'Fire Safety Requirements' question should appear",
+          "expectedResult": "Question does not appear due to invalid rule, OR appears with default behavior (always shown or never shown based on system configuration), system logs warning about invalid rule"
+        }
+      ],
+      "postconditions": [
+        "PropertyAge field is deleted from system",
+        "All 53 display rules are marked as invalid with clear indication of missing criteria",
+        "No orphaned references exist in database",
+        "Audit log records the deletion and all affected rules with timestamp and user details",
+        "System prevents rule evaluation for invalid rules to avoid runtime errors",
+        "Notification is sent to relevant stakeholders about affected questions requiring reconfiguration"
+      ]
+    },
+    {
+      "id": "TC-EDGE-006",
+      "title": "Configure display rule with circular dependency between multiple questions",
+      "category": "Edge Cases",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Business SME role",
+        "Three questions exist: Q1 'Building Type', Q2 'Construction Material', Q3 'Fire Rating'",
+        "System allows display rules based on answers to other questions",
+        "Circular dependency detection mechanism exists or needs to be tested"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure Q1 'Building Type' display rule: Show IF (Q3.FireRating = 'Class A')",
+          "expectedResult": "Rule is saved successfully, Q1 will display when Q3 has answer 'Class A'"
+        },
+        {
+          "step": 2,
+          "action": "Configure Q2 'Construction Material' display rule: Show IF (Q1.BuildingType = 'Commercial')",
+          "expectedResult": "Rule is saved successfully, Q2 will display when Q1 has answer 'Commercial'"
+        },
+        {
+          "step": 3,
+          "action": "Configure Q3 'Fire Rating' display rule: Show IF (Q2.ConstructionMaterial = 'Steel')",
+          "expectedResult": "System detects circular dependency chain (Q1→Q3→Q2→Q1) and displays error: 'Circular dependency detected: Q1 depends on Q3, Q3 depends on Q2, Q2 depends on Q1. Please revise display rules to break the circular reference.' Rule save is blocked OR warning is shown"
+        },
+        {
+          "step": 4,
+          "action": "If system allows save with warning, navigate to policy workflow and attempt to load the questions",
+          "expectedResult": "System handles circular dependency gracefully: either shows all questions by default, shows none, or displays error message 'Unable to evaluate display rules due to circular dependency'. No infinite loop or system hang occurs"
+        },
+        {
+          "step": 5,
+          "action": "Return to Q3 configuration and modify rule to: Show IF (PolicyType = 'Commercial') - breaking the circular dependency",
+          "expectedResult": "Rule saves successfully, circular dependency is resolved, system confirms 'Display rule updated successfully. Circular dependency resolved.'"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to policy workflow with PolicyType = 'Commercial' and test question display sequence",
+          "expectedResult": "Q3 displays first (based on PolicyType), when Q3 is answered with 'Class A', Q1 appears, when Q1 is answered with 'Commercial', Q2 appears - proper sequential display without circular issues"
+        }
+      ],
+      "postconditions": [
+        "System prevents or detects circular dependencies in display rules",
+        "Clear error messages guide users to resolve circular references",
+        "No infinite loops or system hangs occur during rule evaluation",
+        "Audit log records circular dependency detection attempts",
+        "Questions display correctly once circular dependency is resolved"
+      ]
+    },
+    {
+      "id": "TC-EDGE-007",
+      "title": "Evaluate display rules with null, empty, and undefined values in policy data fields",
+      "category": "Edge Cases",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in and navigating policy workflow",
+        "Question 'Additional Insured Details' has display rule: Show IF (NumberOfAdditionalInsureds > 0) AND (PrimaryInsuredAge IS NOT NULL) AND (CoverageEffectiveDate IS NOT EMPTY)",
+        "Policy data has been partially filled with some fields containing null, empty string, or undefined values",
+        "Rule evaluation engine handles null/empty value comparisons"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Start new policy workflow with PolicyType = 'General Liability'",
+          "expectedResult": "Policy workflow initializes, initial questions display"
+        },
+        {
+          "step": 2,
+          "action": "Leave 'NumberOfAdditionalInsureds' field empty (null value) and proceed to next section",
+          "expectedResult": "Field remains null in policy data, no validation error if field is optional"
+        },
+        {
+          "step": 3,
+          "action": "Set 'PrimaryInsuredAge' field to empty string '' by entering a value then deleting it completely",
+          "expectedResult": "Field value is empty string or null depending on system behavior"
+        },
+        {
+          "step": 4,
+          "action": "Do not populate 'CoverageEffectiveDate' field at all (undefined/not set)",
+          "expectedResult": "Field remains undefined or null in policy data object"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to the section where 'Additional Insured Details' question should appear based on display rule",
+          "expectedResult": "Question does NOT appear because conditions are not met: NumberOfAdditionalInsureds is null (not > 0), PrimaryInsuredAge is null/empty, CoverageEffectiveDate is empty/undefined. Rule evaluation handles null/empty values correctly without throwing errors"
+        },
+        {
+          "step": 6,
+          "action": "Go back and set NumberOfAdditionalInsureds = 2, PrimaryInsuredAge = 45, CoverageEffectiveDate = '2024-06-01'",
+          "expectedResult": "All condition values are now valid and meet the criteria"
+        },
+        {
+          "step": 7,
+          "action": "Return to the section where 'Additional Insured Details' question should appear",
+          "expectedResult": "Question now appears because all display rule conditions are satisfied with non-null, non-empty values"
+        }
+      ],
+      "postconditions": [
+        "Display rule evaluation correctly handles null, empty, and undefined values without errors",
+        "Questions appear only when all conditions with valid non-null values are met",
+        "No JavaScript errors or null reference exceptions occur during rule evaluation",
+        "System logs show successful rule evaluation with proper null handling",
+        "User experience is smooth without unexpected errors or question display issues"
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "id": "TC-ACCE-001",
+      "title": "Complete keyboard navigation through display rule configuration interface without mouse",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Product Configurator role",
+        "Question 'Flood Zone Verification' configuration page is loaded",
+        "Display rule configuration interface contains: condition builder, operator dropdowns, value inputs, Add/Remove buttons, Save/Cancel buttons",
+        "Keyboard is the only input device being used (mouse disconnected or not used)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Press Tab key from browser address bar to navigate into the page",
+          "expectedResult": "Focus moves to first interactive element (typically 'Skip to main content' link or first navigation item), visible focus indicator (2px solid outline) appears around focused element"
+        },
+        {
+          "step": 2,
+          "action": "Continue pressing Tab to navigate through page header, navigation menu, and reach 'Add Display Condition' button",
+          "expectedResult": "Focus moves sequentially through all interactive elements in logical order, focus indicator is clearly visible on each element, no keyboard traps encountered, focus order matches visual layout"
+        },
+        {
+          "step": 3,
+          "action": "Press Enter key on 'Add Display Condition' button",
+          "expectedResult": "New condition row is added to the interface, focus automatically moves to first field in new condition (criteria dropdown), screen reader announces 'Condition added, focus on criteria selector'"
+        },
+        {
+          "step": 4,
+          "action": "Press Space or Enter to open criteria dropdown, use Arrow Down key to navigate through options, press Enter to select 'PolicyType'",
+          "expectedResult": "Dropdown opens with keyboard, options are navigable with arrow keys, selected option is highlighted, Enter key selects the option and closes dropdown, focus moves to operator dropdown"
+        },
+        {
+          "step": 5,
+          "action": "Press Space to open operator dropdown, use Arrow keys to select 'EQUALS', press Enter to confirm",
+          "expectedResult": "Operator dropdown behaves same as criteria dropdown, selection is confirmed, focus moves to value input field"
+        },
+        {
+          "step": 6,
+          "action": "Type 'Commercial' in value input field, press Tab to move to 'Add Another Condition' button",
+          "expectedResult": "Text is entered successfully, Tab moves focus to next interactive element, value is retained in field"
+        },
+        {
+          "step": 7,
+          "action": "Press Tab to skip 'Add Another Condition' and reach 'Save Display Rule' button, press Enter to save",
+          "expectedResult": "Focus moves to Save button with visible indicator, Enter key activates save action, success message appears and receives focus for screen reader announcement"
+        },
+        {
+          "step": 8,
+          "action": "Press Shift+Tab to navigate backwards through the interface",
+          "expectedResult": "Focus moves in reverse order through all interactive elements, focus indicator remains visible, reverse tab order matches forward tab order"
+        },
+        {
+          "step": 9,
+          "action": "Navigate to a condition row with multiple conditions and press Tab to reach 'Remove Condition' icon button",
+          "expectedResult": "Icon button receives focus with visible indicator, button has accessible label (announced by screen reader as 'Remove condition' not just 'X' or icon name)"
+        },
+        {
+          "step": 10,
+          "action": "Press Escape key while dropdown is open",
+          "expectedResult": "Dropdown closes without making selection, focus returns to dropdown trigger button, no data is lost"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements are reachable and operable via keyboard alone",
+        "Focus order is logical and matches visual layout",
+        "No keyboard traps exist - user can navigate in and out of all components",
+        "All actions (add, remove, save, cancel) can be completed without mouse",
+        "Focus indicators meet WCAG 2.1 contrast requirements (3:1 minimum)"
+      ]
+    },
+    {
+      "id": "TC-ACCE-002",
+      "title": "Screen reader announces all display rule configuration elements, changes, and validation messages",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Business SME role",
+        "Screen reader is active (NVDA, JAWS, or VoiceOver)",
+        "Question 'Building Occupancy Type' configuration page is loaded",
+        "Display rule configuration section is visible with existing rule: IF (PolicyType = 'Property')"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to 'Display Rule Configuration' section using screen reader navigation (heading navigation or landmark navigation)",
+          "expectedResult": "Screen reader announces: 'Display Rule Configuration, region' or 'Display Rule Configuration, heading level 2', section is identified as a landmark with proper ARIA role"
+        },
+        {
+          "step": 2,
+          "action": "Tab to existing condition and listen to screen reader announcement",
+          "expectedResult": "Screen reader announces complete condition: 'Condition 1, Criteria: Policy Type, Operator: Equals, Value: Property, Edit button, Remove button' - all parts of condition are announced clearly"
+        },
+        {
+          "step": 3,
+          "action": "Tab to 'Add Display Condition' button and listen to announcement",
+          "expectedResult": "Screen reader announces: 'Add Display Condition, button' with clear indication it's a button and its purpose"
+        },
+        {
+          "step": 4,
+          "action": "Activate 'Add Display Condition' button and listen to announcement",
+          "expectedResult": "Screen reader announces: 'Condition added, Criteria selector, combo box, collapsed' indicating new condition was added and focus is on criteria selector"
+        },
+        {
+          "step": 5,
+          "action": "Open criteria dropdown and navigate through options with arrow keys",
+          "expectedResult": "Screen reader announces each option as focus moves: 'Policy Type', 'Coverage Amount', 'Risk Class', etc., also announces 'X of Y' position in list, announces 'selected' for currently selected option"
+        },
+        {
+          "step": 6,
+          "action": "Select 'Coverage Amount' and move to operator dropdown",
+          "expectedResult": "Screen reader announces: 'Coverage Amount selected, Operator selector, combo box, collapsed', confirms selection and identifies next field"
+        },
+        {
+          "step": 7,
+          "action": "Select operator 'GREATER THAN' and move to value input field",
+          "expectedResult": "Screen reader announces: 'Greater Than selected, Value, edit text, required' indicating field type and required status"
+        },
+        {
+          "step": 8,
+          "action": "Leave value field empty and attempt to save by clicking 'Save Display Rule' button",
+          "expectedResult": "Screen reader announces validation error: 'Error: Value is required for Coverage Amount condition, invalid entry' and focus moves to the invalid field, error is associated with field via aria-describedby"
+        },
+        {
+          "step": 9,
+          "action": "Enter '500000' in value field and save successfully",
+          "expectedResult": "Screen reader announces: 'Display rule saved successfully, alert' using ARIA live region, success message is announced without moving focus"
+        },
+        {
+          "step": 10,
+          "action": "Navigate to 'Remove Condition' icon button",
+          "expectedResult": "Screen reader announces: 'Remove condition for Coverage Amount greater than 500000, button' providing context about which condition will be removed, not just 'Remove' or 'X'"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements have proper accessible labels and roles",
+        "Dynamic content changes are announced via ARIA live regions",
+        "Error messages are associated with form fields and announced clearly",
+        "Context and state information is provided for all controls",
+        "Screen reader users can understand and complete all tasks without visual reference"
+      ]
+    },
+    {
+      "id": "TC-ACCE-003",
+      "title": "Verify focus management when adding, removing, and modifying display rule conditions",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Product Manager role",
+        "Question 'Earthquake Coverage Eligibility' configuration page is loaded",
+        "Display rule section shows 2 existing conditions",
+        "Keyboard navigation is being used"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Tab to 'Add Display Condition' button and press Enter",
+          "expectedResult": "New condition row is added, focus automatically moves to the criteria dropdown of the newly added condition (3rd condition), focus is not lost or moved to unexpected location"
+        },
+        {
+          "step": 2,
+          "action": "Press Escape key without selecting any criteria",
+          "expectedResult": "Focus returns to 'Add Display Condition' button, new empty condition row is either removed or remains in editable state, focus is managed predictably"
+        },
+        {
+          "step": 3,
+          "action": "Add a complete condition (Criteria: State, Operator: Equals, Value: CA), then Tab to 'Remove Condition' button for the 2nd condition and press Enter",
+          "expectedResult": "Confirmation dialog appears asking 'Remove this condition?', focus moves to 'Confirm' button in dialog, dialog is announced by screen reader"
+        },
+        {
+          "step": 4,
+          "action": "Press Enter to confirm removal",
+          "expectedResult": "2nd condition is removed from interface, focus moves to logical location: either the 'Remove' button of the next condition (3rd condition which is now 2nd), or the 'Add Display Condition' button, focus is not lost to top of page"
+        },
+        {
+          "step": 5,
+          "action": "Tab to 'Edit' button on 1st condition and press Enter",
+          "expectedResult": "Condition enters edit mode, focus moves to first editable field (criteria dropdown) of that condition, edit mode is clearly indicated visually and announced by screen reader"
+        },
+        {
+          "step": 6,
+          "action": "Modify the criteria from 'PolicyType' to 'RiskClass', then press Tab to move through operator and value fields",
+          "expectedResult": "Focus moves sequentially through editable fields within the condition, changes are retained, focus remains within the condition being edited"
+        },
+        {
+          "step": 7,
+          "action": "Press Escape key while in edit mode",
+          "expectedResult": "Edit mode is cancelled, changes are discarded, condition returns to view mode showing original values, focus returns to 'Edit' button of that condition"
+        },
+        {
+          "step": 8,
+          "action": "Open criteria dropdown, navigate to an option, then press Tab instead of Enter",
+          "expectedResult": "Dropdown closes without selection, focus moves to next focusable element (operator dropdown or next field), original selection is retained, no unexpected behavior"
+        },
+        {
+          "step": 9,
+          "action": "Fill all required fields and Tab to 'Save Display Rule' button, press Enter",
+          "expectedResult": "Save action executes, success message appears, focus moves to success message or remains on Save button, focus is not lost"
+        },
+        {
+          "step": 10,
+          "action": "If validation error occurs, observe where focus moves",
+          "expectedResult": "Focus moves to first field with validation error, error message is announced by screen reader, error is clearly associated with the field"
+        }
+      ],
+      "postconditions": [
+        "Focus is always visible and in a logical location after any action",
+        "Focus never gets lost or trapped in any component",
+        "Focus management follows WCAG 2.1 guidelines for dynamic content",
+        "Users can predict where focus will move after each action",
+        "All focus movements are announced appropriately by screen readers"
+      ]
+    },
+    {
+      "id": "TC-ACCE-004",
+      "title": "Verify color contrast ratios and ensure information is not conveyed by color alone",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Product Configurator role",
+        "Question 'Liability Limits Selection' configuration page is loaded with display rules",
+        "Display rules show various states: valid conditions (green), invalid conditions (red), warning states (yellow/orange)",
+        "Color contrast analyzer tool is available (browser extension or standalone tool)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Use color contrast analyzer to measure contrast ratio between normal text (condition labels, field labels) and background",
+          "expectedResult": "Contrast ratio is at least 4.5:1 for normal text (under 18pt or 14pt bold), meets WCAG 2.1 AA standard"
+        },
+        {
+          "step": 2,
+          "action": "Measure contrast ratio between large text (headings like 'Display Rule Configuration') and background",
+          "expectedResult": "Contrast ratio is at least 3:1 for large text (18pt and larger, or 14pt bold and larger), meets WCAG 2.1 AA standard"
+        },
+        {
+          "step": 3,
+          "action": "Measure contrast ratio of interactive elements in their default state (buttons, dropdowns, input borders)",
+          "expectedResult": "Interactive element borders and controls have at least 3:1 contrast ratio against adjacent colors, meets WCAG 2.1 AA for non-text contrast"
+        },
+        {
+          "step": 4,
+          "action": "Measure contrast ratio of focus indicators on all interactive elements",
+          "expectedResult": "Focus indicators have at least 3:1 contrast ratio against both the focused element and the background, focus is clearly visible"
+        },
+        {
+          "step": 5,
+          "action": "Create an invalid condition (missing required value) and observe how error state is indicated",
+          "expectedResult": "Error state is indicated by multiple methods: red border/background PLUS error icon PLUS error text message, not by color alone, error is understandable even in grayscale"
+        },
+        {
+          "step": 6,
+          "action": "Observe a valid/saved condition that shows success state with green indicator",
+          "expectedResult": "Success state uses green color PLUS success icon (checkmark) PLUS text label 'Valid' or 'Active', information is conveyed through multiple channels"
+        },
+        {
+          "step": 7,
+          "action": "Observe warning state (e.g., condition references deprecated field) shown in yellow/orange",
+          "expectedResult": "Warning state uses yellow/orange color PLUS warning icon (exclamation triangle) PLUS warning text message, not relying on color alone"
+        },
+        {
+          "step": 8,
+          "action": "Use browser developer tools to simulate color blindness (protanopia, deuteranopia, tritanopia) or use color blindness simulator",
+          "expectedResult": "All states (error, success, warning, active, inactive) remain distinguishable with color blindness simulation, icons and text labels provide necessary information"
+        },
+        {
+          "step": 9,
+          "action": "Convert page to grayscale using browser tools or CSS filter",
+          "expectedResult": "All interactive elements remain identifiable, all states remain distinguishable, all information remains accessible without color"
+        },
+        {
+          "step": 10,
+          "action": "Measure contrast of disabled state elements (disabled buttons, inactive conditions)",
+          "expectedResult": "Disabled elements are visually distinguishable but may have lower contrast (WCAG allows exemption for disabled elements), disabled state is indicated by more than just reduced contrast (e.g., 'disabled' attribute, cursor change, opacity)"
+        }
+      ],
+      "postconditions": [
+        "All text meets WCAG 2.1 AA contrast requirements (4.5:1 for normal, 3:1 for large)",
+        "All interactive elements meet 3:1 non-text contrast requirement",
+        "No information is conveyed by color alone - icons and text supplement color coding",
+        "Interface is usable by people with color blindness",
+        "Interface remains functional and understandable in grayscale"
+      ]
+    },
+    {
+      "id": "TC-ACCE-005",
+      "title": "Test display rule configuration interface at 200% browser zoom and with text spacing adjustments",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Business SME role",
+        "Question 'Workers Compensation Class Codes' configuration page is loaded",
+        "Display rule interface contains multiple conditions with dropdowns, inputs, and buttons",
+        "Browser is set to 100% zoom initially"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Set browser zoom to 200% using Ctrl/Cmd + Plus key or browser zoom menu",
+          "expectedResult": "Page scales to 200%, all content remains visible and accessible, no horizontal scrolling is required for main content (some horizontal scroll acceptable for wide tables), layout adapts responsively"
+        },
+        {
+          "step": 2,
+          "action": "Navigate through display rule configuration interface at 200% zoom using Tab key",
+          "expectedResult": "All interactive elements are reachable and visible, focus indicators are visible and not cut off, buttons and controls are not overlapping, text is readable without horizontal scrolling"
+        },
+        {
+          "step": 3,
+          "action": "Open criteria dropdown at 200% zoom",
+          "expectedResult": "Dropdown opens fully visible, options are readable, dropdown does not extend beyond viewport requiring awkward scrolling, selection can be made successfully"
+        },
+        {
+          "step": 4,
+          "action": "Add multiple conditions (3-4) and verify layout at 200% zoom",
+          "expectedResult": "Conditions stack vertically or wrap appropriately, all condition fields remain accessible, 'Add' and 'Remove' buttons are visible and clickable, no content is hidden or cut off"
+        },
+        {
+          "step": 5,
+          "action": "Return zoom to 100%, then apply CSS text spacing adjustments: line-height: 1.5, letter-spacing: 0.12em, word-spacing: 0.16em, paragraph spacing: 2em (using browser extension or developer tools)",
+          "expectedResult": "Text spacing increases as specified, all text remains visible and readable, no text is cut off or truncated, containers expand to accommodate increased spacing"
+        },
+        {
+          "step": 6,
+          "action": "Interact with dropdowns and buttons with increased text spacing",
+          "expectedResult": "All interactive elements remain functional, button labels are fully visible, dropdown options are readable, no overlapping text or UI elements"
+        },
+        {
+          "step": 7,
+          "action": "Fill out a complete display rule condition with text spacing adjustments active",
+          "expectedResult": "All form fields are usable, input text is visible with increased spacing, field labels remain associated with inputs, validation messages are visible and readable"
+        },
+        {
+          "step": 8,
+          "action": "Combine 200% zoom with text spacing adjustments",
+          "expectedResult": "Interface remains usable with both zoom and text spacing applied, critical functionality is not lost, some horizontal scrolling may be necessary but interface remains functional"
+        },
+        {
+          "step": 9,
+          "action": "Test on mobile viewport (375px width) at 100% zoom",
+          "expectedResult": "Interface adapts to mobile viewport, touch targets are at least 44x44 pixels, dropdowns work with touch, all functionality is accessible on mobile, responsive design handles small screens appropriately"
+        },
+        {
+          "step": 10,
+          "action": "Increase mobile device text size in accessibility settings (iOS: Settings > Display & Brightness > Text Size, Android: Settings > Display > Font Size) to largest setting",
+          "expectedResult": "Text scales appropriately on mobile, interface remains usable, critical content and controls remain accessible, layout adapts to larger text"
+        }
+      ],
+      "postconditions": [
+        "Interface meets WCAG 2.1 requirement for 200% zoom without loss of functionality",
+        "Text spacing adjustments do not break layout or hide content (WCAG 2.1 SC 1.4.12)",
+        "Mobile interface is fully functional with touch and increased text size",
+        "Responsive design handles various viewport sizes and zoom levels",
+        "Users with low vision can successfully configure display rules"
+      ]
+    },
+    {
+      "id": "TC-ACCE-006",
+      "title": "Verify ARIA attributes, roles, and live regions for dynamic display rule configuration content",
+      "category": "Accessibility",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in with Product Manager role",
+        "Question 'Cyber Liability Coverage' configuration page is loaded",
+        "Browser developer tools are open to inspect HTML and ARIA attributes",
+        "Screen reader is available for testing announcements"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Inspect the main display rule configuration container in browser developer tools",
+          "expectedResult": "Container has appropriate landmark role: role='region' with aria-label='Display Rule Configuration' or is wrapped in <section> with accessible name, allows screen reader users to navigate by landmark"
+        },
+        {
+          "step": 2,
+          "action": "Inspect criteria dropdown element",
+          "expectedResult": "Dropdown has role='combobox', aria-expanded='false' when closed and 'true' when open, aria-haspopup='listbox', aria-controls points to listbox ID, aria-label or aria-labelledby provides accessible name"
+        },
+        {
+          "step": 3,
+          "action": "Open criteria dropdown and inspect the options list",
+          "expectedResult": "Options list has role='listbox', each option has role='option', currently selected option has aria-selected='true', focused option is indicated with proper focus management"
+        },
+        {
+          "step": 4,
+          "action": "Inspect 'Add Display Condition' button",
+          "expectedResult": "Button has clear accessible name via text content or aria-label, role='button' (implicit if using <button> element), no aria-hidden on button or its text"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Add Display Condition' and inspect the newly added condition row",
+          "expectedResult": "New condition is added to DOM in logical location, screen reader announces addition via ARIA live region (aria-live='polite' or 'assertive'), announcement includes context like 'Condition 3 added'"
+        },
+        {
+          "step": 6,
+          "action": "Inspect 'Remove Condition' icon button",
+          "expectedResult": "Icon button has aria-label='Remove condition' or similar descriptive label (not just 'Remove' or 'X'), provides context about which condition will be removed, role='button' is present"
+        },
+        {
+          "step": 7,
+          "action": "Create validation error by leaving required field empty and attempting to save, then inspect error message",
+          "expectedResult": "Error message has role='alert' or is in container with aria-live='assertive', error is associated with form field via aria-describedby, field has aria-invalid='true', error is announced immediately by screen reader"
+        },
+        {
+          "step": 8,
+          "action": "Successfully save display rule and inspect success message",
+          "expectedResult": "Success message is in ARIA live region with aria-live='polite', message is announced by screen reader without moving focus, message has appropriate role='status' or role='alert'"
+        },
+        {
+          "step": 9,
+          "action": "Inspect condition in 'view mode' vs 'edit mode' for state indication",
+          "expectedResult": "Edit mode is indicated with aria-expanded='true' or similar state attribute, mode change is announced by screen reader, visual and programmatic states are synchronized"
+        },
+        {
+          "step": 10,
+          "action": "Inspect any disabled or inactive conditions",
+          "expectedResult": "Disabled elements have aria-disabled='true' or disabled attribute, disabled state is announced by screen reader, visual and programmatic disabled states match"
+        },
+        {
+          "step": 11,
+          "action": "Inspect complex condition builder with AND/OR logic groups",
+          "expectedResult": "Logical groupings use appropriate ARIA structure: role='group' with aria-label describing the group (e.g., 'AND condition group'), nested conditions maintain proper hierarchy, screen reader can navigate and understand structure"
+        },
+        {
+          "step": 12,
+          "action": "Test with screen reader in forms mode and browse mode",
+          "expectedResult": "All interactive elements are accessible in forms mode, all content is readable in browse mode, ARIA roles and attributes work correctly in both modes"
+        }
+      ],
+      "postconditions": [
+        "All interactive elements have appropriate ARIA roles and attributes",
+        "Dynamic content changes are announced via ARIA live regions",
+        "Form fields have proper labels, descriptions, and error associations",
+        "Complex widgets (dropdowns, condition builders) use correct ARIA patterns",
+        "Screen reader users can understand structure and state of all components",
+        "ARIA implementation follows WAI-ARIA 1.2 authoring practices"
+      ]
+    },
+    {
+      "id": "TC-ACCE-007",
+      "title": "Test mobile touch accessibility for display rule configuration on tablet and smartphone",
+      "category": "Accessibility",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in with Product Configurator role on mobile device (or browser responsive mode)",
+        "Question 'Professional Liability Limits' configuration page is loaded on tablet (768px width) and smartphone (375px width)",
+        "Touch screen is the primary input method",
+        "Mobile accessibility features are enabled (iOS VoiceOver or Android TalkBack)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Measure touch target size of 'Add Display Condition' button on mobile using browser developer tools or ruler overlay",
+          "expectedResult": "Button touch target is at least 44x44 pixels (iOS) or 48x48 pixels (Android), meets WCAG 2.1 SC 2.5.5 Target Size (Enhanced) or at minimum 24x24 for Level AA"
+        },
+        {
+          "step": 2,
+          "action": "Measure spacing between adjacent interactive elements (e.g., 'Edit' and 'Remove' buttons on same condition row)",
+          "expectedResult": "Adequate spacing exists between touch targets (at least 8 pixels), prevents accidental activation of wrong button, or buttons are separated by non-interactive content"
+        },
+        {
+          "step": 3,
+          "action": "Tap 'Add Display Condition' button on smartphone",
+          "expectedResult": "Button activates reliably with single tap, visual feedback shows button was pressed (color change, ripple effect), new condition appears, no accidental double-activation"
+        },
+        {
+          "step": 4,
+          "action": "Tap to open criteria dropdown on mobile",
+          "expectedResult": "Dropdown opens in mobile-friendly format (full-screen overlay or bottom sheet on small screens), options are large enough to tap easily (44x44px minimum), dropdown can be closed by tapping outside or close button"
+        },
+        {
+          "step": 5,
+          "action": "Scroll through dropdown options using touch swipe gesture",
+          "expectedResult": "Options scroll smoothly, momentum scrolling works, selected option is highlighted, tap on option selects it and closes dropdown"
+        },
+        {
+          "step": 6,
+          "action": "Enable VoiceOver (iOS) or TalkBack (Android) and navigate through display rule configuration",
+          "expectedResult": "Screen reader announces all elements correctly, swipe gestures navigate between elements, double-tap activates buttons and controls, all functionality is accessible with screen reader enabled"
+        },
+        {
+          "step": 7,
+          "action": "Use screen reader to add a new condition on mobile",
+          "expectedResult": "Screen reader announces 'Add Display Condition, button', double-tap activates, new condition is announced, focus moves to first field of new condition, all fields are reachable with swipe gestures"
+        },
+        {
+          "step": 8,
+          "action": "Test pinch-to-zoom gesture on mobile display rule configuration page",
+          "expectedResult": "Page allows pinch-to-zoom (viewport meta tag does not prevent zoom with user-scalable=no or maximum-scale=1), content scales appropriately, functionality remains accessible when zoomed"
+        },
+        {
+          "step": 9,
+          "action": "Rotate device from portrait to landscape orientation",
+          "expectedResult": "Layout adapts to orientation change, all content remains accessible, no functionality is lost, focus is maintained on current element, display rules remain fully functional in both orientations"
+        },
+        {
+          "step": 10,
+          "action": "Test with mobile device accessibility settings: increased text size, bold text, reduced motion",
+          "expectedResult": "Interface respects system accessibility settings, text scales with device text size settings, animations are reduced or removed when 'reduce motion' is enabled, bold text setting is honored"
+        }
+      ],
+      "postconditions": [
+        "All touch targets meet minimum size requirements (44x44px or 48x48px)",
+        "Mobile interface is fully functional with touch and screen readers",
+        "Pinch-to-zoom is enabled and works correctly",
+        "Layout adapts to different orientations and device sizes",
+        "System accessibility settings are respected",
+        "Mobile users with disabilities can successfully configure display rules"
+      ]
+    }
+  ],
+  "performance": [
+    {
+      "id": "PERF-LOAD-001",
+      "title": "Validate Question Display Rule Evaluation Performance Under Peak Concurrent User Load",
+      "category": "performance",
+      "subCategory": "Load Testing",
+      "priority": "Critical",
+      "description": "Test the system's ability to evaluate and display conditional underwriting questions under peak concurrent user load. Validate that rule engine processes display conditions efficiently when multiple users are configuring and viewing questions simultaneously across different policy workflows.",
+      "preconditions": [
+        "Test environment configured with production-like data volume (minimum 10,000 question rules)",
+        "Load testing tool (JMeter/LoadRunner) configured and calibrated",
+        "Monitoring tools active for CPU, memory, database connections, and application metrics",
+        "Baseline performance metrics established for single-user scenario",
+        "Test user accounts provisioned for all three roles (Business SME, Product Configurator, Product Manager)"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure load test to simulate 500 concurrent users (200 Business SMEs, 200 Product Configurators, 100 Product Managers) accessing question display rule configuration",
+          "expectedResult": "Load test successfully initialized with user distribution across all three roles"
+        },
+        {
+          "step": 2,
+          "action": "Execute mixed workload: 40% users defining new display conditions, 40% modifying existing rules, 20% viewing question displays in policy workflow",
+          "expectedResult": "All user actions execute without errors, system maintains stable operation"
+        },
+        {
+          "step": 3,
+          "action": "Measure response times for rule evaluation and question display rendering over 30-minute sustained load period",
+          "expectedResult": "P50 response time ≤ 1.5 seconds, P95 ≤ 3 seconds, P99 ≤ 5 seconds for rule evaluation and display"
+        },
+        {
+          "step": 4,
+          "action": "Monitor throughput and measure transactions per second (TPS) for rule configuration and evaluation operations",
+          "expectedResult": "System maintains minimum 50 TPS for rule operations with error rate < 0.1%"
+        },
+        {
+          "step": 5,
+          "action": "Capture resource utilization metrics: CPU, memory, database connection pool, thread pool usage",
+          "expectedResult": "CPU utilization < 75%, memory usage < 80%, database connections < 70% of pool, no thread pool exhaustion"
+        }
+      ],
+      "postconditions": [
+        "All configured rules remain intact and functional",
+        "No data corruption or inconsistencies in rule definitions",
+        "System returns to baseline resource utilization within 5 minutes of test completion",
+        "Application logs reviewed for errors or warnings"
+      ],
+      "testData": "10,000 pre-configured question display rules with varying complexity (simple boolean conditions to complex nested logic), 500 test user accounts, sample policy workflow data",
+      "toolsRequired": [
+        "Apache JMeter or LoadRunner",
+        "Application Performance Monitoring (APM) tool - New Relic/Dynatrace/AppDynamics",
+        "Database monitoring tool",
+        "Server resource monitoring - Prometheus/Grafana"
+      ],
+      "estimatedTime": "2 hours",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": null
+    },
+    {
+      "id": "PERF-STRESS-001",
+      "title": "Identify Breaking Point and Validate Graceful Degradation of Rule Engine Under Extreme Load",
+      "category": "performance",
+      "subCategory": "Stress Testing",
+      "priority": "High",
+      "description": "Determine the maximum capacity of the question display rule engine by progressively increasing load beyond expected peak until system failure or unacceptable performance degradation occurs. Validate that the system degrades gracefully and recovers properly without data loss or corruption.",
+      "preconditions": [
+        "Production-equivalent test environment with full dataset",
+        "Automated health check endpoints configured",
+        "Database backup completed before test execution",
+        "Incident response team on standby",
+        "Circuit breaker and rate limiting mechanisms identified for validation"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Start with baseline load of 500 concurrent users and incrementally increase by 200 users every 10 minutes until system breaking point",
+          "expectedResult": "Load increases progressively with metrics captured at each increment level"
+        },
+        {
+          "step": 2,
+          "action": "Monitor response times, error rates, and system health indicators at each load increment (500, 700, 900, 1100, 1300+ users)",
+          "expectedResult": "Clear identification of performance degradation thresholds and breaking point (when error rate > 5% or P95 response time > 10 seconds)"
+        },
+        {
+          "step": 3,
+          "action": "Validate graceful degradation mechanisms: verify appropriate error messages, circuit breaker activation, request queuing, and rate limiting behavior",
+          "expectedResult": "System returns HTTP 503 or appropriate error codes, displays user-friendly error messages, activates circuit breakers to protect downstream services"
+        },
+        {
+          "step": 4,
+          "action": "Document maximum sustainable load capacity and observe system behavior at 120% of identified capacity",
+          "expectedResult": "Breaking point identified (e.g., 1200 concurrent users), system behavior documented, no crashes or unhandled exceptions"
+        },
+        {
+          "step": 5,
+          "action": "Reduce load to normal levels and measure recovery time and system stability post-stress",
+          "expectedResult": "System recovers to normal operation within 10 minutes, all services resume normal response times, no data loss or corruption detected"
+        }
+      ],
+      "postconditions": [
+        "System fully recovered and operational",
+        "All question display rules validated for integrity",
+        "Breaking point and capacity limits documented",
+        "No memory leaks or resource exhaustion persisting after recovery"
+      ],
+      "testData": "Production-scale dataset with 15,000+ question rules, 1500+ test user accounts for stress simulation",
+      "toolsRequired": [
+        "Apache JMeter with ramp-up configuration",
+        "Real-time monitoring dashboard",
+        "Log aggregation tool - ELK Stack/Splunk",
+        "Database performance analyzer"
+      ],
+      "estimatedTime": "3 hours",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": null
+    },
+    {
+      "id": "PERF-SOAK-001",
+      "title": "Validate System Stability and Detect Memory Leaks During Extended Rule Configuration Operations",
+      "category": "performance",
+      "subCategory": "Endurance/Soak Testing",
+      "priority": "High",
+      "description": "Execute sustained load testing over extended duration (8-12 hours) to identify memory leaks, resource exhaustion, database connection leaks, and performance degradation in the question display rule configuration system. Simulate realistic continuous usage patterns to ensure long-term stability.",
+      "preconditions": [
+        "Dedicated test environment with production-equivalent configuration",
+        "Continuous monitoring configured for memory, CPU, disk I/O, database connections",
+        "Heap dump and thread dump capture mechanisms configured",
+        "Baseline memory footprint and resource usage documented",
+        "Test scheduled during off-peak hours with 12-hour window"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure sustained load of 300 concurrent users (60% of peak capacity) performing continuous rule configuration operations",
+          "expectedResult": "Steady-state load established with consistent user activity patterns"
+        },
+        {
+          "step": 2,
+          "action": "Execute mixed operations continuously for 12 hours: create rules (30%), update rules (40%), evaluate rules in workflow (25%), delete rules (5%)",
+          "expectedResult": "Operations execute continuously without interruption, maintaining realistic usage distribution"
+        },
+        {
+          "step": 3,
+          "action": "Monitor memory utilization (heap and non-heap) every 15 minutes, capture heap dumps at hours 0, 4, 8, and 12",
+          "expectedResult": "Memory usage remains stable or shows predictable sawtooth pattern with GC cycles, no continuous upward trend indicating memory leaks"
+        },
+        {
+          "step": 4,
+          "action": "Track database connection pool usage, thread pool metrics, and file handle consumption throughout test duration",
+          "expectedResult": "Database connections properly released (no connection leaks), thread count stable, file handles within normal range"
+        },
+        {
+          "step": 5,
+          "action": "Measure response time degradation over time: compare P95 response times at hour 1, 4, 8, and 12",
+          "expectedResult": "Response time degradation < 10% over 12-hour period (P95 at hour 12 within 10% of hour 1 baseline)"
+        },
+        {
+          "step": 6,
+          "action": "Analyze garbage collection frequency, duration, and full GC occurrences throughout the test",
+          "expectedResult": "GC frequency remains consistent, no increase in full GC events, GC pause times < 1 second"
+        }
+      ],
+      "postconditions": [
+        "System remains operational and responsive after 12-hour test",
+        "Memory analysis confirms no memory leaks detected",
+        "All database connections properly closed",
+        "Application logs analyzed for resource warnings or errors",
+        "Performance metrics compared against baseline with acceptable variance"
+      ],
+      "testData": "Rotating dataset of 5,000 question rules with varied complexity, 300 concurrent user sessions maintained throughout duration",
+      "toolsRequired": [
+        "Apache JMeter with duration-based thread groups",
+        "Java profiling tool - JProfiler/YourKit/VisualVM",
+        "APM tool with memory leak detection",
+        "Database connection pool monitoring",
+        "GC log analyzer"
+      ],
+      "estimatedTime": "14 hours (12-hour test + 2-hour analysis)",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": null
+    },
+    {
+      "id": "PERF-SPIKE-001",
+      "title": "Validate System Response to Sudden Traffic Surge and Auto-Scaling Behavior for Rule Evaluation",
+      "category": "performance",
+      "subCategory": "Spike Testing",
+      "priority": "Critical",
+      "description": "Test the system's ability to handle sudden, dramatic increases in traffic when multiple policy workflows simultaneously trigger question display rule evaluations. Validate auto-scaling mechanisms, caching effectiveness, and system recovery from rapid load fluctuations without service disruption.",
+      "preconditions": [
+        "Auto-scaling policies configured and enabled (horizontal pod autoscaling or equivalent)",
+        "Caching layer operational (Redis/Memcached) for rule evaluation results",
+        "Baseline load of 100 concurrent users established",
+        "Monitoring dashboards configured for real-time scaling events",
+        "Alert thresholds configured for spike detection"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish baseline load with 100 concurrent users performing normal rule configuration and evaluation operations",
+          "expectedResult": "System operating at steady state with baseline metrics: P95 < 2 seconds, CPU < 40%, memory < 50%"
+        },
+        {
+          "step": 2,
+          "action": "Inject sudden traffic spike: increase from 100 to 800 concurrent users within 60 seconds (700% increase), simulating mass policy workflow initiation",
+          "expectedResult": "Load spike successfully generated, all 800 users actively executing rule evaluation requests"
+        },
+        {
+          "step": 3,
+          "action": "Monitor immediate system response during first 5 minutes of spike: response times, error rates, queue depths, and auto-scaling trigger events",
+          "expectedResult": "Initial response time spike acceptable (P95 < 8 seconds during first 2 minutes), error rate < 2%, auto-scaling triggered within 90 seconds"
+        },
+        {
+          "step": 4,
+          "action": "Validate auto-scaling effectiveness: verify new instances provisioned and traffic distributed, measure time to stabilization",
+          "expectedResult": "Additional compute resources provisioned within 3-5 minutes, load distributed across scaled instances, system stabilizes with P95 < 3 seconds"
+        },
+        {
+          "step": 5,
+          "action": "Maintain spike load for 15 minutes, then rapidly decrease back to 100 users within 60 seconds",
+          "expectedResult": "System handles sustained spike without degradation, gracefully handles rapid scale-down, no errors during load decrease"
+        },
+        {
+          "step": 6,
+          "action": "Monitor scale-down behavior and resource de-provisioning, validate return to baseline performance",
+          "expectedResult": "Auto-scaling scales down excess resources within 10 minutes, system returns to baseline metrics, no performance anomalies post-spike"
+        }
+      ],
+      "postconditions": [
+        "System returned to baseline configuration and performance",
+        "All rule evaluations completed successfully during spike",
+        "No data inconsistencies or lost transactions",
+        "Auto-scaling metrics and logs captured for analysis",
+        "Cache hit rates analyzed for effectiveness during spike"
+      ],
+      "testData": "8,000 pre-configured question display rules, 800 test user accounts, simulated policy workflow triggers",
+      "toolsRequired": [
+        "Apache JMeter with immediate ramp-up configuration",
+        "Cloud platform monitoring (AWS CloudWatch/Azure Monitor/GCP Monitoring)",
+        "Auto-scaling policy dashboard",
+        "Cache monitoring tool (Redis Insights)",
+        "Real-time metrics visualization - Grafana"
+      ],
+      "estimatedTime": "90 minutes",
+      "automationFeasibility": "High",
+      "riskScore": null,
+      "complianceTag": null
+    }
+  ],
+  "security": [
+    {
+      "id": "SEC-ELEV-001",
+      "title": "Unauthorized Role Elevation - Non-Authorized User Accessing Question Display Configuration",
+      "category": "security",
+      "subCategory": "STRIDE-Elevation of Privilege",
+      "priority": "Critical",
+      "description": "Verify that users without proper authorization (not Business SME, Product Configurator, or Product Manager) cannot access or modify question display rule configurations through direct API calls, URL manipulation, or session tampering.",
+      "preconditions": [
+        "Application is deployed and accessible",
+        "Test user accounts exist for unauthorized roles (e.g., regular user, viewer, external user)",
+        "Valid question display configuration endpoint is identified",
+        "Authorized user session tokens are available for comparison"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Authenticate as an unauthorized user (e.g., standard policy viewer role)",
+          "expectedResult": "User successfully logs in with limited privileges"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to access the question display rules configuration page via direct URL navigation",
+          "expectedResult": "Access is denied with HTTP 403 Forbidden or redirect to unauthorized page"
+        },
+        {
+          "step": 3,
+          "action": "Intercept and modify the user's session token/JWT to include elevated role claims (Business SME, Product Configurator, or Product Manager)",
+          "expectedResult": "Modified token is rejected, session is invalidated, and security event is logged"
+        },
+        {
+          "step": 4,
+          "action": "Send direct API POST/PUT requests to question display rule endpoints with unauthorized user credentials",
+          "expectedResult": "API returns HTTP 403 Forbidden with error message indicating insufficient permissions"
+        },
+        {
+          "step": 5,
+          "action": "Attempt parameter tampering by adding admin=true or role=ProductManager to request parameters",
+          "expectedResult": "Request is rejected, parameters are ignored, and access remains denied"
+        }
+      ],
+      "postconditions": [
+        "No unauthorized changes are persisted to question display rules",
+        "Security audit logs contain failed access attempts with user details and timestamps",
+        "User session remains in unauthorized state"
+      ],
+      "testData": "Unauthorized user credentials: username='viewer_user', password='Test@123'; API endpoint: '/api/v1/question-display-rules'; Tampered JWT claims: {'role': 'ProductManager', 'permissions': ['configure_questions']}",
+      "toolsRequired": [
+        "Burp Suite or OWASP ZAP for request interception",
+        "JWT decoder/editor",
+        "Postman or cURL for API testing",
+        "Browser developer tools"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9.2,
+      "complianceTag": "OWASP-A01, SOC2-CC6.1, STRIDE-EoP"
+    },
+    {
+      "id": "SEC-INJ-002",
+      "title": "SQL Injection and XSS in Question Display Rule Condition Fields",
+      "category": "security",
+      "subCategory": "OWASP-A03 Injection",
+      "priority": "Critical",
+      "description": "Test for SQL injection and Cross-Site Scripting vulnerabilities in condition definition fields where users specify rules for question display (e.g., field names, operators, values, logical expressions).",
+      "preconditions": [
+        "User is authenticated as authorized role (Product Configurator)",
+        "Question display rule configuration interface is accessible",
+        "Database connection is active",
+        "Test environment with monitoring capabilities is available"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to question display rule configuration page and create a new rule",
+          "expectedResult": "Rule creation form is displayed with condition input fields"
+        },
+        {
+          "step": 2,
+          "action": "Enter SQL injection payload in condition value field: ' OR '1'='1' -- and in field name: '; DROP TABLE questions; --",
+          "expectedResult": "Input is sanitized/escaped, no SQL execution occurs, rule validation fails with safe error message"
+        },
+        {
+          "step": 3,
+          "action": "Submit XSS payload in rule description field: <script>alert('XSS')</script> and in condition expression: <img src=x onerror=alert(document.cookie)>",
+          "expectedResult": "Payload is HTML-encoded on storage and display, script does not execute, output shows encoded characters"
+        },
+        {
+          "step": 4,
+          "action": "Test advanced SQL injection with UNION-based attack: ' UNION SELECT username, password FROM users --",
+          "expectedResult": "Parameterized queries prevent injection, no data leakage occurs, error is logged"
+        },
+        {
+          "step": 5,
+          "action": "Attempt stored XSS by saving rule with payload and viewing it as different user",
+          "expectedResult": "Payload remains encoded, no script execution occurs on retrieval/display"
+        },
+        {
+          "step": 6,
+          "action": "Test command injection in condition fields: ; ls -la; or | whoami",
+          "expectedResult": "Input validation rejects special characters, no system commands are executed"
+        }
+      ],
+      "postconditions": [
+        "Database integrity remains intact with no unauthorized queries executed",
+        "No malicious scripts are stored or executed",
+        "All injection attempts are logged in security audit trail",
+        "Application remains stable with no data corruption"
+      ],
+      "testData": "SQL Injection payloads: [' OR '1'='1' --, '; DROP TABLE questions; --, ' UNION SELECT * FROM users --]; XSS payloads: [<script>alert('XSS')</script>, <img src=x onerror=alert(1)>, javascript:alert(document.cookie)]; Command injection: [; ls -la;, | whoami, && cat /etc/passwd]",
+      "toolsRequired": [
+        "OWASP ZAP with injection scanner",
+        "SQLMap for automated SQL injection testing",
+        "XSS payload lists (OWASP XSS Filter Evasion)",
+        "Database query monitoring tools",
+        "Browser developer console"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9.4,
+      "complianceTag": "OWASP-A03, CWE-89, CWE-79, PCI-DSS-6.5.1"
+    },
+    {
+      "id": "SEC-TAMP-003",
+      "title": "Question Display Rule Tampering and Data Integrity Validation",
+      "category": "security",
+      "subCategory": "STRIDE-Tampering",
+      "priority": "High",
+      "description": "Verify that question display rules cannot be tampered with through client-side manipulation, API parameter modification, or direct database access, and that integrity checks detect unauthorized modifications.",
+      "preconditions": [
+        "Existing question display rules are configured in the system",
+        "User is authenticated as Product Configurator",
+        "Proxy tool is configured to intercept HTTP traffic",
+        "Database audit logging is enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Create a valid question display rule with specific conditions (e.g., show question Q1 when field 'age' > 65)",
+          "expectedResult": "Rule is saved successfully with unique rule ID and timestamp"
+        },
+        {
+          "step": 2,
+          "action": "Intercept the update API request and modify rule conditions in transit (change 'age' > 65 to 'age' > 18) without proper authentication",
+          "expectedResult": "Request is rejected due to missing/invalid signature or checksum validation failure"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to modify rule priority/order by changing hidden form fields or API parameters to bypass business logic",
+          "expectedResult": "Server-side validation detects tampering, rejects request, and logs security event"
+        },
+        {
+          "step": 4,
+          "action": "Replay a previously captured legitimate update request with modified timestamp to bypass versioning controls",
+          "expectedResult": "Replay attack is detected via nonce/timestamp validation, request is rejected"
+        },
+        {
+          "step": 5,
+          "action": "Verify that rule modification history is maintained with audit trail showing who, what, when changes occurred",
+          "expectedResult": "Complete audit log exists with user identity, timestamp, old/new values, and change reason"
+        }
+      ],
+      "postconditions": [
+        "All tampering attempts are blocked and logged",
+        "Original rule data remains unchanged",
+        "Audit trail contains all attempted modifications",
+        "Data integrity checksums/signatures remain valid"
+      ],
+      "testData": "Valid rule: {ruleId: 'R001', condition: 'age > 65', questionId: 'Q1'}; Tampered rule: {ruleId: 'R001', condition: 'age > 18', questionId: 'Q1'}; Replay token: captured from legitimate request",
+      "toolsRequired": [
+        "Burp Suite Repeater for request manipulation",
+        "Proxy tool (Fiddler/Charles) for traffic interception",
+        "Database audit log viewer",
+        "Hash/signature verification tools"
+      ],
+      "estimatedTime": "50 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 8.6,
+      "complianceTag": "STRIDE-Tampering, OWASP-A08, SOC2-CC7.2"
+    },
+    {
+      "id": "SEC-INFO-004",
+      "title": "Information Disclosure Through Error Messages and API Responses",
+      "category": "security",
+      "subCategory": "STRIDE-Information Disclosure",
+      "priority": "High",
+      "description": "Test for sensitive information leakage through verbose error messages, stack traces, API responses, and unauthorized access to question display rule metadata that could reveal system architecture, database structure, or business logic.",
+      "preconditions": [
+        "Application is running in production-like configuration",
+        "Multiple question display rules exist in the system",
+        "Test accounts with various permission levels are available",
+        "Network traffic monitoring is enabled"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Submit malformed request to question display rule API endpoint with invalid JSON/XML syntax",
+          "expectedResult": "Generic error message is returned without stack traces, file paths, or database schema details"
+        },
+        {
+          "step": 2,
+          "action": "Attempt to access question display rules belonging to different business units or products without authorization",
+          "expectedResult": "Access denied with generic message, no information about rule existence or structure is revealed"
+        },
+        {
+          "step": 3,
+          "action": "Enumerate rule IDs by incrementing/decrementing ID values in API requests to discover hidden or inactive rules",
+          "expectedResult": "Consistent responses for unauthorized access, no differentiation between non-existent and unauthorized rules"
+        },
+        {
+          "step": 4,
+          "action": "Analyze API responses for excessive data exposure (e.g., internal IDs, database column names, system paths, user details)",
+          "expectedResult": "API returns only necessary data fields, no internal implementation details are exposed"
+        },
+        {
+          "step": 5,
+          "action": "Trigger application errors through invalid rule conditions and examine error responses for sensitive information",
+          "expectedResult": "Error messages are user-friendly, detailed errors are logged server-side only, no SQL queries or code snippets are revealed"
+        },
+        {
+          "step": 6,
+          "action": "Check HTTP headers and metadata for information leakage (server version, framework details, internal IP addresses)",
+          "expectedResult": "Headers contain minimal information, security headers are present (X-Content-Type-Options, X-Frame-Options)"
+        }
+      ],
+      "postconditions": [
+        "No sensitive system information is disclosed to unauthorized users",
+        "Error messages are generic and user-friendly",
+        "Detailed error information is logged securely server-side only",
+        "API responses contain minimal necessary data"
+      ],
+      "testData": "Malformed JSON: {invalid json structure}; Rule ID enumeration: [R001, R002, R003...R999]; Invalid conditions: [null, undefined, extremely long strings, special characters]",
+      "toolsRequired": [
+        "Burp Suite Intruder for enumeration",
+        "OWASP ZAP for information disclosure scanning",
+        "Wireshark for network traffic analysis",
+        "Browser developer tools for response inspection"
+      ],
+      "estimatedTime": "40 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 7.8,
+      "complianceTag": "STRIDE-Information-Disclosure, OWASP-A01, CWE-209, HIPAA-164.312"
+    }
+  ],
+  "usability": [
+    {
+      "id": "UX-H01-001",
+      "title": "Verify real-time feedback when defining question display conditions",
+      "category": "usability",
+      "subCategory": "Nielsen-H01-Visibility of System Status",
+      "priority": "Critical",
+      "description": "Validate that the system provides immediate visual feedback when users configure display rules, showing which questions will be affected by the conditions being defined and the current state of rule processing.",
+      "preconditions": [
+        "User is logged in with Business SME, Product Configurator, or Product Manager role",
+        "At least 5 underwriting questions exist in the system",
+        "User has access to the question display rules configuration interface"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to the Configure Question Display Rules interface",
+          "expectedResult": "Interface loads with clear indication of current page/section and available questions"
+        },
+        {
+          "step": 2,
+          "action": "Begin creating a new display rule by selecting a condition (e.g., 'If policy type = Commercial')",
+          "expectedResult": "System immediately shows visual indicator (loading spinner, progress bar, or status message) that rule is being processed"
+        },
+        {
+          "step": 3,
+          "action": "Add a question to be displayed when condition is met",
+          "expectedResult": "System provides real-time preview showing which questions will now appear/hide based on the rule, with count of affected questions"
+        },
+        {
+          "step": 4,
+          "action": "Save the display rule configuration",
+          "expectedResult": "Clear success message appears with confirmation of rule activation status and timestamp of last save"
+        },
+        {
+          "step": 5,
+          "action": "Observe the interface during rule validation/processing",
+          "expectedResult": "Progress indicators show validation status, with clear messaging if rule conflicts exist or validation is in progress"
+        }
+      ],
+      "postconditions": [
+        "Display rule is saved successfully",
+        "User receives clear confirmation of rule status",
+        "Recommendation: Implement real-time preview panel showing affected questions, add progress indicators for all async operations, display rule conflict warnings immediately"
+      ],
+      "testData": "Sample conditions: Policy Type = 'Commercial', Coverage Amount > $1M, State = 'CA'; Sample questions: Q1-Business Operations, Q2-Revenue Details, Q3-Employee Count",
+      "toolsRequired": [
+        "Browser developer tools for monitoring UI state changes",
+        "Screen recording software"
+      ],
+      "estimatedTime": "25 minutes",
+      "automationFeasibility": "Medium"
+    },
+    {
+      "id": "UX-H03-002",
+      "title": "Validate undo/redo functionality and exit options when configuring display rules",
+      "category": "usability",
+      "subCategory": "Nielsen-H03-User Control and Freedom",
+      "priority": "High",
+      "description": "Ensure users can easily undo changes, cancel rule configuration, and exit without losing work. Test that users have clear escape routes from any configuration state without being forced to complete the entire workflow.",
+      "preconditions": [
+        "User is logged in with appropriate role (Business SME, Product Configurator, or Product Manager)",
+        "User has navigated to Configure Question Display Rules interface",
+        "At least one existing display rule is configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Start creating a new display rule and add 3 conditions",
+          "expectedResult": "Conditions are added successfully with visible 'Undo' or 'Remove' options for each condition"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Undo' or remove the last condition added",
+          "expectedResult": "Last condition is removed immediately, system returns to previous state without requiring confirmation for single undo"
+        },
+        {
+          "step": 3,
+          "action": "Add multiple conditions and questions, then click 'Cancel' or 'Exit' button",
+          "expectedResult": "System displays clear warning dialog: 'You have unsaved changes. Do you want to save, discard, or continue editing?' with three distinct action buttons"
+        },
+        {
+          "step": 4,
+          "action": "Select 'Continue Editing' from the warning dialog",
+          "expectedResult": "User returns to configuration interface with all unsaved changes intact"
+        },
+        {
+          "step": 5,
+          "action": "Edit an existing display rule, make changes, then click browser back button",
+          "expectedResult": "System intercepts navigation and shows unsaved changes warning, preventing accidental data loss"
+        },
+        {
+          "step": 6,
+          "action": "Use 'Save as Draft' option (if available) before exiting",
+          "expectedResult": "Changes are saved as draft, user can exit freely and resume later from saved draft state"
+        }
+      ],
+      "postconditions": [
+        "User can exit configuration at any point without data loss",
+        "Undo/redo operations work correctly",
+        "Recommendation: Implement auto-save drafts every 30 seconds, add clear 'Cancel' and 'Save & Exit' buttons, provide undo/redo buttons with keyboard shortcuts (Ctrl+Z/Ctrl+Y), show breadcrumb trail for navigation context"
+      ],
+      "testData": "Test conditions: Policy Type = 'Personal', State IN ('NY', 'CA', 'TX'), Coverage > $500K; Test questions: Q1, Q2, Q3, Q4",
+      "toolsRequired": [
+        "Browser with developer console",
+        "Session recording tool"
+      ],
+      "estimatedTime": "30 minutes",
+      "automationFeasibility": "Medium"
+    },
+    {
+      "id": "UX-H05-003",
+      "title": "Evaluate error prevention mechanisms for invalid rule configurations",
+      "category": "usability",
+      "subCategory": "Nielsen-H05-Error Prevention",
+      "priority": "Critical",
+      "description": "Test that the system prevents users from creating invalid, conflicting, or circular display rules through proactive validation, input constraints, and helpful guidance before errors occur.",
+      "preconditions": [
+        "User is logged in with Product Configurator or Product Manager role",
+        "Multiple underwriting questions exist in the system",
+        "At least 2 existing display rules are already configured"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Attempt to create a display rule without selecting any conditions",
+          "expectedResult": "Save button is disabled with tooltip explaining 'At least one condition is required'. Field is highlighted with visual indicator showing it's mandatory"
+        },
+        {
+          "step": 2,
+          "action": "Try to create a rule that conflicts with an existing rule (e.g., same condition showing different questions)",
+          "expectedResult": "System displays inline warning: 'This rule may conflict with Rule #X. Review conflict or adjust conditions.' with link to conflicting rule"
+        },
+        {
+          "step": 3,
+          "action": "Attempt to create a circular dependency (Question A displays when Question B is answered, Question B displays when Question A is answered)",
+          "expectedResult": "System prevents saving and shows clear error: 'Circular dependency detected between Question A and Question B. Please revise rule logic.'"
+        },
+        {
+          "step": 4,
+          "action": "Enter invalid syntax or values in condition fields (e.g., text in numeric field, invalid date format)",
+          "expectedResult": "Field validation occurs on blur/change, showing format hint and example. Invalid input is highlighted with specific guidance: 'Please enter a number between 1-999999'"
+        },
+        {
+          "step": 5,
+          "action": "Select a question that is already controlled by another rule without acknowledging override",
+          "expectedResult": "System shows confirmation dialog: 'Question X is already controlled by Rule #Y. Creating this rule will override the previous rule. Continue?' with 'Review Existing Rule' and 'Continue Anyway' options"
+        }
+      ],
+      "postconditions": [
+        "No invalid rules are saved to the system",
+        "User is guided to correct configuration before submission",
+        "Recommendation: Implement real-time validation with inline error messages, add rule conflict detection engine, provide visual rule dependency diagram, use input masks and dropdowns to constrain invalid entries, add 'Validate Rules' button to check all rules before save"
+      ],
+      "testData": "Conflicting conditions: Rule 1 (Policy Type = 'Auto' → Show Q1), Rule 2 (Policy Type = 'Auto' → Hide Q1); Circular dependency: Q1 depends on Q2, Q2 depends on Q1; Invalid inputs: Text in numeric fields, future dates in past date fields",
+      "toolsRequired": [
+        "Test data generator for edge cases",
+        "Rule validation testing framework"
+      ],
+      "estimatedTime": "35 minutes",
+      "automationFeasibility": "High"
+    },
+    {
+      "id": "UX-H06-004",
+      "title": "Assess recognition vs recall - visibility of available options and previously configured rules",
+      "category": "usability",
+      "subCategory": "Nielsen-H06-Recognition Rather Than Recall",
+      "priority": "High",
+      "description": "Verify that users can easily see and recognize available questions, conditions, operators, and existing rules without having to remember codes, IDs, or complex syntax. Test that all necessary information is visible and accessible when needed.",
+      "preconditions": [
+        "User is logged in with Business SME or Product Configurator role",
+        "System contains 20+ underwriting questions across multiple categories",
+        "5+ display rules are already configured in the system"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Open the Configure Question Display Rules interface and observe the initial view",
+          "expectedResult": "Interface displays list of existing rules with descriptive names, affected questions count, and status (Active/Inactive) - no need to remember rule IDs or codes"
+        },
+        {
+          "step": 2,
+          "action": "Click to create a new rule and observe available condition fields",
+          "expectedResult": "All available condition attributes are shown in dropdown menus with clear labels (e.g., 'Policy Type', 'Coverage Amount', 'State'). No need to type or remember field names"
+        },
+        {
+          "step": 3,
+          "action": "Select a condition attribute and observe available operators",
+          "expectedResult": "Context-appropriate operators are displayed (e.g., '=', '!=', '>', '<' for numbers; 'equals', 'contains', 'starts with' for text) with plain language labels, not symbols only"
+        },
+        {
+          "step": 4,
+          "action": "Browse available questions to add to the display rule",
+          "expectedResult": "Questions are shown with full descriptive text, category labels, and preview of question content - not just question IDs. Search/filter options are available with autocomplete"
+        },
+        {
+          "step": 5,
+          "action": "Edit an existing rule after 5 minutes of working on other tasks",
+          "expectedResult": "Rule details are fully displayed with all previously configured conditions and questions visible. User doesn't need to remember what was configured - all information is shown"
+        },
+        {
+          "step": 6,
+          "action": "Hover over or click info icons next to complex fields",
+          "expectedResult": "Contextual tooltips and help text appear explaining the field purpose and providing examples (e.g., 'Conditions determine when questions appear. Example: Show flood insurance questions only for coastal properties')"
+        }
+      ],
+      "postconditions": [
+        "User successfully configures rules without referring to external documentation",
+        "All necessary information is visible in the interface",
+        "Recommendation: Use descriptive labels instead of codes, implement autocomplete for all selection fields, add visual previews of questions, display rule summaries in plain language (e.g., 'When Policy Type is Commercial, show 5 questions'), provide inline examples and tooltips, use icons with text labels (not icons alone)"
+      ],
+      "testData": "20+ questions with IDs Q001-Q020 and descriptive names; Condition attributes: PolicyType, State, CoverageAmount, PropertyType, BusinessType; Sample rules with varying complexity",
+      "toolsRequired": [
+        "Eye-tracking software (optional for advanced usability testing)",
+        "User session recording tool"
+      ],
+      "estimatedTime": "30 minutes",
+      "automationFeasibility": "Low"
+    }
+  ],
+  "reliability": [
+    {
+      "id": "REL-FAIL-001",
+      "title": "Database Connection Failure During Question Display Rule Configuration Save",
+      "category": "reliability",
+      "subCategory": "Failure Injection Testing",
+      "priority": "Critical",
+      "description": "Validate system resilience and data integrity when database connection fails during the save operation of question display rules. Ensure transaction rollback occurs properly and user receives appropriate error messaging without data corruption.",
+      "preconditions": [
+        "User authenticated with Product Configurator role",
+        "Question display rule configuration form loaded with valid data",
+        "Database connection monitoring tools configured",
+        "Chaos engineering tool (e.g., Chaos Monkey, Gremlin) configured for database failure injection"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure a new question display rule with conditions (e.g., 'Show Question Q1 if Product Type = Auto AND Coverage Amount > $50,000')",
+          "expectedResult": "Rule configuration form accepts all inputs without validation errors"
+        },
+        {
+          "step": 2,
+          "action": "Inject database connection failure using chaos tool immediately before clicking 'Save' button",
+          "expectedResult": "Database connection is severed, simulating network partition or database crash"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Save' button to persist the question display rule",
+          "expectedResult": "System detects database unavailability within 3 seconds (connection timeout threshold)"
+        },
+        {
+          "step": 4,
+          "action": "Observe system behavior and error handling response",
+          "expectedResult": "User receives clear error message: 'Unable to save configuration. Please try again.' System does not hang or crash. No partial data written to database."
+        },
+        {
+          "step": 5,
+          "action": "Restore database connection and verify data integrity",
+          "expectedResult": "No orphaned or corrupted rule records exist in database. Transaction properly rolled back. MTTR < 5 seconds for connection restoration."
+        },
+        {
+          "step": 6,
+          "action": "Retry save operation with same configuration",
+          "expectedResult": "Rule saves successfully with all conditions intact. System recovers gracefully without requiring application restart."
+        }
+      ],
+      "postconditions": [
+        "Database connection restored to normal state",
+        "No data corruption in question_display_rules table",
+        "Application logs contain appropriate error entries with stack traces",
+        "System availability maintained at 99.9% SLA threshold"
+      ],
+      "testData": "Rule Config: {ruleId: 'RULE-001', questionId: 'Q1', conditions: [{field: 'productType', operator: 'equals', value: 'Auto'}, {field: 'coverageAmount', operator: 'greaterThan', value: 50000}], displayAction: 'show'}",
+      "toolsRequired": [
+        "Chaos Monkey or Gremlin for failure injection",
+        "Database connection monitor (e.g., pgBouncer logs, MySQL Workbench)",
+        "Application Performance Monitoring (APM) tool",
+        "Database query analyzer"
+      ],
+      "estimatedTime": "45 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 9,
+      "complianceTag": "SOC2-CC7.2"
+    },
+    {
+      "id": "REL-CHAOS-002",
+      "title": "Chaos Experiment - Rule Evaluation Service Latency Injection During Policy Workflow",
+      "category": "reliability",
+      "subCategory": "Chaos Engineering Experiments",
+      "priority": "Critical",
+      "description": "Execute hypothesis-driven chaos experiment to validate system behavior when rule evaluation service experiences high latency (500ms-3000ms). Verify that policy workflow remains responsive, circuit breakers activate appropriately, and user experience degrades gracefully without complete failure.",
+      "preconditions": [
+        "Policy workflow application in steady state (baseline response time < 200ms)",
+        "Question display rules configured and active in production-like environment",
+        "Circuit breaker configured with 1000ms timeout threshold",
+        "Monitoring dashboards active for SLI tracking (p95 latency, error rate, throughput)",
+        "Hypothesis documented: 'System will maintain 95% availability when rule evaluation service latency increases to 2000ms'"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish steady state baseline: Measure p95 response time for policy workflow question display over 5 minutes",
+          "expectedResult": "Baseline p95 latency: 150-200ms, Error rate: <0.1%, Throughput: 100 requests/sec"
+        },
+        {
+          "step": 2,
+          "action": "Define blast radius: Limit chaos experiment to 20% of production traffic using canary deployment",
+          "expectedResult": "Traffic routing configured to send 20% of requests through latency-injected path"
+        },
+        {
+          "step": 3,
+          "action": "Inject 2000ms latency into rule evaluation service API calls using chaos tool",
+          "expectedResult": "Latency injection active, affecting only rule evaluation service calls within blast radius"
+        },
+        {
+          "step": 4,
+          "action": "Monitor system behavior for 10 minutes during latency injection",
+          "expectedResult": "Circuit breaker opens after 5 consecutive timeouts (within 10 seconds). Fallback mechanism displays default question set. Error rate increases to <5% within blast radius. Overall system availability remains >95%."
+        },
+        {
+          "step": 5,
+          "action": "Validate user experience degradation is graceful",
+          "expectedResult": "Users see loading indicator for max 3 seconds, then default questions appear with banner: 'Using standard question set. Custom rules temporarily unavailable.' No application crashes or blank screens."
+        },
+        {
+          "step": 6,
+          "action": "Remove latency injection and observe recovery",
+          "expectedResult": "Circuit breaker transitions to half-open state after 30 seconds. After 3 successful requests, circuit closes. System returns to steady state within 2 minutes (MTTR < 2 min). p95 latency returns to baseline 150-200ms."
+        },
+        {
+          "step": 7,
+          "action": "Validate hypothesis and document learnings",
+          "expectedResult": "Hypothesis validated: System maintained 96% availability during experiment. No data loss occurred. Recovery time met RTO of <5 minutes."
+        }
+      ],
+      "postconditions": [
+        "All chaos injection removed",
+        "System returned to steady state baseline performance",
+        "Circuit breaker in closed state",
+        "Experiment results documented with SLI/SLO compliance metrics",
+        "Availability SLO maintained: 99.9% monthly uptime"
+      ],
+      "testData": "Traffic Profile: 100 concurrent users, Policy Types: [Auto, Home, Life], Rule Complexity: 3-5 conditions per rule",
+      "toolsRequired": [
+        "Chaos engineering platform (Gremlin, Chaos Toolkit)",
+        "Service mesh for traffic routing (Istio, Linkerd)",
+        "Observability stack (Prometheus, Grafana)",
+        "Distributed tracing (Jaeger, Zipkin)",
+        "Load generator (JMeter, Gatling)"
+      ],
+      "estimatedTime": "90 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 8,
+      "complianceTag": "SOC2-CC7.1"
+    },
+    {
+      "id": "REL-DEP-003",
+      "title": "External Rules Engine API Failure with Circuit Breaker Validation",
+      "category": "reliability",
+      "subCategory": "Dependency Resilience",
+      "priority": "High",
+      "description": "Test system resilience when external rules engine API (third-party service for complex rule evaluation) becomes unavailable. Validate circuit breaker pattern implementation, retry logic with exponential backoff, and fallback to local rule evaluation engine.",
+      "preconditions": [
+        "External rules engine API integrated and operational",
+        "Circuit breaker configured: failure threshold=5, timeout=2000ms, half-open retry delay=30s",
+        "Retry policy configured: max attempts=3, exponential backoff starting at 1s",
+        "Local fallback rules engine available with cached rule definitions",
+        "API mock server configured to simulate failures"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Configure mock external rules engine API to return HTTP 503 Service Unavailable for all requests",
+          "expectedResult": "External API consistently fails with 503 status code"
+        },
+        {
+          "step": 2,
+          "action": "Trigger question display rule evaluation for a policy workflow requiring external API",
+          "expectedResult": "System attempts to call external rules engine API"
+        },
+        {
+          "step": 3,
+          "action": "Observe retry behavior and timing",
+          "expectedResult": "System retries 3 times with exponential backoff: 1st retry after 1s, 2nd after 2s, 3rd after 4s. Total retry duration: ~7 seconds before circuit opens."
+        },
+        {
+          "step": 4,
+          "action": "Verify circuit breaker opens after 5 consecutive failures across multiple requests",
+          "expectedResult": "Circuit breaker transitions to OPEN state. Subsequent requests fail fast without calling external API. Circuit breaker metrics logged: state=OPEN, failure_count=5, timestamp recorded."
+        },
+        {
+          "step": 5,
+          "action": "Validate fallback mechanism activation",
+          "expectedResult": "System automatically switches to local rules engine. Question display rules evaluated using cached rule definitions. User workflow continues with <500ms additional latency. Warning logged: 'Using fallback rules engine due to external API unavailability.'"
+        },
+        {
+          "step": 6,
+          "action": "Wait 30 seconds for circuit breaker half-open transition, then restore external API",
+          "expectedResult": "Circuit breaker enters HALF-OPEN state after 30s. Next request attempts external API call as test."
+        },
+        {
+          "step": 7,
+          "action": "Send test request through half-open circuit",
+          "expectedResult": "External API responds successfully (HTTP 200). Circuit breaker transitions to CLOSED state. System resumes normal operation using external rules engine. MTTR = 37 seconds (7s retries + 30s wait)."
+        }
+      ],
+      "postconditions": [
+        "Circuit breaker in CLOSED state",
+        "External rules engine API fully operational",
+        "No pending retry attempts in queue",
+        "System using primary external API for rule evaluation",
+        "Fallback mechanism deactivated"
+      ],
+      "testData": "Rule requiring external evaluation: {ruleId: 'EXT-RULE-001', complexity: 'high', conditions: 'multi-policy cross-reference', externalEngineRequired: true}",
+      "toolsRequired": [
+        "API mocking tool (WireMock, MockServer)",
+        "Circuit breaker library (Hystrix, Resilience4j)",
+        "Application logs analyzer",
+        "Network traffic monitor (Wireshark, tcpdump)",
+        "Metrics dashboard (Grafana with circuit breaker panel)"
+      ],
+      "estimatedTime": "60 minutes",
+      "automationFeasibility": "High",
+      "riskScore": 7,
+      "complianceTag": "SOC2-CC7.2"
+    },
+    {
+      "id": "REL-DATA-004",
+      "title": "Transaction Rollback and RPO Validation During Mid-Configuration System Crash",
+      "category": "reliability",
+      "subCategory": "Data Integrity & Recovery",
+      "priority": "Critical",
+      "description": "Validate data integrity and Recovery Point Objective (RPO) compliance when system crashes during multi-step question display rule configuration. Ensure all-or-nothing transaction semantics, no partial rule commits, and data recovery within RPO threshold of 5 minutes.",
+      "preconditions": [
+        "Database configured with transaction isolation level: READ_COMMITTED",
+        "Automated backup configured with 5-minute interval (RPO = 5 minutes)",
+        "Multi-step rule configuration workflow: Step 1-Define conditions, Step 2-Set display logic, Step 3-Configure dependencies, Step 4-Validate and Save",
+        "Database transaction logs enabled",
+        "System health monitoring active"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Begin configuring complex question display rule: Complete Step 1 (define 3 conditions) and Step 2 (set display logic to 'show if all conditions met')",
+          "expectedResult": "Steps 1-2 data held in application session/transaction, not yet committed to database"
+        },
+        {
+          "step": 2,
+          "action": "Verify current database state before proceeding to Step 3",
+          "expectedResult": "Query question_display_rules table confirms no new rule record exists. Transaction in progress but not committed."
+        },
+        {
+          "step": 3,
+          "action": "Start Step 3 (configure dependencies), then forcefully terminate application process (simulate crash via kill -9 or service stop)",
+          "expectedResult": "Application process terminates immediately. Database connection severed abruptly."
+        },
+        {
+          "step": 4,
+          "action": "Verify automatic transaction rollback in database",
+          "expectedResult": "Database automatically rolls back uncommitted transaction. No partial rule data persisted. question_display_rules, rule_conditions, and rule_dependencies tables remain in consistent state with no orphaned records."
+        },
+        {
+          "step": 5,
+          "action": "Restart application and verify data integrity",
+          "expectedResult": "Application starts successfully within RTO of 2 minutes. Database integrity checks pass. No corrupted indexes or constraint violations. Transaction log shows rollback entry."
+        },
+        {
+          "step": 6,
+          "action": "Validate RPO compliance by checking last successful backup timestamp",
+          "expectedResult": "Most recent backup taken within 5 minutes before crash. Maximum data loss window = 5 minutes (RPO compliant). Backup restoration test successful with zero data corruption."
+        },
+        {
+          "step": 7,
+          "action": "Attempt to reconfigure the same rule from scratch",
+          "expectedResult": "User can successfully create and save the rule through all 4 steps. No residual locks or session conflicts. Rule saves successfully with all data intact."
+        }
+      ],
+      "postconditions": [
+        "Database in consistent state with no orphaned records",
+        "Application fully operational",
+        "Transaction logs archived for audit",
+        "RPO/RTO metrics documented: RPO=5min achieved, RTO=2min achieved",
+        "MTBF baseline maintained: >720 hours between failures"
+      ],
+      "testData": "Complex Rule: {ruleId: 'RULE-COMPLEX-001', conditions: [{field: 'age', operator: '>', value: 25}, {field: 'state', operator: 'in', value: ['CA','NY','TX']}, {field: 'creditScore', operator: '>=', value: 700}], dependencies: ['RULE-002', 'RULE-003']}",
+      "toolsRequired": [
+        "Database transaction monitor (pg_stat_activity for PostgreSQL)",
+        "Backup/restore automation tool",
+        "Database integrity checker (DBCC for SQL Server, pg_dump for PostgreSQL)",
+        "Process manager for controlled crash simulation",
+        "Transaction log analyzer"
+      ],
+      "estimatedTime": "75 minutes",
+      "automationFeasibility": "Medium",
+      "riskScore": 9,
+      "complianceTag": "SOC2-CC6.1"
+    }
+  ],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": true,
+    "negative": true,
+    "accessibility": true,
+    "performance": true,
+    "security": true,
+    "usability": true,
+    "reliability": true
+  },
+  "userStoryObject": {
+    "id": "ado-1645",
+    "title": "Configure Question Display Rules",
+    "description": "<div><b><span lang=EN-US style=\"font-size:12.0pt;font-family:&quot;Aptos&quot;,sans-serif;\">As an</span></b><span lang=EN-US style=\"font-size:12.0pt;font-family:&quot;Aptos&quot;,sans-serif;\"> authorized user\n(Business SME or Product Configurator or Product Manager),<span style=\"\">&nbsp; </span><br><b>I want to</b> define conditions under\nwhich underwriting questions are displayed,<br><b>So that</b> only relevant questions\nappear in the policy workflow.</span><br> </div>",
+    "acceptanceCriteria": "<div><ul style=\"margin-bottom:0cm;\"><li><strong><span style=\"font-family:&quot;Aptos&quot;,sans-serif;\">AC1:</span></strong><span style=\"font-family:&quot;Aptos&quot;,sans-serif;\">\nThe user can define display conditions for a question using underwriting\ncriteria (policy data, risk attributes, coverage selections, etc.).</span> </li><li><strong><span style=\"font-family:&quot;Aptos&quot;,sans-serif;\">AC2:</span></strong><span style=\"font-family:&quot;Aptos&quot;,sans-serif;\">\nA question is displayed <strong><span style=\"\">only when\nits configured conditions are met</span></strong>.</span> </li><li><strong><span style=\"font-family:&quot;Aptos&quot;,sans-serif;\">AC3:</span></strong><span style=\"font-family:&quot;Aptos&quot;,sans-serif;\">\nIf the policy data does not trigger the configured conditions, the question\ndoes <strong><span style=\"\">not appear</span></strong> in the\nPAS workflow.</span> </li><li><strong><span style=\"font-family:&quot;Aptos&quot;,sans-serif;\">AC4:</span></strong><span style=\"font-family:&quot;Aptos&quot;,sans-serif;\">\nDisplay conditions can be modified without changing the question definition.</span> </li><li><strong><span style=\"font-family:&quot;Aptos&quot;,sans-serif;\">AC5:</span></strong><span style=\"font-family:&quot;Aptos&quot;,sans-serif;\">\nQuestions can be evaluated independently of one another.</span> </li> </ul><p style=\"margin:0cm 0cm 10pt;font-size:12pt;font-family:Aptos, sans-serif;margin-right:0cm;margin-left:0cm;font-family:&quot;Times New Roman&quot;, serif;margin-bottom:0cm;margin-bottom:.0001pt;\"><b><span style=\"\">Dependencies:</span></b> </p><ul style=\"margin-bottom:0cm;\"><li><span style=\"\">Dropdown fields that has reference data, is configured</span> </li><li><span style=\"\">RBAC configuration exists to allow user to configure Underwriting\nQuestions</span> </li><li><span lang=EN-US>Rule engine/tool exists to\nconfigure the required rules</span> </li> </ul><br> </div>",
+    "adoWorkItemId": 1645,
+    "state": "New",
+    "assignedTo": "Unassigned",
+    "createdDate": "2026-01-23T15:26:16.583Z",
+    "priority": 2,
+    "storyPoints": 13,
+    "tags": "",
+    "epicId": "epic-936",
+    "featureId": "feature-1643",
+    "source": "ado",
+    "adoUrl": "https://dev.azure.com/InsurityDevOps/Insurity EAIS/_workitems/edit/1645"
+  }
+}
