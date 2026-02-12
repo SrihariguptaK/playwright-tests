@@ -1,0 +1,368 @@
+{
+  "storyId": "ado-1285",
+  "storyTitle": "As Billing Administrator, I want the system to log audit details for every manual charge adjustment to ensure traceability",
+  "testCases": [],
+  "functional": [
+    {
+      "id": "TC-FUNC-001",
+      "title": "Verify audit log entry is created with all required details when manual charge adjustment is processed successfully",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Billing Administrator with adjustment permissions",
+        "User is on the Manual Charge Adjustment page",
+        "Test account 'ACC-12345' exists with original charge amount of $500.00",
+        "AdjustmentAuditLogs table is accessible and operational"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navigate to Manual Charge Adjustment page and select account 'ACC-12345'",
+          "expectedResult": "Account details load showing current charge of $500.00"
+        },
+        {
+          "step": 2,
+          "action": "Enter adjusted amount '$450.00' in the 'Adjusted Amount' field",
+          "expectedResult": "Field accepts the value and displays '$450.00'"
+        },
+        {
+          "step": 3,
+          "action": "Select 'Billing Error' from the 'Adjustment Reason' dropdown and enter 'Customer overcharged due to incorrect rate applied' in the Comments field",
+          "expectedResult": "Reason and comments are populated correctly"
+        },
+        {
+          "step": 4,
+          "action": "Click 'Submit Adjustment' button",
+          "expectedResult": "Success message 'Adjustment processed successfully' appears in green banner at top of page"
+        },
+        {
+          "step": 5,
+          "action": "Navigate to Audit Logs page via main menu and click 'View Audit Logs'",
+          "expectedResult": "Audit Logs query interface loads successfully"
+        },
+        {
+          "step": 6,
+          "action": "Enter account number 'ACC-12345' in the search filter and click 'Search'",
+          "expectedResult": "Audit log entry displays with User ID matching current user, timestamp within last 2 minutes, original amount '$500.00', adjusted amount '$450.00', reason 'Billing Error', and comments 'Customer overcharged due to incorrect rate applied'"
+        },
+        {
+          "step": 7,
+          "action": "New action - describe what to do",
+          "expectedResult": "New expected result - describe what should happen"
+        }
+      ],
+      "postconditions": [
+        "Audit log entry exists in AdjustmentAuditLogs table with all required fields populated",
+        "Account 'ACC-12345' charge amount is updated to $450.00",
+        "User remains logged in on Audit Logs page",
+        "Audit log entry is immutable and cannot be edited"
+      ]
+    },
+    {
+      "id": "TC-FUNC-002",
+      "title": "Verify audit logs are immutable and cannot be altered or deleted by Billing Administrator users",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Billing Administrator",
+        "At least one audit log entry exists in the system for account 'ACC-67890'",
+        "User is on the Audit Logs query interface page",
+        "Audit log entry 'AUDIT-LOG-001' is visible in the results"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Search for audit log entry 'AUDIT-LOG-001' using account filter 'ACC-67890'",
+          "expectedResult": "Audit log entry 'AUDIT-LOG-001' displays in results table"
+        },
+        {
+          "step": 2,
+          "action": "Right-click on the audit log entry row",
+          "expectedResult": "No context menu appears with edit or delete options"
+        },
+        {
+          "step": 3,
+          "action": "Click on the audit log entry row to select it",
+          "expectedResult": "Row is highlighted but no 'Edit' or 'Delete' buttons appear in the interface"
+        },
+        {
+          "step": 4,
+          "action": "Inspect the audit log entry details view by clicking 'View Details' button",
+          "expectedResult": "Details modal opens showing all audit log fields in read-only format with no editable fields"
+        },
+        {
+          "step": 5,
+          "action": "Attempt to access database directly via API endpoint 'PUT /api/audit/adjustments/AUDIT-LOG-001' with modified data",
+          "expectedResult": "API returns 403 Forbidden error with message 'Audit logs are immutable and cannot be modified'"
+        }
+      ],
+      "postconditions": [
+        "Audit log entry 'AUDIT-LOG-001' remains unchanged in the database",
+        "No modification or deletion operations were executed",
+        "User remains on Audit Logs page",
+        "System logs the attempted access for security monitoring"
+      ]
+    },
+    {
+      "id": "TC-FUNC-003",
+      "title": "Verify authorized users can query audit logs filtered by date range successfully",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Billing Administrator with audit log query permissions",
+        "User is on the Audit Logs query interface page",
+        "Multiple audit log entries exist spanning from January 1, 2024 to March 31, 2024",
+        "At least 5 audit log entries exist within February 1-28, 2024 date range"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on the 'Start Date' field and select '02/01/2024' from the date picker",
+          "expectedResult": "Start date field displays '02/01/2024'"
+        },
+        {
+          "step": 2,
+          "action": "Click on the 'End Date' field and select '02/28/2024' from the date picker",
+          "expectedResult": "End date field displays '02/28/2024'"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Apply Filters' button",
+          "expectedResult": "Results table refreshes and displays only audit log entries with timestamps between 02/01/2024 00:00:00 and 02/28/2024 23:59:59"
+        },
+        {
+          "step": 4,
+          "action": "Verify each displayed entry by checking the 'Timestamp' column",
+          "expectedResult": "All displayed entries have timestamps within the February 2024 date range, no entries from January or March are visible"
+        },
+        {
+          "step": 5,
+          "action": "Note the total count displayed in the 'Results: X entries' label at the top of the table",
+          "expectedResult": "Count matches the expected number of entries (at least 5) for the filtered date range"
+        }
+      ],
+      "postconditions": [
+        "Only audit logs within specified date range are displayed",
+        "Filter criteria remains active in the interface",
+        "User remains on Audit Logs page with filtered results",
+        "Query performance completes within 3 seconds per SLA"
+      ]
+    },
+    {
+      "id": "TC-FUNC-004",
+      "title": "Verify authorized users can query audit logs filtered by specific user who performed adjustments",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Billing Administrator with audit log query permissions",
+        "User is on the Audit Logs query interface page",
+        "Multiple audit log entries exist performed by different users including 'john.doe@company.com' and 'jane.smith@company.com'",
+        "At least 3 audit log entries were created by user 'john.doe@company.com'"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Click on the 'User' filter dropdown field",
+          "expectedResult": "Dropdown expands showing list of users who have performed adjustments"
+        },
+        {
+          "step": 2,
+          "action": "Select 'john.doe@company.com' from the dropdown list",
+          "expectedResult": "User filter field displays 'john.doe@company.com' as selected"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Apply Filters' button",
+          "expectedResult": "Results table refreshes and displays only audit log entries where 'User ID' column shows 'john.doe@company.com'"
+        },
+        {
+          "step": 4,
+          "action": "Scroll through all displayed results and verify the 'User ID' column for each entry",
+          "expectedResult": "All displayed entries show 'john.doe@company.com' in the User ID column, no entries from other users are visible"
+        },
+        {
+          "step": 5,
+          "action": "Click 'Clear Filters' button and verify all entries reappear",
+          "expectedResult": "Results table refreshes showing all audit log entries from all users, filter is reset"
+        }
+      ],
+      "postconditions": [
+        "Filter successfully isolated audit logs by specific user",
+        "All entries displayed belong to the filtered user",
+        "User remains on Audit Logs page",
+        "Filter can be cleared to show all results again"
+      ]
+    },
+    {
+      "id": "TC-FUNC-005",
+      "title": "Verify authorized users can query audit logs filtered by specific account number",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Billing Administrator with audit log query permissions",
+        "User is on the Audit Logs query interface page",
+        "Multiple audit log entries exist for different accounts including 'ACC-11111', 'ACC-22222', and 'ACC-33333'",
+        "At least 4 audit log entries exist for account 'ACC-22222'"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Enter 'ACC-22222' in the 'Account Number' search field",
+          "expectedResult": "Field displays 'ACC-22222'"
+        },
+        {
+          "step": 2,
+          "action": "Click 'Apply Filters' button",
+          "expectedResult": "Results table refreshes and displays only audit log entries where 'Account Number' column shows 'ACC-22222'"
+        },
+        {
+          "step": 3,
+          "action": "Verify the 'Account Number' column for all displayed entries",
+          "expectedResult": "All displayed entries show 'ACC-22222' in the Account Number column, minimum of 4 entries are visible"
+        },
+        {
+          "step": 4,
+          "action": "Click on any audit log entry to view details",
+          "expectedResult": "Details modal opens showing complete audit information including original amount, adjusted amount, reason, comments, user, and timestamp for account 'ACC-22222'"
+        }
+      ],
+      "postconditions": [
+        "Only audit logs for account 'ACC-22222' are displayed",
+        "All required audit details are accessible in detail view",
+        "User remains on Audit Logs page with filtered results",
+        "Query completes within performance SLA"
+      ]
+    },
+    {
+      "id": "TC-FUNC-006",
+      "title": "Verify audit logging does not impact adjustment processing performance beyond SLA threshold",
+      "category": "Functional",
+      "priority": "High",
+      "preconditions": [
+        "User is logged in as Billing Administrator",
+        "User is on the Manual Charge Adjustment page",
+        "Test account 'ACC-PERF-001' exists with charge amount of $1000.00",
+        "System performance monitoring tools are active and recording response times",
+        "Baseline adjustment processing time without audit logging is documented as 2 seconds"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Note the current system time before starting the adjustment",
+          "expectedResult": "Timestamp is recorded for performance measurement"
+        },
+        {
+          "step": 2,
+          "action": "Select account 'ACC-PERF-001' and enter adjusted amount '$900.00', select reason 'Promotional Discount', and enter comments 'Q1 2024 promotion applied'",
+          "expectedResult": "All fields are populated correctly"
+        },
+        {
+          "step": 3,
+          "action": "Click 'Submit Adjustment' button and immediately start timer",
+          "expectedResult": "System begins processing the adjustment"
+        },
+        {
+          "step": 4,
+          "action": "Wait for success message 'Adjustment processed successfully' to appear and stop timer",
+          "expectedResult": "Success message appears and total processing time is recorded"
+        },
+        {
+          "step": 5,
+          "action": "Verify the total processing time from submission to success message",
+          "expectedResult": "Total processing time is within SLA threshold of 3 seconds (baseline 2 seconds + 1 second acceptable overhead for audit logging)"
+        },
+        {
+          "step": 6,
+          "action": "Navigate to Audit Logs and verify the audit entry was created for 'ACC-PERF-001'",
+          "expectedResult": "Audit log entry exists with all required details including the adjustment just performed"
+        }
+      ],
+      "postconditions": [
+        "Adjustment was processed successfully within SLA",
+        "Audit log was created without degrading performance beyond acceptable threshold",
+        "Account 'ACC-PERF-001' charge is updated to $900.00",
+        "Performance metrics confirm audit logging overhead is within acceptable limits"
+      ]
+    },
+    {
+      "id": "TC-FUNC-007",
+      "title": "Verify system logs access attempts to audit logs for security monitoring purposes",
+      "category": "Functional",
+      "priority": "Medium",
+      "preconditions": [
+        "User is logged in as Billing Administrator with audit log query permissions",
+        "Security monitoring logs table is accessible and operational",
+        "User is on the Audit Logs query interface page",
+        "System is configured to log all audit log access attempts"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Access the Audit Logs page by clicking 'Audit Logs' in the main navigation menu",
+          "expectedResult": "Audit Logs query interface loads successfully"
+        },
+        {
+          "step": 2,
+          "action": "Enter account number 'ACC-55555' in the search filter and click 'Apply Filters'",
+          "expectedResult": "Filtered audit log results display for account 'ACC-55555'"
+        },
+        {
+          "step": 3,
+          "action": "Click 'View Details' on one of the audit log entries",
+          "expectedResult": "Details modal opens showing complete audit log information"
+        },
+        {
+          "step": 4,
+          "action": "Navigate to Security Monitoring Logs page (accessible to administrators)",
+          "expectedResult": "Security Monitoring Logs interface loads"
+        },
+        {
+          "step": 5,
+          "action": "Filter security logs by current user ID and event type 'AUDIT_LOG_ACCESS' within the last 5 minutes",
+          "expectedResult": "Security log entries display showing access attempts to audit logs"
+        },
+        {
+          "step": 6,
+          "action": "Verify the security log entry contains user ID, timestamp, action type 'AUDIT_LOG_ACCESS', resource accessed 'AdjustmentAuditLogs', and filter criteria used 'Account: ACC-55555'",
+          "expectedResult": "Security log entry contains all required details including user identity, timestamp, action performed, and query parameters used"
+        }
+      ],
+      "postconditions": [
+        "All audit log access attempts are logged in security monitoring system",
+        "Security logs contain sufficient detail for audit trail and compliance",
+        "User remains logged in on Security Monitoring Logs page",
+        "Access logging does not impact audit log query performance"
+      ]
+    }
+  ],
+  "negative": [],
+  "edgeCases": [],
+  "accessibility": [],
+  "selectedTypes": {
+    "functional": true,
+    "edgeCases": false,
+    "negative": false,
+    "accessibility": false,
+    "performance": false,
+    "security": false,
+    "usability": false,
+    "reliability": false
+  },
+  "userStoryObject": {
+    "id": "ado-1285",
+    "title": "As Billing Administrator, I want the system to log audit details for every manual charge adjustment to ensure traceability",
+    "description": "<div>CONTEXT &amp; BACKGROUND:\nAudit logging is essential for compliance and accountability in manual charge adjustments.\n\nCURRENT STATE:\nNo comprehensive audit logs exist for manual adjustments, risking compliance violations.\n\nDESIRED STATE:\nSystem captures detailed, immutable audit logs for each adjustment including user, timestamp, amounts, and reasons.\n\nKEY FUNCTIONALITY:\n• Capture user identity performing adjustment\n• Record timestamp of adjustment\n• Log original and adjusted charge amounts\n• Record adjustment reason and comments\n• Ensure logs are immutable and tamper-evident\n• Provide query interface for authorized users\n\nUSER INTERACTION FLOW:\n1. Adjustment processed successfully\n2. System creates audit log entry with all details\n3. Authorized users query audit logs via interface\n4. System returns filtered audit log entries\n\nTECHNICAL CONSIDERATIONS:\n• Data source: AdjustmentAuditLogs table\n• Security: Logs immutable, access controlled\n• API endpoints: GET /api/audit/adjustments\n• Performance: Logging does not degrade adjustment processing\n\nOUT OF SCOPE:\n• Audit log archival and retention policies\n\nSUCCESS METRICS:\n• 100% of manual adjustments have corresponding audit logs\n• Audit logs are immutable and secure\n• Authorized users can query logs with filters efficiently </div><br><div><strong>Persona:</strong> Billing Administrator (Billing Administrator) </div>",
+    "acceptanceCriteria": "<div><strong>Criteria 1:</strong> System creates audit log entry for every manual charge adjustment with all required details </div><br><div><strong>Criteria 2:</strong> Audit logs are immutable and cannot be altered or deleted by users </div><br><div><strong>Criteria 3:</strong> Authorized users can query audit logs filtered by date, user, and account </div><br><div><strong>Criteria 4:</strong> Audit logging does not impact adjustment processing performance beyond SLA </div><br><div><strong>Criteria 5:</strong> System logs access attempts to audit logs for security monitoring </div><br>",
+    "adoWorkItemId": 1285,
+    "state": "New",
+    "assignedTo": "Unassigned",
+    "createdDate": "2026-01-21T10:20:54.743Z",
+    "priority": 2,
+    "storyPoints": 8,
+    "tags": "",
+    "epicId": "epic-1283",
+    "featureId": "feature-1284",
+    "source": "ado",
+    "adoUrl": "https://dev.azure.com/NareshTestOrg/PRO_Test_SDLCFLOW/_workitems/edit/1285"
+  }
+}
